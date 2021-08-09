@@ -1,0 +1,29 @@
+{
+  "name": "upstash-js",
+  "version": "1.0.0",
+  "repository": "https://github.com/ademilter/upstash-js.git",
+  "author": "Adem ilter <ademilter@gmail.com>",
+  "license": "MIT",
+  "main": "dist/main/index.js",
+  "module": "dist/module/index.js",
+  "types": "dist/main/index.d.ts",
+  "jsdelivr": "dist/umd/upstash.js",
+  "unpkg": "dist/umd/upstash.js",
+  "scripts": {
+    "clean": "rimraf dist",
+    "format": "prettier --write \"{src,test}/**/*.ts\"",
+    "build": "run-s clean format build:*",
+    "build:main": "tsc -p tsconfig.json",
+    "build:module": "tsc -p tsconfig.module.json",
+    "build:umd": "webpack"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.3.2",
+    "rimraf": "^3.0.2",
+    "ts-loader": "^9.2.5",
+    "typescript": "^4.3.5",
+    "webpack": "^5.49.0",
+    "webpack-cli": "^4.7.2"
+  }
+}

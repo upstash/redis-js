@@ -1,7 +1,7 @@
 {
   "name": "upstash-js",
   "version": "1.0.0",
-  "repository": "https://github.com/ademilter/upstash-js.git",
+  "repository": "https://github.com/upstash/upstash-js.git",
   "author": "Adem ilter <ademilter@gmail.com>",
   "license": "MIT",
   "main": "dist/main/index.js",

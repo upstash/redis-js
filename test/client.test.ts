@@ -1,13 +1,11 @@
-import { createClient } from "../src";
-
-const URL = "https://eu1-fun-dodo-31346.upstash.io";
-const TOKEN =
-  "AXpyASQgZjQ4NDQzYTgtMjVhOC00NTVlLTlhMmMtOWViOTZjZWE0YjVjYjVmYWM1OTU3Njc2NGRmY2I0YjkwYTk4NmJlMDVkY2U=";
-
-const upstash = createClient(URL, TOKEN);
+import { auth, get } from "../src";
 
 test("api connection succeed", async () => {
-  const { data, error, status } = await upstash.get("key2");
-  console.log("status:", status, ", data:", data, ", error:", error);
-  // expect(true).toEqual(true);
+  const url: string = process.env.UPSTASH_URL || "";
+  const token: string = process.env.UPSTASH_TOKEN || "";
+
+  auth(url, token);
+  const { data } = await get("key2");
+
+  expect("hey").toEqual(data);
 });

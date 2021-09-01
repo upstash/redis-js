@@ -1,12 +1,4 @@
-import Client from "./Client";
-import { ClientOptions } from "./lib/types";
+import client from "./client";
 
-const createClient = (
-  upstashUrl: string,
-  upstashKey: string,
-  options?: ClientOptions
-) => {
-  return new Client(upstashUrl, upstashKey, options);
-};
-
-export { createClient };
+const { auth, get, set } = client();
+export { auth, get, set };

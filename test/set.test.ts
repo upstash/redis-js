@@ -1,6 +1,6 @@
 import { set } from "../src";
 
-test("api connection succeed", async () => {
-  const { data } = await set("key2", "hey");
+test("redis set", async () => {
+  const { data } = await set("key", "hey");
   expect("OK").toEqual(data);
 });

@@ -1,4 +1,16 @@
-import fetch from "isomorphic-unfetch";
+import fetch from 'isomorphic-unfetch';
+
+export type ReturnType =
+  | {
+      data: string | number | [];
+      error: undefined;
+      status: number;
+    }
+  | {
+      data: undefined;
+      error: string;
+      status: number;
+    };
 
 export default function client(url?: string, token?: string) {
   let baseURL: string | null = url ?? process.env.UPSTASH_URL ?? null;
@@ -10,31 +22,33 @@ export default function client(url?: string, token?: string) {
   }
 
   async function generator(...parts: (string | number | boolean)[]) {
-    const fetchURL = `${baseURL}/${parts.join("/")}`;
+    const fetchURL = `${baseURL}/${parts.join('/')}`;
 
-    const response = await fetch(fetchURL, {
+    const res = await fetch(fetchURL, {
       headers: {
         Authorization: `Bearer ${authToken}`,
       },
-    }).then((res) => res.json());
+    });
 
-    if (response.error) {
+    const data = await res.json();
+
+    if (data.error) {
       return {
         data: undefined,
-        error: response.error,
-        status: response.status,
+        error: data.error,
+        status: res.status,
       };
     }
 
-    return { data: response.result, error: undefined };
+    return { data: data.result, error: undefined, status: res.status };
   }
 
-  async function set(key: string, value: string) {
-    return generator("set", key, value);
+  async function set(key: string, value: string): Promise<ReturnType> {
+    return generator('set', key, value);
   }
 
-  async function get(key: string) {
-    return generator("get", key);
+  async function get(key: string): Promise<ReturnType> {
+    return generator('get', key);
   }
 
   return {

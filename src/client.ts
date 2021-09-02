@@ -1,20 +1,21 @@
 import fetch from 'isomorphic-unfetch';
+import urlRegex from 'url-regex';
 
 export type ReturnType =
   | {
-      data: string | number | [];
+      data: null | string | number | [];
       error: undefined;
       status: number;
     }
   | {
       data: undefined;
       error: string;
-      status: number;
+      status: number | undefined;
     };
 
 export default function client(url?: string, token?: string) {
-  let baseURL: string | null = url ?? process.env.UPSTASH_URL ?? null;
-  let authToken: string | null = token ?? process.env.UPSTASH_TOKEN ?? null;
+  let baseURL: string = url ?? process.env.UPSTASH_URL ?? '';
+  let authToken: string = token ?? process.env.UPSTASH_TOKEN ?? '';
 
   async function auth(url: string, token: string) {
     baseURL = url;
@@ -22,25 +23,45 @@ export default function client(url?: string, token?: string) {
   }
 
   async function generator(...parts: (string | number | boolean)[]) {
-    const fetchURL = `${baseURL}/${parts.join('/')}`;
+    const isValidURL = urlRegex({ exact: true }).test(baseURL);
 
-    const res = await fetch(fetchURL, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
-
-    const data = await res.json();
-
-    if (data.error) {
+    if (!isValidURL) {
       return {
         data: undefined,
-        error: data.error,
-        status: res.status,
+        error: 'Only absolute URLs are supported',
+        status: undefined,
       };
     }
 
-    return { data: data.result, error: undefined, status: res.status };
+    const isIncludeUpstash = baseURL.match('.upstash.io');
+
+    if (!isIncludeUpstash) {
+      return {
+        data: undefined,
+        error: 'This url does not address upstash',
+        status: undefined,
+      };
+    }
+
+    const fetchURL = `${baseURL}/${parts.join('/')}`;
+
+    try {
+      const res = await fetch(fetchURL, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      const data = await res.json();
+
+      return { data: data.result, error: undefined, status: res.status };
+    } catch (e) {
+      return {
+        data: undefined,
+        error: e.message,
+        status: undefined,
+      };
+    }
   }
 
   async function set(key: string, value: string): Promise<ReturnType> {

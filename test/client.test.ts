@@ -1,11 +1,15 @@
-import { auth, get } from "../src";
+import { auth, get, set } from '../src';
+import { nanoid } from 'nanoid';
 
-test("api connection succeed", async () => {
-  const url: string = process.env.UPSTASH_URL || "";
-  const token: string = process.env.UPSTASH_TOKEN || "";
+describe('api connection succeed', () => {
+  it('should return null', async () => {
+    const url: string = process.env.UPSTASH_URL || '';
+    const token: string = process.env.UPSTASH_TOKEN || '';
 
-  auth(url, token);
-  const { data } = await get("key2");
+    auth(url, token);
 
-  expect("hey").toEqual(data);
+    const { status, error } = await get('key1');
+    expect(error).toBeUndefined();
+    expect(status).toBe(200);
+  });
 });

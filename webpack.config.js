@@ -1,21 +1,22 @@
-const webpack = require("webpack");
-const path = require("path");
+const webpack = require('webpack');
+const path = require('path');
 
 module.exports = {
-  entry: "./src/index.ts",
+  mode: 'production',
+  entry: './src/index.ts',
   output: {
-    path: path.resolve(__dirname, "dist/umd"),
-    filename: "upstash.js",
+    path: path.resolve(__dirname, 'dist/umd'),
+    filename: 'upstash.js',
     library: {
-      type: "umd",
-      name: "upstash",
+      type: 'umd',
+      name: 'upstash',
     },
   },
   module: {
     rules: [
       {
         test: /\.ts$/,
-        loader: "ts-loader",
+        loader: 'ts-loader',
         options: {
           transpileOnly: true,
         },
@@ -23,11 +24,11 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: [".ts", ".js", ".json"],
+    extensions: ['.ts', '.js', '.json'],
   },
   plugins: [
     new webpack.DefinePlugin({
-      process: "process/browser",
+      process: 'process/browser',
     }),
   ],
 };

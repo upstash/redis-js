@@ -22,9 +22,8 @@ export default function client(url?: string, token?: string) {
     authToken = token;
   }
 
-  async function generator(...parts: (string | number | boolean)[]) {
+  async function request(...parts: (string | number | boolean)[]) {
     const isValidURL = urlRegex({ exact: true }).test(baseURL);
-
     if (!isValidURL) {
       return {
         data: undefined,
@@ -34,7 +33,6 @@ export default function client(url?: string, token?: string) {
     }
 
     const isIncludeUpstash = baseURL.match('.upstash.io');
-
     if (!isIncludeUpstash) {
       return {
         data: undefined,
@@ -51,10 +49,13 @@ export default function client(url?: string, token?: string) {
           Authorization: `Bearer ${authToken}`,
         },
       });
-
       const data = await res.json();
 
-      return { data: data.result, error: undefined, status: res.status };
+      return {
+        data: data.result,
+        error: undefined,
+        status: res.status,
+      };
     } catch (e) {
       return {
         data: undefined,
@@ -65,16 +66,21 @@ export default function client(url?: string, token?: string) {
   }
 
   async function set(key: string, value: string): Promise<ReturnType> {
-    return generator('set', key, value);
+    return request('set', key, value);
   }
 
   async function get(key: string): Promise<ReturnType> {
-    return generator('get', key);
+    return request('get', key);
+  }
+
+  async function append(key: string, value: string): Promise<ReturnType> {
+    return request('append', key, value);
   }
 
   return {
     auth,
     set,
     get,
+    append,
   };
 }

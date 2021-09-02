@@ -1,5 +1,4 @@
 import { auth, get, set } from '../src';
-import { nanoid } from 'nanoid';
 
 describe('api connection', () => {
   it('missing URL', async () => {

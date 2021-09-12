@@ -1,18 +1,20 @@
 import fetch from 'isomorphic-unfetch';
-import urlRegex from 'url-regex';
+// import urlRegex from 'url-regex';
 
-export type ReturnType =
-  | {
-      data: null | string | number | [];
-      error: undefined;
-      status: number;
-    }
-  | {
-      data: undefined;
-      error: string;
-      status: number | undefined;
-    };
+export type ReturnType = {
+  data: null | string | number | [];
+  error: null | string;
+};
 
+type MethodReturn = Promise<ReturnType>;
+type Callback = (res: ReturnType) => any;
+type Part = string | boolean | number;
+
+/**
+ * Upstash client
+ * @param {string} url - database rest url
+ * @param {string} token - database rest token
+ */
 export default function client(url?: string, token?: string) {
   let baseURL: string = url ?? process.env.UPSTASH_URL ?? '';
   let authToken: string = token ?? process.env.UPSTASH_TOKEN ?? '';
@@ -22,65 +24,98 @@ export default function client(url?: string, token?: string) {
     authToken = token;
   }
 
-  async function request(...parts: (string | number | boolean)[]) {
-    const isValidURL = urlRegex({ exact: true }).test(baseURL);
-    if (!isValidURL) {
-      return {
-        data: undefined,
-        error: 'Only absolute URLs are supported',
-        status: undefined,
-      };
-    }
-
-    const isIncludeUpstash = baseURL.match('.upstash.io');
-    if (!isIncludeUpstash) {
-      return {
-        data: undefined,
-        error: 'This url does not address upstash',
-        status: undefined,
-      };
-    }
+  /**
+   * Request
+   * @param {function} callback - callback
+   * @param {Object} parts - command, key, values, ...
+   */
+  function request(callback?: Callback, ...parts: Part[]): MethodReturn {
+    // const isValidURL = urlRegex({ exact: true }).test(baseURL);
+    //
+    // if (!isValidURL) {
+    //   return {
+    //     data: null,
+    //     error: 'Only absolute URLs are supported',
+    //   };
+    // }
+    //
+    // const isIncludeUpstash = baseURL.match('.upstash.io');
+    //
+    // if (!isIncludeUpstash) {
+    //   return {
+    //     data: null,
+    //     error: 'This url does not address upstash',
+    //   };
+    // }
 
     const fetchURL = `${baseURL}/${parts.join('/')}`;
 
-    try {
-      const res = await fetch(fetchURL, {
+    const promise: Promise<ReturnType> = new Promise((resolve, reject) => {
+      return fetch(fetchURL, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
-      });
-      const data = await res.json();
+      })
+        .then((res) => res.json().then())
+        .then((data) => {
+          if (data.error) throw data.error;
+          resolve({
+            data: data.result,
+            error: null,
+          });
+        })
+        .catch((error) => {
+          resolve({
+            data: null,
+            error,
+          });
+        });
+    });
 
-      return {
-        data: data.result,
-        error: undefined,
-        status: res.status,
-      };
-    } catch (e) {
-      return {
-        data: undefined,
-        error: e.message,
-        status: undefined,
-      };
+    if (callback) {
+      return promise.then(callback);
     }
+
+    return promise;
   }
 
-  async function set(key: string, value: string): Promise<ReturnType> {
-    return request('set', key, value);
+  /**
+   * Get
+   * @param {string} key - get key
+   * @param {function} callback - command, key, values
+   */
+  function get(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'get', key);
   }
 
-  async function get(key: string): Promise<ReturnType> {
-    return request('get', key);
+  /**
+   * Set
+   * @param {string} key - set key
+   * @param {string} value - set value
+   * @param {function} callback - command, key, values
+   */
+  function set(key: string, value: string, callback?: Callback): MethodReturn {
+    return request(callback, 'set', key, value);
   }
 
-  async function append(key: string, value: string): Promise<ReturnType> {
-    return request('append', key, value);
+  /**
+   * Append
+   * @param {string} key - append key
+   * @param {string} value - append value
+   * @param {function} callback - command, key, values
+   */
+  function append(
+    key: string,
+    value: string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'append', key, value);
   }
 
   return {
     auth,
-    set,
     get,
+    set,
     append,
   };
 }

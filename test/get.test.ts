@@ -3,30 +3,21 @@ import { get } from '../src';
 
 describe('redis get command', () => {
   it('should return null', async () => {
-    const { data, error } = await get('key1');
-    console.log(data, error);
-    // expect(data).toEqual('kyBoCJCXNquQCxjs0VMD4_yaLJ38msLFNFPb-EH1wh');
-    // expect(error).toBeUndefined();
+    const { data } = await get('key1/null');
+    expect(data).toEqual(null);
+  });
+
+  it('should return a value', async () => {
+    const { data } = await get('key1');
+    expect(data).toEqual(
+      "expect(data).toEqual('kyBoCJCXNquQCxjs0VMD4_yaLJ38msLFNFPb-EH1wh');"
+    );
   });
 
   it('should run callback', (done) => {
-    get('key1', ({ data, error }) => {
-      console.log(data, error);
-      // expect(data).toEqual('kyBoCJCXNquQCxjs0VMD4_yaLJ38msLFNFPb-EH1wh');
-      // expect(error).toBeUndefined();
+    get('key1', ({ data }) => {
+      expect(data).toEqual('kyBoCJCXNquQCxjs0VMD4_yaLJ38msLFNFPb-EH1wh');
       done();
     });
   });
-
-  // it('should return a value', async () => {
-  //   const key = 'key1';
-  //   const value = nanoid();
-  //
-  //   const { error: setError } = await set(key, value);
-  //   expect(setError).toBeUndefined();
-  //
-  //   const { data, error } = await get(key);
-  //   expect(error).toBeUndefined();
-  //   expect(data).toBe(value);
-  // });
 });

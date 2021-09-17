@@ -118,6 +118,9 @@ export default function client(url?: string, token?: string) {
   }
 
   // DBSIZE
+  function dbsize(callback?: Callback): MethodReturn {
+    return request(callback, 'dbsize');
+  }
 
   // DECR
   function decr(key: string, callback?: Callback): MethodReturn {
@@ -133,6 +136,7 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'decrby', key, decrement);
   }
 
+  // DEL
   function del(
     key: string,
     fields: string[],
@@ -141,119 +145,122 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'del', key, ...fields);
   }
 
-  // DEL
-  // EVAL
-  // EVALSHA
-  // EXISTS
-  // EXPIRE
-  // FLUSHALL
+  // TODO:EVAL
+  // TODO:EVALSHA
+  // TODO:EXISTS
+  // TODO:EXPIRE
+  // TODO:FLUSHALL
+
   // FLUSHDB
+  function flushdb(callback?: Callback): MethodReturn {
+    return request(callback, 'flushdb');
+  }
 
   // GET
   function get(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'get', key);
   }
 
-  // GETBIT
-  // GETRANGE
-  // GETSET
-  // HDEL
-  // HEXISTS
-  // HGET
-  // HGETALL
-  // HINCRBY
-  // HINCRBYFLOAT
-  // HKEYS
-  // HLEN
-  // HMGET
-  // HSCAN
-  // HSET
-  // HSETNX
-  // HVALS
-  // INCR
-  // INCRBY
-  // INCRBYFLOAT
-  // KEYS
-  // LINDEX
-  // LINSERT
-  // LLEN
-  // LPOP
-  // LPUSH
-  // LPUSHX
-  // LRANGE
-  // LREM
-  // LSET
-  // LTRIM
-  // MGET
-  // MSET
-  // MSETNX
-  // PEXPIRE
-  // PING
-  // PSETEX
-  // PTTL
-  // RANDOMKEY
-  // RENAME
-  // RENAMENX
-  // RPOP
-  // RPOPLPUSH
-  // RPUSH
-  // RPUSHX
-  // SADD
-  // SCAN
-  // SCARD
-  // SCRIPT EXISTS
-  // SCRIPT FLUSH
-  // SCRIPT LOAD
-  // SDIFF
-  // SDIFFSTORE
+  // TODO:GETBIT
+  // TODO:GETRANGE
+  // TODO:GETSET
+  // TODO:HDEL
+  // TODO:HEXISTS
+  // TODO:HGET
+  // TODO:HGETALL
+  // TODO:HINCRBY
+  // TODO:HINCRBYFLOAT
+  // TODO:HKEYS
+  // TODO:HLEN
+  // TODO:HMGET
+  // TODO:HSCAN
+  // TODO:HSET
+  // TODO:HSETNX
+  // TODO:HVALS
+  // TODO:INCR
+  // TODO:INCRBY
+  // TODO:INCRBYFLOAT
+  // TODO:KEYS
+  // TODO:LINDEX
+  // TODO:LINSERT
+  // TODO:LLEN
+  // TODO:LPOP
+  // TODO:LPUSH
+  // TODO:LPUSHX
+  // TODO:LRANGE
+  // TODO:LREM
+  // TODO:LSET
+  // TODO:LTRIM
+  // TODO:MGET
+  // TODO:MSET
+  // TODO:MSETNX
+  // TODO:PEXPIRE
+  // TODO:PING
+  // TODO:PSETEX
+  // TODO:PTTL
+  // TODO:RANDOMKEY
+  // TODO:RENAME
+  // TODO:RENAMENX
+  // TODO:RPOP
+  // TODO:RPOPLPUSH
+  // TODO:RPUSH
+  // TODO:RPUSHX
+  // TODO:SADD
+  // TODO:SCAN
+  // TODO:SCARD
+  // TODO:SCRIPT EXISTS
+  // TODO:SCRIPT FLUSH
+  // TODO:SCRIPT LOAD
+  // TODO:SDIFF
+  // TODO:SDIFFSTORE
 
   // SET
   function set(key: string, value: string, callback?: Callback): MethodReturn {
     return request(callback, 'set', key, value);
   }
 
-  // SETBIT
-  // SETEX
-  // SETNX
-  // SETRANGE
-  // SINTER
-  // SINTERSTORE
-  // SISMEMBER
-  // SMEMBERS
-  // SMOVE
-  // SPOP
-  // SRANDMEMBER
-  // SREM
-  // SSCAN
-  // STRLEN
-  // SUNION
-  // SUNIONSTORE
-  // TOUCH
-  // TTL
-  // TYPE
-  // ZADD
-  // ZCARD
-  // ZCOUNT
-  // ZINCRBY
-  // ZINTERSTORE
-  // ZLEXCOUNT
-  // ZPOPMAX
-  // ZPOPMIN
-  // ZRANGE
-  // ZRANGEBYLEX
-  // ZRANGEBYSCORE
-  // ZRANK
-  // ZREM
-  // ZREMRANGEBYLEX
-  // ZREMRANGEBYRANK
-  // ZREMRANGEBYSCORE
-  // ZREVRANGE
-  // ZREVRANGEBYLEX
-  // ZREVRANGEBYSCORE
-  // ZREVRANK
-  // ZSCAN
-  // ZSCORE
-  // ZUNIONSTORE
+  // TODO:SETBIT
+  // TODO:SETEX
+  // TODO:SETNX
+  // TODO:SETRANGE
+  // TODO:SINTER
+  // TODO:SINTERSTORE
+  // TODO:SISMEMBER
+  // TODO:SMEMBERS
+  // TODO:SMOVE
+  // TODO:SPOP
+  // TODO:SRANDMEMBER
+  // TODO:SREM
+  // TODO:SSCAN
+  // TODO:STRLEN
+  // TODO:SUNION
+  // TODO:SUNIONSTORE
+  // TODO:TOUCH
+  // TODO:TTL
+  // TODO:TYPE
+  // TODO:ZADD
+  // TODO:ZCARD
+  // TODO:ZCOUNT
+  // TODO:ZINCRBY
+  // TODO:ZINTERSTORE
+  // TODO:ZLEXCOUNT
+  // TODO:ZPOPMAX
+  // TODO:ZPOPMIN
+  // TODO:ZRANGE
+  // TODO:ZRANGEBYLEX
+  // TODO:ZRANGEBYSCORE
+  // TODO:ZRANK
+  // TODO:ZREM
+  // TODO:ZREMRANGEBYLEX
+  // TODO:ZREMRANGEBYRANK
+  // TODO:ZREMRANGEBYSCORE
+  // TODO:ZREVRANGE
+  // TODO:ZREVRANGEBYLEX
+  // TODO:ZREVRANGEBYSCORE
+  // TODO:ZREVRANK
+  // TODO:ZSCAN
+  // TODO:ZSCORE
+  // TODO:ZUNIONSTORE
 
   return {
     auth,
@@ -261,9 +268,11 @@ export default function client(url?: string, token?: string) {
     bitcount,
     bitop,
     bitpos,
+    dbsize,
     decr,
     decrby,
     del,
+    flushdb,
     get,
     set,
   };

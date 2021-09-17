@@ -2,7 +2,7 @@ import { set, get } from '../src';
 import { nanoid } from 'nanoid';
 
 describe('set command', () => {
-  const key = 'key';
+  const key = 'mykey';
   const value = nanoid();
 
   it('save data', async () => {

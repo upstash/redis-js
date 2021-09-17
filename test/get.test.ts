@@ -1,8 +1,8 @@
 import { get, set } from '../src';
 import { nanoid } from 'nanoid';
 
-describe('redis get command', () => {
-  const key = 'key';
+describe('get command', () => {
+  const key = 'mykey';
   const value = nanoid();
 
   it('return null', async () => {

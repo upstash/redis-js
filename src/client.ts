@@ -4,10 +4,10 @@ export type ReturnType = {
   data: null | string | number | [];
   error: null | string;
 };
-
 type MethodReturn = Promise<ReturnType>;
 type Callback = (res: ReturnType) => any;
 type Part = string | boolean | number;
+type Bit = 0 | 1;
 
 /**
  * Upstash client
@@ -102,6 +102,21 @@ export default function client(url?: string, token?: string) {
   }
 
   // BITPOS
+  function bitpos(
+    key: string,
+    bit: Bit,
+    start?: number,
+    end?: number,
+    callback?: Callback
+  ): MethodReturn {
+    if (start !== undefined && end !== undefined) {
+      return request(callback, 'bitpos', key, bit, start, end);
+    } else if (start !== undefined) {
+      return request(callback, 'bitpos', key, bit, start);
+    }
+    return request(callback, 'bitpos', key, bit);
+  }
+
   // DBSIZE
 
   //+ DECR
@@ -237,6 +252,7 @@ export default function client(url?: string, token?: string) {
     append,
     bitcount,
     bitop,
+    bitpos,
     decr,
     decrby,
     get,

@@ -1,7 +1,7 @@
 import { set, bitcount } from '../src';
 
-describe('redis bitcount command', () => {
-  const key = 'key';
+describe('bitcount command', () => {
+  const key = 'mykey';
   const value = 'upstash';
 
   it('basic', async () => {

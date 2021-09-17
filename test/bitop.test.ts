@@ -1,7 +1,7 @@
 import { set, bitop } from '../src';
 import { nanoid } from 'nanoid';
 
-describe('redis bitop command', () => {
+describe('bitop command', () => {
   const key1 = 'key1';
   const key2 = 'key2';
   const dest = nanoid();

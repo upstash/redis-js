@@ -2,5 +2,5 @@ import client from './client';
 
 export default client;
 
-const { auth, get, set, append, decr, decrby } = client();
-export { auth, get, set, append, decr, decrby };
+const { auth, append, bitcount, bitop, decr, decrby, get, set } = client();
+export { auth, append, bitcount, bitop, decr, decrby, get, set };

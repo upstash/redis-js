@@ -60,31 +60,7 @@ export default function client(url?: string, token?: string) {
     return promise;
   }
 
-  /**
-   * GET
-   * @param {string} key - key
-   * @param {function} [callback] - callback function
-   */
-  function get(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'get', key);
-  }
-
-  /**
-   * SET
-   * @param {string} key - key
-   * @param {string} value - value
-   * @param {function} [callback] - callback function
-   */
-  function set(key: string, value: string, callback?: Callback): MethodReturn {
-    return request(callback, 'set', key, value);
-  }
-
-  /**
-   * APPEND
-   * @param {string} key - key
-   * @param {string} value - value
-   * @param {function} [callback] - callback function
-   */
+  // APPEND
   function append(
     key: string,
     value: string,
@@ -93,21 +69,47 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'append', key, value);
   }
 
-  /**
-   * DECR
-   * @param {string} key - key
-   * @param {function} [callback] - callback function
-   */
+  // BITCOUNT
+  function bitcount(
+    key: string,
+    start?: number,
+    end?: number,
+    callback?: Callback
+  ): MethodReturn {
+    if (start !== undefined && end !== undefined) {
+      return request(callback, 'bitcount', key, start, end);
+    }
+    return request(callback, 'bitcount', key);
+  }
+
+  // BITOP
+  function bitop(
+    operation: 'AND' | 'OR' | 'XOR' | 'NOT',
+    destinationKey: string,
+    sourceKeys: string | string[],
+    callback?: Callback
+  ): MethodReturn {
+    if (Array.isArray(sourceKeys)) {
+      return request(
+        callback,
+        'bitop',
+        operation,
+        destinationKey,
+        ...sourceKeys
+      );
+    }
+    return request(callback, 'bitop', operation, destinationKey, sourceKeys);
+  }
+
+  // BITPOS
+  // DBSIZE
+
+  //+ DECR
   function decr(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'decr', key);
   }
 
-  /**
-   * DECRBY
-   * @param {string} key - key
-   * @param {string} value - value
-   * @param {function} [callback] - callback function
-   */
+  //+ DECRBY
   function decrby(
     key: string,
     value: string,
@@ -116,12 +118,128 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'decrby', key, value);
   }
 
+  // DEL
+  // EVAL
+  // EVALSHA
+  // EXISTS
+  // EXPIRE
+  // FLUSHALL
+  // FLUSHDB
+
+  //+ GET
+  function get(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'get', key);
+  }
+
+  // GETBIT
+  // GETRANGE
+  // GETSET
+  // HDEL
+  // HEXISTS
+  // HGET
+  // HGETALL
+  // HINCRBY
+  // HINCRBYFLOAT
+  // HKEYS
+  // HLEN
+  // HMGET
+  // HSCAN
+  // HSET
+  // HSETNX
+  // HVALS
+  // INCR
+  // INCRBY
+  // INCRBYFLOAT
+  // KEYS
+  // LINDEX
+  // LINSERT
+  // LLEN
+  // LPOP
+  // LPUSH
+  // LPUSHX
+  // LRANGE
+  // LREM
+  // LSET
+  // LTRIM
+  // MGET
+  // MSET
+  // MSETNX
+  // PEXPIRE
+  // PING
+  // PSETEX
+  // PTTL
+  // RANDOMKEY
+  // RENAME
+  // RENAMENX
+  // RPOP
+  // RPOPLPUSH
+  // RPUSH
+  // RPUSHX
+  // SADD
+  // SCAN
+  // SCARD
+  // SCRIPT EXISTS
+  // SCRIPT FLUSH
+  // SCRIPT LOAD
+  // SDIFF
+  // SDIFFSTORE
+
+  //+ SET
+  function set(key: string, value: string, callback?: Callback): MethodReturn {
+    return request(callback, 'set', key, value);
+  }
+
+  // SETBIT
+  // SETEX
+  // SETNX
+  // SETRANGE
+  // SINTER
+  // SINTERSTORE
+  // SISMEMBER
+  // SMEMBERS
+  // SMOVE
+  // SPOP
+  // SRANDMEMBER
+  // SREM
+  // SSCAN
+  // STRLEN
+  // SUNION
+  // SUNIONSTORE
+  // TOUCH
+  // TTL
+  // TYPE
+  // ZADD
+  // ZCARD
+  // ZCOUNT
+  // ZINCRBY
+  // ZINTERSTORE
+  // ZLEXCOUNT
+  // ZPOPMAX
+  // ZPOPMIN
+  // ZRANGE
+  // ZRANGEBYLEX
+  // ZRANGEBYSCORE
+  // ZRANK
+  // ZREM
+  // ZREMRANGEBYLEX
+  // ZREMRANGEBYRANK
+  // ZREMRANGEBYSCORE
+  // ZREVRANGE
+  // ZREVRANGEBYLEX
+  // ZREVRANGEBYSCORE
+  // ZREVRANK
+  // ZSCAN
+  // ZSCORE
+  // ZUNIONSTORE
+
   return {
     auth,
-    get,
-    set,
     append,
+    bitcount,
+    bitop,
     decr,
     decrby,
+    get,
+    set,
   };
 }

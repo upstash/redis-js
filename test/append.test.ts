@@ -6,9 +6,7 @@ describe('redis append command', () => {
     const key = nanoid();
     const value = nanoid();
 
-    const { data: data1 } = await set(key, value);
-    expect(data1).toBe('OK');
-
+    await set(key, value);
     const { data } = await append(key, value);
     expect(data).toBe(value.length * 2);
   });

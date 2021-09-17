@@ -5,6 +5,7 @@ describe('decr command', () => {
 
   it('basic', async () => {
     await set(key, '100');
+
     const { data } = await decr(key);
     expect(data).toBe(99);
   });

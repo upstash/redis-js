@@ -133,6 +133,14 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'decrby', key, decrement);
   }
 
+  function del(
+    key: string,
+    fields: string[],
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'del', key, ...fields);
+  }
+
   // DEL
   // EVAL
   // EVALSHA
@@ -255,6 +263,7 @@ export default function client(url?: string, token?: string) {
     bitpos,
     decr,
     decrby,
+    del,
     get,
     set,
   };

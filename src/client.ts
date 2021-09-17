@@ -184,7 +184,7 @@ export default function client(url?: string, token?: string) {
   // SDIFF
   // SDIFFSTORE
 
-  //+ SET
+  // SET
   function set(key: string, value: string, callback?: Callback): MethodReturn {
     return request(callback, 'set', key, value);
   }

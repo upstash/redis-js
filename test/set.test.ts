@@ -1,12 +1,15 @@
-import { set } from '../src';
+import { set, get } from '../src';
 import { nanoid } from 'nanoid';
 
-describe('redis set command', () => {
-  it('save', async () => {
-    const key = 'key2/123';
-    const value = nanoid();
+describe('set command', () => {
+  const key = 'key';
+  const value = nanoid();
 
-    const { data } = await set(key, value);
-    expect(data).toBe('OK');
+  it('save data', async () => {
+    const { data: setData } = await set(key, value);
+    expect(setData).toBe('OK');
+
+    const { data: getData } = await get(key);
+    expect(getData).toBe(value);
   });
 });

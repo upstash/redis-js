@@ -1,23 +1,20 @@
 import { set, bitcount } from '../src';
-import { nanoid } from 'nanoid';
 
 describe('redis bitcount command', () => {
-  it('basic', async () => {
-    const key = nanoid();
-    const value = 'upstash';
+  const key = 'key';
+  const value = 'upstash';
 
+  it('basic', async () => {
     await set(key, value);
+
     const { data } = await bitcount(key);
     expect(data).toBe(28);
   });
 
   it('with range', async () => {
-    const key = 'keyUpstash';
-    const value = 'upstash';
-
     await set(key, value);
+
     const { data } = await bitcount(key, 0, 0);
-    console.log(data);
     expect(data).toBe(5);
   });
 });

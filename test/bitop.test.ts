@@ -2,11 +2,11 @@ import { set, bitop } from '../src';
 import { nanoid } from 'nanoid';
 
 describe('redis bitop command', () => {
-  it('and', async () => {
-    const key1 = nanoid();
-    const key2 = nanoid();
-    const dest = nanoid();
+  const key1 = 'key1';
+  const key2 = 'key2';
+  const dest = nanoid();
 
+  it('and', async () => {
     await set(key1, 'ali');
     await set(key2, 'veli');
 
@@ -15,10 +15,6 @@ describe('redis bitop command', () => {
   });
 
   it('or', async () => {
-    const key1 = nanoid();
-    const key2 = nanoid();
-    const dest = nanoid();
-
     await set(key1, 'ali');
     await set(key2, 'veli');
 
@@ -27,10 +23,6 @@ describe('redis bitop command', () => {
   });
 
   it('xor', async () => {
-    const key1 = nanoid();
-    const key2 = nanoid();
-    const dest = nanoid();
-
     await set(key1, 'ali');
     await set(key2, 'veli');
 
@@ -39,12 +31,9 @@ describe('redis bitop command', () => {
   });
 
   it('not', async () => {
-    const key = nanoid();
-    const dest = nanoid();
+    await set(key1, 'ali');
 
-    await set(key, 'ali');
-
-    const { data } = await bitop('XOR', dest, key);
+    const { data } = await bitop('XOR', dest, key1);
     expect(data).toBe(3);
   });
 });

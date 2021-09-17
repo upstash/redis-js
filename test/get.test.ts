@@ -1,23 +1,32 @@
-// import { nanoid } from 'nanoid';
-import { get } from '../src';
+import { get, set } from '../src';
+import { nanoid } from 'nanoid';
 
 describe('redis get command', () => {
-  it('should return null', async () => {
-    const { data } = await get('key1/null');
+  const key = 'key';
+  const value = nanoid();
+
+  it('return null', async () => {
+    const { data } = await get('key/null');
     expect(data).toEqual(null);
   });
 
-  it('should return a value', async () => {
-    const { data } = await get('key1');
-    expect(data).toEqual(
-      "expect(data).toEqual('kyBoCJCXNquQCxjs0VMD4_yaLJ38msLFNFPb-EH1wh');"
-    );
+  it('return a value', async () => {
+    await set(key, value);
+
+    const { data } = await get(key);
+    expect(data).toEqual(value);
   });
 
-  it('should run callback', (done) => {
-    get('key1', ({ data }) => {
-      expect(data).toEqual('kyBoCJCXNquQCxjs0VMD4_yaLJ38msLFNFPb-EH1wh');
-      done();
-    });
+  it('callback', (done) => {
+    set(key, value)
+      .then(({ data }) => {
+        expect(data).toEqual('OK');
+      })
+      .then(() => {
+        get(key, ({ data: getData }) => {
+          expect(getData).toEqual(value);
+          done();
+        });
+      });
   });
 });

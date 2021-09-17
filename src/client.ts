@@ -147,7 +147,15 @@ export default function client(url?: string, token?: string) {
 
   // TODO:EVAL
   // TODO:EVALSHA
-  // TODO:EXISTS
+
+  // EXISTS
+  function exists(key: string | string[], callback?: Callback): MethodReturn {
+    if (Array.isArray(key)) {
+      return request(callback, 'exists', ...key);
+    }
+    return request(callback, 'exists', key);
+  }
+
   // TODO:EXPIRE
   // TODO:FLUSHALL
 
@@ -272,6 +280,7 @@ export default function client(url?: string, token?: string) {
     decr,
     decrby,
     del,
+    exists,
     flushdb,
     get,
     set,

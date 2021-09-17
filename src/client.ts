@@ -119,18 +119,18 @@ export default function client(url?: string, token?: string) {
 
   // DBSIZE
 
-  //+ DECR
+  // DECR
   function decr(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'decr', key);
   }
 
-  //+ DECRBY
+  // DECRBY
   function decrby(
     key: string,
-    value: string,
+    decrement: number,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, 'decrby', key, value);
+    return request(callback, 'decrby', key, decrement);
   }
 
   // DEL
@@ -141,7 +141,7 @@ export default function client(url?: string, token?: string) {
   // FLUSHALL
   // FLUSHDB
 
-  //+ GET
+  // GET
   function get(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'get', key);
   }

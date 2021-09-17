@@ -169,10 +169,19 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'expire', key, seconds);
   }
 
-  // TODO:FLUSHALL
+  // FLUSHALL
+  function flushall(mode?: 'ASYNC', callback?: Callback): MethodReturn {
+    if (mode) {
+      return request(callback, 'flushall', mode);
+    }
+    return request(callback, 'flushall');
+  }
 
   // FLUSHDB
-  function flushdb(callback?: Callback): MethodReturn {
+  function flushdb(mode?: 'ASYNC', callback?: Callback): MethodReturn {
+    if (mode) {
+      return request(callback, 'flushdb', mode);
+    }
     return request(callback, 'flushdb');
   }
 
@@ -200,7 +209,12 @@ export default function client(url?: string, token?: string) {
   // TODO:INCR
   // TODO:INCRBY
   // TODO:INCRBYFLOAT
-  // TODO:KEYS
+
+  // KEYS
+  function keys(pattern: string, callback?: Callback): MethodReturn {
+    return request(callback, 'keys', pattern);
+  }
+
   // TODO:LINDEX
   // TODO:LINSERT
   // TODO:LLEN
@@ -212,7 +226,12 @@ export default function client(url?: string, token?: string) {
   // TODO:LSET
   // TODO:LTRIM
   // TODO:MGET
-  // TODO:MSET
+
+  // MSET
+  function mset(values: string[], callback?: Callback): MethodReturn {
+    return request(callback, 'mset', ...values);
+  }
+
   // TODO:MSETNX
   // TODO:PEXPIRE
   // TODO:PING
@@ -299,8 +318,11 @@ export default function client(url?: string, token?: string) {
     del,
     exists,
     expire,
+    flushall,
     flushdb,
     get,
+    keys,
+    mset,
     set,
     ttl,
   };

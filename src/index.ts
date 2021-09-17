@@ -14,8 +14,11 @@ const {
   del,
   exists,
   expire,
+  flushall,
   flushdb,
   get,
+  keys,
+  mset,
   set,
   ttl,
 } = client();
@@ -32,8 +35,11 @@ export {
   del,
   exists,
   expire,
+  flushall,
   flushdb,
   get,
+  keys,
+  mset,
   set,
   ttl,
 };

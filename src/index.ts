@@ -13,9 +13,11 @@ const {
   decrby,
   del,
   exists,
+  expire,
   flushdb,
   get,
   set,
+  ttl,
 } = client();
 
 export {
@@ -29,7 +31,9 @@ export {
   decrby,
   del,
   exists,
+  expire,
   flushdb,
   get,
   set,
+  ttl,
 };

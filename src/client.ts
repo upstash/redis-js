@@ -156,7 +156,19 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'exists', key);
   }
 
-  // TODO:EXPIRE
+  // EXPIRE
+  function expire(
+    key: string,
+    seconds: number,
+    option?: 'NX' | 'XX' | 'GT' | 'LT',
+    callback?: Callback
+  ): MethodReturn {
+    if (option) {
+      return request(callback, 'expire', key, seconds, option);
+    }
+    return request(callback, 'expire', key, seconds);
+  }
+
   // TODO:FLUSHALL
 
   // FLUSHDB
@@ -244,7 +256,12 @@ export default function client(url?: string, token?: string) {
   // TODO:SUNION
   // TODO:SUNIONSTORE
   // TODO:TOUCH
-  // TODO:TTL
+
+  // TTL
+  function ttl(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'ttl', key);
+  }
+
   // TODO:TYPE
   // TODO:ZADD
   // TODO:ZCARD
@@ -281,8 +298,10 @@ export default function client(url?: string, token?: string) {
     decrby,
     del,
     exists,
+    expire,
     flushdb,
     get,
     set,
+    ttl,
   };
 }

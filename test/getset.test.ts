@@ -1,7 +1,7 @@
 import { get, getset, set } from '../src';
 
 describe('getset command', () => {
-  const key = 'myKey';
+  const key = 'mykey';
   const value1 = 'hi';
   const value2 = 'hey';
 

@@ -21,6 +21,8 @@ const {
   set,
   setex,
   setnx,
+  setrange,
+  strlen,
   //
   bitcount,
   bitop,
@@ -55,6 +57,8 @@ export {
   set,
   setex,
   setnx,
+  setrange,
+  strlen,
   //
   bitcount,
   bitop,

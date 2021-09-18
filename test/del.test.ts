@@ -1,9 +1,9 @@
 import { mset, del } from '../src';
 
 describe('del command', () => {
-  const key1 = 'myKey1';
-  const key2 = 'myKey2';
-  const key3 = 'myKey3';
+  const key1 = 'mykey1';
+  const key2 = 'mykey2';
+  const key3 = 'mykey3';
 
   it('basic', async () => {
     await mset([key1, 'value', key2, 'value']);

@@ -189,6 +189,21 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'setnx', key, value);
   }
 
+  // SETRANGE
+  function setrange(
+    key: string,
+    offset: number | string,
+    value: string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'setrange', key, offset, value);
+  }
+
+  // STRLEN
+  function strlen(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'strlen', key);
+  }
+
   /*
   ------------------------------------------------
   ...
@@ -334,6 +349,8 @@ export default function client(url?: string, token?: string) {
     set,
     setex,
     setnx,
+    setrange,
+    strlen,
 
     //
     bitcount,

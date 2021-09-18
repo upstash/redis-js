@@ -1,7 +1,7 @@
 import { set, incrby } from '../src';
 
 describe('incrby command', () => {
-  const key = 'myKey';
+  const key = 'mykey';
 
   it('basic', async () => {
     await set(key, 2);

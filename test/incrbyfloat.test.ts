@@ -1,7 +1,7 @@
 import { set, incrbyfloat } from '../src';
 
 describe('incrbyfloat command', () => {
-  const key = 'myKey';
+  const key = 'mykey';
   const value1 = 2.3;
   const value2 = 0.4;
 

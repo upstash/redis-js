@@ -151,6 +151,16 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'msetnx', ...values);
   }
 
+  // SETEX
+  function setex(
+    key: string,
+    seconds: number,
+    value: string | number,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'setex', key, seconds, value);
+  }
+
   // SET
   function set(
     key: string,
@@ -158,6 +168,16 @@ export default function client(url?: string, token?: string) {
     callback?: Callback
   ): MethodReturn {
     return request(callback, 'set', key, value);
+  }
+
+  // PSETEX
+  function psetex(
+    key: string,
+    miliseconds: number,
+    value: string | number,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'psetex', key, miliseconds, value);
   }
 
   /*
@@ -225,6 +245,11 @@ export default function client(url?: string, token?: string) {
   // DBSIZE
   function dbsize(callback?: Callback): MethodReturn {
     return request(callback, 'dbsize');
+  }
+
+  // PTTL
+  function pttl(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'pttl', key);
   }
 
   // TTL
@@ -296,7 +321,9 @@ export default function client(url?: string, token?: string) {
     mget,
     mset,
     msetnx,
+    setex,
     set,
+    psetex,
 
     //
     bitcount,
@@ -309,6 +336,7 @@ export default function client(url?: string, token?: string) {
     flushall,
     flushdb,
     keys,
+    pttl,
     ttl,
   };
 }

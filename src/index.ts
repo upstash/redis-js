@@ -17,7 +17,9 @@ const {
   mget,
   mset,
   msetnx,
+  setex,
   set,
+  psetex,
   //
   bitcount,
   bitop,
@@ -29,6 +31,7 @@ const {
   flushall,
   flushdb,
   keys,
+  pttl,
   ttl,
 } = client();
 
@@ -47,7 +50,9 @@ export {
   mget,
   mset,
   msetnx,
+  setex,
   set,
+  psetex,
   //
   bitcount,
   bitop,
@@ -59,5 +64,6 @@ export {
   flushall,
   flushdb,
   keys,
+  pttl,
   ttl,
 };

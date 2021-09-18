@@ -1,6 +1,6 @@
 import { set, decrby } from '../src';
 
-describe('decr command', () => {
+describe('decrby command', () => {
   const key = 'mykey';
 
   it('basic', async () => {

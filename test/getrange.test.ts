@@ -1,7 +1,7 @@
 import { getrange, set } from '../src';
 import { nanoid } from 'nanoid';
 
-describe('get command', () => {
+describe('getrange command', () => {
   const key = 'myKey';
   const value = 'This is a string';
 

@@ -11,6 +11,9 @@ const {
   get,
   getrange,
   getset,
+  incr,
+  incrby,
+  incrbyfloat,
   mset,
   set,
   //
@@ -36,6 +39,9 @@ export {
   get,
   getrange,
   getset,
+  incr,
+  incrby,
+  incrbyfloat,
   mset,
   set,
   //

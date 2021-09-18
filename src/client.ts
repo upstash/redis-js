@@ -113,13 +113,40 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'getset', key, value);
   }
 
+  // INCR
+  function incr(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'incr', key);
+  }
+
+  // INCRBY
+  function incrby(
+    key: string,
+    value: number | string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'incrby', key, value);
+  }
+
+  // INCRBYFLOAT
+  function incrbyfloat(
+    key: string,
+    value: number | string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'incrbyfloat', key, value);
+  }
+
   // MSET
   function mset(values: string[], callback?: Callback): MethodReturn {
     return request(callback, 'mset', ...values);
   }
 
   // SET
-  function set(key: string, value: string, callback?: Callback): MethodReturn {
+  function set(
+    key: string,
+    value: string | number,
+    callback?: Callback
+  ): MethodReturn {
     return request(callback, 'set', key, value);
   }
 
@@ -248,6 +275,9 @@ export default function client(url?: string, token?: string) {
     get,
     getrange,
     getset,
+    incr,
+    incrby,
+    incrbyfloat,
     mset,
     set,
 

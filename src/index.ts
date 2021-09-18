@@ -23,6 +23,9 @@ const {
   setnx,
   setrange,
   strlen,
+  // Connection
+  echo,
+  ping,
   //
   bitcount,
   bitop,
@@ -59,6 +62,9 @@ export {
   setnx,
   setrange,
   strlen,
+  // Connection
+  echo,
+  ping,
   //
   bitcount,
   bitop,

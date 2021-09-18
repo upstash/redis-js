@@ -62,7 +62,7 @@ export default function client(url?: string, token?: string) {
 
   /*
   ------------------------------------------------
-  String
+  STRING
   ------------------------------------------------
    */
 
@@ -202,6 +202,25 @@ export default function client(url?: string, token?: string) {
   // STRLEN
   function strlen(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'strlen', key);
+  }
+
+  /*
+  ------------------------------------------------
+  CONNECTION
+  ------------------------------------------------
+   */
+
+  // ECHO
+  function echo(value: string, callback?: Callback): MethodReturn {
+    return request(callback, 'echo', value);
+  }
+
+  // PING
+  function ping(value?: string, callback?: Callback): MethodReturn {
+    if (value) {
+      return request(callback, 'ping', value);
+    }
+    return request(callback, 'ping');
   }
 
   /*
@@ -351,7 +370,9 @@ export default function client(url?: string, token?: string) {
     setnx,
     setrange,
     strlen,
-
+    // Connection
+    echo,
+    ping,
     //
     bitcount,
     bitop,

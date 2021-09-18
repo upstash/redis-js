@@ -136,6 +136,11 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'incrbyfloat', key, value);
   }
 
+  // MGET
+  function mget(values: string[], callback?: Callback): MethodReturn {
+    return request(callback, 'mget', ...values);
+  }
+
   // MSET
   function mset(values: string[], callback?: Callback): MethodReturn {
     return request(callback, 'mset', ...values);
@@ -278,6 +283,7 @@ export default function client(url?: string, token?: string) {
     incr,
     incrby,
     incrbyfloat,
+    mget,
     mset,
     set,
 

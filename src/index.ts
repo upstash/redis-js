@@ -14,6 +14,7 @@ const {
   incr,
   incrby,
   incrbyfloat,
+  mget,
   mset,
   set,
   //
@@ -42,6 +43,7 @@ export {
   incr,
   incrby,
   incrbyfloat,
+  mget,
   mset,
   set,
   //

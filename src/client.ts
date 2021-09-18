@@ -151,14 +151,14 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'msetnx', ...values);
   }
 
-  // SETEX
-  function setex(
+  // PSETEX
+  function psetex(
     key: string,
-    seconds: number,
+    miliseconds: number,
     value: string | number,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, 'setex', key, seconds, value);
+    return request(callback, 'psetex', key, miliseconds, value);
   }
 
   // SET
@@ -170,14 +170,23 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'set', key, value);
   }
 
-  // PSETEX
-  function psetex(
+  // SETEX
+  function setex(
     key: string,
-    miliseconds: number,
+    seconds: number,
     value: string | number,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, 'psetex', key, miliseconds, value);
+    return request(callback, 'setex', key, seconds, value);
+  }
+
+  // SETNX
+  function setnx(
+    key: string,
+    value: string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'setnx', key, value);
   }
 
   /*
@@ -321,9 +330,10 @@ export default function client(url?: string, token?: string) {
     mget,
     mset,
     msetnx,
-    setex,
-    set,
     psetex,
+    set,
+    setex,
+    setnx,
 
     //
     bitcount,

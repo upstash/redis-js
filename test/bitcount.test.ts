@@ -1,10 +1,11 @@
 import { set, bitcount } from '../src';
+import { nanoid } from 'nanoid';
 
 describe('bitcount command', () => {
-  const key = 'mykey';
-  const value = 'upstash';
-
   it('basic', async () => {
+    const key = nanoid();
+    const value = nanoid();
+
     await set(key, value);
 
     const { data } = await bitcount(key);
@@ -12,6 +13,9 @@ describe('bitcount command', () => {
   });
 
   it('with range', async () => {
+    const key = nanoid();
+    const value = nanoid();
+
     await set(key, value);
 
     const { data } = await bitcount(key, 0, 0);

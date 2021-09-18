@@ -8,7 +8,7 @@ describe('setrange command', () => {
 
     await set(key, value);
 
-    const { data: range } = await setrange(key, 10, 'World');
-    expect(range).toBe(15);
+    const { data } = await setrange(key, 10, 'World');
+    expect(data).toBe(15);
   });
 });

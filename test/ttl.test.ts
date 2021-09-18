@@ -5,7 +5,9 @@ import sleep from '../utils/sleep';
 describe('ttl command', () => {
   it('remaining time', async () => {
     const key = nanoid();
-    await set(key, 'Hello');
+    const value = nanoid();
+
+    await set(key, value);
 
     const { data: expireData } = await expire(key, 2);
     expect(expireData).toBe(1);
@@ -16,7 +18,9 @@ describe('ttl command', () => {
 
   it('key does not exist', async () => {
     const key = nanoid();
-    await set(key, 'Hello');
+    const value = nanoid();
+
+    await set(key, value);
 
     const { data: expireData } = await expire(key, 1);
     expect(expireData).toBe(1);
@@ -29,7 +33,9 @@ describe('ttl command', () => {
 
   it('key exists but has no associated expire', async () => {
     const key = nanoid();
-    await set(key, 'Hello');
+    const value = nanoid();
+
+    await set(key, value);
 
     const { data: ttlData } = await ttl(key);
     expect(ttlData).toBe(-1);

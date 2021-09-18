@@ -1,4 +1,4 @@
-import { pttl, psetex } from '../src';
+import { psetex } from '../src';
 import { nanoid } from 'nanoid';
 
 describe('psetex command', () => {
@@ -8,8 +8,5 @@ describe('psetex command', () => {
 
     const { data } = await psetex(key, 10000, value);
     expect(data).toBe('OK');
-
-    const { data: remainingTime } = await pttl(key);
-    expect(remainingTime).toBeGreaterThan(0);
   });
 });

@@ -1,9 +1,10 @@
 import { set, incr } from '../src';
+import { nanoid } from 'nanoid';
 
 describe('incr command', () => {
-  const key = 'mykey';
-
   it('basic', async () => {
+    const key = nanoid();
+
     await set(key, 2);
 
     const { data } = await incr(key);

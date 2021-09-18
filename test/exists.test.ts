@@ -2,12 +2,10 @@ import { set, exists } from '../src';
 import { nanoid } from 'nanoid';
 
 describe('exists command', () => {
-  const key1 = 'mykey1';
-  const key2 = 'mykey2';
-  const key3 = 'mykey3';
-  const value = nanoid();
-
   it('single key', async () => {
+    const key1 = nanoid();
+    const value = nanoid();
+
     await set(key1, value);
 
     const { data } = await exists(key1);
@@ -15,6 +13,11 @@ describe('exists command', () => {
   });
 
   it('multiple keys', async () => {
+    const key1 = nanoid();
+    const key2 = nanoid();
+    const key3 = nanoid();
+    const value = nanoid();
+
     await set(key1, value);
     await set(key2, value);
 

@@ -1,11 +1,12 @@
 import { msetnx, del } from '../src';
+import { nanoid } from 'nanoid';
 
 describe('msetnx command', () => {
-  const key1 = 'key1001';
-  const key2 = 'key1002';
-  const key3 = 'key1003';
-
   it('multiple save', async () => {
+    const key1 = nanoid();
+    const key2 = nanoid();
+    const key3 = nanoid();
+
     await del([key1, key2, key3]);
 
     const { data: data1 } = await msetnx([key1, 'hi', key2, 'hey']);

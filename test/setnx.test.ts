@@ -11,7 +11,7 @@ describe('setnx command', () => {
     const { data: data2 } = await setnx(key, 'World');
     expect(data2).toBe(0);
 
-    const { data } = await get(key);
-    expect(data).toBe('Hello');
+    const { data: data3 } = await get(key);
+    expect(data3).toBe('Hello');
   });
 });

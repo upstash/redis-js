@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid';
 describe('strlen command', () => {
   it('return value', async () => {
     const key = nanoid();
-    const value = 'Hello world';
+    const value = nanoid();
 
     await set(key, value);
 

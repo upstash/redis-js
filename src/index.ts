@@ -16,6 +16,7 @@ const {
   incrbyfloat,
   mget,
   mset,
+  msetnx,
   set,
   //
   bitcount,
@@ -45,6 +46,7 @@ export {
   incrbyfloat,
   mget,
   mset,
+  msetnx,
   set,
   //
   bitcount,

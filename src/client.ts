@@ -146,6 +146,11 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'mset', ...values);
   }
 
+  // MSETNX
+  function msetnx(values: string[], callback?: Callback): MethodReturn {
+    return request(callback, 'msetnx', ...values);
+  }
+
   // SET
   function set(
     key: string,
@@ -162,12 +167,17 @@ export default function client(url?: string, token?: string) {
  */
 
   // DEL
-  function del(
+  function del(keys: string[], callback?: Callback): MethodReturn {
+    return request(callback, 'del', ...keys);
+  }
+
+  // HDEL
+  function hdel(
     key: string,
     fields: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, 'del', key, ...fields);
+    return request(callback, 'hdel', key, ...fields);
   }
 
   // EXISTS
@@ -285,6 +295,7 @@ export default function client(url?: string, token?: string) {
     incrbyfloat,
     mget,
     mset,
+    msetnx,
     set,
 
     //

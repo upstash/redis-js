@@ -1,16 +1,14 @@
-import { set, del } from '../src';
+import { mset, del } from '../src';
 
 describe('del command', () => {
-  const key = 'mykey';
-  const key1 = 'del1';
-  const key2 = 'del2';
-  const key3 = 'del3';
+  const key1 = 'myKey1';
+  const key2 = 'myKey2';
+  const key3 = 'myKey3';
 
   it('basic', async () => {
-    await set(key1, 'Hello');
-    await set(key2, 'World');
+    await mset([key1, 'value', key2, 'value']);
 
-    const { data } = await del(key, [key1, key2, key3]);
+    const { data } = await del([key1, key2, key3]);
     expect(data).toBe(2);
   });
 });

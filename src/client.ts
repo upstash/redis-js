@@ -191,7 +191,17 @@ export default function client(url?: string, token?: string) {
   }
 
   // TODO:GETBIT
-  // TODO:GETRANGE
+
+  // GETRANGE
+  function getrange(
+    key: string,
+    start: number,
+    end: number,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'getrange', key, start, end);
+  }
+
   // TODO:GETSET
   // TODO:HDEL
   // TODO:HEXISTS
@@ -321,6 +331,7 @@ export default function client(url?: string, token?: string) {
     flushall,
     flushdb,
     get,
+    getrange,
     keys,
     mset,
     set,

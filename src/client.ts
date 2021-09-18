@@ -225,6 +225,22 @@ export default function client(url?: string, token?: string) {
 
   /*
   ------------------------------------------------
+  SERVER
+  ------------------------------------------------
+   */
+
+  // INFO
+  function info(callback?: Callback): MethodReturn {
+    return request(callback, 'info');
+  }
+
+  // PING
+  function time(callback?: Callback): MethodReturn {
+    return request(callback, 'time');
+  }
+
+  /*
+  ------------------------------------------------
   ...
   ------------------------------------------------
  */
@@ -350,8 +366,7 @@ export default function client(url?: string, token?: string) {
 
   return {
     auth,
-
-    // String
+    // STRING
     append,
     decr,
     decrby,
@@ -370,9 +385,12 @@ export default function client(url?: string, token?: string) {
     setnx,
     setrange,
     strlen,
-    // Connection
+    // CONNECTION
     echo,
     ping,
+    // SERVER
+    info,
+    time,
     //
     bitcount,
     bitop,

@@ -4,7 +4,7 @@ export default client;
 
 const {
   auth,
-  // String
+  // STRING
   append,
   decr,
   decrby,
@@ -23,9 +23,12 @@ const {
   setnx,
   setrange,
   strlen,
-  // Connection
+  // CONNECTION
   echo,
   ping,
+  // SERVER
+  info,
+  time,
   //
   bitcount,
   bitop,
@@ -43,7 +46,7 @@ const {
 
 export {
   auth,
-  // String
+  // STRING
   append,
   decr,
   decrby,
@@ -62,9 +65,12 @@ export {
   setnx,
   setrange,
   strlen,
-  // Connection
+  // CONNECTION
   echo,
   ping,
+  // SERVER
+  info,
+  time,
   //
   bitcount,
   bitop,

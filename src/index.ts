@@ -23,6 +23,12 @@ const {
   setnx,
   setrange,
   strlen,
+  // BITMAPS
+  bitcount,
+  bitop,
+  bitpos,
+  getbit,
+  setbit,
   // CONNECTION
   echo,
   ping,
@@ -30,9 +36,6 @@ const {
   info,
   time,
   //
-  bitcount,
-  bitop,
-  bitpos,
   dbsize,
   del,
   exists,
@@ -65,6 +68,12 @@ export {
   setnx,
   setrange,
   strlen,
+  // BITMAPS
+  bitcount,
+  bitop,
+  bitpos,
+  getbit,
+  setbit,
   // CONNECTION
   echo,
   ping,
@@ -72,9 +81,6 @@ export {
   info,
   time,
   //
-  bitcount,
-  bitop,
-  bitpos,
   dbsize,
   del,
   exists,

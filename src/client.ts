@@ -206,6 +206,79 @@ export default function client(url?: string, token?: string) {
 
   /*
   ------------------------------------------------
+  BITMAPS
+  ------------------------------------------------
+   */
+
+  // BITCOUNT
+  function bitcount(
+    key: string,
+    start?: number,
+    end?: number,
+    callback?: Callback
+  ): MethodReturn {
+    if (start !== undefined && end !== undefined) {
+      return request(callback, 'bitcount', key, start, end);
+    }
+    return request(callback, 'bitcount', key);
+  }
+
+  // BITOP
+  function bitop(
+    operation: 'AND' | 'OR' | 'XOR' | 'NOT',
+    destinationKey: string,
+    sourceKeys: string | string[],
+    callback?: Callback
+  ): MethodReturn {
+    if (Array.isArray(sourceKeys)) {
+      return request(
+        callback,
+        'bitop',
+        operation,
+        destinationKey,
+        ...sourceKeys
+      );
+    }
+    return request(callback, 'bitop', operation, destinationKey, sourceKeys);
+  }
+
+  // BITPOS
+  function bitpos(
+    key: string,
+    bit: Bit,
+    start?: number,
+    end?: number,
+    callback?: Callback
+  ): MethodReturn {
+    if (start !== undefined && end !== undefined) {
+      return request(callback, 'bitpos', key, bit, start, end);
+    } else if (start !== undefined) {
+      return request(callback, 'bitpos', key, bit, start);
+    }
+    return request(callback, 'bitpos', key, bit);
+  }
+
+  // GETBIT
+  function getbit(
+    key: string,
+    offset: number,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'getbit', key, offset);
+  }
+
+  // SETBIT
+  function setbit(
+    key: string,
+    offset: number,
+    value: Bit,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'setbit', key, offset, value);
+  }
+
+  /*
+  ------------------------------------------------
   CONNECTION
   ------------------------------------------------
    */
@@ -316,54 +389,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'ttl', key);
   }
 
-  // BITCOUNT
-  function bitcount(
-    key: string,
-    start?: number,
-    end?: number,
-    callback?: Callback
-  ): MethodReturn {
-    if (start !== undefined && end !== undefined) {
-      return request(callback, 'bitcount', key, start, end);
-    }
-    return request(callback, 'bitcount', key);
-  }
-
-  // BITOP
-  function bitop(
-    operation: 'AND' | 'OR' | 'XOR' | 'NOT',
-    destinationKey: string,
-    sourceKeys: string | string[],
-    callback?: Callback
-  ): MethodReturn {
-    if (Array.isArray(sourceKeys)) {
-      return request(
-        callback,
-        'bitop',
-        operation,
-        destinationKey,
-        ...sourceKeys
-      );
-    }
-    return request(callback, 'bitop', operation, destinationKey, sourceKeys);
-  }
-
-  // BITPOS
-  function bitpos(
-    key: string,
-    bit: Bit,
-    start?: number,
-    end?: number,
-    callback?: Callback
-  ): MethodReturn {
-    if (start !== undefined && end !== undefined) {
-      return request(callback, 'bitpos', key, bit, start, end);
-    } else if (start !== undefined) {
-      return request(callback, 'bitpos', key, bit, start);
-    }
-    return request(callback, 'bitpos', key, bit);
-  }
-
   return {
     auth,
     // STRING
@@ -385,6 +410,12 @@ export default function client(url?: string, token?: string) {
     setnx,
     setrange,
     strlen,
+    // BITMAPS
+    bitcount,
+    bitop,
+    bitpos,
+    getbit,
+    setbit,
     // CONNECTION
     echo,
     ping,
@@ -392,9 +423,6 @@ export default function client(url?: string, token?: string) {
     info,
     time,
     //
-    bitcount,
-    bitop,
-    bitpos,
     dbsize,
     del,
     exists,

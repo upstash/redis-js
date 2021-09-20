@@ -1,7 +1,7 @@
 import { set, expire, ttl, persist } from '../src';
 import { nanoid } from 'nanoid';
 
-describe('expireat command', () => {
+describe('persist command', () => {
   it('basic', async () => {
     const key = nanoid();
 

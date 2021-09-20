@@ -377,18 +377,26 @@ export default function client(url?: string, token?: string) {
   }
 
   // RANDOMKEY
-  function randomkey(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'randomkey', key);
+  function randomkey(callback?: Callback): MethodReturn {
+    return request(callback, 'randomkey');
   }
 
   // RENAME
-  function rename(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'rename', key);
+  function rename(
+    key: string,
+    newkey: string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'rename', key, newkey);
   }
 
   // RENAMENX
-  function renamenx(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'renamenx', key);
+  function renamenx(
+    key: string,
+    newkey: string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'renamenx', key, newkey);
   }
 
   // SCAN

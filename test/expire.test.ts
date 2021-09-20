@@ -2,7 +2,6 @@ import { set, ttl, expire } from '../src';
 import { nanoid } from 'nanoid';
 
 describe('expire command', () => {
-  // TODO:MEHMET
   it('single key', async () => {
     const key = nanoid();
     const value = nanoid();

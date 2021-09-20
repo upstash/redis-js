@@ -32,19 +32,30 @@ const {
   // CONNECTION
   echo,
   ping,
-  // SERVER
-  info,
-  time,
-  //
-  dbsize,
+  // KEYS
   del,
   exists,
   expire,
+  expireat,
+  keys,
+  persist,
+  pexpire,
+  pexpireat,
+  pttl,
+  randomkey,
+  rename,
+  renamenx,
+  scan,
+  touch,
+  ttl,
+  type,
+  unlink,
+  // SERVER
+  dbsize,
   flushall,
   flushdb,
-  keys,
-  pttl,
-  ttl,
+  info,
+  time,
 } = client();
 
 export {
@@ -77,17 +88,28 @@ export {
   // CONNECTION
   echo,
   ping,
-  // SERVER
-  info,
-  time,
-  //
-  dbsize,
+  // KEYS
   del,
   exists,
   expire,
+  expireat,
+  keys,
+  persist,
+  pexpire,
+  pexpireat,
+  pttl,
+  randomkey,
+  rename,
+  renamenx,
+  scan,
+  touch,
+  ttl,
+  type,
+  unlink,
+  // SERVER
+  dbsize,
   flushall,
   flushdb,
-  keys,
-  pttl,
-  ttl,
+  info,
+  time,
 };

@@ -298,38 +298,19 @@ export default function client(url?: string, token?: string) {
 
   /*
   ------------------------------------------------
-  SERVER
+  HASHES
   ------------------------------------------------
    */
 
-  // INFO
-  function info(callback?: Callback): MethodReturn {
-    return request(callback, 'info');
-  }
-
-  // PING
-  function time(callback?: Callback): MethodReturn {
-    return request(callback, 'time');
-  }
-
   /*
   ------------------------------------------------
-  ...
+  KEYS
   ------------------------------------------------
- */
+   */
 
   // DEL
   function del(keys: string[], callback?: Callback): MethodReturn {
     return request(callback, 'del', ...keys);
-  }
-
-  // HDEL
-  function hdel(
-    key: string,
-    fields: string[],
-    callback?: Callback
-  ): MethodReturn {
-    return request(callback, 'hdel', key, ...fields);
   }
 
   // EXISTS
@@ -353,6 +334,105 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'expire', key, seconds);
   }
 
+  // EXPIREAT
+  function expireat(
+    key: string,
+    timestamp: number | string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'expireat', key, timestamp);
+  }
+
+  // KEYS
+  function keys(pattern: string, callback?: Callback): MethodReturn {
+    return request(callback, 'keys', pattern);
+  }
+
+  // PERSIST
+  function persist(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'persist', key);
+  }
+
+  // PEXPIRE
+  function pexpire(
+    key: string,
+    miliseconds: number,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'pexpire', key, miliseconds);
+  }
+
+  // PEXPIREAT
+  function pexpireat(
+    key: string,
+    miliseconds: number,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'pexpireat', key, miliseconds);
+  }
+
+  // PTTL
+  function pttl(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'pttl', key);
+  }
+
+  // RANDOMKEY
+  function randomkey(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'randomkey', key);
+  }
+
+  // RENAME
+  function rename(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'rename', key);
+  }
+
+  // RENAMENX
+  function renamenx(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'renamenx', key);
+  }
+
+  // SCAN
+  function scan(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'scan', key);
+  }
+
+  // TOUCH
+  function touch(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'touch', key);
+  }
+
+  // TTL
+  function ttl(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'ttl', key);
+  }
+
+  // TYPE
+  function type(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'type', key);
+  }
+
+  // UNLINK
+  function unlink(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'unlink', key);
+  }
+
+  /*
+  ------------------------------------------------
+  LISTS
+  ------------------------------------------------
+   */
+
+  /*
+  ------------------------------------------------
+  SERVER
+  ------------------------------------------------
+   */
+
+  // DBSIZE
+  function dbsize(callback?: Callback): MethodReturn {
+    return request(callback, 'dbsize');
+  }
+
   // FLUSHALL
   function flushall(mode?: 'ASYNC', callback?: Callback): MethodReturn {
     if (mode) {
@@ -369,25 +449,27 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'flushdb');
   }
 
-  // KEYS
-  function keys(pattern: string, callback?: Callback): MethodReturn {
-    return request(callback, 'keys', pattern);
+  // INFO
+  function info(callback?: Callback): MethodReturn {
+    return request(callback, 'info');
   }
 
-  // DBSIZE
-  function dbsize(callback?: Callback): MethodReturn {
-    return request(callback, 'dbsize');
+  // PING
+  function time(callback?: Callback): MethodReturn {
+    return request(callback, 'time');
   }
 
-  // PTTL
-  function pttl(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'pttl', key);
-  }
+  /*
+  ------------------------------------------------
+  SET
+  ------------------------------------------------
+   */
 
-  // TTL
-  function ttl(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'ttl', key);
-  }
+  /*
+  ------------------------------------------------
+  SORTED SETS
+  ------------------------------------------------
+   */
 
   return {
     auth,
@@ -419,18 +501,29 @@ export default function client(url?: string, token?: string) {
     // CONNECTION
     echo,
     ping,
-    // SERVER
-    info,
-    time,
-    //
-    dbsize,
+    // KEYS
     del,
     exists,
     expire,
+    expireat,
+    keys,
+    persist,
+    pexpire,
+    pexpireat,
+    pttl,
+    randomkey,
+    rename,
+    renamenx,
+    scan,
+    touch,
+    ttl,
+    type,
+    unlink,
+    // SERVER
+    dbsize,
     flushall,
     flushdb,
-    keys,
-    pttl,
-    ttl,
+    info,
+    time,
   };
 }

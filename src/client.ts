@@ -494,7 +494,7 @@ export default function client(url?: string, token?: string) {
     element: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, 'lpushx', ...element);
+    return request(callback, 'lpushx', key, ...element);
   }
 
   // LRANGE

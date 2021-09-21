@@ -439,8 +439,8 @@ export default function client(url?: string, token?: string) {
   }
 
   // UNLINK
-  function unlink(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'unlink', key);
+  function unlink(keys: string[], callback?: Callback): MethodReturn {
+    return request(callback, 'unlink', ...keys);
   }
 
   /*

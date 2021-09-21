@@ -1,8 +1,8 @@
 import fetch from 'isomorphic-unfetch';
 
 export type ReturnType = {
-  data: null | string | number | [];
-  error: null | string;
+  data: string | number | [] | any;
+  error: string | null;
 };
 type MethodReturn = Promise<ReturnType>;
 type Callback = (res: ReturnType) => any;
@@ -400,8 +400,27 @@ export default function client(url?: string, token?: string) {
   }
 
   // SCAN
-  function scan(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'scan', key);
+  function scan(
+    cursor: number | string,
+    opts?: { match?: number | string; count?: number | string },
+    callback?: Callback
+  ): MethodReturn {
+    if (opts?.match && opts?.count) {
+      return request(
+        callback,
+        'scan',
+        cursor,
+        'match',
+        opts.match,
+        'count',
+        opts.count
+      );
+    } else if (opts?.match) {
+      return request(callback, 'scan', cursor, 'match', opts.match);
+    } else if (opts?.count) {
+      return request(callback, 'scan', cursor, 'count', opts.count);
+    }
+    return request(callback, 'scan', cursor);
   }
 
   // TOUCH

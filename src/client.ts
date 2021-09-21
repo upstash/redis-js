@@ -475,7 +475,14 @@ export default function client(url?: string, token?: string) {
   }
 
   // LPOP
-  function lpop(key: string, callback?: Callback): MethodReturn {
+  function lpop(
+    key: string,
+    count?: number,
+    callback?: Callback
+  ): MethodReturn {
+    if (count) {
+      return request(callback, 'lpop', key, count);
+    }
     return request(callback, 'lpop', key);
   }
 

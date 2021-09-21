@@ -496,8 +496,12 @@ export default function client(url?: string, token?: string) {
   }
 
   // LPUSHX
-  function lpushx(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'lpushx', key);
+  function lpushx(
+    key: string,
+    element: string[],
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'lpushx', ...element);
   }
 
   // LRANGE

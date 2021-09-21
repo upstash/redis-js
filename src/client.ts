@@ -450,8 +450,12 @@ export default function client(url?: string, token?: string) {
    */
 
   // LINDEX
-  function lindex(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'lindex', key);
+  function lindex(
+    key: string,
+    index: number,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'lindex', key, index);
   }
 
   // LINSERT

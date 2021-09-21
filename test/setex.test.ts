@@ -1,7 +1,7 @@
 import { setex } from '../src';
 import { nanoid } from 'nanoid';
 
-describe('psetex command', () => {
+describe('setex command', () => {
   it('remaining time', async () => {
     const key = nanoid();
     const value = nanoid();

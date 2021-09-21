@@ -1,7 +1,7 @@
 import { setbit } from '../src';
 import { nanoid } from 'nanoid';
 
-describe('set command', () => {
+describe('setbit command', () => {
   it('save data', async () => {
     const key = nanoid();
 

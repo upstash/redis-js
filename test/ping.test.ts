@@ -1,7 +1,7 @@
 import { ping } from '../src';
 import { nanoid } from 'nanoid';
 
-describe('echo command', () => {
+describe('ping command', () => {
   it('basic', async () => {
     const { data } = await ping();
     expect(data).toBe('PONG');

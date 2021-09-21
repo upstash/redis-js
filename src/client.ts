@@ -424,8 +424,8 @@ export default function client(url?: string, token?: string) {
   }
 
   // TOUCH
-  function touch(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'touch', key);
+  function touch(keys: string[], callback?: Callback): MethodReturn {
+    return request(callback, 'touch', ...keys);
   }
 
   // TTL

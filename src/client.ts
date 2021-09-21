@@ -459,8 +459,14 @@ export default function client(url?: string, token?: string) {
   }
 
   // LINSERT
-  function linsert(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'linsert', key);
+  function linsert(
+    key: string,
+    opt: 'BEFORE' | 'AFTER',
+    pivot: string,
+    element: string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'linsert', key, opt, pivot, element);
   }
 
   // LLEN

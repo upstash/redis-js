@@ -449,6 +449,88 @@ export default function client(url?: string, token?: string) {
   ------------------------------------------------
    */
 
+  // LINDEX
+  function lindex(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'lindex', key);
+  }
+
+  // LINSERT
+  function linsert(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'linsert', key);
+  }
+
+  // LLEN
+  function llen(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'llen', key);
+  }
+
+  // LPOP
+  function lpop(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'lpop', key);
+  }
+
+  // LPUSH
+  function lpush(
+    key: string,
+    element: string[],
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'lpush', key, ...element);
+  }
+
+  // LPUSHX
+  function lpushx(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'lpushx', key);
+  }
+
+  // LRANGE
+  function lrange(
+    key: string,
+    start: number,
+    stop: number,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'lrange', key, start, stop);
+  }
+
+  // LREM
+  function lrem(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'lrem', key);
+  }
+
+  // LSET
+  function lset(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'lset', key);
+  }
+
+  // LTRIM
+  function ltrim(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'ltrim', key);
+  }
+
+  // RPOP
+  function rpop(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'rpop', key);
+  }
+
+  // RPOPLPUSH
+  function rpoplpush(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'rpoplpush', key);
+  }
+
+  // RPUSH
+  function rpush(
+    key: string,
+    element: string[],
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'rpush', key, ...element);
+  }
+
+  // RPUSHX
+  function rpushx(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'rpushx', key);
+  }
   /*
   ------------------------------------------------
   SERVER
@@ -546,6 +628,21 @@ export default function client(url?: string, token?: string) {
     ttl,
     type,
     unlink,
+    // LIST
+    lindex,
+    linsert,
+    llen,
+    lpop,
+    lpush,
+    lpushx,
+    lrange,
+    lrem,
+    lset,
+    ltrim,
+    rpop,
+    rpoplpush,
+    rpush,
+    rpushx,
     // SERVER
     dbsize,
     flushall,

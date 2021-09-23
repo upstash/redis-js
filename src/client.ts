@@ -518,8 +518,13 @@ export default function client(url?: string, token?: string) {
   }
 
   // LSET
-  function lset(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'lset', key);
+  function lset(
+    key: string,
+    index: number,
+    element: string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'lset', key, index, element);
   }
 
   // LTRIM

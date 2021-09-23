@@ -528,8 +528,13 @@ export default function client(url?: string, token?: string) {
   }
 
   // LTRIM
-  function ltrim(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'ltrim', key);
+  function ltrim(
+    key: string,
+    start: number,
+    stop: number,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'ltrim', key, start, stop);
   }
 
   // RPOP

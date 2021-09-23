@@ -1,4 +1,4 @@
-import { mset, set, touch, lset, rpush, lrange } from '../src';
+import { lset, rpush, lrange } from '../src';
 import { nanoid } from 'nanoid';
 
 describe('lset command', () => {

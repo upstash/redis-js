@@ -508,8 +508,13 @@ export default function client(url?: string, token?: string) {
   }
 
   // LREM
-  function lrem(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'lrem', key);
+  function lrem(
+    key: string,
+    count: number,
+    element: string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'lrem', key, count, element);
   }
 
   // LSET

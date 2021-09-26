@@ -44,7 +44,7 @@ describe('bitop command', () => {
 
     await set(key1, 'ali');
 
-    const { data } = await bitop('XOR', dest, key1);
+    const { data } = await bitop('XOR', dest, [key1]);
     expect(data).toBe(3);
   });
 });

@@ -227,19 +227,10 @@ export default function client(url?: string, token?: string) {
   function bitop(
     operation: 'AND' | 'OR' | 'XOR' | 'NOT',
     destinationKey: string,
-    sourceKeys: string | string[],
+    sourceKeys: string[],
     callback?: Callback
   ): MethodReturn {
-    if (Array.isArray(sourceKeys)) {
-      return request(
-        callback,
-        'bitop',
-        operation,
-        destinationKey,
-        ...sourceKeys
-      );
-    }
-    return request(callback, 'bitop', operation, destinationKey, sourceKeys);
+    return request(callback, 'bitop', operation, destinationKey, ...sourceKeys);
   }
 
   // BITPOS
@@ -302,6 +293,84 @@ export default function client(url?: string, token?: string) {
   ------------------------------------------------
    */
 
+  // HDEL
+  function hdel(
+    key: string,
+    field: string[],
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'hdel', key, ...field);
+  }
+
+  // HEXISTS
+  function hexists(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'hexists', key);
+  }
+
+  // HGET
+  function hget(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'hget', key);
+  }
+
+  // HGETALL
+  function hgetall(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'hgetall', key);
+  }
+
+  // HINCRBY
+  function hincrby(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'hincrby', key);
+  }
+
+  // HINCRBYFLOAT
+  function hincrbyfloat(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'hincrbyfloat', key);
+  }
+
+  // HKEYS
+  function hkeys(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'hkeys', key);
+  }
+
+  // HLEN
+  function hlen(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'hlen', key);
+  }
+
+  // HMGET
+  function hmget(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'hmget', key);
+  }
+
+  // HMSET
+  function hmset(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'hmset', key);
+  }
+
+  // HSET
+  function hset(
+    key: string,
+    values: string[],
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'hset', key, ...values);
+  }
+
+  // HSETNX
+  function hsetnx(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'hsetnx', key);
+  }
+
+  // HVALS
+  function hvals(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'hvals', key);
+  }
+
+  // HSCAN
+  function hscan(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'hscan', key);
+  }
+
   /*
   ------------------------------------------------
   KEYS
@@ -314,11 +383,8 @@ export default function client(url?: string, token?: string) {
   }
 
   // EXISTS
-  function exists(key: string | string[], callback?: Callback): MethodReturn {
-    if (Array.isArray(key)) {
-      return request(callback, 'exists', ...key);
-    }
-    return request(callback, 'exists', key);
+  function exists(key: string[], callback?: Callback): MethodReturn {
+    return request(callback, 'exists', ...key);
   }
 
   // EXPIRE
@@ -647,6 +713,21 @@ export default function client(url?: string, token?: string) {
     // CONNECTION
     echo,
     ping,
+    //HASHES
+    hdel,
+    hexists,
+    hget,
+    hgetall,
+    hincrby,
+    hincrbyfloat,
+    hkeys,
+    hlen,
+    hmget,
+    hmset,
+    hset,
+    hsetnx,
+    hvals,
+    hscan,
     // KEYS
     del,
     exists,

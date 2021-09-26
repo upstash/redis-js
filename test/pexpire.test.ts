@@ -7,7 +7,7 @@ describe('pexpire command', () => {
 
     await set(key, 'Hello');
 
-    const { data: data1 } = await exists(key);
+    const { data: data1 } = await exists([key]);
     expect(data1).toBe(1);
 
     const { data: data2 } = await pexpire(key, 1555555555005);

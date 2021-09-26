@@ -8,7 +8,7 @@ describe('exists command', () => {
 
     await set(key1, value);
 
-    const { data } = await exists(key1);
+    const { data } = await exists([key1]);
     expect(data).toBe(1);
   });
 

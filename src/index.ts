@@ -32,6 +32,21 @@ const {
   // CONNECTION
   echo,
   ping,
+  //HASHES
+  hdel,
+  hexists,
+  hget,
+  hgetall,
+  hincrby,
+  hincrbyfloat,
+  hkeys,
+  hlen,
+  hmget,
+  hmset,
+  hset,
+  hsetnx,
+  hvals,
+  hscan,
   // KEYS
   del,
   exists,
@@ -103,6 +118,21 @@ export {
   // CONNECTION
   echo,
   ping,
+  //HASHES
+  hdel,
+  hexists,
+  hget,
+  hgetall,
+  hincrby,
+  hincrbyfloat,
+  hkeys,
+  hlen,
+  hmget,
+  hmset,
+  hset,
+  hsetnx,
+  hvals,
+  hscan,
   // KEYS
   del,
   exists,

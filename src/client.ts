@@ -308,8 +308,8 @@ export default function client(url?: string, token?: string) {
   }
 
   // HGET
-  function hget(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'hget', key);
+  function hget(key: string, field: string, callback?: Callback): MethodReturn {
+    return request(callback, 'hget', key, field);
   }
 
   // HGETALL

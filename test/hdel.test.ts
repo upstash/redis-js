@@ -1,7 +1,7 @@
 import { hset, hdel } from '../src';
 import { nanoid } from 'nanoid';
 
-describe('del command', () => {
+describe('hdel command', () => {
   it('basic', async () => {
     const myHash = nanoid();
     const field1 = nanoid();

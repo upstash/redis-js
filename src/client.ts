@@ -561,8 +561,12 @@ export default function client(url?: string, token?: string) {
   }
 
   // RPUSHX
-  function rpushx(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'rpushx', key);
+  function rpushx(
+    key: string,
+    element: string[],
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'rpushx', key, ...element);
   }
   /*
   ------------------------------------------------

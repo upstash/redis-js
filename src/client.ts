@@ -543,8 +543,12 @@ export default function client(url?: string, token?: string) {
   }
 
   // RPOPLPUSH
-  function rpoplpush(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'rpoplpush', key);
+  function rpoplpush(
+    source: string,
+    destination: string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'rpoplpush', source, destination);
   }
 
   // RPUSH

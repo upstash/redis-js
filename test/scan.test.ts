@@ -28,7 +28,6 @@ describe('scan command', () => {
     await mset(fields);
 
     const { data } = await scan(0, { match: '*_*' });
-    console.log(data);
     expect(data[0]).toBe('0');
   });
 

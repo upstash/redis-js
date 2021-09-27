@@ -369,6 +369,32 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'hmset', key, ...values);
   }
 
+  // HSCAN
+  function hscan(
+    key: string,
+    cursor: string,
+    opts?: { match?: number | string; count?: number | string },
+    callback?: Callback
+  ): MethodReturn {
+    if (opts?.match && opts?.count) {
+      return request(
+        callback,
+        'hscan',
+        key,
+        cursor,
+        'match',
+        opts.match,
+        'count',
+        opts.count
+      );
+    } else if (opts?.match) {
+      return request(callback, 'hscan', key, cursor, 'match', opts.match);
+    } else if (opts?.count) {
+      return request(callback, 'hscan', key, cursor, 'count', opts.count);
+    }
+    return request(callback, 'hscan', key, cursor);
+  }
+
   // HSET
   function hset(
     key: string,
@@ -379,8 +405,13 @@ export default function client(url?: string, token?: string) {
   }
 
   // HSETNX
-  function hsetnx(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'hsetnx', key);
+  function hsetnx(
+    key: string,
+    field: string,
+    value: string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'hsetnx', key, field, value);
   }
 
   // HVALS
@@ -744,6 +775,7 @@ export default function client(url?: string, token?: string) {
     hset,
     hsetnx,
     hvals,
+    hscan,
     // KEYS
     del,
     exists,

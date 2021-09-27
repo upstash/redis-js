@@ -744,7 +744,6 @@ export default function client(url?: string, token?: string) {
     hset,
     hsetnx,
     hvals,
-    hscan,
     // KEYS
     del,
     exists,

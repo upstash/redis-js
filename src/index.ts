@@ -46,7 +46,6 @@ const {
   hset,
   hsetnx,
   hvals,
-  hscan,
   // KEYS
   del,
   exists,
@@ -132,7 +131,6 @@ export {
   hset,
   hsetnx,
   hvals,
-  hscan,
   // KEYS
   del,
   exists,

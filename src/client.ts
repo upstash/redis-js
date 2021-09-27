@@ -352,13 +352,21 @@ export default function client(url?: string, token?: string) {
   }
 
   // HMGET
-  function hmget(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'hmget', key);
+  function hmget(
+    key: string,
+    fields: string[],
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'hmget', key, ...fields);
   }
 
   // HMSET
-  function hmset(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'hmset', key);
+  function hmset(
+    key: string,
+    values: string[],
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'hmset', key, ...values);
   }
 
   // HSET
@@ -378,11 +386,6 @@ export default function client(url?: string, token?: string) {
   // HVALS
   function hvals(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'hvals', key);
-  }
-
-  // HSCAN
-  function hscan(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'hscan', key);
   }
 
   /*

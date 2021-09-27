@@ -303,8 +303,12 @@ export default function client(url?: string, token?: string) {
   }
 
   // HEXISTS
-  function hexists(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'hexists', key);
+  function hexists(
+    key: string,
+    field: string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'hexists', key, field);
   }
 
   // HGET
@@ -318,13 +322,23 @@ export default function client(url?: string, token?: string) {
   }
 
   // HINCRBY
-  function hincrby(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'hincrby', key);
+  function hincrby(
+    key: string,
+    field: string,
+    increment: number | string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'hincrby', key, field, increment);
   }
 
   // HINCRBYFLOAT
-  function hincrbyfloat(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'hincrbyfloat', key);
+  function hincrbyfloat(
+    key: string,
+    field: string,
+    increment: number | string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'hincrbyfloat', key, field, increment);
   }
 
   // HKEYS

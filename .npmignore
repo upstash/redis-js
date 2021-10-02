@@ -1,5 +1,6 @@
 *.log
 npm-debug.log*
+.env*
 
 # Dependency directories
 node_modules
@@ -21,3 +22,4 @@ CHANGELOG.md
 .eslintrc
 .babelrc
 .gitignore
+.idea

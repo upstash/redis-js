@@ -86,6 +86,22 @@ const {
   flushdb,
   info,
   time,
+  //SET
+  sadd,
+  scard,
+  sdiff,
+  sdiffstore,
+  sinter,
+  sinterstore,
+  sismember,
+  smembers,
+  smove,
+  spop,
+  srandmember,
+  srem,
+  sscan,
+  sunion,
+  sunionstore,
 } = client();
 
 export {
@@ -172,4 +188,20 @@ export {
   flushdb,
   info,
   time,
+  //SET
+  sadd,
+  scard,
+  sdiff,
+  sdiffstore,
+  sinter,
+  sinterstore,
+  sismember,
+  smembers,
+  smove,
+  spop,
+  srandmember,
+  srem,
+  sscan,
+  sunion,
+  sunionstore,
 };

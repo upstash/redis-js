@@ -725,6 +725,89 @@ export default function client(url?: string, token?: string) {
   ------------------------------------------------
    */
 
+  // SADD
+  function sadd(
+    key: string,
+    member: string[],
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'sadd', key, ...member);
+  }
+
+  // SCARD
+  function scard(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'scard', key);
+  }
+
+  // SDIFF
+  function sdiff(key: string[], callback?: Callback): MethodReturn {
+    return request(callback, 'sdiff', ...key);
+  }
+
+  // SDIFFSTORE
+  function sdiffstore(
+    destination: string,
+    key: string[],
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'sdiffstore', destination, ...key);
+  }
+
+  // SINTER
+  function sinter(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'sinter', key);
+  }
+
+  // SINTERSTORE
+  function sinterstore(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'sinterstore', key);
+  }
+
+  // SISMEMBER
+  function sismember(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'sismember', key);
+  }
+
+  // SMEMBERS
+  function smembers(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'smembers', key);
+  }
+
+  // SMOVE
+  function smove(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'smove', key);
+  }
+
+  // SPOP
+  function spop(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'spop', key);
+  }
+
+  // SRANDMEMBER
+  function srandmember(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'srandmember', key);
+  }
+
+  // SREM
+  function srem(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'srem', key);
+  }
+
+  // SSCAN
+  function sscan(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'sscan', key);
+  }
+
+  // SUNION
+  function sunion(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'sunion', key);
+  }
+
+  // SUNIONSTORE
+  function sunionstore(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'sunionstore', key);
+  }
+
   /*
   ------------------------------------------------
   SORTED SETS
@@ -815,5 +898,21 @@ export default function client(url?: string, token?: string) {
     flushdb,
     info,
     time,
+    //SET
+    sadd,
+    scard,
+    sdiff,
+    sdiffstore,
+    sinter,
+    sinterstore,
+    sismember,
+    smembers,
+    smove,
+    spop,
+    srandmember,
+    srem,
+    sscan,
+    sunion,
+    sunionstore,
   };
 }

@@ -754,18 +754,26 @@ export default function client(url?: string, token?: string) {
   }
 
   // SINTER
-  function sinter(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'sinter', key);
+  function sinter(key: string[], callback?: Callback): MethodReturn {
+    return request(callback, 'sinter', ...key);
   }
 
   // SINTERSTORE
-  function sinterstore(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'sinterstore', key);
+  function sinterstore(
+    destination: string,
+    key: string[],
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'sinterstore', destination, ...key);
   }
 
   // SISMEMBER
-  function sismember(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'sismember', key);
+  function sismember(
+    key: string,
+    member: string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'sismember', key, member);
   }
 
   // SMEMBERS

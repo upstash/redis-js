@@ -91,7 +91,6 @@ const {
   spop,
   srandmember,
   srem,
-  sscan,
   sunion,
   sunionstore,
 } = client();
@@ -185,7 +184,6 @@ export {
   spop,
   srandmember,
   srem,
-  sscan,
   sunion,
   sunionstore,
 };

@@ -270,10 +270,10 @@ export default function client(url?: string, token?: string) {
 
   function hdel(
     key: string,
-    field: string[],
+    fields: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, 'hdel', key, ...field);
+    return request(callback, 'hdel', key, ...fields);
   }
 
   function hexists(
@@ -390,8 +390,8 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'del', ...keys);
   }
 
-  function exists(key: string[], callback?: Callback): MethodReturn {
-    return request(callback, 'exists', ...key);
+  function exists(keys: string[], callback?: Callback): MethodReturn {
+    return request(callback, 'exists', ...keys);
   }
 
   function expire(
@@ -535,18 +535,18 @@ export default function client(url?: string, token?: string) {
 
   function lpush(
     key: string,
-    element: string[],
+    elements: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, 'lpush', key, ...element);
+    return request(callback, 'lpush', key, ...elements);
   }
 
   function lpushx(
     key: string,
-    element: string[],
+    elements: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, 'lpushx', key, ...element);
+    return request(callback, 'lpushx', key, ...elements);
   }
 
   function lrange(
@@ -599,18 +599,18 @@ export default function client(url?: string, token?: string) {
 
   function rpush(
     key: string,
-    element: string[],
+    elements: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, 'rpush', key, ...element);
+    return request(callback, 'rpush', key, ...elements);
   }
 
   function rpushx(
     key: string,
-    element: string[],
+    elements: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, 'rpushx', key, ...element);
+    return request(callback, 'rpushx', key, ...elements);
   }
   /*
   ------------------------------------------------
@@ -652,38 +652,38 @@ export default function client(url?: string, token?: string) {
 
   function sadd(
     key: string,
-    member: string[],
+    members: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, 'sadd', key, ...member);
+    return request(callback, 'sadd', key, ...members);
   }
 
   function scard(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'scard', key);
   }
 
-  function sdiff(key: string[], callback?: Callback): MethodReturn {
-    return request(callback, 'sdiff', ...key);
+  function sdiff(keys: string[], callback?: Callback): MethodReturn {
+    return request(callback, 'sdiff', ...keys);
   }
 
   function sdiffstore(
     destination: string,
-    key: string[],
+    keys: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, 'sdiffstore', destination, ...key);
+    return request(callback, 'sdiffstore', destination, ...keys);
   }
 
-  function sinter(key: string[], callback?: Callback): MethodReturn {
-    return request(callback, 'sinter', ...key);
+  function sinter(keys: string[], callback?: Callback): MethodReturn {
+    return request(callback, 'sinter', ...keys);
   }
 
   function sinterstore(
     destination: string,
-    key: string[],
+    keys: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, 'sinterstore', destination, ...key);
+    return request(callback, 'sinterstore', destination, ...keys);
   }
 
   function sismember(
@@ -729,20 +729,24 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'srandmember', key);
   }
 
-  function srem(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'srem', key);
+  function srem(
+    key: string,
+    members: string[],
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'srem', key, ...members);
   }
 
-  function sscan(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'sscan', key);
+  function sunion(keys: string[], callback?: Callback): MethodReturn {
+    return request(callback, 'sunion', ...keys);
   }
 
-  function sunion(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'sunion', key);
-  }
-
-  function sunionstore(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'sunionstore', key);
+  function sunionstore(
+    destination: string,
+    keys: string[],
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'sunionstore', destination, ...keys);
   }
 
   /*
@@ -848,7 +852,6 @@ export default function client(url?: string, token?: string) {
     spop,
     srandmember,
     srem,
-    sscan,
     sunion,
     sunionstore,
   };

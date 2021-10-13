@@ -4,11 +4,18 @@ export type ReturnType = {
   data: string | number | [] | any;
   error: string | null;
 };
+
 type MethodReturn = Promise<ReturnType>;
+
 type Callback = (res: ReturnType) => any;
+
 type Part = string | boolean | number;
+
 type Bit = 0 | 1;
-type ZSet = string | number;
+
+type Infinities = '+inf' | '-inf';
+
+type ZSetNumber = number | Infinities | string;
 
 /**
  * Upstash client
@@ -755,7 +762,7 @@ export default function client(url?: string, token?: string) {
 
   function zadd(
     key: string,
-    values: ZSet[],
+    values: ZSetNumber[],
     options?: ({ xx?: boolean } | { nx?: boolean }) & {
       ch?: boolean;
       incr: boolean;
@@ -776,12 +783,22 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'zcard', key);
   }
 
-  function zcount(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'zcount', key);
+  function zcount(
+    key: string,
+    min: ZSetNumber,
+    max: ZSetNumber,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'zcount', key, min, max);
   }
 
-  function zincrby(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'zincrby', key);
+  function zincrby(
+    key: string,
+    increment: number | string,
+    member: string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'zincrby', key, increment, member);
   }
 
   function zinterstore(key: string, callback?: Callback): MethodReturn {
@@ -802,8 +819,8 @@ export default function client(url?: string, token?: string) {
 
   function zrange(
     key: string,
-    min: ZSet,
-    max: ZSet,
+    min: ZSetNumber,
+    max: ZSetNumber,
     withScores: boolean = false,
     callback?: Callback
   ): MethodReturn {

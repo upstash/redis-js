@@ -4,7 +4,6 @@ export default client;
 
 const {
   auth,
-  // STRING
   append,
   decr,
   decrby,
@@ -23,16 +22,13 @@ const {
   setnx,
   setrange,
   strlen,
-  // BITMAPS
   bitcount,
   bitop,
   bitpos,
   getbit,
   setbit,
-  // CONNECTION
   echo,
   ping,
-  //HASHES
   hdel,
   hexists,
   hget,
@@ -47,7 +43,6 @@ const {
   hsetnx,
   hvals,
   hscan,
-  // KEYS
   del,
   exists,
   expire,
@@ -65,7 +60,6 @@ const {
   ttl,
   type,
   unlink,
-  // LIST
   lindex,
   linsert,
   llen,
@@ -80,13 +74,11 @@ const {
   rpoplpush,
   rpush,
   rpushx,
-  // SERVER
   dbsize,
   flushall,
   flushdb,
   info,
   time,
-  //SET
   sadd,
   scard,
   sdiff,
@@ -106,7 +98,6 @@ const {
 
 export {
   auth,
-  // STRING
   append,
   decr,
   decrby,
@@ -125,16 +116,13 @@ export {
   setnx,
   setrange,
   strlen,
-  // BITMAPS
   bitcount,
   bitop,
   bitpos,
   getbit,
   setbit,
-  // CONNECTION
   echo,
   ping,
-  //HASHES
   hdel,
   hexists,
   hget,
@@ -149,7 +137,6 @@ export {
   hsetnx,
   hvals,
   hscan,
-  // KEYS
   del,
   exists,
   expire,
@@ -167,7 +154,6 @@ export {
   ttl,
   type,
   unlink,
-  // LIST
   lindex,
   linsert,
   llen,
@@ -182,13 +168,11 @@ export {
   rpoplpush,
   rpush,
   rpushx,
-  // SERVER
   dbsize,
   flushall,
   flushdb,
   info,
   time,
-  //SET
   sadd,
   scard,
   sdiff,

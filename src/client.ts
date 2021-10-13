@@ -66,7 +66,6 @@ export default function client(url?: string, token?: string) {
   ------------------------------------------------
    */
 
-  // APPEND
   function append(
     key: string,
     value: string,
@@ -75,12 +74,10 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'append', key, value);
   }
 
-  // DECR
   function decr(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'decr', key);
   }
 
-  // DECRBY
   function decrby(
     key: string,
     decrement: number,
@@ -89,12 +86,10 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'decrby', key, decrement);
   }
 
-  // GET
   function get(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'get', key);
   }
 
-  // GETRANGE
   function getrange(
     key: string,
     start: number,
@@ -104,7 +99,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'getrange', key, start, end);
   }
 
-  // GETSET
   function getset(
     key: string,
     value: string,
@@ -113,12 +107,10 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'getset', key, value);
   }
 
-  // INCR
   function incr(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'incr', key);
   }
 
-  // INCRBY
   function incrby(
     key: string,
     value: number | string,
@@ -127,7 +119,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'incrby', key, value);
   }
 
-  // INCRBYFLOAT
   function incrbyfloat(
     key: string,
     value: number | string,
@@ -136,22 +127,18 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'incrbyfloat', key, value);
   }
 
-  // MGET
   function mget(values: string[], callback?: Callback): MethodReturn {
     return request(callback, 'mget', ...values);
   }
 
-  // MSET
   function mset(values: string[], callback?: Callback): MethodReturn {
     return request(callback, 'mset', ...values);
   }
 
-  // MSETNX
   function msetnx(values: string[], callback?: Callback): MethodReturn {
     return request(callback, 'msetnx', ...values);
   }
 
-  // PSETEX
   function psetex(
     key: string,
     miliseconds: number,
@@ -161,7 +148,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'psetex', key, miliseconds, value);
   }
 
-  // SET
   function set(
     key: string,
     value: string | number,
@@ -170,7 +156,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'set', key, value);
   }
 
-  // SETEX
   function setex(
     key: string,
     seconds: number,
@@ -180,7 +165,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'setex', key, seconds, value);
   }
 
-  // SETNX
   function setnx(
     key: string,
     value: string,
@@ -189,7 +173,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'setnx', key, value);
   }
 
-  // SETRANGE
   function setrange(
     key: string,
     offset: number | string,
@@ -199,7 +182,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'setrange', key, offset, value);
   }
 
-  // STRLEN
   function strlen(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'strlen', key);
   }
@@ -210,7 +192,6 @@ export default function client(url?: string, token?: string) {
   ------------------------------------------------
    */
 
-  // BITCOUNT
   function bitcount(
     key: string,
     start?: number,
@@ -223,7 +204,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'bitcount', key);
   }
 
-  // BITOP
   function bitop(
     operation: 'AND' | 'OR' | 'XOR' | 'NOT',
     destinationKey: string,
@@ -233,7 +213,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'bitop', operation, destinationKey, ...sourceKeys);
   }
 
-  // BITPOS
   function bitpos(
     key: string,
     bit: Bit,
@@ -249,7 +228,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'bitpos', key, bit);
   }
 
-  // GETBIT
   function getbit(
     key: string,
     offset: number,
@@ -258,7 +236,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'getbit', key, offset);
   }
 
-  // SETBIT
   function setbit(
     key: string,
     offset: number,
@@ -274,12 +251,10 @@ export default function client(url?: string, token?: string) {
   ------------------------------------------------
    */
 
-  // ECHO
   function echo(value: string, callback?: Callback): MethodReturn {
     return request(callback, 'echo', value);
   }
 
-  // PING
   function ping(value?: string, callback?: Callback): MethodReturn {
     if (value) {
       return request(callback, 'ping', value);
@@ -293,7 +268,6 @@ export default function client(url?: string, token?: string) {
   ------------------------------------------------
    */
 
-  // HDEL
   function hdel(
     key: string,
     field: string[],
@@ -302,7 +276,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'hdel', key, ...field);
   }
 
-  // HEXISTS
   function hexists(
     key: string,
     field: string,
@@ -311,17 +284,14 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'hexists', key, field);
   }
 
-  // HGET
   function hget(key: string, field: string, callback?: Callback): MethodReturn {
     return request(callback, 'hget', key, field);
   }
 
-  // HGETALL
   function hgetall(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'hgetall', key);
   }
 
-  // HINCRBY
   function hincrby(
     key: string,
     field: string,
@@ -331,7 +301,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'hincrby', key, field, increment);
   }
 
-  // HINCRBYFLOAT
   function hincrbyfloat(
     key: string,
     field: string,
@@ -341,17 +310,14 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'hincrbyfloat', key, field, increment);
   }
 
-  // HKEYS
   function hkeys(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'hkeys', key);
   }
 
-  // HLEN
   function hlen(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'hlen', key);
   }
 
-  // HMGET
   function hmget(
     key: string,
     fields: string[],
@@ -360,7 +326,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'hmget', key, ...fields);
   }
 
-  // HMSET
   function hmset(
     key: string,
     values: string[],
@@ -369,7 +334,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'hmset', key, ...values);
   }
 
-  // HSCAN
   function hscan(
     key: string,
     cursor: string,
@@ -395,7 +359,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'hscan', key, cursor);
   }
 
-  // HSET
   function hset(
     key: string,
     values: string[],
@@ -404,7 +367,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'hset', key, ...values);
   }
 
-  // HSETNX
   function hsetnx(
     key: string,
     field: string,
@@ -414,7 +376,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'hsetnx', key, field, value);
   }
 
-  // HVALS
   function hvals(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'hvals', key);
   }
@@ -425,17 +386,14 @@ export default function client(url?: string, token?: string) {
   ------------------------------------------------
    */
 
-  // DEL
   function del(keys: string[], callback?: Callback): MethodReturn {
     return request(callback, 'del', ...keys);
   }
 
-  // EXISTS
   function exists(key: string[], callback?: Callback): MethodReturn {
     return request(callback, 'exists', ...key);
   }
 
-  // EXPIRE
   function expire(
     key: string,
     seconds: number,
@@ -448,7 +406,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'expire', key, seconds);
   }
 
-  // EXPIREAT
   function expireat(
     key: string,
     timestamp: number | string,
@@ -457,17 +414,14 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'expireat', key, timestamp);
   }
 
-  // KEYS
   function keys(pattern: string, callback?: Callback): MethodReturn {
     return request(callback, 'keys', pattern);
   }
 
-  // PERSIST
   function persist(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'persist', key);
   }
 
-  // PEXPIRE
   function pexpire(
     key: string,
     miliseconds: number,
@@ -476,7 +430,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'pexpire', key, miliseconds);
   }
 
-  // PEXPIREAT
   function pexpireat(
     key: string,
     miliseconds: number,
@@ -485,17 +438,14 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'pexpireat', key, miliseconds);
   }
 
-  // PTTL
   function pttl(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'pttl', key);
   }
 
-  // RANDOMKEY
   function randomkey(callback?: Callback): MethodReturn {
     return request(callback, 'randomkey');
   }
 
-  // RENAME
   function rename(
     key: string,
     newkey: string,
@@ -504,7 +454,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'rename', key, newkey);
   }
 
-  // RENAMENX
   function renamenx(
     key: string,
     newkey: string,
@@ -513,7 +462,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'renamenx', key, newkey);
   }
 
-  // SCAN
   function scan(
     cursor: number | string,
     opts?: { match?: number | string; count?: number | string },
@@ -537,22 +485,18 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'scan', cursor);
   }
 
-  // TOUCH
   function touch(keys: string[], callback?: Callback): MethodReturn {
     return request(callback, 'touch', ...keys);
   }
 
-  // TTL
   function ttl(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'ttl', key);
   }
 
-  // TYPE
   function type(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'type', key);
   }
 
-  // UNLINK
   function unlink(keys: string[], callback?: Callback): MethodReturn {
     return request(callback, 'unlink', ...keys);
   }
@@ -563,7 +507,6 @@ export default function client(url?: string, token?: string) {
   ------------------------------------------------
    */
 
-  // LINDEX
   function lindex(
     key: string,
     index: number,
@@ -572,7 +515,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'lindex', key, index);
   }
 
-  // LINSERT
   function linsert(
     key: string,
     opt: 'BEFORE' | 'AFTER',
@@ -583,17 +525,14 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'linsert', key, opt, pivot, element);
   }
 
-  // LLEN
   function llen(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'llen', key);
   }
 
-  // LPOP
   function lpop(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'lpop', key);
   }
 
-  // LPUSH
   function lpush(
     key: string,
     element: string[],
@@ -602,7 +541,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'lpush', key, ...element);
   }
 
-  // LPUSHX
   function lpushx(
     key: string,
     element: string[],
@@ -611,7 +549,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'lpushx', key, ...element);
   }
 
-  // LRANGE
   function lrange(
     key: string,
     start: number,
@@ -621,7 +558,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'lrange', key, start, stop);
   }
 
-  // LREM
   function lrem(
     key: string,
     count: number,
@@ -631,7 +567,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'lrem', key, count, element);
   }
 
-  // LSET
   function lset(
     key: string,
     index: number,
@@ -641,7 +576,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'lset', key, index, element);
   }
 
-  // LTRIM
   function ltrim(
     key: string,
     start: number,
@@ -651,12 +585,10 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'ltrim', key, start, stop);
   }
 
-  // RPOP
   function rpop(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'rpop', key);
   }
 
-  // RPOPLPUSH
   function rpoplpush(
     source: string,
     destination: string,
@@ -665,7 +597,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'rpoplpush', source, destination);
   }
 
-  // RPUSH
   function rpush(
     key: string,
     element: string[],
@@ -674,7 +605,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'rpush', key, ...element);
   }
 
-  // RPUSHX
   function rpushx(
     key: string,
     element: string[],
@@ -688,12 +618,10 @@ export default function client(url?: string, token?: string) {
   ------------------------------------------------
    */
 
-  // DBSIZE
   function dbsize(callback?: Callback): MethodReturn {
     return request(callback, 'dbsize');
   }
 
-  // FLUSHALL
   function flushall(mode?: 'ASYNC', callback?: Callback): MethodReturn {
     if (mode) {
       return request(callback, 'flushall', mode);
@@ -701,7 +629,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'flushall');
   }
 
-  // FLUSHDB
   function flushdb(mode?: 'ASYNC', callback?: Callback): MethodReturn {
     if (mode) {
       return request(callback, 'flushdb', mode);
@@ -709,12 +636,10 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'flushdb');
   }
 
-  // INFO
   function info(callback?: Callback): MethodReturn {
     return request(callback, 'info');
   }
 
-  // PING
   function time(callback?: Callback): MethodReturn {
     return request(callback, 'time');
   }
@@ -725,7 +650,6 @@ export default function client(url?: string, token?: string) {
   ------------------------------------------------
    */
 
-  // SADD
   function sadd(
     key: string,
     member: string[],
@@ -734,17 +658,14 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'sadd', key, ...member);
   }
 
-  // SCARD
   function scard(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'scard', key);
   }
 
-  // SDIFF
   function sdiff(key: string[], callback?: Callback): MethodReturn {
     return request(callback, 'sdiff', ...key);
   }
 
-  // SDIFFSTORE
   function sdiffstore(
     destination: string,
     key: string[],
@@ -753,12 +674,10 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'sdiffstore', destination, ...key);
   }
 
-  // SINTER
   function sinter(key: string[], callback?: Callback): MethodReturn {
     return request(callback, 'sinter', ...key);
   }
 
-  // SINTERSTORE
   function sinterstore(
     destination: string,
     key: string[],
@@ -767,7 +686,6 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'sinterstore', destination, ...key);
   }
 
-  // SISMEMBER
   function sismember(
     key: string,
     member: string,
@@ -776,42 +694,53 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'sismember', key, member);
   }
 
-  // SMEMBERS
   function smembers(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'smembers', key);
   }
 
-  // SMOVE
-  function smove(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'smove', key);
+  function smove(
+    source: string,
+    destination: string,
+    member: string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'smove', source, destination, member);
   }
 
-  // SPOP
-  function spop(key: string, callback?: Callback): MethodReturn {
+  function spop(
+    key: string,
+    count?: number,
+    callback?: Callback
+  ): MethodReturn {
+    if (count) {
+      return request(callback, 'spop', key, count);
+    }
     return request(callback, 'spop', key);
   }
 
-  // SRANDMEMBER
-  function srandmember(key: string, callback?: Callback): MethodReturn {
+  function srandmember(
+    key: string,
+    count?: number,
+    callback?: Callback
+  ): MethodReturn {
+    if (count) {
+      return request(callback, 'srandmember', key, count);
+    }
     return request(callback, 'srandmember', key);
   }
 
-  // SREM
   function srem(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'srem', key);
   }
 
-  // SSCAN
   function sscan(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'sscan', key);
   }
 
-  // SUNION
   function sunion(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'sunion', key);
   }
 
-  // SUNIONSTORE
   function sunionstore(key: string, callback?: Callback): MethodReturn {
     return request(callback, 'sunionstore', key);
   }

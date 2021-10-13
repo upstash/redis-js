@@ -1,5 +1,5 @@
 {
-  "include": ["src"],
+  "include": ["src", "types"],
   "exclude": ["node_modules/**/*.ts"],
   "compilerOptions": {
     "declaration": true,
@@ -7,7 +7,7 @@
     "module": "CommonJS",
     "outDir": "dist/main",
     "sourceMap": true,
-    "target": "ES2015",
+    "target": "ES2019",
     "strict": true,
     "esModuleInterop": true,
     "moduleResolution": "Node",

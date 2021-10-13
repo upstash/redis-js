@@ -8,6 +8,7 @@ type MethodReturn = Promise<ReturnType>;
 type Callback = (res: ReturnType) => any;
 type Part = string | boolean | number;
 type Bit = 0 | 1;
+type ZSet = string | number;
 
 /**
  * Upstash client
@@ -337,24 +338,24 @@ export default function client(url?: string, token?: string) {
   function hscan(
     key: string,
     cursor: string,
-    opts?: { match?: number | string; count?: number | string },
+    options?: { match?: number | string; count?: number | string },
     callback?: Callback
   ): MethodReturn {
-    if (opts?.match && opts?.count) {
+    if (options?.match && options?.count) {
       return request(
         callback,
         'hscan',
         key,
         cursor,
         'match',
-        opts.match,
+        options.match,
         'count',
-        opts.count
+        options.count
       );
-    } else if (opts?.match) {
-      return request(callback, 'hscan', key, cursor, 'match', opts.match);
-    } else if (opts?.count) {
-      return request(callback, 'hscan', key, cursor, 'count', opts.count);
+    } else if (options?.match) {
+      return request(callback, 'hscan', key, cursor, 'match', options.match);
+    } else if (options?.count) {
+      return request(callback, 'hscan', key, cursor, 'count', options.count);
     }
     return request(callback, 'hscan', key, cursor);
   }
@@ -397,12 +398,8 @@ export default function client(url?: string, token?: string) {
   function expire(
     key: string,
     seconds: number,
-    option?: 'NX' | 'XX' | 'GT' | 'LT',
     callback?: Callback
   ): MethodReturn {
-    if (option) {
-      return request(callback, 'expire', key, seconds, option);
-    }
     return request(callback, 'expire', key, seconds);
   }
 
@@ -464,23 +461,23 @@ export default function client(url?: string, token?: string) {
 
   function scan(
     cursor: number | string,
-    opts?: { match?: number | string; count?: number | string },
+    opitons?: { match?: number | string; count?: number | string },
     callback?: Callback
   ): MethodReturn {
-    if (opts?.match && opts?.count) {
+    if (opitons?.match && opitons?.count) {
       return request(
         callback,
         'scan',
         cursor,
         'match',
-        opts.match,
+        opitons.match,
         'count',
-        opts.count
+        opitons.count
       );
-    } else if (opts?.match) {
-      return request(callback, 'scan', cursor, 'match', opts.match);
-    } else if (opts?.count) {
-      return request(callback, 'scan', cursor, 'count', opts.count);
+    } else if (opitons?.match) {
+      return request(callback, 'scan', cursor, 'match', opitons.match);
+    } else if (opitons?.count) {
+      return request(callback, 'scan', cursor, 'count', opitons.count);
     }
     return request(callback, 'scan', cursor);
   }
@@ -517,12 +514,12 @@ export default function client(url?: string, token?: string) {
 
   function linsert(
     key: string,
-    opt: 'BEFORE' | 'AFTER',
+    option: 'BEFORE' | 'AFTER',
     pivot: string,
     element: string,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, 'linsert', key, opt, pivot, element);
+    return request(callback, 'linsert', key, option, pivot, element);
   }
 
   function llen(key: string, callback?: Callback): MethodReturn {
@@ -612,6 +609,7 @@ export default function client(url?: string, token?: string) {
   ): MethodReturn {
     return request(callback, 'rpushx', key, ...elements);
   }
+
   /*
   ------------------------------------------------
   SERVER
@@ -755,6 +753,118 @@ export default function client(url?: string, token?: string) {
   ------------------------------------------------
    */
 
+  function zadd(
+    key: string,
+    values: ZSet[],
+    options?: ({ xx?: boolean } | { nx?: boolean }) & {
+      ch?: boolean;
+      incr: boolean;
+    },
+    callback?: Callback
+  ): MethodReturn {
+    if (options) {
+      const allOptions = Object.entries(options)
+        .filter((e) => ['string', 'number', 'boolean'].includes(typeof e[1]))
+        .map((e) => e[0].toUpperCase());
+
+      return request(callback, 'zadd', key, ...allOptions, ...values);
+    }
+    return request(callback, 'zadd', key, ...values);
+  }
+
+  function zcard(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zcard', key);
+  }
+
+  function zcount(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zcount', key);
+  }
+
+  function zincrby(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zincrby', key);
+  }
+
+  function zinterstore(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zinterstore', key);
+  }
+
+  function zlexcount(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zlexcount', key);
+  }
+
+  function zpopmax(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zpopmax', key);
+  }
+
+  function zpopmin(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zpopmin', key);
+  }
+
+  function zrange(
+    key: string,
+    min: ZSet,
+    max: ZSet,
+    withScores: boolean = false,
+    callback?: Callback
+  ): MethodReturn {
+    if (withScores) {
+      return request(callback, 'zrange', key, min, max, 'WITHSCORES');
+    }
+    return request(callback, 'zrange', key, min, max);
+  }
+
+  function zrangebylex(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zrangebylex', key);
+  }
+
+  function zrangebyscore(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zrangebyscore', key);
+  }
+
+  function zrank(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zrank', key);
+  }
+
+  function zrem(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zrem', key);
+  }
+
+  function zremrangebylex(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zremrangebylex', key);
+  }
+
+  function zremrangebyrank(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zremrangebyrank', key);
+  }
+
+  function zremrangebyscore(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zremrangebyscore', key);
+  }
+
+  function zrevrange(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zrevrange', key);
+  }
+
+  function zrevrangebyscore(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zrevrangebyscore', key);
+  }
+
+  function zrevrank(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zrevrank', key);
+  }
+
+  function zscan(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zscan', key);
+  }
+
+  function zscore(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zscore', key);
+  }
+
+  function zunionstore(key: string, callback?: Callback): MethodReturn {
+    return request(callback, 'zunionstore', key);
+  }
+
   return {
     auth,
     // STRING
@@ -854,5 +964,28 @@ export default function client(url?: string, token?: string) {
     srem,
     sunion,
     sunionstore,
+    //sorted
+    zadd,
+    zcard,
+    zcount,
+    zincrby,
+    zinterstore,
+    zlexcount,
+    zpopmax,
+    zpopmin,
+    zrange,
+    zrangebylex,
+    zrangebyscore,
+    zrank,
+    zrem,
+    zremrangebylex,
+    zremrangebyrank,
+    zremrangebyscore,
+    zrevrange,
+    zrevrangebyscore,
+    zrevrank,
+    zscan,
+    zscore,
+    zunionstore,
   };
 }

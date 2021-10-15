@@ -889,12 +889,66 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'zrange', key, min, max);
   }
 
-  function zrangebylex(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'zrangebylex', key);
+  function zrangebylex(
+    key: string,
+    min: ZSetNumber,
+    max: ZSetNumber,
+    offset?: number,
+    count?: number,
+    callback?: Callback
+  ): MethodReturn {
+    if (offset && count) {
+      return request(
+        callback,
+        'zrangebylex',
+        key,
+        min,
+        max,
+        'LIMIT',
+        offset,
+        count
+      );
+    }
+    return request(callback, 'zrangebylex', key, min, max);
   }
 
-  function zrangebyscore(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'zrangebyscore', key);
+  function zrangebyscore(
+    key: string,
+    min: ZSetNumber,
+    max: ZSetNumber,
+    options?: {
+      withScores?: boolean;
+      limit?: { offset: number; count: number };
+    },
+    callback?: Callback
+  ): MethodReturn {
+    if (options?.withScores && options?.limit) {
+      return request(
+        callback,
+        'zrangebyscore',
+        key,
+        min,
+        max,
+        'WITHSCORES',
+        'LIMIT',
+        options.limit.offset,
+        options.limit.count
+      );
+    } else if (options?.withScores) {
+      return request(callback, 'zrangebyscore', key, min, max, 'WITHSCORES');
+    } else if (options?.limit) {
+      return request(
+        callback,
+        'zrangebyscore',
+        key,
+        min,
+        max,
+        'LIMIT',
+        options.limit.offset,
+        options.limit.count
+      );
+    }
+    return request(callback, 'zrangebyscore', key, min, max);
   }
 
   function zrank(key: string, callback?: Callback): MethodReturn {

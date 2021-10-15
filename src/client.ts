@@ -801,12 +801,57 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'zincrby', key, increment, member);
   }
 
-  function zinterstore(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'zinterstore', key);
+  function zinterstore(
+    destination: string,
+    keys: string[],
+    options?: { weights?: number[]; aggregate?: 'MIN' | 'MAX' | 'SUM' },
+    callback?: Callback
+  ): MethodReturn {
+    if (options) {
+      if (options.weights && options.aggregate) {
+        return request(
+          callback,
+          'zinterstore',
+          destination,
+          keys.length,
+          ...keys,
+          'weights',
+          ...options.weights,
+          'aggregate',
+          options.aggregate
+        );
+      } else if (options.weights) {
+        return request(
+          callback,
+          'zinterstore',
+          destination,
+          keys.length,
+          ...keys,
+          'weights',
+          ...options.weights
+        );
+      } else if (options.aggregate) {
+        return request(
+          callback,
+          'zinterstore',
+          destination,
+          keys.length,
+          ...keys,
+          'aggregate',
+          options.aggregate
+        );
+      }
+    }
+    return request(callback, 'zinterstore', destination, keys.length, ...keys);
   }
 
-  function zlexcount(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'zlexcount', key);
+  function zlexcount(
+    key: string,
+    min: ZSetNumber,
+    max: ZSetNumber,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'zlexcount', key, min, max);
   }
 
   function zpopmax(key: string, callback?: Callback): MethodReturn {
@@ -821,10 +866,10 @@ export default function client(url?: string, token?: string) {
     key: string,
     min: ZSetNumber,
     max: ZSetNumber,
-    withScores: boolean = false,
+    options?: { withScores: boolean },
     callback?: Callback
   ): MethodReturn {
-    if (withScores) {
+    if (options?.withScores) {
       return request(callback, 'zrange', key, min, max, 'WITHSCORES');
     }
     return request(callback, 'zrange', key, min, max);

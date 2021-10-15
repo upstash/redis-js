@@ -8,7 +8,7 @@ describe('zadd command', () => {
     const { data: addData } = await zadd(key, [0, 'a', 4, 'b']);
     expect(addData).toBe(2);
 
-    const { data: rangeData } = await zrange(key, 0, -1, true);
+    const { data: rangeData } = await zrange(key, 0, -1, { withScores: true });
     expect(rangeData).toMatchObject(['a', '0', 'b', '4']);
   });
 

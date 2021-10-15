@@ -11,7 +11,7 @@ describe('zcount command', () => {
     const { data } = await zincrby(key, 2, 'one');
     expect(data).toBe('3');
 
-    const { data: rangeData } = await zrange(key, 0, -1, true);
+    const { data: rangeData } = await zrange(key, 0, -1, { withScores: true });
     expect(rangeData).toMatchObject(['two', '2', 'one', '3']);
   });
 });

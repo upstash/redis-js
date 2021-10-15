@@ -18,7 +18,7 @@ describe('zrange command', () => {
     const { data: addData } = await zadd(key, [10, 'a', 5, 'b', 15, 'c']);
     expect(addData).toBe(3);
 
-    const { data: rangeData } = await zrange(key, 0, -1, true);
+    const { data: rangeData } = await zrange(key, 0, -1, { withScores: true });
     expect(rangeData).toMatchObject(['b', '5', 'a', '10', 'c', '15']);
   });
 });

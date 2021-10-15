@@ -854,11 +854,25 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'zlexcount', key, min, max);
   }
 
-  function zpopmax(key: string, callback?: Callback): MethodReturn {
+  function zpopmax(
+    key: string,
+    count?: number,
+    callback?: Callback
+  ): MethodReturn {
+    if (count) {
+      return request(callback, 'zpopmax', key, count);
+    }
     return request(callback, 'zpopmax', key);
   }
 
-  function zpopmin(key: string, callback?: Callback): MethodReturn {
+  function zpopmin(
+    key: string,
+    count?: number,
+    callback?: Callback
+  ): MethodReturn {
+    if (count) {
+      return request(callback, 'zpopmin', key, count);
+    }
     return request(callback, 'zpopmin', key);
   }
 

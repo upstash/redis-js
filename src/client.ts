@@ -985,12 +985,49 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'zremrangebyrank', key, start, stop);
   }
 
-  function zremrangebyscore(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'zremrangebyscore', key);
+  function zremrangebyscore(
+    key: string,
+    min: ZSetNumber,
+    max: ZSetNumber,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'zremrangebyscore', key, min, max);
   }
 
-  function zrevrange(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'zrevrange', key);
+  function zrevrange(
+    key: string,
+    start: number,
+    stop: number,
+    options?: { withScores: boolean },
+    callback?: Callback
+  ): MethodReturn {
+    if (options?.withScores) {
+      return request(callback, 'zrevrange', key, start, stop, 'WITHSCORES');
+    }
+    return request(callback, 'zrevrange', key, start, stop);
+  }
+
+  function zrevrangebylex(
+    key: string,
+    max: ZSetNumber,
+    min: ZSetNumber,
+    offset?: number,
+    count?: number,
+    callback?: Callback
+  ): MethodReturn {
+    if (offset && count) {
+      return request(
+        callback,
+        'zrevrangebylex',
+        key,
+        max,
+        min,
+        'LIMIT',
+        offset,
+        count
+      );
+    }
+    return request(callback, 'zrevrangebylex', key, max, min);
   }
 
   function zrevrangebyscore(key: string, callback?: Callback): MethodReturn {
@@ -1130,6 +1167,7 @@ export default function client(url?: string, token?: string) {
     zremrangebyrank,
     zremrangebyscore,
     zrevrange,
+    zrevrangebylex,
     zrevrangebyscore,
     zrevrank,
     zscan,

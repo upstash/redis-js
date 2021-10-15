@@ -951,20 +951,38 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'zrangebyscore', key, min, max);
   }
 
-  function zrank(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'zrank', key);
+  function zrank(
+    key: string,
+    member: string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'zrank', key, member);
   }
 
-  function zrem(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'zrem', key);
+  function zrem(
+    key: string,
+    members: string[],
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'zrem', key, ...members);
   }
 
-  function zremrangebylex(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'zremrangebylex', key);
+  function zremrangebylex(
+    key: string,
+    min: ZSetNumber,
+    max: ZSetNumber,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'zremrangebylex', key, min, max);
   }
 
-  function zremrangebyrank(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'zremrangebyrank', key);
+  function zremrangebyrank(
+    key: string,
+    start: number,
+    stop: number,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'zremrangebyrank', key, start, stop);
   }
 
   function zremrangebyscore(key: string, callback?: Callback): MethodReturn {

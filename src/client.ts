@@ -56,7 +56,7 @@ export default function client(url?: string, token?: string) {
         .catch((error) => {
           resolve({
             data: null,
-            error,
+            error: typeof error === 'object' ? error.message : error,
           });
         });
     });

@@ -1030,24 +1030,79 @@ export default function client(url?: string, token?: string) {
     return request(callback, 'zrevrangebylex', key, max, min);
   }
 
-  function zrevrangebyscore(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'zrevrangebyscore', key);
+  function zrevrangebyscore(
+    key: string,
+    min: ZSetNumber,
+    max: ZSetNumber,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'zrevrangebyscore', key, min, max);
   }
 
-  function zrevrank(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'zrevrank', key);
+  // TODO
+  // function zrevrank(
+  //   key: string,
+  //   start: number,
+  //   stop: number,
+  //   options?: { withScores: boolean },
+  //   callback?: Callback
+  // ): MethodReturn {
+  //   if (options?.withScores) {
+  //     return request(callback, 'zrevrank', key, start, stop, 'WITHSCORES');
+  //   }
+  //   return request(callback, 'zrevrank', key, start, stop);
+  // }
+
+  function zscore(
+    key: string,
+    member: string,
+    callback?: Callback
+  ): MethodReturn {
+    return request(callback, 'zscore', key, member);
   }
 
-  function zscan(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'zscan', key);
-  }
-
-  function zscore(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'zscore', key);
-  }
-
-  function zunionstore(key: string, callback?: Callback): MethodReturn {
-    return request(callback, 'zunionstore', key);
+  function zunionstore(
+    destination: string,
+    keys: string[],
+    options?: { weights?: number[]; aggregate?: 'MIN' | 'MAX' | 'SUM' },
+    callback?: Callback
+  ): MethodReturn {
+    if (options) {
+      if (options.weights && options.aggregate) {
+        return request(
+          callback,
+          'zunionstore',
+          destination,
+          keys.length,
+          ...keys,
+          'weights',
+          ...options.weights,
+          'aggregate',
+          options.aggregate
+        );
+      } else if (options.weights) {
+        return request(
+          callback,
+          'zunionstore',
+          destination,
+          keys.length,
+          ...keys,
+          'weights',
+          ...options.weights
+        );
+      } else if (options.aggregate) {
+        return request(
+          callback,
+          'zunionstore',
+          destination,
+          keys.length,
+          ...keys,
+          'aggregate',
+          options.aggregate
+        );
+      }
+    }
+    return request(callback, 'zunionstore', destination, keys.length, ...keys);
   }
 
   return {
@@ -1169,8 +1224,7 @@ export default function client(url?: string, token?: string) {
     zrevrange,
     zrevrangebylex,
     zrevrangebyscore,
-    zrevrank,
-    zscan,
+    // zrevrank,
     zscore,
     zunionstore,
   };

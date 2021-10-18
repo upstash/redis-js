@@ -2,15 +2,13 @@ import { auth, echo } from '../src';
 
 describe('api connection', () => {
   it('succeed', async () => {
-    const url: string = process.env.UPSTASH_REDIS_TOKEN ?? '';
-    const token: string = process.env.UPSTASH_REDIS_URL ?? '';
+    const url: string = process.env.UPSTASH_REDIS_URL ?? '';
+    const token: string = process.env.UPSTASH_REDIS_TOKEN ?? '';
 
-    expect('').toBe('');
+    auth(url, token);
 
-    // auth(url, token);
-    //
-    // const { data } = await echo('hi');
-    // expect(data).toBe('hi');
+    const { data } = await echo('hi');
+    expect(data).toBe('hi');
   });
 
   it('missing URL', async () => {

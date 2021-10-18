@@ -66,13 +66,14 @@ jobs:
       - name: Start Redis Server
         run: |
           make
-          ./upstash-redis -config $GITHUB_WORKSPACE/config.json &
+          ./upstash-redis -log-level error -config $GITHUB_WORKSPACE/config.json &
         working-directory: ./redis-server/cmd
 
       - name: Run Tests
         run: |
           curl $UPSTASH_URL/info -H "Authorization: Bearer $UPSTASH_TOKEN"
-          yarn install            
+          yarn install   
+          yarn test         
         env:
           UPSTASH_URL: http://127.0.0.1:6379
           UPSTASH_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}

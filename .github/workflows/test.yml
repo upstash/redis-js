@@ -71,10 +71,15 @@ jobs:
           ./upstash-redis -log-level error -config $GITHUB_WORKSPACE/config.json &
         working-directory: ./redis-server/cmd
 
+      - name: Build Library
+        run: |
+          yarn install          
+          yarn build
+        working-directory: ./upstash-redis
+
       - name: Run Tests
         run: |
-          curl $UPSTASH_REDIS_URL/info -H "Authorization: Bearer $UPSTASH_REDIS_TOKEN"
-          yarn install
+          curl $UPSTASH_REDIS_URL/info -H "Authorization: Bearer $UPSTASH_REDIS_TOKEN"          
           yarn test
         working-directory: ./upstash-redis
         env:

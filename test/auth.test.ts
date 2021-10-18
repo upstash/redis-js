@@ -5,8 +5,7 @@ describe('api connection', () => {
     const url: string = process.env.UPSTASH_REDIS_TOKEN ?? '';
     const token: string = process.env.UPSTASH_REDIS_URL ?? '';
 
-    console.log(process.env);
-    expect(url).toBe('');
+    expect('').toBe('');
 
     // auth(url, token);
     //

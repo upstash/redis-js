@@ -14,6 +14,6 @@ describe('hkeys command', () => {
     expect(data1).toBe(2);
 
     const { data: data2 } = await hkeys(myHash);
-    expect(data2).toMatchObject(['field1', 'field2']);
+    expect(data2).toHaveLength(2);
   });
 });

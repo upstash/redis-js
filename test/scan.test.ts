@@ -5,45 +5,40 @@ describe('scan command', () => {
   it('basic', async () => {
     await flushdb();
 
-    await mset(['field-1', '1', 'field-2', '2']);
+    await mset(['key1', '1', 'key2', '2']);
 
-    const { data: data } = await scan(0);
+    const { data } = await scan(0);
     expect(data[0]).toBe('0');
+    expect(data[1].length).toBeGreaterThanOrEqual(2);
   });
 
   it('with match', async () => {
     await flushdb();
 
-    await mset(['field-1', '1', 'field-2', '2']);
+    await mset(['key1', '1', 'key2', '2', 'mykey1', '3']);
 
-    const { data } = await scan(0, { match: '*-*' });
+    const { data } = await scan(0, { match: 'key*' });
     expect(data[0]).toBe('0');
+    expect(data[1].length).toBeGreaterThanOrEqual(2);
   });
 
   it('with count', async () => {
     await flushdb();
 
-    await mset(['field-1', '1', 'field-2', '2']);
+    await mset(['key1', '1', 'key2', '2']);
 
     const { data } = await scan(0, { count: 1 });
     expect(data[0]).toBe('1');
+    expect(data[1].length).toBeGreaterThanOrEqual(1);
   });
 
   it('with match and count', async () => {
     await flushdb();
 
-    await mset([
-      'field-1',
-      '1',
-      'field-2',
-      '2',
-      'field_3',
-      '3',
-      'field_4',
-      '4',
-    ]);
+    await mset(['key1', '1', 'key2', '2', 'mykey1', '3']);
 
-    const { data } = await scan(0, { match: '*-*', count: 1 });
+    const { data } = await scan(0, { match: 'key*', count: 1 });
     expect(data[0]).toBe('1');
+    expect(data[1].length).toBeGreaterThanOrEqual(1);
   });
 });

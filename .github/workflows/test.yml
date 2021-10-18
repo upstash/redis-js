@@ -73,7 +73,6 @@ jobs:
         run: |
           curl $UPSTASH_URL/info -H "Authorization: Bearer $UPSTASH_TOKEN"
           yarn install            
-        working-directory: ./upstash-js  
         env:
           UPSTASH_URL: http://127.0.0.1:6379
           UPSTASH_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}

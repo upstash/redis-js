@@ -7,8 +7,8 @@
   "main": "dist/main/index.js",
   "module": "dist/module/index.js",
   "types": "dist/main/index.d.ts",
-  "jsdelivr": "dist/umd/upstash.js",
-  "unpkg": "dist/umd/upstash.js",
+  "jsdelivr": "dist/umd/upstash-redis.js",
+  "unpkg": "dist/umd/upstash-redis.js",
   "scripts": {
     "clean": "rimraf dist",
     "format": "prettier --write \"{src,test}/**/*.ts\"",
@@ -50,7 +50,7 @@
       "limit": "5 KB"
     },
     {
-      "path": "dist/umd/upstash.js",
+      "path": "dist/umd/upstash-redis.js",
       "limit": "5 KB"
     }
   ],

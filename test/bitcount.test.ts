@@ -4,22 +4,20 @@ import { nanoid } from 'nanoid';
 describe('bitcount command', () => {
   it('basic', async () => {
     const key = nanoid();
-    const value = nanoid();
 
-    await set(key, value);
+    await set(key, 'foobar');
 
     const { data } = await bitcount(key);
-    expect(data).toBe(28);
+    expect(data).toBe(26);
   });
 
   it('with range', async () => {
     const key = nanoid();
-    const value = nanoid();
 
-    await set(key, value);
+    await set(key, 'foobar');
 
     const { data } = await bitcount(key, 0, 0);
-    expect(data).toBe(5);
+    expect(data).toBe(4);
   });
 });
 

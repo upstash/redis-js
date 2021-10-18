@@ -12,6 +12,7 @@ describe('smembers command', () => {
     expect(sadd2).toBe(1);
 
     const { data } = await smembers(key);
-    expect(data).toMatchObject(['Hello', 'World']);
+    expect(data).toContain('World');
+    expect(data).toContain('Hello');
   });
 });

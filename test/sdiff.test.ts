@@ -13,6 +13,7 @@ describe('sdiff command', () => {
     expect(sadd2).toBe(2);
 
     const { data } = await sdiff([key1, key2]);
-    expect(data).toMatchObject(['a', 'd']);
+    expect(data).toContain('a');
+    expect(data).toContain('d');
   });
 });

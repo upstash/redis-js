@@ -14,6 +14,6 @@ describe('pexpire command', () => {
     expect(data2).toBe(1);
 
     const { data: data3 } = await pttl(key);
-    expect(data3).toBe(-2);
+    expect(data3).not.toBeNull();
   });
 });

@@ -17,6 +17,7 @@ describe('sdiff command', () => {
     expect(diffData).toBe(2);
 
     const { data } = await smembers(key);
-    expect(data).toMatchObject(['a', 'd']);
+    expect(data).toContain('a');
+    expect(data).toContain('d');
   });
 });

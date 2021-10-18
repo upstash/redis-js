@@ -17,6 +17,7 @@ describe('sinterstore command', () => {
     expect(storeData).toBe(2);
 
     const { data } = await smembers(key);
-    expect(data).toMatchObject(['b', 'c']);
+    expect(data).toContain('b');
+    expect(data).toContain('c');
   });
 });

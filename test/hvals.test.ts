@@ -13,7 +13,8 @@ describe('hvals command', () => {
     ]);
     expect(data1).toBe(2);
 
-    const { data: data2 } = await hvals(myHash);
-    expect(data2).toMatchObject(['hello', 'upstash']);
+    const { data } = await hvals(myHash);
+    expect(data).toContain('hello');
+    expect(data).toContain('upstash');
   });
 });

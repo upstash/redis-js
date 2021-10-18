@@ -1,0 +1,80 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'src/**'
+      - 'test/**'
+      - 'package.json'
+      - 'yarn.lock'
+        
+  pull_request:
+    branches:
+      - '**'
+  
+  workflow_dispatch:    
+
+jobs:
+
+  build:
+    name: Test Upstash Redis
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
+
+      - name: Check out Redis Server
+        uses: actions/checkout@v2
+        with:
+          repository: upstash/redis-server
+          token: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }} 
+          path: redis-server
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          stable: 'true'
+          go-version: '^1.17'
+    
+      - name: Cache Go modules
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-redis-server-${{ hashFiles('**/go.mod') }}
+          restore-keys: |
+            ${{ runner.os }}-redis-server
+
+      - name: Create Server Config
+        run: |
+          echo "$REDIS_SERVER_CONFIG" >> config.json
+        shell: bash
+        env:
+          REDIS_SERVER_CONFIG : ${{secrets.REDIS_SERVER_CONFIG}}      
+
+      - name: Start Redis Server
+        run: |
+          make
+          ./upstash-redis -config $GITHUB_WORKSPACE/config.json &
+        working-directory: ./redis-server/cmd
+
+      - name: Run Tests
+        run: |
+          curl $UPSTASH_URL/info -H "Authorization: Bearer $UPSTASH_TOKEN"
+          yarn install            
+        working-directory: ./upstash-js  
+        env:
+          UPSTASH_URL: http://127.0.0.1:6379
+          UPSTASH_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+

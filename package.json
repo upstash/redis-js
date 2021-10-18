@@ -1,7 +1,7 @@
 {
   "name": "upstash-redis",
   "version": "0.0.2",
-  "repository": "https://github.com/upstash/upstash-js.git",
+  "repository": "https://github.com/upstash/upstash-redis.git",
   "author": "Adem ilter <ademilter@gmail.com>",
   "license": "MIT",
   "main": "dist/main/index.js",

@@ -344,7 +344,7 @@ export default function client(url?: string, token?: string) {
 
   function hscan(
     key: string,
-    cursor: string,
+    cursor: number,
     options?: { match?: number | string; count?: number | string },
     callback?: Callback
   ): MethodReturn {
@@ -467,7 +467,7 @@ export default function client(url?: string, token?: string) {
   }
 
   function scan(
-    cursor: number | string,
+    cursor: number,
     opitons?: { match?: number | string; count?: number | string },
     callback?: Callback
   ): MethodReturn {

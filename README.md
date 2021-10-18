@@ -5,8 +5,6 @@
 
 > Supports Redis 5.0.8
 
----
-
 ## Quick Start
 
 ### Install
@@ -40,6 +38,22 @@ const redis = upstash('UPSTASH_REDIS_URL', 'UPSTASH_REDIS_TOKEN');
 (async () => {
   try {
     const { data, error } = await redis.get('key');
+    if (error) throw error;
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+})();
+```
+
+If you define `UPSTASH_REDIS_URL` and` UPSTASH_REDIS_TOKEN` environment variables, you can run the Redis commands directly.
+
+```typescript
+import { get } from 'upstash-redis';
+
+(async () => {
+  try {
+    const { data, error } = await get('key');
     if (error) throw error;
     console.log(data);
   } catch (error) {

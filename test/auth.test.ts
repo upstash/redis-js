@@ -1,9 +1,9 @@
-import { auth, echo, get, set } from '../src';
+import { auth, echo } from '../src';
 
 describe('api connection', () => {
   it('succeed', async () => {
-    const url: string = process.env.UPSTASH_URL_WITH_TLS ?? '';
-    const token: string = process.env.UPSTASH_TOKEN_WITH_TLS ?? '';
+    const url: string = process.env.UPSTASH_REDIS_URL_WITH_TLS ?? '';
+    const token: string = process.env.UPSTASH_REDIS_TOKEN_WITH_TLS ?? '';
 
     auth(url, token);
 

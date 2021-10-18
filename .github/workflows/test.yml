@@ -9,12 +9,12 @@ on:
       - 'test/**'
       - 'package.json'
       - 'yarn.lock'
-        
+
   pull_request:
     branches:
       - '**'
-  
-  workflow_dispatch:    
+
+  workflow_dispatch:
 
 jobs:
 
@@ -26,7 +26,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
         with:
-          path: upstash-js
+          path: upstash-redis
 
       - name: Setup Node
         uses: actions/setup-node@v2
@@ -39,7 +39,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: upstash/redis-server
-          token: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }} 
+          token: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
           path: redis-server
 
       - name: Setup Go
@@ -47,7 +47,7 @@ jobs:
         with:
           stable: 'true'
           go-version: '^1.17'
-    
+
       - name: Cache Go modules
         uses: actions/cache@v2
         with:
@@ -63,7 +63,7 @@ jobs:
           echo "$REDIS_SERVER_CONFIG" >> config.json
         shell: bash
         env:
-          REDIS_SERVER_CONFIG : ${{secrets.REDIS_SERVER_CONFIG}}      
+          REDIS_SERVER_CONFIG : ${{secrets.REDIS_SERVER_CONFIG}}
 
       - name: Start Redis Server
         run: |
@@ -73,11 +73,11 @@ jobs:
 
       - name: Run Tests
         run: |
-          curl $UPSTASH_URL/info -H "Authorization: Bearer $UPSTASH_TOKEN"
-          yarn install   
-          yarn test         
-        working-directory: ./upstash-js
+          curl $UPSTASH_REDIS_URL/info -H "Authorization: Bearer $UPSTASH_REDIS_TOKEN"
+          yarn install
+          yarn test
+        working-directory: ./upstash-redis
         env:
-          UPSTASH_URL: http://127.0.0.1:6379
-          UPSTASH_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          UPSTASH_REDIS_URL: http://127.0.0.1:6379
+          UPSTASH_REDIS_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
 

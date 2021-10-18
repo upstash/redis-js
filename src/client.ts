@@ -23,8 +23,8 @@ type ZSetNumber = number | Infinities | string;
  * @param {string} token - database rest token
  */
 export default function client(url?: string, token?: string) {
-  let baseURL: string = url ?? process.env.UPSTASH_URL ?? '';
-  let authToken: string = token ?? process.env.UPSTASH_TOKEN ?? '';
+  let baseURL: string = url ?? process.env.UPSTASH_REDIS_URL ?? '';
+  let authToken: string = token ?? process.env.UPSTASH_REDIS_TOKEN ?? '';
 
   async function auth(url: string, token: string) {
     baseURL = url;

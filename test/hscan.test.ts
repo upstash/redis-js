@@ -1,11 +1,11 @@
-import { mset, flushdb, scan, hscan, hset } from '../src';
+import { flushdb, scan, hscan, hset } from '../src';
 import { nanoid } from 'nanoid';
 
 describe('hscan command', () => {
   it('basic', async () => {
     const myHash = nanoid();
 
-    const { data: setData } = await hset(myHash, ['key1', '1', 'key2', '2']);
+    const { data: setData } = await hset(myHash, ['f1', 'v1', 'f2', 'v2']);
     expect(setData).toBe(2);
 
     const { data } = await hscan(myHash, 0);
@@ -19,18 +19,18 @@ describe('hscan command', () => {
     const myHash = nanoid();
 
     const { data: setData } = await hset(myHash, [
-      'field-1',
-      '1',
-      'field-2',
-      '2',
-      'field_3',
-      '3',
-      'field_4',
-      '4',
+      'f1',
+      'v1',
+      'f2',
+      'v2',
+      'f-3',
+      'v3',
+      'f-4',
+      'v4',
     ]);
     expect(setData).toBe(4);
 
-    const { data } = await hscan(myHash, 0, { match: '*_*' });
+    const { data } = await hscan(myHash, 0, { match: '*-*' });
     expect(data[0]).toBe('0');
     expect(data[1].length).toBeGreaterThanOrEqual(4);
   });
@@ -41,14 +41,14 @@ describe('hscan command', () => {
     const myHash = nanoid();
 
     const { data: setData } = await hset(myHash, [
-      'field-1',
-      '1',
-      'field-2',
-      '2',
-      'field_3',
-      '3',
-      'field_4',
-      '4',
+      'f1',
+      'v1',
+      'f2',
+      'v2',
+      'f-3',
+      'v3',
+      'f-4',
+      'v4',
     ]);
     expect(setData).toBe(4);
 
@@ -60,21 +60,22 @@ describe('hscan command', () => {
   it('with match and count', async () => {
     await flushdb();
 
-    const fields = [
-      'field-1',
-      '1',
-      'field-2',
-      '2',
-      'field_3',
-      '3',
-      'field_4',
-      '4',
-    ];
-    await mset(fields);
+    const myHash = nanoid();
 
-    // TODO: [key, value, ...] ?
-    const { data } = await scan(0, { match: '*_*', count: 10 });
-    console.log(data);
-    // expect(data[1].length).toBeGreaterThanOrEqual(4);
+    const { data: setData } = await hset(myHash, [
+      'f1',
+      'v1',
+      'f2',
+      'v2',
+      'f-3',
+      'v3',
+      'f-4',
+      'v4',
+    ]);
+    expect(setData).toBe(4);
+
+    const { data } = await hscan(myHash, 0, { match: '*-*', count: 10 });
+    expect(data[0]).toBe('0');
+    expect(data[1].length).toBeGreaterThanOrEqual(4);
   });
 });

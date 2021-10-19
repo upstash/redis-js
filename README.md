@@ -1,9 +1,12 @@
 # Upstash Redis
 
+[![Tests](https://github.com/upstash/upstash-redis/actions/workflows/test.yml/badge.svg)](https://github.com/upstash/upstash-redis/actions/workflows/test.yml)
 ![npm](https://img.shields.io/npm/dm/upstash-redis)
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/upstash-redis)
 
-> Supports Redis 5.0.8
+A JS Redis client built on top of [Upstash REST API](https://docs.upstash.com/features/restapi). 
+
+> Supports Redis 5.0
 
 ## Quick Start
 

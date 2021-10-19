@@ -4,7 +4,7 @@
 ![npm](https://img.shields.io/npm/dm/upstash-redis)
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/upstash-redis)
 
-A JS Redis client built on top of [Upstash REST API](https://docs.upstash.com/features/restapi). 
+A JS Redis client built on top of [Upstash REST API](https://docs.upstash.com/features/restapi).
 
 > Supports Redis 5.0
 
@@ -21,7 +21,7 @@ npm install upstash-redis
 ```typescript
 import upstash from 'upstash-redis';
 
-const redis = upstash('UPSTASH_REDIS_URL', 'UPSTASH_REDIS_TOKEN');
+const redis = upstash('UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN');
 
 redis.get('key', function ({ data, error }) {
   if (error) {
@@ -36,7 +36,7 @@ redis.get('key', function ({ data, error }) {
 ```typescript
 import upstash from 'upstash-redis';
 
-const redis = upstash('UPSTASH_REDIS_URL', 'UPSTASH_REDIS_TOKEN');
+const redis = upstash('UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN');
 
 (async () => {
   try {
@@ -49,7 +49,7 @@ const redis = upstash('UPSTASH_REDIS_URL', 'UPSTASH_REDIS_TOKEN');
 })();
 ```
 
-If you define `UPSTASH_REDIS_URL` and` UPSTASH_REDIS_TOKEN` environment variables, you can run the Redis commands directly.
+If you define `UPSTASH_REDIS_REST_URL` and` UPSTASH_REDIS_REST_TOKEN` environment variables, you can run the Redis commands directly.
 
 ```typescript
 import { get } from 'upstash-redis';

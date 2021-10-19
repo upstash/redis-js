@@ -1,6 +1,6 @@
 import { auth, incr } from 'upstash-redis';
 
-auth(UPSTASH_REDIS_URL, UPSTASH_REDIS_TOKEN);
+auth(UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN);
 
 addEventListener('fetch', (event) => {
   event.respondWith(handleRequest(event.request));

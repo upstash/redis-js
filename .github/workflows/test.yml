@@ -73,16 +73,16 @@ jobs:
 
       - name: Build Library
         run: |
-          yarn install          
+          yarn install
           yarn build
         working-directory: ./upstash-redis
 
       - name: Run Tests
         run: |
-          curl $UPSTASH_REDIS_URL/info -H "Authorization: Bearer $UPSTASH_REDIS_TOKEN"          
+          curl $UPSTASH_REDIS_REST_URL/info -H "Authorization: Bearer $UPSTASH_REDIS_REST_TOKEN"
           yarn test
         working-directory: ./upstash-redis
         env:
-          UPSTASH_REDIS_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
 

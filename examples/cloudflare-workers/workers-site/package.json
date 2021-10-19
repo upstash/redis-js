@@ -1,0 +1,6 @@
+{
+  "main": "index.js",
+  "dependencies": {
+    "upstash-redis": "^0.0.1"
+  }
+}

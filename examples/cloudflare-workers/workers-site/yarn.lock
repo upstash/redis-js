@@ -37,10 +37,10 @@ unfetch@^4.2.0:
   resolved "https://registry.yarnpkg.com/unfetch/-/unfetch-4.2.0.tgz#7e21b0ef7d363d8d9af0fb929a5555f6ef97a3be"
   integrity sha512-F9p7yYCn6cIW9El1zi0HI6vqpeIvBsr3dSuRO6Xuppb1u5rXpCPmMvLSyECLhybr9isec8Ohl0hPekMVrEinDA==
 
-upstash-redis@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/upstash-redis/-/upstash-redis-0.0.1.tgz#e44ffdd0a663881f6b7760cc464b7c04462a4618"
-  integrity sha512-/FYWdaqIIMUCYru6uXiDFlXzpfg9p83jNYoK9hy4ayuS1e2n+wW/1bc/RxnB2WCTD2CbT4DRKYTwHdK2azEzkQ==
+upstash-redis@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/upstash-redis/-/upstash-redis-0.0.3.tgz#bff205abe46837982bbd27ca3ce29dcc94008a93"
+  integrity sha512-W87bx4KDgTuGerzimGApQeq6IZMOWhZgyZ/IRu/Umgmkb4oa7F8/nk03c/BgX7plQOKGS0lTetCDSedM9xxSbw==
   dependencies:
     isomorphic-unfetch "^3.1.0"
     url-regex "^5.0.0"

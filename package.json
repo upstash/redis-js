@@ -1,6 +1,6 @@
 {
   "name": "upstash-redis",
-  "version": "0.0.3",
+  "version": "0.0.31",
   "repository": "https://github.com/upstash/upstash-redis.git",
   "author": "Adem ilter <ademilter@gmail.com>",
   "license": "MIT",

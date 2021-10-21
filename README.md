@@ -4,7 +4,14 @@
 ![npm](https://img.shields.io/npm/dm/upstash-redis)
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/upstash-redis)
 
-A JS Redis client built on top of [Upstash REST API](https://docs.upstash.com/features/restapi).
+An HTTP/REST based Redis client built on top of [Upstash REST API](https://docs.upstash.com/features/restapi).
+
+It is connectionless (HTTP based) and optimized for:
+- AWS Lambda
+- Cloudflare Workers
+- Fastly Compute@Edge
+- Client side web/mobile applications
+- and other environments where HTTP is preferred over TCP.
 
 > Supports Redis 5.0
 
@@ -64,3 +71,5 @@ import { get } from 'upstash-redis';
   }
 })();
 ```
+
+### Usage in Cloudflare Workers

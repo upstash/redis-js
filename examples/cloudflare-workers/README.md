@@ -1,13 +1,8 @@
 # Deploying to Cloudflare Workers
 
-Cloudflare Workers is a serverless platform for creating entirely new
-applications or augmenting existing ones without configuring or maintaining
-infrastructure. With Workers Sites you can build any static site locally (e.g.
-your Upstash project), and deploy to a workers.dev subdomain or custom domain.
-
 ## 1. Installing wrangler CLI
 
-Workers Sites requires wrangler, a tool to upload your static files. Run the
+Workers requires wrangler, a tool to upload your static files. Run the
 following command:
 
 ```bash

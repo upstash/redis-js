@@ -10,7 +10,7 @@ It is the only connectionless (HTTP based) Redis client and optimized for:
 - Serverless functions (AWS Lambda ...)
 - Cloudflare Workers (see [the example](https://github.com/upstash/upstash-redis/tree/master/examples/workers-with-upstash))
 - Fastly Compute@Edge
-- Jamstack (Next.js ...)
+- Next.js, Jamstack ...
 - Client side web/mobile applications
 - WebAssembly
 - and other environments where HTTP is preferred over TCP.

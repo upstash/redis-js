@@ -8,12 +8,12 @@ An HTTP/REST based Redis client built on top of [Upstash REST API](https://docs.
 
 It is connectionless (HTTP based) and optimized for:
 - AWS Lambda
-- Cloudflare Workers
+- Cloudflare Workers (see [the example](examples/cloudflare-workers))
 - Fastly Compute@Edge
 - Client side web/mobile applications
 - and other environments where HTTP is preferred over TCP.
 
-> Supports Redis 5.0
+See [the list of APIs](https://docs.upstash.com/features/restapi#metrics-and-monitoring) supported. 
 
 ## Quick Start
 
@@ -72,4 +72,3 @@ import { get } from 'upstash-redis';
 })();
 ```
 
-### Usage in Cloudflare Workers

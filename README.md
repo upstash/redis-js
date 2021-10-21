@@ -15,7 +15,7 @@ It is the only connectionless (HTTP based) Redis client and optimized for:
 - WebAssembly
 - and other environments where HTTP is preferred over TCP.
 
-See [the list of APIs](https://docs.upstash.com/features/restapi#metrics-and-monitoring) supported. 
+See [the list of APIs](https://docs.upstash.com/features/restapi#rest---redis-api-compatibility) supported. 
 
 ## Quick Start
 

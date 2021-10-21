@@ -6,11 +6,13 @@
 
 An HTTP/REST based Redis client built on top of [Upstash REST API](https://docs.upstash.com/features/restapi).
 
-It is connectionless (HTTP based) and optimized for:
-- AWS Lambda
+It is the only connectionless (HTTP based) Redis client and optimized for:
+- Serverless functions (AWS Lambda ...)
 - Cloudflare Workers (see [the example](examples/cloudflare-workers))
 - Fastly Compute@Edge
+- Jamstack (Next.js ...)
 - Client side web/mobile applications
+- WebAssembly
 - and other environments where HTTP is preferred over TCP.
 
 See [the list of APIs](https://docs.upstash.com/features/restapi#metrics-and-monitoring) supported. 

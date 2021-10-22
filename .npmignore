@@ -23,3 +23,5 @@ CHANGELOG.md
 .babelrc
 .gitignore
 .idea
+.github
+.prettierignore

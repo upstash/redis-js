@@ -1,8 +1,8 @@
 {
-  "name": "upstash-redis",
-  "version": "0.0.31",
-  "repository": "https://github.com/upstash/upstash-redis.git",
-  "author": "Adem ilter <ademilter@gmail.com>",
+  "name": "@upstash/redis",
+  "version": "0.1.0-beta.1",
+  "description": "An HTTP/REST based Redis client built on top of Upstash REST API.",
+  "author": "Adem ilter <adem@upstash.com>",
   "license": "MIT",
   "main": "dist/main/index.js",
   "module": "dist/module/index.js",
@@ -62,5 +62,24 @@
   },
   "engines": {
     "node": ">=10"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/upstash/upstash-redis.git"
+  },
+  "bugs": {
+    "url": "https://github.com/upstash/upstash-redis/issues"
+  },
+  "homepage": "https://github.com/upstash/upstash-redis#readme",
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "keywords": [
+    "redis",
+    "database",
+    "serverless",
+    "edge",
+    "upstash"
+  ]
 }

@@ -1,6 +1,6 @@
 # Deploying to Cloudflare Workers
 
-You can use upstash-redis in Cloudflare Workers as it accesses the Redis using REST calls.
+You can use @upstash/redis in Cloudflare Workers as it accesses the Redis using REST calls.
 
 ## 1. Installing wrangler CLI
 
@@ -29,13 +29,14 @@ You’ll notice your project structure should now look something like:
 
 ## 3. Add Upstash Redis to project
 
-Install the upstash-redis
+Install the @upstash/redis
+
 ```bash
 cd workers-with-redis
-npm install upstash-redis
+npm install @upstash/redis
 ```
 
-Create a database in [Upstash Console](https://console.upstash.com/). Global database is recommended for Cloudflare Workers as it provides better global latency. 
+Create a database in [Upstash Console](https://console.upstash.com/). Global database is recommended for Cloudflare Workers as it provides better global latency.
 
 Copy following variable from Upstash console and paste them to `wrangler.toml`
 
@@ -47,6 +48,7 @@ UPSTASH_REDIS_REST_TOKEN = ""
 ```
 
 Update type to `webpack`
+
 ```toml
 type = "webpack"
 ```
@@ -55,28 +57,28 @@ Edit `index.js`
 
 ```js
 // index.js
-import { auth, incr } from 'upstash-redis';
+import { auth, incr } from '@upstash/redis';
 
 auth(UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN);
 
-addEventListener('fetch', event => {
-    event.respondWith(handleRequest(event.request))
-})
+addEventListener('fetch', (event) => {
+  event.respondWith(handleRequest(event.request));
+});
 
 async function handleRequest(request) {
-    const url = new URL(request.url);
+  const url = new URL(request.url);
 
-    if (url.pathname !== '/') {
-        return new Response();
-    }
+  if (url.pathname !== '/') {
+    return new Response();
+  }
 
-    const { data: count } = await incr('workers-count');
+  const { data: count } = await incr('workers-count');
 
-    return new Response(html(count), {
-        headers: {
-            'content-type': 'text/html;charset=UTF-8',
-        },
-    });
+  return new Response(html(count), {
+    headers: {
+      'content-type': 'text/html;charset=UTF-8',
+    },
+  });
 }
 
 const html = (count) => `
@@ -99,10 +101,10 @@ account_id = "a123..."
 ## 5. Build and Publish the project
 
 Test your worker locally
+
 ```bash
 wrangler dev
 ```
-
 
 Build your worker
 

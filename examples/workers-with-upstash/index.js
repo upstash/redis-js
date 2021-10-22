@@ -1,10 +1,10 @@
-import { auth, incr } from 'upstash-redis';
+import { auth, incr } from '@upstash/redis';
 
 auth(UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN);
 
-addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request))
-})
+addEventListener('fetch', (event) => {
+  event.respondWith(handleRequest(event.request));
+});
 
 async function handleRequest(request) {
   const url = new URL(request.url);

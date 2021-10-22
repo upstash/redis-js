@@ -12,8 +12,9 @@ describe('smove command', () => {
     const { data: sadd2 } = await sadd(key2, ['c']);
     expect(sadd2).toBe(1);
 
-    const { data: move } = await smove(key1, key2, 'b');
+    const { data: move, error } = await smove(key1, key2, 'b');
     expect(move).toBe(1);
+    expect(error).toBeNull();
 
     const { data: members } = await smembers(key2);
     expect(members).toMatchObject(['c', 'b']);

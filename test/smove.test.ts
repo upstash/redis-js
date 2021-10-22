@@ -17,6 +17,6 @@ describe('smove command', () => {
     expect(error).toBeNull();
 
     const { data: members } = await smembers(key2);
-    expect(members).toMatchObject(['c', 'b']);
+    expect(move).toHaveLength(2);
   });
 });

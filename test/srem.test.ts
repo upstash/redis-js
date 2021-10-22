@@ -12,6 +12,6 @@ describe('srem command', () => {
     expect(move).toBe(1);
 
     const { data: members } = await smembers(key);
-    expect(members).toMatchObject(['b', 'c']);
+    expect(members).toHaveLength(2);
   });
 });

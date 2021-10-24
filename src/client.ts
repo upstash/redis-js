@@ -30,7 +30,7 @@ export default function client(url?: string, token?: string) {
     '';
   let authToken: string = token ?? process.env.UPSTASH_REDIS_REST_TOKEN ?? '';
 
-  async function auth(url: string, token: string) {
+  function auth(url: string, token: string) {
     baseURL = url;
     authToken = token;
   }

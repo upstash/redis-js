@@ -1,6 +1,6 @@
 {
   "name": "@upstash/redis",
-  "version": "0.1.1",
+  "version": "0.1.11",
   "description": "An HTTP/REST based Redis client built on top of Upstash REST API.",
   "author": "Adem ilter <adem@upstash.com>",
   "license": "MIT",
@@ -20,8 +20,7 @@
     "size": "size-limit"
   },
   "dependencies": {
-    "isomorphic-unfetch": "^3.1.0",
-    "url-regex": "^5.0.0"
+    "isomorphic-unfetch": "^3.1.0"
   },
   "devDependencies": {
     "@size-limit/preset-small-lib": "^5.0.3",
@@ -81,8 +80,5 @@
     "serverless",
     "edge",
     "upstash"
-  ],
-  "publishConfig": {
-    "registry":"https://npm.pkg.github.com"
-  }
+  ]
 }

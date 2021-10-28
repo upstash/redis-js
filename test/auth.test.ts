@@ -5,7 +5,7 @@ describe('api connection', () => {
     const url: string = process.env.UPSTASH_REDIS_REST_URL ?? '';
     const token: string = process.env.UPSTASH_REDIS_REST_TOKEN ?? '';
 
-    auth(url, token);
+    auth({ url, token });
 
     const { data } = await echo('hi');
     expect(data).toBe('hi');
@@ -15,9 +15,20 @@ describe('api connection', () => {
     const url: string = '';
     const token: string = '';
 
-    auth(url, token);
+    auth({ url, token });
 
     const { error } = await echo('hi');
     expect(error).toBe('Only absolute URLs are supported');
+  });
+
+  it('edge URL', async () => {
+    const url: string = process.env.UPSTASH_REDIS_REST_URL ?? '';
+    const edgeUrl: string = process.env.UPSTASH_REDIS_EDGE_URL ?? '';
+    const token: string = process.env.UPSTASH_REDIS_REST_TOKEN ?? '';
+
+    auth({ url, edgeUrl, token });
+
+    const { data } = await echo('hi');
+    expect(data).toBe('hi');
   });
 });

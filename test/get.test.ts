@@ -26,7 +26,7 @@ describe('get command', () => {
         expect(data).toBe('OK');
       })
       .then(() => {
-        get(key, ({ data: getData }) => {
+        get(key, null, ({ data: getData }) => {
           expect(getData).toBe(value);
           done();
         });

@@ -1,8 +1,8 @@
 import fetch from 'isomorphic-unfetch';
 
 type ClientProps = {
-  url: string;
-  token: string;
+  url: undefined | string;
+  token: undefined | string;
   edgeUrl?: string;
   readFromEdge?: boolean;
 };

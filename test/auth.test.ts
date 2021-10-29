@@ -2,8 +2,8 @@ import { auth, echo } from '../src';
 
 describe('api connection', () => {
   it('succeed', async () => {
-    const url: string = process.env.UPSTASH_REDIS_REST_URL ?? '';
-    const token: string = process.env.UPSTASH_REDIS_REST_TOKEN ?? '';
+    const url = process.env.UPSTASH_REDIS_REST_URL;
+    const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
     auth({ url, token });
 
@@ -22,9 +22,9 @@ describe('api connection', () => {
   });
 
   it('edge URL', async () => {
-    const url: string = process.env.UPSTASH_REDIS_REST_URL ?? '';
-    const edgeUrl: string = process.env.UPSTASH_REDIS_EDGE_URL ?? '';
-    const token: string = process.env.UPSTASH_REDIS_REST_TOKEN ?? '';
+    const url = process.env.UPSTASH_REDIS_REST_URL;
+    const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+    const edgeUrl = process.env.UPSTASH_REDIS_EDGE_URL;
 
     auth({ url, edgeUrl, token });
 

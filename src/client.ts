@@ -1,6 +1,6 @@
 import fetch from 'isomorphic-unfetch';
 
-type ClientProps = {
+type ClientObjectProps = {
   url: undefined | string;
   token: undefined | string;
   edgeUrl?: string;
@@ -34,22 +34,44 @@ type ZSetNumber = number | Infinities | string;
 /**
  * Upstash Client
  */
-export default function client(props?: ClientProps) {
-  let baseURL: string = props?.url ?? process.env.UPSTASH_REDIS_REST_URL ?? '';
-  let token: string =
-    props?.token ?? process.env.UPSTASH_REDIS_REST_TOKEN ?? '';
-  let edgeURL: string =
-    props?.edgeUrl ?? process.env.UPSTASH_REDIS_EDGE_URL ?? '';
+export default function client(
+  urlOrConfig?: string | undefined | ClientObjectProps,
+  token?: string | undefined
+) {
+  let BASE_URL: undefined | string,
+    TOKEN: undefined | string,
+    EDGE_URL: undefined | string,
+    READ_FROM_EDGE: boolean;
 
-  let readFromEdge = props?.readFromEdge ?? true;
+  auth(urlOrConfig, token);
 
   /**
    * Auth
    */
-  function auth(props: ClientProps) {
-    baseURL = props.url ?? '';
-    token = props.token ?? '';
-    edgeURL = props.edgeUrl ?? '';
+  function auth(
+    urlOrConfig: string | undefined | ClientObjectProps,
+    token?: string | undefined
+  ) {
+    // client({})
+    if (typeof urlOrConfig === 'object') {
+      BASE_URL = urlOrConfig?.url;
+      TOKEN = urlOrConfig?.token;
+      EDGE_URL = urlOrConfig?.edgeUrl;
+      let fromEdge = urlOrConfig?.readFromEdge ?? true;
+      READ_FROM_EDGE = Boolean(EDGE_URL && fromEdge);
+    }
+    // client(url, token)
+    else if (urlOrConfig && token) {
+      BASE_URL = urlOrConfig;
+      TOKEN = token;
+    }
+    // try auto fill
+    else {
+      BASE_URL = process.env.UPSTASH_REDIS_REST_URL;
+      TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+      EDGE_URL = process.env.UPSTASH_REDIS_EDGE_URL;
+      READ_FROM_EDGE = Boolean(EDGE_URL);
+    }
   }
 
   /**
@@ -60,7 +82,7 @@ export default function client(props?: ClientProps) {
       fetch(url, {
         ...options,
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${TOKEN}`,
         },
       })
         .then((res) => res.json().then())
@@ -88,20 +110,28 @@ export default function client(props?: ClientProps) {
     config?: RequestConfig,
     ...parts: Part[]
   ): MethodReturn {
+    if (!BASE_URL) {
+      return new Promise((resolve) =>
+        resolve({ data: null, error: 'Database url not fount?' })
+      );
+    }
+
     let promise: Promise<ReturnType>;
 
-    const isRequestDefaultEdge =
-      edgeURL && readFromEdge && config?.edge !== false;
-    const isRequestCustomEdge = edgeURL && config?.edge;
+    const isRequestDefaultEdge = Boolean(
+      EDGE_URL && READ_FROM_EDGE && config?.edge !== false
+    );
+
+    const isRequestCustomEdge = Boolean(EDGE_URL && config?.edge);
 
     if (isRequestDefaultEdge || isRequestCustomEdge) {
       const command = encodeURI(parts.join('/'));
-      const edgeUrlWithPath = `${edgeURL}/${command}`;
+      const edgeUrlWithPath = `${EDGE_URL}/${command}`;
       promise = fetchData(edgeUrlWithPath, {
         method: 'GET',
       });
     } else {
-      promise = fetchData(baseURL, {
+      promise = fetchData(BASE_URL, {
         method: 'POST',
         body: JSON.stringify(parts),
       });

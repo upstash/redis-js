@@ -1,4 +1,5 @@
 import fetch from 'isomorphic-unfetch';
+import { isFunction } from '../utils/helper';
 
 type ClientObjectProps = {
   url: undefined | string;
@@ -106,23 +107,25 @@ export default function client(
    * Request
    */
   function request(
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback,
-    config?: RequestConfig,
     ...parts: Part[]
   ): MethodReturn {
-    if (!BASE_URL) {
+    if (!BASE_URL || BASE_URL === '') {
       return new Promise((resolve) =>
         resolve({ data: null, error: 'Database url not fount?' })
       );
     }
 
     let promise: Promise<ReturnType>;
+    let isRequestDefaultEdge = Boolean(EDGE_URL && READ_FROM_EDGE);
+    let isRequestCustomEdge = false;
 
-    const isRequestDefaultEdge = Boolean(
-      EDGE_URL && READ_FROM_EDGE && config?.edge !== false
-    );
-
-    const isRequestCustomEdge = Boolean(EDGE_URL && config?.edge);
+    if (typeof configOrCallback === 'object' && configOrCallback !== null) {
+      isRequestDefaultEdge =
+        isRequestDefaultEdge && configOrCallback?.edge !== false;
+      isRequestCustomEdge = Boolean(EDGE_URL && configOrCallback?.edge);
+    }
 
     if (isRequestDefaultEdge || isRequestCustomEdge) {
       const command = encodeURI(parts.join('/'));
@@ -137,7 +140,10 @@ export default function client(
       });
     }
 
-    if (callback) {
+    if (isFunction(configOrCallback)) {
+      // @ts-ignore
+      return promise.then(configOrCallback);
+    } else if (isFunction(callback)) {
       return promise.then(callback);
     }
 
@@ -155,11 +161,11 @@ export default function client(
     value: string,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'append', key, value);
+    return request({}, callback, 'append', key, value);
   }
 
   function decr(key: string, callback?: Callback): MethodReturn {
-    return request(callback, {}, 'decr', key);
+    return request({}, callback, 'decr', key);
   }
 
   function decrby(
@@ -167,25 +173,25 @@ export default function client(
     decrement: number,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'decrby', key, decrement);
+    return request({}, callback, 'decrby', key, decrement);
   }
 
   function get(
     key: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'get', key);
+    return request(configOrCallback, callback, 'get', key);
   }
 
   function getrange(
     key: string,
     start: number,
     end: number,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'getrange', key, start, end);
+    return request(configOrCallback, callback, 'getrange', key, start, end);
   }
 
   function getset(
@@ -193,11 +199,11 @@ export default function client(
     value: string,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'getset', key, value);
+    return request({}, callback, 'getset', key, value);
   }
 
   function incr(key: string, callback?: Callback): MethodReturn {
-    return request(callback, {}, 'incr', key);
+    return request({}, callback, 'incr', key);
   }
 
   function incrby(
@@ -205,7 +211,7 @@ export default function client(
     value: number | string,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'incrby', key, value);
+    return request({}, callback, 'incrby', key, value);
   }
 
   function incrbyfloat(
@@ -213,23 +219,23 @@ export default function client(
     value: number | string,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'incrbyfloat', key, value);
+    return request({}, callback, 'incrbyfloat', key, value);
   }
 
   function mget(
     values: string[],
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'mget', ...values);
+    return request(configOrCallback, callback, 'mget', ...values);
   }
 
   function mset(values: string[], callback?: Callback): MethodReturn {
-    return request(callback, {}, 'mset', ...values);
+    return request({}, callback, 'mset', ...values);
   }
 
   function msetnx(values: string[], callback?: Callback): MethodReturn {
-    return request(callback, {}, 'msetnx', ...values);
+    return request({}, callback, 'msetnx', ...values);
   }
 
   function psetex(
@@ -238,7 +244,7 @@ export default function client(
     value: string | number,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'psetex', key, miliseconds, value);
+    return request({}, callback, 'psetex', key, miliseconds, value);
   }
 
   function set(
@@ -246,7 +252,7 @@ export default function client(
     value: string | number,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'set', key, value);
+    return request({}, callback, 'set', key, value);
   }
 
   function setex(
@@ -255,7 +261,7 @@ export default function client(
     value: string | number,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'setex', key, seconds, value);
+    return request({}, callback, 'setex', key, seconds, value);
   }
 
   function setnx(
@@ -263,7 +269,7 @@ export default function client(
     value: string,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'setnx', key, value);
+    return request({}, callback, 'setnx', key, value);
   }
 
   function setrange(
@@ -272,15 +278,15 @@ export default function client(
     value: string,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'setrange', key, offset, value);
+    return request({}, callback, 'setrange', key, offset, value);
   }
 
   function strlen(
     key: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'strlen', key);
+    return request(configOrCallback, callback, 'strlen', key);
   }
 
   /*
@@ -293,13 +299,13 @@ export default function client(
     key: string,
     start?: number,
     end?: number,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
     if (start !== undefined && end !== undefined) {
-      return request(callback, config, 'bitcount', key, start, end);
+      return request(configOrCallback, callback, 'bitcount', key, start, end);
     }
-    return request(callback, config, 'bitcount', key);
+    return request(configOrCallback, callback, 'bitcount', key);
   }
 
   function bitop(
@@ -309,8 +315,8 @@ export default function client(
     callback?: Callback
   ): MethodReturn {
     return request(
-      callback,
       {},
+      callback,
       'bitop',
       operation,
       destinationKey,
@@ -323,24 +329,32 @@ export default function client(
     bit: Bit,
     start?: number,
     end?: number,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
     if (start !== undefined && end !== undefined) {
-      return request(callback, config, 'bitpos', key, bit, start, end);
+      return request(
+        configOrCallback,
+        callback,
+        'bitpos',
+        key,
+        bit,
+        start,
+        end
+      );
     } else if (start !== undefined) {
-      return request(callback, config, 'bitpos', key, bit, start);
+      return request(configOrCallback, callback, 'bitpos', key, bit, start);
     }
-    return request(callback, config, 'bitpos', key, bit);
+    return request(configOrCallback, callback, 'bitpos', key, bit);
   }
 
   function getbit(
     key: string,
     offset: number,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'getbit', key, offset);
+    return request(configOrCallback, callback, 'getbit', key, offset);
   }
 
   function setbit(
@@ -349,7 +363,7 @@ export default function client(
     value: Bit,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'setbit', key, offset, value);
+    return request({}, callback, 'setbit', key, offset, value);
   }
 
   /*
@@ -360,21 +374,21 @@ export default function client(
 
   function echo(
     value: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'echo', value);
+    return request(configOrCallback, callback, 'echo', value);
   }
 
   function ping(
     value?: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
     if (value) {
-      return request(callback, config, 'ping', value);
+      return request(configOrCallback, callback, 'ping', value);
     }
-    return request(callback, config, 'ping');
+    return request(configOrCallback, callback, 'ping');
   }
 
   /*
@@ -388,33 +402,33 @@ export default function client(
     fields: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'hdel', key, ...fields);
+    return request({}, callback, 'hdel', key, ...fields);
   }
 
   function hexists(
     key: string,
     field: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'hexists', key, field);
+    return request(configOrCallback, callback, 'hexists', key, field);
   }
 
   function hget(
     key: string,
     field: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'hget', key, field);
+    return request(configOrCallback, callback, 'hget', key, field);
   }
 
   function hgetall(
     key: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'hgetall', key);
+    return request(configOrCallback, callback, 'hgetall', key);
   }
 
   function hincrby(
@@ -423,7 +437,7 @@ export default function client(
     increment: number | string,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'hincrby', key, field, increment);
+    return request({}, callback, 'hincrby', key, field, increment);
   }
 
   function hincrbyfloat(
@@ -432,32 +446,32 @@ export default function client(
     increment: number | string,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'hincrbyfloat', key, field, increment);
+    return request({}, callback, 'hincrbyfloat', key, field, increment);
   }
 
   function hkeys(
     key: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'hkeys', key);
+    return request(configOrCallback, callback, 'hkeys', key);
   }
 
   function hlen(
     key: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'hlen', key);
+    return request(configOrCallback, callback, 'hlen', key);
   }
 
   function hmget(
     key: string,
     fields: string[],
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'hmget', key, ...fields);
+    return request(configOrCallback, callback, 'hmget', key, ...fields);
   }
 
   function hmset(
@@ -465,7 +479,7 @@ export default function client(
     values: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'hmset', key, ...values);
+    return request({}, callback, 'hmset', key, ...values);
   }
 
   function hscan(
@@ -476,8 +490,8 @@ export default function client(
   ): MethodReturn {
     if (options?.match && options?.count) {
       return request(
-        callback,
         {},
+        callback,
         'hscan',
         key,
         cursor,
@@ -488,8 +502,8 @@ export default function client(
       );
     } else if (options?.match) {
       return request(
-        callback,
         {},
+        callback,
         'hscan',
         key,
         cursor,
@@ -498,8 +512,8 @@ export default function client(
       );
     } else if (options?.count) {
       return request(
-        callback,
         {},
+        callback,
         'hscan',
         key,
         cursor,
@@ -507,7 +521,7 @@ export default function client(
         options.count
       );
     }
-    return request(callback, {}, 'hscan', key, cursor);
+    return request({}, callback, 'hscan', key, cursor);
   }
 
   function hset(
@@ -515,7 +529,7 @@ export default function client(
     values: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'hset', key, ...values);
+    return request({}, callback, 'hset', key, ...values);
   }
 
   function hsetnx(
@@ -524,15 +538,15 @@ export default function client(
     value: string,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'hsetnx', key, field, value);
+    return request({}, callback, 'hsetnx', key, field, value);
   }
 
   function hvals(
     key: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'hvals', key);
+    return request(configOrCallback, callback, 'hvals', key);
   }
 
   /*
@@ -542,15 +556,15 @@ export default function client(
    */
 
   function del(keys: string[], callback?: Callback): MethodReturn {
-    return request(callback, {}, 'del', ...keys);
+    return request({}, callback, 'del', ...keys);
   }
 
   function exists(
     keys: string[],
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'exists', ...keys);
+    return request(configOrCallback, callback, 'exists', ...keys);
   }
 
   function expire(
@@ -558,7 +572,7 @@ export default function client(
     seconds: number,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'expire', key, seconds);
+    return request({}, callback, 'expire', key, seconds);
   }
 
   function expireat(
@@ -566,19 +580,19 @@ export default function client(
     timestamp: number | string,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'expireat', key, timestamp);
+    return request({}, callback, 'expireat', key, timestamp);
   }
 
   function keys(
     pattern: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'keys', pattern);
+    return request(configOrCallback, callback, 'keys', pattern);
   }
 
   function persist(key: string, callback?: Callback): MethodReturn {
-    return request(callback, {}, 'persist', key);
+    return request({}, callback, 'persist', key);
   }
 
   function pexpire(
@@ -586,7 +600,7 @@ export default function client(
     miliseconds: number,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'pexpire', key, miliseconds);
+    return request({}, callback, 'pexpire', key, miliseconds);
   }
 
   function pexpireat(
@@ -594,19 +608,19 @@ export default function client(
     miliseconds: number,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'pexpireat', key, miliseconds);
+    return request({}, callback, 'pexpireat', key, miliseconds);
   }
 
   function pttl(
     key: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'pttl', key);
+    return request(configOrCallback, callback, 'pttl', key);
   }
 
   function randomkey(callback?: Callback): MethodReturn {
-    return request(callback, {}, 'randomkey');
+    return request({}, callback, 'randomkey');
   }
 
   function rename(
@@ -614,7 +628,7 @@ export default function client(
     newkey: string,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'rename', key, newkey);
+    return request({}, callback, 'rename', key, newkey);
   }
 
   function renamenx(
@@ -622,7 +636,7 @@ export default function client(
     newkey: string,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'renamenx', key, newkey);
+    return request({}, callback, 'renamenx', key, newkey);
   }
 
   function scan(
@@ -632,8 +646,8 @@ export default function client(
   ): MethodReturn {
     if (opitons?.match && opitons?.count) {
       return request(
-        callback,
         {},
+        callback,
         'scan',
         cursor,
         'match',
@@ -642,35 +656,35 @@ export default function client(
         opitons.count
       );
     } else if (opitons?.match) {
-      return request(callback, {}, 'scan', cursor, 'match', opitons.match);
+      return request({}, callback, 'scan', cursor, 'match', opitons.match);
     } else if (opitons?.count) {
-      return request(callback, {}, 'scan', cursor, 'count', opitons.count);
+      return request({}, callback, 'scan', cursor, 'count', opitons.count);
     }
-    return request(callback, {}, 'scan', cursor);
+    return request({}, callback, 'scan', cursor);
   }
 
   function touch(keys: string[], callback?: Callback): MethodReturn {
-    return request(callback, {}, 'touch', ...keys);
+    return request({}, callback, 'touch', ...keys);
   }
 
   function ttl(
     key: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'ttl', key);
+    return request(configOrCallback, callback, 'ttl', key);
   }
 
   function type(
     key: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'type', key);
+    return request(configOrCallback, callback, 'type', key);
   }
 
   function unlink(keys: string[], callback?: Callback): MethodReturn {
-    return request(callback, {}, 'unlink', ...keys);
+    return request({}, callback, 'unlink', ...keys);
   }
 
   /*
@@ -682,10 +696,10 @@ export default function client(
   function lindex(
     key: string,
     index: number,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'lindex', key, index);
+    return request(configOrCallback, callback, 'lindex', key, index);
   }
 
   function linsert(
@@ -695,19 +709,19 @@ export default function client(
     element: string,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'linsert', key, option, pivot, element);
+    return request({}, callback, 'linsert', key, option, pivot, element);
   }
 
   function llen(
     key: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'llen', key);
+    return request(configOrCallback, callback, 'llen', key);
   }
 
   function lpop(key: string, callback?: Callback): MethodReturn {
-    return request(callback, {}, 'lpop', key);
+    return request({}, callback, 'lpop', key);
   }
 
   function lpush(
@@ -715,7 +729,7 @@ export default function client(
     elements: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'lpush', key, ...elements);
+    return request({}, callback, 'lpush', key, ...elements);
   }
 
   function lpushx(
@@ -723,17 +737,17 @@ export default function client(
     elements: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'lpushx', key, ...elements);
+    return request({}, callback, 'lpushx', key, ...elements);
   }
 
   function lrange(
     key: string,
     start: number,
     stop: number,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'lrange', key, start, stop);
+    return request(configOrCallback, callback, 'lrange', key, start, stop);
   }
 
   function lrem(
@@ -742,7 +756,7 @@ export default function client(
     element: string,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'lrem', key, count, element);
+    return request({}, callback, 'lrem', key, count, element);
   }
 
   function lset(
@@ -751,7 +765,7 @@ export default function client(
     element: string,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'lset', key, index, element);
+    return request({}, callback, 'lset', key, index, element);
   }
 
   function ltrim(
@@ -760,11 +774,11 @@ export default function client(
     stop: number,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'ltrim', key, start, stop);
+    return request({}, callback, 'ltrim', key, start, stop);
   }
 
   function rpop(key: string, callback?: Callback): MethodReturn {
-    return request(callback, {}, 'rpop', key);
+    return request({}, callback, 'rpop', key);
   }
 
   function rpoplpush(
@@ -772,7 +786,7 @@ export default function client(
     destination: string,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'rpoplpush', source, destination);
+    return request({}, callback, 'rpoplpush', source, destination);
   }
 
   function rpush(
@@ -780,7 +794,7 @@ export default function client(
     elements: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'rpush', key, ...elements);
+    return request({}, callback, 'rpush', key, ...elements);
   }
 
   function rpushx(
@@ -788,7 +802,7 @@ export default function client(
     elements: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'rpushx', key, ...elements);
+    return request({}, callback, 'rpushx', key, ...elements);
   }
 
   /*
@@ -797,30 +811,36 @@ export default function client(
   ------------------------------------------------
    */
 
-  function dbsize(config?: RequestConfig, callback?: Callback): MethodReturn {
-    return request(callback, config, 'dbsize');
+  function dbsize(
+    configOrCallback?: RequestConfig | Callback,
+    callback?: Callback
+  ): MethodReturn {
+    return request(configOrCallback, callback, 'dbsize');
   }
 
   function flushall(mode?: 'ASYNC', callback?: Callback): MethodReturn {
     if (mode) {
-      return request(callback, {}, 'flushall', mode);
+      return request({}, callback, 'flushall', mode);
     }
-    return request(callback, {}, 'flushall');
+    return request({}, callback, 'flushall');
   }
 
   function flushdb(mode?: 'ASYNC', callback?: Callback): MethodReturn {
     if (mode) {
-      return request(callback, {}, 'flushdb', mode);
+      return request({}, callback, 'flushdb', mode);
     }
-    return request(callback, {}, 'flushdb');
+    return request({}, callback, 'flushdb');
   }
 
-  function info(config?: RequestConfig, callback?: Callback): MethodReturn {
-    return request(callback, config, 'info');
+  function info(
+    configOrCallback?: RequestConfig | Callback,
+    callback?: Callback
+  ): MethodReturn {
+    return request(configOrCallback, callback, 'info');
   }
 
   function time(callback?: Callback): MethodReturn {
-    return request(callback, {}, 'time');
+    return request({}, callback, 'time');
   }
 
   /*
@@ -834,19 +854,19 @@ export default function client(
     members: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'sadd', key, ...members);
+    return request({}, callback, 'sadd', key, ...members);
   }
 
   function scard(key: string, callback?: Callback): MethodReturn {
-    return request(callback, {}, 'scard', key);
+    return request({}, callback, 'scard', key);
   }
 
   function sdiff(
     keys: string[],
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'sdiff', ...keys);
+    return request(configOrCallback, callback, 'sdiff', ...keys);
   }
 
   function sdiffstore(
@@ -854,15 +874,15 @@ export default function client(
     keys: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'sdiffstore', destination, ...keys);
+    return request({}, callback, 'sdiffstore', destination, ...keys);
   }
 
   function sinter(
     keys: string[],
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'sinter', ...keys);
+    return request(configOrCallback, callback, 'sinter', ...keys);
   }
 
   function sinterstore(
@@ -870,24 +890,24 @@ export default function client(
     keys: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'sinterstore', destination, ...keys);
+    return request({}, callback, 'sinterstore', destination, ...keys);
   }
 
   function sismember(
     key: string,
     member: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'sismember', key, member);
+    return request(configOrCallback, callback, 'sismember', key, member);
   }
 
   function smembers(
     key: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'smembers', key);
+    return request(configOrCallback, callback, 'smembers', key);
   }
 
   function smove(
@@ -896,7 +916,7 @@ export default function client(
     member: string,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'smove', source, destination, member);
+    return request({}, callback, 'smove', source, destination, member);
   }
 
   function spop(
@@ -905,21 +925,21 @@ export default function client(
     callback?: Callback
   ): MethodReturn {
     if (count) {
-      return request(callback, {}, 'spop', key, count);
+      return request({}, callback, 'spop', key, count);
     }
-    return request(callback, {}, 'spop', key);
+    return request({}, callback, 'spop', key);
   }
 
   function srandmember(
     key: string,
     count?: number,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
     if (count) {
-      return request(callback, config, 'srandmember', key, count);
+      return request(configOrCallback, callback, 'srandmember', key, count);
     }
-    return request(callback, config, 'srandmember', key);
+    return request(configOrCallback, callback, 'srandmember', key);
   }
 
   function srem(
@@ -927,15 +947,15 @@ export default function client(
     members: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'srem', key, ...members);
+    return request({}, callback, 'srem', key, ...members);
   }
 
   function sunion(
     keys: string[],
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'sunion', ...keys);
+    return request(configOrCallback, callback, 'sunion', ...keys);
   }
 
   function sunionstore(
@@ -943,7 +963,7 @@ export default function client(
     keys: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'sunionstore', destination, ...keys);
+    return request({}, callback, 'sunionstore', destination, ...keys);
   }
 
   /*
@@ -966,27 +986,27 @@ export default function client(
         .filter((e) => ['string', 'number', 'boolean'].includes(typeof e[1]))
         .map((e) => e[0].toUpperCase());
 
-      return request(callback, {}, 'zadd', key, ...allOptions, ...values);
+      return request({}, callback, 'zadd', key, ...allOptions, ...values);
     }
-    return request(callback, {}, 'zadd', key, ...values);
+    return request({}, callback, 'zadd', key, ...values);
   }
 
   function zcard(
     key: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'zcard', key);
+    return request(configOrCallback, callback, 'zcard', key);
   }
 
   function zcount(
     key: string,
     min: ZSetNumber,
     max: ZSetNumber,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'zcount', key, min, max);
+    return request(configOrCallback, callback, 'zcount', key, min, max);
   }
 
   function zincrby(
@@ -995,7 +1015,7 @@ export default function client(
     member: string,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'zincrby', key, increment, member);
+    return request({}, callback, 'zincrby', key, increment, member);
   }
 
   function zinterstore(
@@ -1007,8 +1027,8 @@ export default function client(
     if (options) {
       if (options.weights && options.aggregate) {
         return request(
-          callback,
           {},
+          callback,
           'zinterstore',
           destination,
           keys.length,
@@ -1020,8 +1040,8 @@ export default function client(
         );
       } else if (options.weights) {
         return request(
-          callback,
           {},
+          callback,
           'zinterstore',
           destination,
           keys.length,
@@ -1031,8 +1051,8 @@ export default function client(
         );
       } else if (options.aggregate) {
         return request(
-          callback,
           {},
+          callback,
           'zinterstore',
           destination,
           keys.length,
@@ -1043,8 +1063,8 @@ export default function client(
       }
     }
     return request(
-      callback,
       {},
+      callback,
       'zinterstore',
       destination,
       keys.length,
@@ -1056,10 +1076,10 @@ export default function client(
     key: string,
     min: ZSetNumber,
     max: ZSetNumber,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'zlexcount', key, min, max);
+    return request(configOrCallback, callback, 'zlexcount', key, min, max);
   }
 
   function zpopmax(
@@ -1068,9 +1088,9 @@ export default function client(
     callback?: Callback
   ): MethodReturn {
     if (count) {
-      return request(callback, {}, 'zpopmax', key, count);
+      return request({}, callback, 'zpopmax', key, count);
     }
-    return request(callback, {}, 'zpopmax', key);
+    return request({}, callback, 'zpopmax', key);
   }
 
   function zpopmin(
@@ -1079,9 +1099,9 @@ export default function client(
     callback?: Callback
   ): MethodReturn {
     if (count) {
-      return request(callback, {}, 'zpopmin', key, count);
+      return request({}, callback, 'zpopmin', key, count);
     }
-    return request(callback, {}, 'zpopmin', key);
+    return request({}, callback, 'zpopmin', key);
   }
 
   function zrange(
@@ -1089,13 +1109,21 @@ export default function client(
     min: ZSetNumber,
     max: ZSetNumber,
     options?: { withScores: boolean },
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
     if (options?.withScores) {
-      return request(callback, config, 'zrange', key, min, max, 'WITHSCORES');
+      return request(
+        configOrCallback,
+        callback,
+        'zrange',
+        key,
+        min,
+        max,
+        'WITHSCORES'
+      );
     }
-    return request(callback, config, 'zrange', key, min, max);
+    return request(configOrCallback, callback, 'zrange', key, min, max);
   }
 
   function zrangebylex(
@@ -1104,13 +1132,13 @@ export default function client(
     max: ZSetNumber,
     offset?: number,
     count?: number,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
     if (offset && count) {
       return request(
+        configOrCallback,
         callback,
-        config,
         'zrangebylex',
         key,
         min,
@@ -1120,7 +1148,7 @@ export default function client(
         count
       );
     }
-    return request(callback, {}, 'zrangebylex', key, min, max);
+    return request({}, callback, 'zrangebylex', key, min, max);
   }
 
   function zrangebyscore(
@@ -1131,13 +1159,13 @@ export default function client(
       withScores?: boolean;
       limit?: { offset: number; count: number };
     },
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
     if (options?.withScores && options?.limit) {
       return request(
+        configOrCallback,
         callback,
-        config,
         'zrangebyscore',
         key,
         min,
@@ -1149,8 +1177,8 @@ export default function client(
       );
     } else if (options?.withScores) {
       return request(
+        configOrCallback,
         callback,
-        config,
         'zrangebyscore',
         key,
         min,
@@ -1159,8 +1187,8 @@ export default function client(
       );
     } else if (options?.limit) {
       return request(
+        configOrCallback,
         callback,
-        config,
         'zrangebyscore',
         key,
         min,
@@ -1170,16 +1198,16 @@ export default function client(
         options.limit.count
       );
     }
-    return request(callback, {}, 'zrangebyscore', key, min, max);
+    return request({}, callback, 'zrangebyscore', key, min, max);
   }
 
   function zrank(
     key: string,
     member: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'zrank', key, member);
+    return request(configOrCallback, callback, 'zrank', key, member);
   }
 
   function zrem(
@@ -1187,7 +1215,7 @@ export default function client(
     members: string[],
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'zrem', key, ...members);
+    return request({}, callback, 'zrem', key, ...members);
   }
 
   function zremrangebylex(
@@ -1196,7 +1224,7 @@ export default function client(
     max: ZSetNumber,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'zremrangebylex', key, min, max);
+    return request({}, callback, 'zremrangebylex', key, min, max);
   }
 
   function zremrangebyrank(
@@ -1205,7 +1233,7 @@ export default function client(
     stop: number,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'zremrangebyrank', key, start, stop);
+    return request({}, callback, 'zremrangebyrank', key, start, stop);
   }
 
   function zremrangebyscore(
@@ -1214,7 +1242,7 @@ export default function client(
     max: ZSetNumber,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, {}, 'zremrangebyscore', key, min, max);
+    return request({}, callback, 'zremrangebyscore', key, min, max);
   }
 
   function zrevrange(
@@ -1222,13 +1250,13 @@ export default function client(
     start: number,
     stop: number,
     options?: { withScores: boolean },
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
     if (options?.withScores) {
       return request(
+        configOrCallback,
         callback,
-        config,
         'zrevrange',
         key,
         start,
@@ -1236,7 +1264,7 @@ export default function client(
         'WITHSCORES'
       );
     }
-    return request(callback, config, 'zrevrange', key, start, stop);
+    return request(configOrCallback, callback, 'zrevrange', key, start, stop);
   }
 
   function zrevrangebylex(
@@ -1245,13 +1273,13 @@ export default function client(
     min: ZSetNumber,
     offset?: number,
     count?: number,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
     if (offset && count) {
       return request(
+        configOrCallback,
         callback,
-        config,
         'zrevrangebylex',
         key,
         max,
@@ -1261,35 +1289,42 @@ export default function client(
         count
       );
     }
-    return request(callback, config, 'zrevrangebylex', key, max, min);
+    return request(configOrCallback, callback, 'zrevrangebylex', key, max, min);
   }
 
   function zrevrangebyscore(
     key: string,
     min: ZSetNumber,
     max: ZSetNumber,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'zrevrangebyscore', key, min, max);
+    return request(
+      configOrCallback,
+      callback,
+      'zrevrangebyscore',
+      key,
+      min,
+      max
+    );
   }
 
   function zrevrank(
     key: string,
     member: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'zrevrank', key, member);
+    return request(configOrCallback, callback, 'zrevrank', key, member);
   }
 
   function zscore(
     key: string,
     member: string,
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback
   ): MethodReturn {
-    return request(callback, config, 'zscore', key, member);
+    return request(configOrCallback, callback, 'zscore', key, member);
   }
 
   function zunionstore(
@@ -1301,8 +1336,8 @@ export default function client(
     if (options) {
       if (options.weights && options.aggregate) {
         return request(
-          callback,
           {},
+          callback,
           'zunionstore',
           destination,
           keys.length,
@@ -1314,8 +1349,8 @@ export default function client(
         );
       } else if (options.weights) {
         return request(
-          callback,
           {},
+          callback,
           'zunionstore',
           destination,
           keys.length,
@@ -1325,8 +1360,8 @@ export default function client(
         );
       } else if (options.aggregate) {
         return request(
-          callback,
           {},
+          callback,
           'zunionstore',
           destination,
           keys.length,
@@ -1337,8 +1372,8 @@ export default function client(
       }
     }
     return request(
-      callback,
       {},
+      callback,
       'zunionstore',
       destination,
       keys.length,

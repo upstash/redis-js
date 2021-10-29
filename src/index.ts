@@ -112,7 +112,7 @@ const {
   zrevrange,
   zrevrangebylex,
   zrevrangebyscore,
-  // zrevrank,
+  zrevrank,
   zscore,
   zunionstore,
 } = client();
@@ -227,7 +227,7 @@ export {
   zrevrange,
   zrevrangebylex,
   zrevrangebyscore,
-  // zrevrank,
+  zrevrank,
   zscore,
   zunionstore,
 };

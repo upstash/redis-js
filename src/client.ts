@@ -95,7 +95,8 @@ export default function client(props?: ClientProps) {
     const isRequestCustomEdge = edgeURL && config?.edge;
 
     if (isRequestDefaultEdge || isRequestCustomEdge) {
-      const edgeUrlWithPath = `${edgeURL}/${parts.join('/')}`;
+      const command = encodeURI(parts.join('/'));
+      const edgeUrlWithPath = `${edgeURL}/${command}`;
       promise = fetchData(edgeUrlWithPath, {
         method: 'GET',
       });

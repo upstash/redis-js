@@ -1,5 +1,5 @@
 import fetch from 'isomorphic-unfetch';
-import { isFunction } from '../utils/helper';
+import { isFunction, isObject } from '../utils/helper';
 
 type ClientObjectProps = {
   url: undefined | string;
@@ -121,9 +121,11 @@ export default function client(
     let isRequestDefaultEdge = Boolean(EDGE_URL && READ_FROM_EDGE);
     let isRequestCustomEdge = false;
 
-    if (typeof configOrCallback === 'object' && configOrCallback !== null) {
+    if (isObject(configOrCallback)) {
       isRequestDefaultEdge =
+        // @ts-ignore
         isRequestDefaultEdge && configOrCallback?.edge !== false;
+      // @ts-ignore
       isRequestCustomEdge = Boolean(EDGE_URL && configOrCallback?.edge);
     }
 

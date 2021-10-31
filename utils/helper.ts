@@ -11,3 +11,7 @@ export function isFunction(functionToCheck: any): boolean {
 export function isObject(objectToCheck: any): boolean {
   return typeof objectToCheck === 'object' && objectToCheck !== null;
 }
+
+export function isString(stringToCheck: any): boolean {
+  return typeof stringToCheck === 'string';
+}

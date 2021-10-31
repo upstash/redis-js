@@ -114,7 +114,7 @@ function Upstash(): Upstash {
    * Request
    */
   function request(
-    config?: RequestConfig,
+    configOrCallback?: RequestConfig | Callback,
     callback?: Callback,
     ...parts: Part[]
   ): MethodReturn {
@@ -128,7 +128,7 @@ function Upstash(): Upstash {
     let isRequestDefaultEdge = Boolean(OPTIONS.edgeUrl && OPTIONS.readFromEdge);
     let isRequestCustomEdge = false;
 
-    if (isObject(config)) {
+    if (isObject(configOrCallback)) {
       isRequestDefaultEdge =
         isRequestDefaultEdge && arguments[0]?.edge !== false;
       // @ts-ignore
@@ -150,7 +150,7 @@ function Upstash(): Upstash {
       });
     }
 
-    if (isFunction(callback)) {
+    if (isFunction(configOrCallback)) {
       // @ts-ignore
       return promise.then(configOrCallback);
     } else if (isFunction(callback)) {

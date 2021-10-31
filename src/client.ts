@@ -132,7 +132,9 @@ function Upstash(): Upstash {
       isRequestDefaultEdge =
         isRequestDefaultEdge && arguments[0]?.edge !== false;
       // @ts-ignore
-      isRequestCustomEdge = Boolean(EDGE_URL && arguments[0]?.edge);
+      isRequestCustomEdge = Boolean(
+        arguments[0]?.edgeUrl && arguments[0]?.edge
+      );
     }
 
     if (isRequestDefaultEdge || isRequestCustomEdge) {

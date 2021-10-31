@@ -32,7 +32,7 @@ describe('get command', () => {
         expect(data).toBe('OK');
       })
       .then(() => {
-        get(key, ({ data: getData }) => {
+        get(key, { edge: false }, ({ data: getData }) => {
           expect(getData).toBe('hello');
           done();
         });

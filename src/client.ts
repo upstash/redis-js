@@ -175,15 +175,15 @@ function Upstash(): Upstash {
    */
 
   function append(key: string, value: string): MethodReturn {
-    return request(arguments[2], arguments[3], 'append', key, value);
+    return request(undefined, arguments[2], 'append', key, value);
   }
 
   function decr(key: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'decr', key);
+    return request(undefined, arguments[1], 'decr', key);
   }
 
   function decrby(key: string, decrement: number): MethodReturn {
-    return request(arguments[2], arguments[3], 'decrby', key, decrement);
+    return request(undefined, arguments[2], 'decrby', key, decrement);
   }
 
   function get(key: string): MethodReturn {
@@ -195,19 +195,19 @@ function Upstash(): Upstash {
   }
 
   function getset(key: string, value: string): MethodReturn {
-    return request(arguments[2], arguments[3], 'getset', key, value);
+    return request(undefined, arguments[2], 'getset', key, value);
   }
 
   function incr(key: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'incr', key);
+    return request(undefined, arguments[1], 'incr', key);
   }
 
   function incrby(key: string, value: number | string): MethodReturn {
-    return request(arguments[2], arguments[3], 'incrby', key, value);
+    return request(undefined, arguments[2], 'incrby', key, value);
   }
 
   function incrbyfloat(key: string, value: number | string): MethodReturn {
-    return request(arguments[2], arguments[3], 'incrbyfloat', key, value);
+    return request(undefined, arguments[2], 'incrbyfloat', key, value);
   }
 
   function mget(values: string[]): MethodReturn {
@@ -215,11 +215,11 @@ function Upstash(): Upstash {
   }
 
   function mset(values: string[]): MethodReturn {
-    return request(arguments[1], arguments[2], 'mset', ...values);
+    return request(undefined, arguments[1], 'mset', ...values);
   }
 
   function msetnx(values: string[]): MethodReturn {
-    return request(arguments[1], arguments[2], 'msetnx', ...values);
+    return request(undefined, arguments[1], 'msetnx', ...values);
   }
 
   function psetex(
@@ -227,18 +227,11 @@ function Upstash(): Upstash {
     miliseconds: number,
     value: string | number
   ): MethodReturn {
-    return request(
-      arguments[3],
-      arguments[4],
-      'psetex',
-      key,
-      miliseconds,
-      value
-    );
+    return request(undefined, arguments[3], 'psetex', key, miliseconds, value);
   }
 
   function set(key: string, value: string | number): MethodReturn {
-    return request(arguments[2], arguments[3], 'set', key, value);
+    return request(undefined, arguments[2], 'set', key, value);
   }
 
   function setex(
@@ -246,11 +239,11 @@ function Upstash(): Upstash {
     seconds: number,
     value: string | number
   ): MethodReturn {
-    return request(arguments[3], arguments[4], 'setex', key, seconds, value);
+    return request(undefined, arguments[3], 'setex', key, seconds, value);
   }
 
   function setnx(key: string, value: string): MethodReturn {
-    return request(arguments[2], arguments[3], 'setnx', key, value);
+    return request(undefined, arguments[2], 'setnx', key, value);
   }
 
   function setrange(
@@ -258,7 +251,7 @@ function Upstash(): Upstash {
     offset: number | string,
     value: string
   ): MethodReturn {
-    return request(arguments[3], arguments[4], 'setrange', key, offset, value);
+    return request(undefined, arguments[3], 'setrange', key, offset, value);
   }
 
   function strlen(key: string): MethodReturn {
@@ -282,8 +275,8 @@ function Upstash(): Upstash {
     sourceKeys: string[]
   ): MethodReturn {
     return request(
+      undefined,
       arguments[3],
-      arguments[4],
       'bitop',
       operation,
       destinationKey,
@@ -318,7 +311,7 @@ function Upstash(): Upstash {
   }
 
   function setbit(key: string, offset: number, value: Bit): MethodReturn {
-    return request(arguments[3], arguments[4], 'setbit', key, offset, value);
+    return request(undefined, arguments[3], 'setbit', key, offset, value);
   }
 
   /**
@@ -341,7 +334,7 @@ function Upstash(): Upstash {
    */
 
   function hdel(key: string, fields: string[]): MethodReturn {
-    return request(arguments[2], arguments[3], 'hdel', key, ...fields);
+    return request(undefined, arguments[2], 'hdel', key, ...fields);
   }
 
   function hexists(key: string, field: string): MethodReturn {
@@ -361,14 +354,7 @@ function Upstash(): Upstash {
     field: string,
     increment: number | string
   ): MethodReturn {
-    return request(
-      arguments[3],
-      arguments[4],
-      'hincrby',
-      key,
-      field,
-      increment
-    );
+    return request(undefined, arguments[3], 'hincrby', key, field, increment);
   }
 
   function hincrbyfloat(
@@ -377,8 +363,8 @@ function Upstash(): Upstash {
     increment: number | string
   ): MethodReturn {
     return request(
+      undefined,
       arguments[3],
-      arguments[4],
       'hincrbyfloat',
       key,
       field,
@@ -399,7 +385,7 @@ function Upstash(): Upstash {
   }
 
   function hmset(key: string, values: string[]): MethodReturn {
-    return request(arguments[2], arguments[3], 'hmset', key, ...values);
+    return request(undefined, arguments[2], 'hmset', key, ...values);
   }
 
   function hscan(
@@ -409,8 +395,8 @@ function Upstash(): Upstash {
   ): MethodReturn {
     if (options?.match && options?.count) {
       return request(
+        undefined,
         arguments[3],
-        arguments[4],
         'hscan',
         key,
         cursor,
@@ -421,8 +407,8 @@ function Upstash(): Upstash {
       );
     } else if (options?.match) {
       return request(
+        undefined,
         arguments[3],
-        arguments[4],
         'hscan',
         key,
         cursor,
@@ -431,8 +417,8 @@ function Upstash(): Upstash {
       );
     } else if (options?.count) {
       return request(
+        undefined,
         arguments[3],
-        arguments[4],
         'hscan',
         key,
         cursor,
@@ -440,15 +426,15 @@ function Upstash(): Upstash {
         options.count
       );
     }
-    return request(arguments[3], arguments[4], 'hscan', key, cursor);
+    return request(undefined, arguments[3], 'hscan', key, cursor);
   }
 
   function hset(key: string, values: string[]): MethodReturn {
-    return request(arguments[2], arguments[3], 'hset', key, ...values);
+    return request(undefined, arguments[2], 'hset', key, ...values);
   }
 
   function hsetnx(key: string, field: string, value: string): MethodReturn {
-    return request(arguments[3], arguments[4], 'hsetnx', key, field, value);
+    return request(undefined, arguments[3], 'hsetnx', key, field, value);
   }
 
   function hvals(key: string): MethodReturn {
@@ -460,7 +446,7 @@ function Upstash(): Upstash {
    */
 
   function del(keys: string[]): MethodReturn {
-    return request(arguments[1], arguments[2], 'del', ...keys);
+    return request(undefined, arguments[1], 'del', ...keys);
   }
 
   function exists(keys: string[]): MethodReturn {
@@ -468,11 +454,11 @@ function Upstash(): Upstash {
   }
 
   function expire(key: string, seconds: number): MethodReturn {
-    return request(arguments[2], arguments[3], 'expire', key, seconds);
+    return request(undefined, arguments[2], 'expire', key, seconds);
   }
 
   function expireat(key: string, timestamp: number | string): MethodReturn {
-    return request(arguments[2], arguments[3], 'expireat', key, timestamp);
+    return request(undefined, arguments[2], 'expireat', key, timestamp);
   }
 
   function keys(pattern: string): MethodReturn {
@@ -480,15 +466,15 @@ function Upstash(): Upstash {
   }
 
   function persist(key: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'persist', key);
+    return request(undefined, arguments[1], 'persist', key);
   }
 
   function pexpire(key: string, miliseconds: number): MethodReturn {
-    return request(arguments[2], arguments[3], 'pexpire', key, miliseconds);
+    return request(undefined, arguments[2], 'pexpire', key, miliseconds);
   }
 
   function pexpireat(key: string, miliseconds: number): MethodReturn {
-    return request(arguments[2], arguments[3], 'pexpireat', key, miliseconds);
+    return request(undefined, arguments[2], 'pexpireat', key, miliseconds);
   }
 
   function pttl(key: string): MethodReturn {
@@ -496,15 +482,15 @@ function Upstash(): Upstash {
   }
 
   function randomkey(): MethodReturn {
-    return request(arguments[0], arguments[1], 'randomkey');
+    return request(undefined, arguments[0], 'randomkey');
   }
 
   function rename(key: string, newKey: string): MethodReturn {
-    return request(arguments[2], arguments[3], 'rename', key, newKey);
+    return request(undefined, arguments[2], 'rename', key, newKey);
   }
 
   function renamenx(key: string, newKey: string): MethodReturn {
-    return request(arguments[2], arguments[3], 'renamenx', key, newKey);
+    return request(undefined, arguments[2], 'renamenx', key, newKey);
   }
 
   function scan(
@@ -513,8 +499,8 @@ function Upstash(): Upstash {
   ): MethodReturn {
     if (opitons?.match && opitons?.count) {
       return request(
+        undefined,
         arguments[2],
-        arguments[3],
         'scan',
         cursor,
         'match',
@@ -524,8 +510,8 @@ function Upstash(): Upstash {
       );
     } else if (opitons?.match) {
       return request(
+        undefined,
         arguments[2],
-        arguments[3],
         'scan',
         cursor,
         'match',
@@ -533,19 +519,19 @@ function Upstash(): Upstash {
       );
     } else if (opitons?.count) {
       return request(
+        undefined,
         arguments[2],
-        arguments[3],
         'scan',
         cursor,
         'count',
         opitons.count
       );
     }
-    return request(arguments[2], arguments[3], 'scan', cursor);
+    return request(undefined, arguments[2], 'scan', cursor);
   }
 
   function touch(keys: string[]): MethodReturn {
-    return request(arguments[1], arguments[2], 'touch', ...keys);
+    return request(undefined, arguments[1], 'touch', ...keys);
   }
 
   function ttl(key: string): MethodReturn {
@@ -557,7 +543,7 @@ function Upstash(): Upstash {
   }
 
   function unlink(keys: string[]): MethodReturn {
-    return request(arguments[1], arguments[2], 'unlink', ...keys);
+    return request(undefined, arguments[1], 'unlink', ...keys);
   }
 
   /**
@@ -575,8 +561,8 @@ function Upstash(): Upstash {
     element: string
   ): MethodReturn {
     return request(
+      undefined,
       arguments[4],
-      arguments[5],
       'linsert',
       key,
       option,
@@ -590,15 +576,15 @@ function Upstash(): Upstash {
   }
 
   function lpop(key: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'lpop', key);
+    return request(undefined, arguments[1], 'lpop', key);
   }
 
   function lpush(key: string, elements: string[]): MethodReturn {
-    return request(arguments[2], arguments[3], 'lpush', key, ...elements);
+    return request(undefined, arguments[2], 'lpush', key, ...elements);
   }
 
   function lpushx(key: string, elements: string[]): MethodReturn {
-    return request(arguments[2], arguments[3], 'lpushx', key, ...elements);
+    return request(undefined, arguments[2], 'lpushx', key, ...elements);
   }
 
   function lrange(key: string, start: number, stop: number): MethodReturn {
@@ -606,37 +592,31 @@ function Upstash(): Upstash {
   }
 
   function lrem(key: string, count: number, element: string): MethodReturn {
-    return request(arguments[3], arguments[4], 'lrem', key, count, element);
+    return request(undefined, arguments[3], 'lrem', key, count, element);
   }
 
   function lset(key: string, index: number, element: string): MethodReturn {
-    return request(arguments[3], arguments[4], 'lset', key, index, element);
+    return request(undefined, arguments[3], 'lset', key, index, element);
   }
 
   function ltrim(key: string, start: number, stop: number): MethodReturn {
-    return request(arguments[3], arguments[4], 'ltrim', key, start, stop);
+    return request(undefined, arguments[3], 'ltrim', key, start, stop);
   }
 
   function rpop(key: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'rpop', key);
+    return request(undefined, arguments[1], 'rpop', key);
   }
 
   function rpoplpush(source: string, destination: string): MethodReturn {
-    return request(
-      arguments[2],
-      arguments[3],
-      'rpoplpush',
-      source,
-      destination
-    );
+    return request(undefined, arguments[2], 'rpoplpush', source, destination);
   }
 
   function rpush(key: string, elements: string[]): MethodReturn {
-    return request(arguments[2], arguments[3], 'rpush', key, ...elements);
+    return request(undefined, arguments[2], 'rpush', key, ...elements);
   }
 
   function rpushx(key: string, elements: string[]): MethodReturn {
-    return request(arguments[2], arguments[3], 'rpushx', key, ...elements);
+    return request(undefined, arguments[2], 'rpushx', key, ...elements);
   }
 
   /**
@@ -649,16 +629,16 @@ function Upstash(): Upstash {
 
   function flushall(mode?: 'ASYNC'): MethodReturn {
     if (mode) {
-      return request(arguments[1], arguments[2], 'flushall', mode);
+      return request(undefined, arguments[1], 'flushall', mode);
     }
-    return request(arguments[1], arguments[2], 'flushall');
+    return request(undefined, arguments[1], 'flushall');
   }
 
   function flushdb(mode?: 'ASYNC'): MethodReturn {
     if (mode) {
-      return request(arguments[1], arguments[2], 'flushdb', mode);
+      return request(undefined, arguments[1], 'flushdb', mode);
     }
-    return request(arguments[1], arguments[2], 'flushdb');
+    return request(undefined, arguments[1], 'flushdb');
   }
 
   function info(): MethodReturn {
@@ -666,7 +646,7 @@ function Upstash(): Upstash {
   }
 
   function time(): MethodReturn {
-    return request(arguments[0], arguments[1], 'time');
+    return request(undefined, arguments[0], 'time');
   }
 
   /**
@@ -674,11 +654,11 @@ function Upstash(): Upstash {
    */
 
   function sadd(key: string, members: string[]): MethodReturn {
-    return request(arguments[2], arguments[3], 'sadd', key, ...members);
+    return request(undefined, arguments[2], 'sadd', key, ...members);
   }
 
   function scard(key: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'scard', key);
+    return request(undefined, arguments[1], 'scard', key);
   }
 
   function sdiff(keys: string[]): MethodReturn {
@@ -686,13 +666,7 @@ function Upstash(): Upstash {
   }
 
   function sdiffstore(destination: string, keys: string[]): MethodReturn {
-    return request(
-      arguments[2],
-      arguments[3],
-      'sdiffstore',
-      destination,
-      ...keys
-    );
+    return request(undefined, arguments[2], 'sdiffstore', destination, ...keys);
   }
 
   function sinter(keys: string[]): MethodReturn {
@@ -701,8 +675,8 @@ function Upstash(): Upstash {
 
   function sinterstore(destination: string, keys: string[]): MethodReturn {
     return request(
+      undefined,
       arguments[2],
-      arguments[3],
       'sinterstore',
       destination,
       ...keys
@@ -723,8 +697,8 @@ function Upstash(): Upstash {
     member: string
   ): MethodReturn {
     return request(
+      undefined,
       arguments[3],
-      arguments[4],
       'smove',
       source,
       destination,
@@ -734,9 +708,9 @@ function Upstash(): Upstash {
 
   function spop(key: string, count?: number): MethodReturn {
     if (count) {
-      return request(arguments[2], arguments[3], 'spop', key, count);
+      return request(undefined, arguments[2], 'spop', key, count);
     }
-    return request(arguments[2], arguments[3], 'spop', key);
+    return request(undefined, arguments[2], 'spop', key);
   }
 
   function srandmember(key: string, count?: number): MethodReturn {
@@ -747,7 +721,7 @@ function Upstash(): Upstash {
   }
 
   function srem(key: string, members: string[]): MethodReturn {
-    return request(arguments[2], arguments[3], 'srem', key, ...members);
+    return request(undefined, arguments[2], 'srem', key, ...members);
   }
 
   function sunion(keys: string[]): MethodReturn {
@@ -756,8 +730,8 @@ function Upstash(): Upstash {
 
   function sunionstore(destination: string, keys: string[]): MethodReturn {
     return request(
+      undefined,
       arguments[2],
-      arguments[3],
       'sunionstore',
       destination,
       ...keys
@@ -782,8 +756,8 @@ function Upstash(): Upstash {
         .map((e) => e[0].toUpperCase());
 
       return request(
+        undefined,
         arguments[3],
-        arguments[4],
         'zadd',
         key,
         ...allOptions,
@@ -806,14 +780,7 @@ function Upstash(): Upstash {
     increment: number | string,
     member: string
   ): MethodReturn {
-    return request(
-      arguments[3],
-      arguments[4],
-      'zincrby',
-      key,
-      increment,
-      member
-    );
+    return request(undefined, arguments[3], 'zincrby', key, increment, member);
   }
 
   function zinterstore(
@@ -824,8 +791,8 @@ function Upstash(): Upstash {
     if (options) {
       if (options.weights && options.aggregate) {
         return request(
+          undefined,
           arguments[3],
-          arguments[4],
           'zinterstore',
           destination,
           keys.length,
@@ -837,8 +804,8 @@ function Upstash(): Upstash {
         );
       } else if (options.weights) {
         return request(
+          undefined,
           arguments[3],
-          arguments[4],
           'zinterstore',
           destination,
           keys.length,
@@ -848,8 +815,8 @@ function Upstash(): Upstash {
         );
       } else if (options.aggregate) {
         return request(
+          undefined,
           arguments[3],
-          arguments[4],
           'zinterstore',
           destination,
           keys.length,
@@ -860,8 +827,8 @@ function Upstash(): Upstash {
       }
     }
     return request(
+      undefined,
       arguments[3],
-      arguments[4],
       'zinterstore',
       destination,
       keys.length,
@@ -879,16 +846,16 @@ function Upstash(): Upstash {
 
   function zpopmax(key: string, count?: number): MethodReturn {
     if (count) {
-      return request(arguments[2], arguments[3], 'zpopmax', key, count);
+      return request(undefined, arguments[2], 'zpopmax', key, count);
     }
-    return request(arguments[2], arguments[3], 'zpopmax', key);
+    return request(undefined, arguments[2], 'zpopmax', key);
   }
 
   function zpopmin(key: string, count?: number): MethodReturn {
     if (count) {
-      return request(arguments[2], arguments[3], 'zpopmin', key, count);
+      return request(undefined, arguments[2], 'zpopmin', key, count);
     }
-    return request(arguments[2], arguments[3], 'zpopmin', key);
+    return request(undefined, arguments[2], 'zpopmin', key);
   }
 
   function zrange(
@@ -987,7 +954,7 @@ function Upstash(): Upstash {
   }
 
   function zrem(key: string, members: string[]): MethodReturn {
-    return request(arguments[2], arguments[3], 'zrem', key, ...members);
+    return request(undefined, arguments[2], 'zrem', key, ...members);
   }
 
   function zremrangebylex(
@@ -995,7 +962,7 @@ function Upstash(): Upstash {
     min: ZSetNumber,
     max: ZSetNumber
   ): MethodReturn {
-    return request(arguments[3], arguments[4], 'zremrangebylex', key, min, max);
+    return request(undefined, arguments[3], 'zremrangebylex', key, min, max);
   }
 
   function zremrangebyrank(
@@ -1004,8 +971,8 @@ function Upstash(): Upstash {
     stop: number
   ): MethodReturn {
     return request(
+      undefined,
       arguments[3],
-      arguments[4],
       'zremrangebyrank',
       key,
       start,
@@ -1018,14 +985,7 @@ function Upstash(): Upstash {
     min: ZSetNumber,
     max: ZSetNumber
   ): MethodReturn {
-    return request(
-      arguments[3],
-      arguments[4],
-      'zremrangebyscore',
-      key,
-      min,
-      max
-    );
+    return request(undefined, arguments[3], 'zremrangebyscore', key, min, max);
   }
 
   function zrevrange(
@@ -1102,8 +1062,8 @@ function Upstash(): Upstash {
     if (options) {
       if (options.weights && options.aggregate) {
         return request(
+          undefined,
           arguments[3],
-          arguments[4],
           'zunionstore',
           destination,
           keys.length,
@@ -1115,8 +1075,8 @@ function Upstash(): Upstash {
         );
       } else if (options.weights) {
         return request(
+          undefined,
           arguments[3],
-          arguments[4],
           'zunionstore',
           destination,
           keys.length,
@@ -1126,8 +1086,8 @@ function Upstash(): Upstash {
         );
       } else if (options.aggregate) {
         return request(
+          undefined,
           arguments[3],
-          arguments[4],
           'zunionstore',
           destination,
           keys.length,
@@ -1138,8 +1098,8 @@ function Upstash(): Upstash {
       }
     }
     return request(
+      undefined,
       arguments[3],
-      arguments[4],
       'zunionstore',
       destination,
       keys.length,

@@ -15,7 +15,7 @@ export type MethodReturn = Promise<ReturnType>;
 export type Callback = (res: ReturnType) => any;
 
 export type RequestConfig =
-  | null
+  | false
   | undefined
   | {
       edge?: boolean;

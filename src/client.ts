@@ -130,10 +130,11 @@ function Upstash(): Upstash {
 
     if (isObject(configOrCallback)) {
       isRequestDefaultEdge =
-        isRequestDefaultEdge && arguments[0]?.edge !== false;
-      // @ts-ignore
+        // @ts-ignore
+        isRequestDefaultEdge && configOrCallback?.edge !== false;
       isRequestCustomEdge = Boolean(
-        arguments[0]?.edgeUrl && arguments[0]?.edge
+        // @ts-ignore
+        configOrCallback?.edgeUrl && configOrCallback?.edge
       );
     }
 

@@ -61,11 +61,7 @@ function Upstash(): Upstash {
       OPTIONS.url = url;
       OPTIONS.token = token;
       OPTIONS.edgeUrl = edgeUrl;
-      if (readFromEdge === true || readFromEdge === false) {
-        OPTIONS.readFromEdge = edgeUrl ?? readFromEdge;
-      } else {
-        OPTIONS.readFromEdge = !!edgeUrl;
-      }
+      OPTIONS.readFromEdge = readFromEdge ?? !!edgeUrl;
     }
     // Upstash(url, token)
     else if (isString(arg0) && isString(arg1)) {
@@ -142,12 +138,9 @@ function Upstash(): Upstash {
       );
     }
 
-    console.log('--', isRequestDefaultEdge, isRequestCustomEdge);
-
     if (isRequestDefaultEdge || isRequestCustomEdge) {
       const command = encodeURI(parts.join('/'));
       const edgeUrlWithPath = `${OPTIONS.edgeUrl}/${command}`;
-      console.log(edgeUrlWithPath);
       promise = fetchData(edgeUrlWithPath, {
         method: 'GET',
       });

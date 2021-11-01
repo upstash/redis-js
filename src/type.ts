@@ -27,7 +27,7 @@ export type Bit = 0 | 1;
 
 export type Infinities = '+inf' | '-inf';
 
-export type ZSetNumber = number | Infinities | string;
+export type ZSetNumber = Infinities | number | string;
 
 type Auth1 = (url?: string, token?: string) => void;
 type Auth2 = (options?: ClientObjectProps) => void;
@@ -946,14 +946,14 @@ type ZRemRangeByRankProps0 = (
 
 type ZRemRangeByScoreProps1 = (
   key: string,
-  start: number,
-  stop: number,
+  min: ZSetNumber,
+  max: ZSetNumber,
   callback?: Callback
 ) => MethodReturn;
 type ZRemRangeByScoreProps0 = (
   key: string,
-  start: number,
-  stop: number
+  min: ZSetNumber,
+  max: ZSetNumber
 ) => MethodReturn;
 
 type ZRevRangeProps2 = (

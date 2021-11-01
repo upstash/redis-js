@@ -8,6 +8,7 @@ export type ClientObjectProps = {
 export type ReturnType = {
   data: string | number | [] | any;
   error: string | null;
+  config?: { edge: boolean };
 };
 
 export type MethodReturn = Promise<ReturnType>;

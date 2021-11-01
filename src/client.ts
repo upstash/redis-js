@@ -120,7 +120,7 @@ function Upstash(): Upstash {
   ): MethodReturn {
     if (!OPTIONS.url || OPTIONS.url === '') {
       return new Promise((resolve) =>
-        resolve({ data: null, error: 'Database url not fount?' })
+        resolve({ data: null, error: 'Database url not found?' })
       );
     }
 

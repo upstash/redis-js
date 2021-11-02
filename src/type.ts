@@ -5,10 +5,12 @@ export type ClientObjectProps = {
   readFromEdge?: boolean;
 };
 
+export type EdgeCacheType = null | 'miss' | 'hit';
+
 export type ReturnType = {
   data: string | number | [] | any;
   error: string | null;
-  config?: { cache: boolean; edge: boolean };
+  config?: { edge: boolean; cache: EdgeCacheType };
 };
 
 export type MethodReturn = Promise<ReturnType>;

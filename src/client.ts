@@ -10,6 +10,7 @@ import {
   Upstash,
   Bit,
   ZSetNumber,
+  EdgeCacheType,
 } from './type';
 
 /**
@@ -86,8 +87,8 @@ function Upstash(): Upstash {
    * Fetch
    */
   function fetchData(url: string, options: object): Promise<ReturnType> {
-    let cache = false;
-    let edge = false;
+    let cache: EdgeCacheType = null;
+    let edge: boolean = false;
     return new Promise((resolve) => {
       fetch(url, {
         ...options,
@@ -96,14 +97,14 @@ function Upstash(): Upstash {
         },
       })
         .then((res) => {
-          const xCache = res.headers.get('x-cache');
           switch (res.headers.get('x-cache')) {
             case 'Hit from cloudfront':
               edge = true;
-              cache = true;
+              cache = 'hit';
               break;
             case 'Miss from cloudfront':
               edge = true;
+              cache = 'miss';
               break;
           }
           return res.json().then();

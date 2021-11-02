@@ -86,7 +86,8 @@ function Upstash(): Upstash {
    * Fetch
    */
   function fetchData(url: string, options: object): Promise<ReturnType> {
-    let isEdge = false;
+    let cache = false;
+    let edge = false;
     return new Promise((resolve) => {
       fetch(url, {
         ...options,
@@ -95,8 +96,15 @@ function Upstash(): Upstash {
         },
       })
         .then((res) => {
-          if (res.headers.get('x-cache') === 'Hit from cloudfront') {
-            isEdge = true;
+          const xCache = res.headers.get('x-cache');
+          switch (res.headers.get('x-cache')) {
+            case 'Hit from cloudfront':
+              edge = true;
+              cache = true;
+              break;
+            case 'Miss from cloudfront':
+              edge = true;
+              break;
           }
           return res.json().then();
         })
@@ -105,14 +113,14 @@ function Upstash(): Upstash {
           resolve({
             data: data.result,
             error: null,
-            config: { edge: isEdge },
+            config: { edge, cache },
           });
         })
         .catch((error) => {
           resolve({
             data: null,
             error: typeof error === 'object' ? error.message : error,
-            config: { edge: isEdge },
+            config: { edge, cache },
           });
         });
     });

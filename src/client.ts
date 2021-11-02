@@ -161,9 +161,20 @@ function Upstash(): Upstash {
     }
     // get command
     // has config & has edgeUrl
-    else if (isObject(configOrCallback) && !!OPTIONS.edgeUrl) {
+    else if (isObject(configOrCallback)) {
       // @ts-ignore
-      isRequestCustomEdge = configOrCallback?.edge;
+      if (!OPTIONS.edgeUrl && configOrCallback?.edge) {
+        return new Promise((resolve) =>
+          resolve({
+            data: null,
+            error: 'You need to set Edge Url to read from edge.',
+          })
+        );
+      }
+      if (OPTIONS.edgeUrl) {
+        // @ts-ignore
+        isRequestCustomEdge = configOrCallback?.edge;
+      }
     }
 
     if (isRequestCustomEdge) {

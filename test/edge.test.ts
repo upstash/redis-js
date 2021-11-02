@@ -44,6 +44,16 @@ describe('edge request', () => {
     console.log('get0', get0);
   });
 
+  it('edge url not found 2', async () => {
+    const url = process.env.UPSTASH_REDIS_REST_URL;
+    const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+    auth({ url, token, readFromEdge: false });
+
+    const get0 = await get('asddfghj', { edge: true });
+    console.log('get0', get0);
+  });
+
   it('edge url not found 1', async () => {
     const url = process.env.UPSTASH_REDIS_REST_URL;
     const token = process.env.UPSTASH_REDIS_REST_TOKEN;

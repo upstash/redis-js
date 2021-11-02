@@ -19,7 +19,7 @@ describe('edge request', () => {
     const get0 = await get(key);
     expect(get0.data).toBe('1');
     expect(get0.config?.edge).toBeTruthy();
-    expect(get0.config?.cache).toBeFalsy();
+    expect(get0.config?.cache).toBe('miss');
     // console.log('get0', get0);
 
     const set1 = await set(key, '2');
@@ -30,7 +30,28 @@ describe('edge request', () => {
     const get1 = await get(key);
     expect(get1.data).toBe('1');
     expect(get1.config?.edge).toBeTruthy();
-    expect(get1.config?.cache).toBeTruthy();
+    expect(get1.config?.cache).toBe('hit');
     // console.log('get1', get1);
+  });
+
+  it('edge url not found', async () => {
+    const url = process.env.UPSTASH_REDIS_REST_URL;
+    const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+    auth({ url, token, readFromEdge: true });
+
+    const get0 = await get('asddfghj');
+    console.log('get0', get0);
+  });
+
+  it('edge url not found 1', async () => {
+    const url = process.env.UPSTASH_REDIS_REST_URL;
+    const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+    const edgeUrl = process.env.UPSTASH_REDIS_EDGE_URL;
+
+    auth({ url, edgeUrl, token, readFromEdge: false });
+
+    const get0 = await get('asddfghj', { edge: true });
+    console.log('get0', get0);
   });
 });

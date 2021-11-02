@@ -54,7 +54,7 @@ function Upstash(): Upstash {
     const arg0 = arguments[0];
     const arg1 = arguments[1];
 
-    OPTIONS = { url: '', token: '', edgeUrl: '', readFromEdge: true };
+    OPTIONS = { url: '', token: '', edgeUrl: '', readFromEdge: false };
 
     // Upstash({})
     if (isObject(arg0)) {
@@ -141,18 +141,29 @@ function Upstash(): Upstash {
       );
     }
 
+    if (!OPTIONS.edgeUrl && OPTIONS.readFromEdge) {
+      return new Promise((resolve) =>
+        resolve({
+          data: null,
+          error: 'You need to set Edge Url to read from edge.',
+        })
+      );
+    }
+
     let promise: Promise<ReturnType>;
 
     let isRequestDefaultEdge = !!OPTIONS.edgeUrl && OPTIONS.readFromEdge;
     let isRequestCustomEdge = isRequestDefaultEdge;
 
-    // is write command?
+    // write command?
     if (configOrCallback === false) {
       isRequestCustomEdge = false;
-    } else if (isObject(configOrCallback)) {
-      isRequestCustomEdge =
-        // @ts-ignore
-        isRequestDefaultEdge && configOrCallback?.edge !== false;
+    }
+    // get command
+    // has config & has edgeUrl
+    else if (isObject(configOrCallback) && !!OPTIONS.edgeUrl) {
+      // @ts-ignore
+      isRequestCustomEdge = configOrCallback?.edge;
     }
 
     if (isRequestCustomEdge) {

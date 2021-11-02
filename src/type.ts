@@ -10,7 +10,7 @@ export type EdgeCacheType = null | 'miss' | 'hit';
 export type ReturnType = {
   data: string | number | [] | any;
   error: string | null;
-  config?: { edge: boolean; cache: EdgeCacheType };
+  metadata?: { edge: boolean; cache: EdgeCacheType };
 };
 
 export type MethodReturn = Promise<ReturnType>;

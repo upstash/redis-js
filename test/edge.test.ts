@@ -14,23 +14,23 @@ describe('edge request', () => {
     const set0 = await set(key, '1');
     // console.log('set0', set0);
     expect(set0.data).toBe('OK');
-    expect(set0.config?.edge).toBeFalsy();
+    expect(set0.metadata?.edge).toBeFalsy();
 
     const get0 = await get(key);
     expect(get0.data).toBe('1');
-    expect(get0.config?.edge).toBeTruthy();
-    expect(get0.config?.cache).toBe('miss');
+    expect(get0.metadata?.edge).toBeTruthy();
+    expect(get0.metadata?.cache).toBe('miss');
     // console.log('get0', get0);
 
     const set1 = await set(key, '2');
     expect(set1.data).toBe('OK');
-    expect(set1.config?.edge).toBeFalsy();
+    expect(set1.metadata?.edge).toBeFalsy();
     // console.log('set1', set1);
 
     const get1 = await get(key);
     expect(get1.data).toBe('1');
-    expect(get1.config?.edge).toBeTruthy();
-    expect(get1.config?.cache).toBe('hit');
+    expect(get1.metadata?.edge).toBeTruthy();
+    expect(get1.metadata?.cache).toBe('hit');
     // console.log('get1', get1);
   });
 

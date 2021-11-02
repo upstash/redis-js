@@ -114,14 +114,14 @@ function Upstash(): Upstash {
           resolve({
             data: data.result,
             error: null,
-            config: { edge, cache },
+            metadata: { edge, cache },
           });
         })
         .catch((error) => {
           resolve({
             data: null,
             error: typeof error === 'object' ? error.message : error,
-            config: { edge, cache },
+            metadata: { edge, cache },
           });
         });
     });

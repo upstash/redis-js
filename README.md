@@ -74,3 +74,30 @@ import { get } from '@upstash/redis';
   }
 })();
 ```
+
+### Edge Support
+
+> Only GET requests are supported in Edge Caching. As a result, write/update commands are not supported.
+
+```typescript
+import upstash from '@upstash/redis';
+
+const redis = upstash({
+  url: 'UPSTASH_REDIS_REST_URL',
+  token: 'UPSTASH_REDIS_REST_TOKEN',
+  edgeUrl: 'UPSTASH_REDIS_EDGE_URL',
+});
+
+(async () => {
+  try {
+    const { data, error, metadata } = await redis.get('key');
+    if (error) throw error;
+    console.log(data);
+    // -> null | string
+    console.log(metadata);
+    // -> { edge: boolean, cache: null | 'miss' | 'hit' }
+  } catch (error) {
+    console.error(error);
+  }
+})();
+```

@@ -1,6 +1,6 @@
-import client from './client';
+import Upstash from './client';
 
-export default client;
+export default Upstash;
 
 const {
   auth,
@@ -39,10 +39,10 @@ const {
   hlen,
   hmget,
   hmset,
+  hscan,
   hset,
   hsetnx,
   hvals,
-  hscan,
   del,
   exists,
   expire,
@@ -112,10 +112,10 @@ const {
   zrevrange,
   zrevrangebylex,
   zrevrangebyscore,
-  // zrevrank,
+  zrevrank,
   zscore,
   zunionstore,
-} = client();
+} = Upstash();
 
 export {
   auth,
@@ -154,10 +154,10 @@ export {
   hlen,
   hmget,
   hmset,
+  hscan,
   hset,
   hsetnx,
   hvals,
-  hscan,
   del,
   exists,
   expire,
@@ -227,7 +227,7 @@ export {
   zrevrange,
   zrevrangebylex,
   zrevrangebyscore,
-  // zrevrank,
+  zrevrank,
   zscore,
   zunionstore,
 };

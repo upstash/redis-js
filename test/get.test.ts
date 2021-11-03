@@ -3,31 +3,37 @@ import { nanoid } from 'nanoid';
 
 describe('get command', () => {
   it('return null', async () => {
-    const { data } = await get('key/null');
+    const { data } = await get('keynull');
     expect(data).toBe(null);
   });
 
-  it('return a value', async () => {
+  it('return a value without edge', async () => {
     const key = nanoid();
-    const value = nanoid();
+    await set(key, 'hello');
 
-    await set(key, value);
+    const { data } = await get(key, { edge: false });
+    expect(data).toBe('hello');
+  });
+
+  it('return a value with edge', async () => {
+    const key = nanoid();
+
+    await set(key, 'hello');
 
     const { data } = await get(key);
-    expect(data).toBe(value);
+    expect(data).toBe('hello');
   });
 
   it('callback', (done) => {
     const key = nanoid();
-    const value = nanoid();
 
-    set(key, value)
+    set(key, 'hello')
       .then(({ data }) => {
         expect(data).toBe('OK');
       })
       .then(() => {
         get(key, ({ data: getData }) => {
-          expect(getData).toBe(value);
+          expect(getData).toBe('hello');
           done();
         });
       });

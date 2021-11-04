@@ -30,19 +30,13 @@ function parseOptions(
   return edgeUrl ? { url, token, edgeUrl, readFromEdge } : { url, token };
 }
 
-function parseUrl(url: string) {
-  if (!url.startsWith('http')) {
-    url = `https://${url}`;
-  }
-  return url;
-}
-
 function request(
   config: { options: ClientObjectProps; edge?: boolean },
   args: Part[]
 ) {
-  const { options, edge = false } = config;
-  let fromEdge = !!options.edgeUrl && (edge || options.readFromEdge);
+  const { options, edge } = config;
+  const fromEdge =
+    edge === false ? false : !!options.edgeUrl && options.readFromEdge;
 
   if (!options.edgeUrl && edge) {
     throw new Error(`"edge: true" is being used but the Edge Url is missing`);
@@ -51,9 +45,9 @@ function request(
   if (fromEdge) {
     const command = encodeURI(args.join('/'));
     const edgeUrlWithPath = `${options.edgeUrl}/${command}`;
-    return fetchData(parseUrl(edgeUrlWithPath), options, { method: 'GET' });
+    return fetchData(edgeUrlWithPath, options, { method: 'GET' });
   } else {
-    return fetchData(parseUrl(options.url), options, {
+    return fetchData(options.url, options, {
       method: 'POST',
       body: JSON.stringify(args),
     });

@@ -97,8 +97,10 @@ const redis = upstash({
     // -> null | string
     console.log(metadata);
     // -> { edge: boolean, cache: null | 'miss' | 'hit' }
+    
     // the below reads using REST url (non-edge)
-    const { data2, error2, metadata2 } = await redis.get('key', {edge: false});
+    const get1 = await redis.get('key', {edge: false});
+    if (get1.error) throw get1.error;
   } catch (error) {
     console.error(error);
   }

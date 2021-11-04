@@ -1,9 +1,16 @@
-export type ClientObjectProps = {
-  url?: undefined | string;
-  token?: undefined | string;
-  edgeUrl?: undefined | string;
-  readFromEdge?: boolean;
-};
+export type ClientObjectProps =
+  | {
+      url: string;
+      token: string;
+      edgeUrl?: never;
+      readFromEdge?: never;
+    }
+  | {
+      url: string;
+      token: string;
+      edgeUrl: string;
+      readFromEdge: boolean;
+    };
 
 export type EdgeCacheType = null | 'miss' | 'hit';
 

@@ -170,16 +170,22 @@ function upstash(url?: string | ClientObjectProps, token?: string): Upstash {
           if (typeof arg === 'number') {
             opArgs.push(...args.slice(nextArg, nextArg + arg));
             nextArg += arg;
-          } else if (typeof arg === 'boolean') {
+            continue;
+          }
+          if (typeof arg === 'boolean') {
             edge = arg;
-          } else if (arg === 'spread') {
+            continue;
+          }
+          if (arg === 'spread') {
             opArgs.push(...args[nextArg]);
-            nextArg++;
-            // There can only be one spread defined
-            break;
           } else if (typeof arg === 'function') {
             opArgs.push(...arg(...args));
           }
+          // Make sure to increase nextArg if the arg is a spread or
+          // a function so we don't push the same arguments twice
+          nextArg++;
+          // There can only be one spread or function defined
+          break;
         }
         // Handle cases like `1`, `[1, false]`
         if (!nextArg && knownArgsCount) {

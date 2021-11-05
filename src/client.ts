@@ -1,13 +1,14 @@
 import fetch from 'isomorphic-unfetch';
 import {
   ClientObjectProps,
-  ReturnType,
+  ResponseType,
   Callback,
   Part,
   Upstash,
   Bit,
   ZSetNumber,
   EdgeCacheType,
+  Pipeline,
 } from './type';
 
 type CustomArgsFn = (...args: any[]) => any[];
@@ -49,7 +50,7 @@ async function fetchData(
   url: string,
   options: ClientObjectProps,
   init: RequestInit
-): Promise<ReturnType> {
+): Promise<ResponseType> {
   try {
     const res = await fetch(url, {
       ...init,
@@ -231,7 +232,8 @@ const operations = {
         const op = target[prop];
         if (op === undefined) return;
 
-        // TODO: define a Pipeline type that includes submit
+        // submit is defined here instead of in `operations` to avoid
+        // doing a ...spread on it
         if ((prop as string) === 'submit') {
           return () => {
             const url = `${options.url}/pipeline`;
@@ -252,9 +254,8 @@ const operations = {
         };
       },
     });
-    // The type conversion below is required, because our Proxy is a trap
-    // and its target object is being used in a completely different way
-    return obj as unknown as Upstash;
+    // Just as with the upstash client, the Proxy is trap
+    return obj as unknown as Pipeline;
   },
   /**
    * Auth

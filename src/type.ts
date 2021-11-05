@@ -14,15 +14,15 @@ export type ClientObjectProps =
 
 export type EdgeCacheType = null | 'miss' | 'hit';
 
-export type ReturnType = {
+export type ResponseType = {
   data: string | number | [] | any;
   error: string | null;
   metadata?: { edge: boolean; cache: EdgeCacheType };
 };
 
-export type MethodReturn = Promise<ReturnType>;
+export type MethodReturn = Promise<ResponseType>;
 
-export type Callback = (res: ReturnType) => any;
+export type Callback = (res: ResponseType) => any;
 
 export type RequestConfig =
   | false
@@ -1204,4 +1204,24 @@ export type Upstash = {
   zunionstore: ZUnionStoreProps0 & ZUnionStoreProps1;
 };
 
-export type Pipeline = any;
+type SubmitProps1 = (callback?: Callback) => MethodReturn;
+type SubmitProps0 = () => MethodReturn;
+
+type WithoutConfigAndCb<T> = T extends [
+  ...args: infer NoCb,
+  callback?: Callback
+]
+  ? NoCb extends [...args: infer NoConfig, config?: RequestConfig]
+    ? NoConfig
+    : NoCb
+  : T;
+
+type PipelineMethods = Omit<Upstash, 'pipeline'>;
+
+export type Pipeline = {
+  [K in keyof PipelineMethods]: (
+    ...args: WithoutConfigAndCb<Parameters<Upstash[K]>>
+  ) => [K, ...any];
+} & {
+  submit: SubmitProps0 & SubmitProps1;
+};

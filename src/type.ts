@@ -268,6 +268,8 @@ type PingProps2 = (
 type PingProps1 = (value?: string, callback?: Callback) => MethodReturn;
 type PingProps0 = (value?: string) => MethodReturn;
 
+type PipelineProps = () => Pipeline;
+
 type HDelProps1 = (
   key: string,
   fields: string[],
@@ -1101,6 +1103,8 @@ export type Upstash = {
   echo: EchoProps0 & EchoProps1 & EchoProps2;
   ping: PingProps0 & PingProps1 & PingProps2;
   //
+  pipeline: PipelineProps;
+  //
   hdel: HDelProps0 & HDelProps1;
   hexists: HExistsProps0 & HExistsProps1 & HExistsProps2;
   hget: HGetProps0 & HGetProps1 & HGetProps2;
@@ -1199,3 +1203,5 @@ export type Upstash = {
   zscore: ZScoreProps0 & ZScoreProps1 & ZScoreProps2;
   zunionstore: ZUnionStoreProps0 & ZUnionStoreProps1;
 };
+
+export type Pipeline = any;

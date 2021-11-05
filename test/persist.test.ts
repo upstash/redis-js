@@ -16,7 +16,8 @@ describe('persist command', () => {
     const { data: data3 } = await persist(key);
     expect(data3).toBe(1);
 
-    const { data: data4 } = await ttl(key);
+    // Make sure edge cache isn't used or we'll get a false positive
+    const { data: data4 } = await ttl(key, { edge: false });
     expect(data4).toBe(-1);
   });
 });

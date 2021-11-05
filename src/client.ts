@@ -13,21 +13,24 @@ import {
 function parseOptions(
   url?: string | ClientObjectProps,
   token?: string,
-  edgeUrl?: string,
+  edgeUrl?: string | null,
   readFromEdge?: boolean
 ): ClientObjectProps {
-  // try auto fill from env variables
+  if (typeof url === 'object')
+    return parseOptions(url.url, url.token, url.edgeUrl, url.readFromEdge);
+  // Try to auto fill from env variables
   if (!url) url = process.env.UPSTASH_REDIS_REST_URL;
   if (!token) token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!edgeUrl) edgeUrl = process.env.UPSTASH_REDIS_EDGE_URL;
+  if (edgeUrl === undefined) edgeUrl = process.env.UPSTASH_REDIS_EDGE_URL;
   readFromEdge = readFromEdge ?? !!edgeUrl;
 
+  if (readFromEdge && !edgeUrl) {
+    throw new Error(`readFromEdge is set to true but the Edge Url is missing`);
+  }
   if (!url) throw new Error('REST Url is missing');
   if (!token) throw new Error('REST token is missing');
 
-  if (typeof url !== 'string')
-    return parseOptions(url.url, url.token, url.edgeUrl, url.readFromEdge);
-  return edgeUrl ? { url, token, edgeUrl, readFromEdge } : { url, token };
+  return { url, token, edgeUrl, readFromEdge };
 }
 
 async function fetchData(

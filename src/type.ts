@@ -8,8 +8,8 @@ export type ClientObjectProps =
   | {
       url: string;
       token: string;
-      edgeUrl: string;
-      readFromEdge: boolean;
+      edgeUrl?: string | null;
+      readFromEdge?: boolean;
     };
 
 export type EdgeCacheType = null | 'miss' | 'hit';

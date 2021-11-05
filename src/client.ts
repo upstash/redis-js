@@ -30,30 +30,6 @@ function parseOptions(
   return edgeUrl ? { url, token, edgeUrl, readFromEdge } : { url, token };
 }
 
-function request(
-  config: { options: ClientObjectProps; edge?: boolean },
-  args: Part[]
-) {
-  const { options, edge } = config;
-  const fromEdge =
-    edge === false ? false : !!options.edgeUrl && options.readFromEdge;
-
-  if (!options.edgeUrl && edge) {
-    throw new Error(`"edge: true" is being used but the Edge Url is missing`);
-  }
-
-  if (fromEdge) {
-    const command = encodeURI(args.join('/'));
-    const edgeUrlWithPath = `${options.edgeUrl}/${command}`;
-    return fetchData(edgeUrlWithPath, options, { method: 'GET' });
-  } else {
-    return fetchData(options.url, options, {
-      method: 'POST',
-      body: JSON.stringify(args),
-    });
-  }
-}
-
 async function fetchData(
   url: string,
   options: ClientObjectProps,
@@ -110,14 +86,38 @@ async function fetchData(
   }
 }
 
+function request(
+  config: { options: ClientObjectProps; edge?: boolean },
+  args: Part[]
+) {
+  const { options, edge } = config;
+  const fromEdge =
+    edge === false ? false : !!options.edgeUrl && options.readFromEdge;
+
+  if (!options.edgeUrl && edge) {
+    throw new Error(`"edge: true" is being used but the Edge Url is missing`);
+  }
+
+  if (fromEdge) {
+    const command = encodeURI(args.join('/'));
+    const edgeUrlWithPath = `${options.edgeUrl}/${command}`;
+    return fetchData(edgeUrlWithPath, options, { method: 'GET' });
+  } else {
+    return fetchData(options.url, options, {
+      method: 'POST',
+      body: JSON.stringify(args),
+    });
+  }
+}
+
 type CustomArgsFn = (...args: any[]) => any[];
 
-type StaticArgs = number | 'spread';
+type StaticArgs = number | boolean | 'spread';
 
 type PossibleArgs =
   | number
-  | ((options: ClientObjectProps, ...args: any[]) => any)
-  | [number, ...(StaticArgs | CustomArgsFn)[]];
+  | [number, ...(StaticArgs | CustomArgsFn)[]]
+  | ((options: ClientObjectProps, ...args: any[]) => any);
 
 /**
  * Creates a Upstash Redis instance
@@ -155,26 +155,32 @@ function upstash(url?: string | ClientObjectProps, token?: string): Upstash {
           return argsCount(options, ...args);
         }
         if (!Array.isArray(argsCount)) {
-          argsCount = [argsCount, argsCount];
+          argsCount = [argsCount];
         }
 
         const opArgs: any[] = [];
         const knownArgsCount = argsCount[0];
         let nextArg = 0;
+        let edge;
 
         for (const arg of argsCount.slice(1)) {
-          if (typeof arg === 'function') {
-            opArgs.push(...arg(...args));
-            // There can only be one function defined
-            break;
-          }
-          if (arg === 'spread') {
+          if (typeof arg === 'number') {
+            opArgs.push(...args.slice(nextArg, nextArg + arg));
+            nextArg += arg;
+          } else if (typeof arg === 'boolean') {
+            edge = arg;
+          } else if (arg === 'spread') {
             opArgs.push(...args[nextArg]);
+            nextArg++;
             // There can only be one spread defined
             break;
+          } else if (typeof arg === 'function') {
+            opArgs.push(...arg(...args));
           }
-          opArgs.push(...args.slice(nextArg, nextArg + arg));
-          nextArg += arg;
+        }
+        // Handle cases like `1`, `[1, false]`
+        if (!nextArg && knownArgsCount) {
+          opArgs.push(...args.slice(0, knownArgsCount));
         }
 
         // Start looking for config and callback in the next args.
@@ -194,7 +200,7 @@ function upstash(url?: string | ClientObjectProps, token?: string): Upstash {
         // Add the name of the operation as the first argument
         opArgs.unshift(prop);
 
-        return request({ options, ...configOrCb }, opArgs).then(cb);
+        return request({ options, edge, ...configOrCb }, opArgs).then(cb);
       };
     },
   });
@@ -218,23 +224,23 @@ const operations = {
   /**
    * STRING
    */
-  append: 2,
-  decr: 1,
-  decrby: 2,
+  append: [2, false],
+  decr: [1, false],
+  decrby: [2, false],
   get: 1,
   getrange: 3,
-  getset: 2,
-  incr: 1,
-  incrby: 2,
-  incrbyfloat: 2,
+  getset: [2, false],
+  incr: [1, false],
+  incrby: [2, false],
+  incrbyfloat: [2, false],
   mget: [1, 'spread'],
-  mset: [1, 'spread'],
-  msetnx: [1, 'spread'],
-  psetex: 3,
-  set: 2,
-  setex: 3,
-  setnx: 2,
-  setrange: 3,
+  mset: [1, false, 'spread'],
+  msetnx: [1, false, 'spread'],
+  psetex: [3, false],
+  set: [2, false],
+  setex: [3, false],
+  setnx: [2, false],
+  setrange: [3, false],
   strlen: 1,
   /**
    * BITMAPS
@@ -257,24 +263,25 @@ const operations = {
     },
   ],
   getbit: 2,
-  setbit: 3,
+  setbit: [3, false],
   /**
    * CONNECTION
    */
   echo: 1,
   ping: [1, (value?: string) => (value ? [value] : [])],
-  hdel: [2, 1, 'spread'],
+  hdel: [2, false, 1, 'spread'],
   hexists: 2,
   hget: 2,
   hgetall: 1,
-  hincrby: 3,
-  hincrbyfloat: 3,
+  hincrby: [3, false],
+  hincrbyfloat: [3, false],
   hkeys: 1,
   hlen: 1,
   hmget: [2, 1, 'spread'],
-  hmset: [2, 1, 'spread'],
+  hmset: [2, false, 1, 'spread'],
   hscan: [
     3,
+    false,
     2,
     (
       key: string,
@@ -287,26 +294,27 @@ const operations = {
       return args;
     },
   ],
-  hset: [2, 1, 'spread'],
-  hsetnx: 3,
+  hset: [2, false, 1, 'spread'],
+  hsetnx: [3, false],
   hvals: 1,
   /**
    * KEYS
    */
-  del: [1, 'spread'],
+  del: [1, false, 'spread'],
   exists: [1, 'spread'],
-  expire: 2,
-  expireat: 2,
+  expire: [2, false],
+  expireat: [2, false],
   keys: 1,
-  persist: 1,
-  pexpire: 2,
-  pexpireat: 2,
+  persist: [1, false],
+  pexpire: [2, false],
+  pexpireat: [2, false],
   pttl: 1,
-  randomkey: 0,
-  rename: 2,
-  renamenx: 2,
+  randomkey: [0, false],
+  rename: [2, false],
+  renamenx: [2, false],
   scan: [
     2,
+    false,
     1,
     (
       cursor: number,
@@ -318,52 +326,52 @@ const operations = {
       return args;
     },
   ],
-  touch: [1, 'spread'],
+  touch: [1, false, 'spread'],
   ttl: 1,
   type: 1,
-  unlink: [1, 'spread'],
+  unlink: [1, false, 'spread'],
   /**
    * LISTS
    */
   lindex: 2,
-  linsert: 4,
+  linsert: [4, false],
   llen: 1,
-  lpop: 1,
-  lpush: [2, 1, 'spread'],
-  lpushx: [2, 1, 'spread'],
+  lpop: [1, false],
+  lpush: [2, false, 1, 'spread'],
+  lpushx: [2, false, 1, 'spread'],
   lrange: 3,
-  lrem: 3,
-  lset: 3,
-  ltrim: 3,
-  rpop: 1,
-  rpoplpush: 2,
-  rpush: [2, 1, 'spread'],
-  rpushx: [2, 1, 'spread'],
+  lrem: [3, false],
+  lset: [3, false],
+  ltrim: [3, false],
+  rpop: [1, false],
+  rpoplpush: [2, false],
+  rpush: [2, false, 1, 'spread'],
+  rpushx: [2, false, 1, 'spread'],
   /**
    * SERVER
    */
   dbsize: 0,
-  flushall: [1, (mode?: 'ASYNC') => (mode ? [mode] : [])],
-  flushdb: [1, (mode?: 'ASYNC') => (mode ? [mode] : [])],
+  flushall: [1, false, (mode?: 'ASYNC') => (mode ? [mode] : [])],
+  flushdb: [1, false, (mode?: 'ASYNC') => (mode ? [mode] : [])],
   info: 0,
-  time: 0,
+  time: [0, false],
   /**
    * SET
    */
-  sadd: [2, 1, 'spread'],
+  sadd: [2, false, 1, 'spread'],
   scard: 1,
   sdiff: [1, 'spread'],
-  sdiffstore: [2, 1, 'spread'],
+  sdiffstore: [2, false, 1, 'spread'],
   sinter: [1, 'spread'],
-  sinterstore: [2, 1, 'spread'],
+  sinterstore: [2, false, 1, 'spread'],
   sismember: 2,
   smembers: 1,
-  smove: 3,
-  spop: [2, 1, (key: string, count?: number) => (count ? [count] : [])],
+  smove: [3, false],
+  spop: [2, false, 1, (key: string, count?: number) => (count ? [count] : [])],
   srandmember: [2, 1, (key: string, count?: number) => (count ? [count] : [])],
-  srem: [2, 1, 'spread'],
+  srem: [2, false, 1, 'spread'],
   sunion: [1, 'spread'],
-  sunionstore: [2, 1, 'spread'],
+  sunionstore: [2, false, 1, 'spread'],
   /**
    * SORTED SETS
    */
@@ -390,7 +398,7 @@ const operations = {
   ],
   zcard: 1,
   zcount: 3,
-  zincrby: 3,
+  zincrby: [3, false],
   zinterstore: [
     3,
     1,
@@ -406,8 +414,18 @@ const operations = {
     },
   ],
   zlexcount: 3,
-  zpopmax: [2, 1, (key: string, count?: number) => (count ? [count] : [])],
-  zpopmin: [2, 1, (key: string, count?: number) => (count ? [count] : [])],
+  zpopmax: [
+    2,
+    false,
+    1,
+    (key: string, count?: number) => (count ? [count] : []),
+  ],
+  zpopmin: [
+    2,
+    false,
+    1,
+    (key: string, count?: number) => (count ? [count] : []),
+  ],
   zrange: [
     4,
     3,
@@ -449,10 +467,10 @@ const operations = {
     },
   ],
   zrank: 2,
-  zrem: [2, 1, 'spread'],
-  zremrangebylex: 3,
-  zremrangebyrank: 3,
-  zremrangebyscore: 3,
+  zrem: [2, false, 1, 'spread'],
+  zremrangebylex: [3, false],
+  zremrangebyrank: [3, false],
+  zremrangebyscore: [3, false],
   zrevrange: [
     4,
     3,

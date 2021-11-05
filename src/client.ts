@@ -82,10 +82,7 @@ async function fetchData(
           break;
       }
       return {
-        data:
-          data.result ?? Array.isArray(data)
-            ? data.map((r: any) => r.result) // Pipeline
-            : data,
+        data: 'result' in data ? data.result : data.map((r: any) => r.result),
         error: null,
         metadata: { edge, cache },
       };

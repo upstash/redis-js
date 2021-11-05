@@ -10,6 +10,18 @@ import {
   EdgeCacheType,
 } from './type';
 
+type CustomArgsFn = (...args: any[]) => any[];
+
+type OperationValue =
+  | number
+  | readonly [number, ...(number | boolean | 'spread' | CustomArgsFn)[]]
+  | ((options: ClientObjectProps, ...args: any[]) => any);
+
+type RequestConfig = {
+  options: ClientObjectProps;
+  edge?: boolean;
+};
+
 function parseOptions(
   url?: string | ClientObjectProps,
   token?: string,
@@ -89,15 +101,12 @@ async function fetchData(
   }
 }
 
-function request(
-  config: { options: ClientObjectProps; edge?: boolean },
-  args: Part[]
-) {
+function request(config: RequestConfig, args: Part[]) {
   const { options, edge } = config;
   const fromEdge =
     edge === false ? false : !!options.edgeUrl && options.readFromEdge;
 
-  if (!options.edgeUrl && edge) {
+  if (edge && !options.edgeUrl) {
     throw new Error(`"edge: true" is being used but the Edge Url is missing`);
   }
 
@@ -113,14 +122,66 @@ function request(
   }
 }
 
-type CustomArgsFn = (...args: any[]) => any[];
+function runOperation(
+  config: RequestConfig & { pipelineMode?: boolean },
+  op: OperationValue,
+  args: any[],
+  opArgs: any[]
+) {
+  // Passthrough
+  if (typeof op === 'function') {
+    return op(config.options, ...args);
+  }
+  if (!Array.isArray(op)) op = [op as number]; // TS should now that argsCount is a number
 
-type StaticArgs = number | boolean | 'spread';
+  const knownArgsCount = op[0];
+  let nextArg = 0;
+  let edge;
 
-type PossibleArgs =
-  | number
-  | [number, ...(StaticArgs | CustomArgsFn)[]]
-  | ((options: ClientObjectProps, ...args: any[]) => any);
+  for (const arg of op.slice(1)) {
+    if (typeof arg === 'number') {
+      opArgs.push(...args.slice(nextArg, nextArg + arg));
+      nextArg += arg;
+      continue;
+    }
+    if (typeof arg === 'boolean') {
+      edge = arg;
+      continue;
+    }
+    if (arg === 'spread') {
+      opArgs.push(...args[nextArg]);
+    } else if (typeof arg === 'function') {
+      opArgs.push(...arg(...args));
+    }
+    // Make sure to increase nextArg if the arg is a spread or
+    // a function so we don't push the same arguments twice
+    nextArg++;
+    // There can only be one spread or function defined
+    break;
+  }
+  // Handle cases like `1`, `[1, false]`
+  if (!nextArg && knownArgsCount) {
+    opArgs.push(...args.slice(0, knownArgsCount));
+  }
+
+  // Start looking for config and callback in the next args.
+  // In the case of `get` for example, `knownArgsCount` is 1, so
+  // the `key` arg will be the first argument (0), and the
+  // config and callback would start from 1.
+  let configOrCb: { edge?: boolean } | Callback = args[knownArgsCount];
+  let cb: Callback = args[knownArgsCount + 1] ?? ((res) => res);
+
+  if (typeof configOrCb === 'function') {
+    cb = configOrCb;
+    configOrCb = {};
+  }
+  // Should avoid edge cases with string
+  else if (typeof configOrCb !== 'object') configOrCb = {};
+
+  return config.pipelineMode
+    ? opArgs
+    : request({ ...config, edge, ...configOrCb }, opArgs).then(cb);
+}
 
 /**
  * Creates a Upstash Redis instance
@@ -146,80 +207,55 @@ function upstash(options?: ClientObjectProps): Upstash;
 function upstash(url: string, token: string): Upstash;
 function upstash(url?: string | ClientObjectProps, token?: string): Upstash {
   const options = parseOptions(url, token);
-
-  let x = new Proxy(operations, {
+  const obj = new Proxy(operations, {
     get(target, prop: keyof typeof operations) {
-      let argsCount = target[prop] as PossibleArgs;
-      if (argsCount === undefined) return;
+      const op = target[prop];
+      if (op === undefined) return;
 
       return (...args: any[]) => {
-        // Passthrough
-        if (typeof argsCount === 'function') {
-          return argsCount(options, ...args);
-        }
-        if (!Array.isArray(argsCount)) {
-          argsCount = [argsCount];
-        }
-
-        const opArgs: any[] = [];
-        const knownArgsCount = argsCount[0];
-        let nextArg = 0;
-        let edge;
-
-        for (const arg of argsCount.slice(1)) {
-          if (typeof arg === 'number') {
-            opArgs.push(...args.slice(nextArg, nextArg + arg));
-            nextArg += arg;
-            continue;
-          }
-          if (typeof arg === 'boolean') {
-            edge = arg;
-            continue;
-          }
-          if (arg === 'spread') {
-            opArgs.push(...args[nextArg]);
-          } else if (typeof arg === 'function') {
-            opArgs.push(...arg(...args));
-          }
-          // Make sure to increase nextArg if the arg is a spread or
-          // a function so we don't push the same arguments twice
-          nextArg++;
-          // There can only be one spread or function defined
-          break;
-        }
-        // Handle cases like `1`, `[1, false]`
-        if (!nextArg && knownArgsCount) {
-          opArgs.push(...args.slice(0, knownArgsCount));
-        }
-
-        // Start looking for config and callback in the next args.
-        // In the case of `get` for example, `knownArgsCount` is 1, so
-        // the `key` arg will be the first argument (0), and the
-        // config and callback would start from 1.
-        let configOrCb: { edge?: boolean } | Callback = args[knownArgsCount];
-        let cb: Callback = args[knownArgsCount + 1] ?? ((res) => res);
-
-        if (typeof configOrCb === 'function') {
-          cb = configOrCb;
-          configOrCb = {};
-        }
-        // Should avoid edge cases with string
-        else if (typeof configOrCb !== 'object') configOrCb = {};
-
-        // Add the name of the operation as the first argument
-        opArgs.unshift(prop);
-
-        return request({ options, edge, ...configOrCb }, opArgs).then(cb);
+        return runOperation({ options }, op, args, [prop]);
       };
     },
   });
-
   // The type conversion below is required, because our Proxy is a trap
   // and its target object is being used in a completely different way
-  return x as unknown as Upstash;
+  return obj as unknown as Upstash;
 }
 
 const operations = {
+  pipeline(options: ClientObjectProps) {
+    const ops: any[] = [];
+    const submit: OperationValue = [0];
+    const obj = new Proxy(operations, {
+      get(target, prop: keyof typeof operations) {
+        const op = target[prop];
+        if (op === undefined) return;
+
+        // TODO: define a Pipeline type that includes submit
+        if ((prop as string) === 'submit') {
+          return () => {
+            const url = `${options.url}/pipeline`;
+            const config = { options: { ...options, url } };
+            return runOperation(config, submit, [], ops);
+          };
+        }
+
+        return (...args: any[]): typeof operations => {
+          const nextOp = runOperation(
+            { options, pipelineMode: true },
+            op,
+            args,
+            [prop]
+          );
+          if (nextOp) ops.push(nextOp);
+          return obj;
+        };
+      },
+    });
+    // The type conversion below is required, because our Proxy is a trap
+    // and its target object is being used in a completely different way
+    return obj as unknown as Upstash;
+  },
   /**
    * Auth
    */
@@ -518,6 +554,6 @@ const operations = {
       return args;
     },
   ],
-};
+} as const;
 
 export default upstash;

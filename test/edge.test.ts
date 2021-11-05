@@ -3,8 +3,8 @@ import { nanoid } from 'nanoid';
 
 describe('edge request', () => {
   it('success', async () => {
-    const url = process.env.UPSTASH_REDIS_REST_URL;
-    const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+    const url = process.env.UPSTASH_REDIS_REST_URL!;
+    const token = process.env.UPSTASH_REDIS_REST_TOKEN!;
     const edgeUrl = process.env.UPSTASH_REDIS_EDGE_URL;
 
     auth({ url, edgeUrl, token });
@@ -37,39 +37,45 @@ describe('edge request', () => {
   });
 
   it('edge url not found', async () => {
-    const url = process.env.UPSTASH_REDIS_REST_URL;
-    const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+    const url = process.env.UPSTASH_REDIS_REST_URL!;
+    const token = process.env.UPSTASH_REDIS_REST_TOKEN!;
 
-    auth({ url, token, readFromEdge: true });
-
-    const get0 = await get('asddfghj');
-    expect(get0.error).toBe('You need to set Edge Url to read from edge.');
-    // console.log('get0', get0);
+    expect.assertions(1);
+    try {
+      auth({ url, token, edgeUrl: null, readFromEdge: true });
+    } catch (e) {
+      expect(e.message).toBe(
+        'readFromEdge is set to true but the Edge Url is missing'
+      );
+    }
   });
 
-  it('edge url not found 2', async () => {
-    const url = process.env.UPSTASH_REDIS_REST_URL;
-    const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  it('edge url not found but readFromEdge is false should success', async () => {
+    const url = process.env.UPSTASH_REDIS_REST_URL!;
+    const token = process.env.UPSTASH_REDIS_REST_TOKEN!;
 
-    auth({ url, token, readFromEdge: false });
-
-    const get0 = await get('asddfghj', { edge: true });
-    expect(get0.error).toBe('You need to set Edge Url to read from edge.');
-    // console.log('get0', get0);
+    expect(auth({ url, token, edgeUrl: null, readFromEdge: false })).toBe(
+      undefined
+    );
   });
 
   it('edge url not found 1', async () => {
-    const url = process.env.UPSTASH_REDIS_REST_URL;
-    const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+    const url = process.env.UPSTASH_REDIS_REST_URL!;
+    const token = process.env.UPSTASH_REDIS_REST_TOKEN!;
     const edgeUrl = process.env.UPSTASH_REDIS_EDGE_URL;
 
-    auth({ url, edgeUrl, token, readFromEdge: false });
+    expect.assertions(1);
+    try {
+      auth({ url, edgeUrl, token, readFromEdge: false });
 
-    const get0 = await get('asddfghj', { edge: true });
-    if (!edgeUrl) {
-      expect(get0.error).toBe('You need to set Edge Url to read from edge.');
-    } else {
+      const get0 = await get('asddfghj', { edge: true });
       expect(get0.data).toBeNull();
+    } catch (e) {
+      if (!edgeUrl) {
+        expect(e.message).toBe(
+          `"edge: true" is being used but the Edge Url is missing`
+        );
+      }
     }
   });
 });

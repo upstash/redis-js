@@ -1221,7 +1221,7 @@ type PipelineMethods = Omit<Upstash, 'pipeline'>;
 export type Pipeline = {
   [K in keyof PipelineMethods]: (
     ...args: WithoutConfigAndCb<Parameters<Upstash[K]>>
-  ) => [K, ...any];
+  ) => Pipeline;
 } & {
   submit: SubmitProps0 & SubmitProps1;
 };

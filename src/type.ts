@@ -1211,7 +1211,9 @@ type WithoutConfigAndCb<T> = T extends [
   ...args: infer NoCb,
   callback?: Callback
 ]
-  ? NoCb extends [...args: infer NoConfig, config?: RequestConfig]
+  ? // Only `edge` is available in RequestConfig and because pipeline
+    // doesn't allow it then it's safe to remove the param entirely
+    NoCb extends [...args: infer NoConfig, config?: RequestConfig]
     ? NoConfig
     : NoCb
   : T;

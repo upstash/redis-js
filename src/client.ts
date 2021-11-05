@@ -81,9 +81,11 @@ async function fetchData(
           cache = 'miss';
           break;
       }
-
       return {
-        data: data.result,
+        data:
+          data.result ?? Array.isArray(data)
+            ? data.map((r: any) => r.result) // Pipeline
+            : data,
         error: null,
         metadata: { edge, cache },
       };
@@ -226,21 +228,21 @@ function upstash(url?: string | ClientObjectProps, token?: string): Upstash {
 const operations = {
   pipeline(options: ClientObjectProps) {
     const ops: any[] = [];
-    const submit: OperationValue = [0];
+    const submit: OperationValue = [0, false];
     const obj = new Proxy(operations, {
       get(target, prop: keyof typeof operations) {
-        const op = target[prop];
-        if (op === undefined) return;
-
         // submit is defined here instead of in `operations` to avoid
         // doing a ...spread on it
         if ((prop as string) === 'submit') {
-          return () => {
+          return (...args: any[]) => {
             const url = `${options.url}/pipeline`;
             const config = { options: { ...options, url } };
-            return runOperation(config, submit, [], ops);
+            return runOperation(config, submit, args, ops);
           };
         }
+
+        const op = target[prop];
+        if (op === undefined) return;
 
         return (...args: any[]): typeof operations => {
           const nextOp = runOperation(

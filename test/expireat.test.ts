@@ -13,7 +13,8 @@ describe('expireat command', () => {
     const { data: data2 } = await expireat(key, 1293840000);
     expect(data2).toBe(1);
 
-    const { data: data3 } = await exists([key]);
+    // Make sure edge cache isn't used or we'll get a false positive
+    const { data: data3 } = await exists([key], { edge: false });
     expect(data3).toBe(0);
   });
 });

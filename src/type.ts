@@ -39,8 +39,8 @@ export type Infinities = '+inf' | '-inf';
 
 export type ZSetNumber = Infinities | number | string;
 
-type Auth1 = (url?: string, token?: string) => void;
-type Auth2 = (options?: ClientObjectProps) => void;
+type Auth1 = (options?: ClientObjectProps) => void;
+type Auth2 = (url?: string, token?: string) => void;
 
 type AppendProps1 = (
   key: string,

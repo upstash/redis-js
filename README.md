@@ -77,7 +77,7 @@ import { get } from '@upstash/redis';
 
 ### Edge Support
 
-> Only GET requests are supported in Edge Caching. As a result, write/update commands are not supported.
+Once you set `edgeUrl`, all read commands are fetched using edge url. The REST URL is used for write/update commands. 
 
 ```typescript
 import upstash from '@upstash/redis';
@@ -90,12 +90,17 @@ const redis = upstash({
 
 (async () => {
   try {
+    // the below reads using edge url
     const { data, error, metadata } = await redis.get('key');
     if (error) throw error;
     console.log(data);
     // -> null | string
     console.log(metadata);
     // -> { edge: boolean, cache: null | 'miss' | 'hit' }
+    
+    // the below reads using REST url (non-edge)
+    const get1 = await redis.get('key', {edge: false});
+    if (get1.error) throw get1.error;
   } catch (error) {
     console.error(error);
   }

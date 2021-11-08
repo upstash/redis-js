@@ -1,4 +1,4 @@
-import { set, exists, expireat } from '../src';
+import { set, exists, expireat } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('expireat command', () => {
@@ -13,7 +13,7 @@ describe('expireat command', () => {
     const { data: data2 } = await expireat(key, 1293840000);
     expect(data2).toBe(1);
 
-    const { data: data3 } = await exists([key]);
+    const { data: data3 } = await exists([key], { edge: false });
     expect(data3).toBe(0);
   });
 });

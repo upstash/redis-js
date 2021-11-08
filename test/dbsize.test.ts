@@ -1,4 +1,4 @@
-import { dbsize, flushdb } from '../src';
+import { dbsize, flushdb } from '../dist/main';
 
 describe('dbsize command', () => {
   it('basic', async () => {

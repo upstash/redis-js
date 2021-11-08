@@ -1,4 +1,4 @@
-import { set, incrbyfloat } from '../src';
+import { set, incrbyfloat } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('incrbyfloat command', () => {

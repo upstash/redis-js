@@ -1,4 +1,4 @@
-import { sadd, sunionstore, smembers } from '../src';
+import { sadd, sunionstore, smembers } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('sunionstore command', () => {

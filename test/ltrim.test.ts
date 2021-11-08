@@ -1,4 +1,4 @@
-import { rpush, ltrim, lrange } from '../src';
+import { rpush, ltrim, lrange } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('ltrim command', () => {

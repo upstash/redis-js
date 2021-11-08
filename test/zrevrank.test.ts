@@ -1,4 +1,4 @@
-import { zadd, zrevrank, zscore } from '../src';
+import { zadd, zrevrank, zscore } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('zrevrank command', () => {

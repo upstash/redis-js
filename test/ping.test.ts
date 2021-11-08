@@ -1,4 +1,4 @@
-import { ping } from '../src';
+import { ping } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('ping command', () => {

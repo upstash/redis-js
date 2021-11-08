@@ -1,4 +1,4 @@
-import { zadd, zpopmin } from '../src';
+import { zadd, zpopmin } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('zpopmin command', () => {

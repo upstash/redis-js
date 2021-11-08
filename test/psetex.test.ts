@@ -1,4 +1,4 @@
-import { psetex } from '../src';
+import { psetex } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('psetex command', () => {

@@ -1,4 +1,4 @@
-import { mset, get } from '../src';
+import { mset, get } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('mset command', () => {

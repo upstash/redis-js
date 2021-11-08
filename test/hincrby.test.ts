@@ -1,4 +1,4 @@
-import { hset, hincrby } from '../src';
+import { hset, hincrby } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('hincrby command', () => {

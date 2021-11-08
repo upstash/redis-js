@@ -1,4 +1,4 @@
-import { rpush, linsert, lrange } from '../src';
+import { rpush, linsert, lrange } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('linsert command', () => {

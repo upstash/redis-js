@@ -1,4 +1,4 @@
-import { mset, touch } from '../src';
+import { mset, touch } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('touch command', () => {

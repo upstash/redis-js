@@ -1,4 +1,4 @@
-import { setex } from '../src';
+import { setex } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('setex command', () => {

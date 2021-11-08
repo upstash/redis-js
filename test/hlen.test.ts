@@ -1,4 +1,4 @@
-import { hset, hlen } from '../src';
+import { hset, hlen } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('hlen command', () => {

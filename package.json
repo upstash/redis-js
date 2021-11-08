@@ -4,9 +4,9 @@
   "description": "An HTTP/REST based Redis client built on top of Upstash REST API.",
   "author": "Adem ilter <adem@upstash.com>",
   "license": "MIT",
-  "main": "dist/main/src/index.js",
-  "types": "dist/main/src/index.d.ts",
-  "module": "dist/module/src/index.js",
+  "main": "dist/main/index.js",
+  "types": "dist/main/index.d.ts",
+  "module": "dist/module/index.js",
   "jsdelivr": "dist/umd/upstash-redis.js",
   "unpkg": "dist/umd/upstash-redis.js",
   "scripts": {
@@ -16,7 +16,7 @@
     "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p tsconfig.module.json",
     "build:umd": "webpack",
-    "test": "jest --runInBand && npm run size",
+    "test": "npm run build && jest --runInBand && npm run size",
     "size": "size-limit"
   },
   "dependencies": {
@@ -41,11 +41,11 @@
   },
   "size-limit": [
     {
-      "path": "dist/main/src/index.js",
+      "path": "dist/main/index.js",
       "limit": "6 KB"
     },
     {
-      "path": "dist/module/src/index.js",
+      "path": "dist/module/index.js",
       "limit": "6 KB"
     },
     {

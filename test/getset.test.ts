@@ -1,4 +1,4 @@
-import { get, getset, set } from '../src';
+import { get, getset, set } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('getset command', () => {

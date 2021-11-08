@@ -1,4 +1,4 @@
-import { sadd, smembers, spop, srandmember } from '../src';
+import { sadd, smembers, spop, srandmember } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('srandmember command', () => {

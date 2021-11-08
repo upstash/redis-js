@@ -1,4 +1,4 @@
-import { sadd, sinter } from '../src';
+import { sadd, sinter } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('sinter command', () => {

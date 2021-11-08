@@ -1,4 +1,4 @@
-import { zadd, zrange, zunionstore } from '../src';
+import { zadd, zrange, zunionstore } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('zunionstore command', () => {

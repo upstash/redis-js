@@ -1,4 +1,4 @@
-import { set, renamenx, get } from '../src';
+import { set, renamenx, get } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('renamenx command', () => {

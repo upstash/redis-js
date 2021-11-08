@@ -1,4 +1,4 @@
-import { zadd, zcard } from '../src';
+import { zadd, zcard } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('zcard command', () => {

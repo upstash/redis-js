@@ -1,4 +1,4 @@
-import { set, strlen } from '../src';
+import { set, strlen } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('strlen command', () => {

@@ -1,4 +1,4 @@
-import { lset, rpush, lrange } from '../src';
+import { lset, rpush, lrange } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('lset command', () => {

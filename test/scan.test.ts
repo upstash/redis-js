@@ -1,4 +1,4 @@
-import { flushdb, mget, mset, scan } from '../src';
+import { flushdb, mget, mset, scan } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('scan command', () => {

@@ -1,4 +1,4 @@
-import { zadd, zrange } from '../src';
+import { zadd, zrange } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('zrange command', () => {

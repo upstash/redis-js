@@ -1,4 +1,4 @@
-import { hset, hvals } from '../src';
+import { hset, hvals } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('hvals command', () => {

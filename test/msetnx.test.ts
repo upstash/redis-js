@@ -1,4 +1,4 @@
-import { msetnx, del } from '../src';
+import { msetnx, del } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('msetnx command', () => {

@@ -1,4 +1,4 @@
-import upstash from '../src';
+import upstash from '../dist/main';
 
 describe('api connection', () => {
   it('new instance', async () => {

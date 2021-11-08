@@ -1,4 +1,4 @@
-import { randomkey, set } from '../src';
+import { randomkey, set } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('randomkey command', () => {

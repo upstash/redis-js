@@ -1,4 +1,4 @@
-import { keys, mset, flushdb } from '../src';
+import { keys, mset, flushdb } from '../dist/main';
 
 describe('keys command', () => {
   const values = ['firstname', 'Jack', 'lastname', 'Stuntman', 'age', '35'];

@@ -1,4 +1,4 @@
-import { sadd, scard } from '../src';
+import { sadd, scard } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('scard command', () => {

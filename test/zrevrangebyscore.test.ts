@@ -1,4 +1,4 @@
-import { zadd, zrevrangebyscore } from '../src';
+import { zadd, zrevrangebyscore } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('zrevrangebyscore command', () => {

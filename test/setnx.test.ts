@@ -1,4 +1,4 @@
-import { get, setnx } from '../src';
+import { get, setnx } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('setnx command', () => {

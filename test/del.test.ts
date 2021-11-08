@@ -1,4 +1,4 @@
-import { mset, del } from '../src';
+import { mset, del } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('del command', () => {

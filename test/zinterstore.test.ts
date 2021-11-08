@@ -1,4 +1,4 @@
-import { zadd, zrange, zinterstore } from '../src';
+import { zadd, zrange, zinterstore } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('zinterstore command', () => {

@@ -1,5 +1,4 @@
 import fetch from 'isomorphic-unfetch';
-import { isFunction, isObject, isString } from '../utils/helper';
 import {
   ClientObjectProps,
   ReturnType,
@@ -12,6 +11,20 @@ import {
   ZSetNumber,
   EdgeCacheType,
 } from './type';
+
+function isFunction(functionToCheck: any): boolean {
+  return (
+    functionToCheck && {}.toString.call(functionToCheck) === '[object Function]'
+  );
+}
+
+function isObject(objectToCheck: any): boolean {
+  return typeof objectToCheck === 'object' && objectToCheck !== null;
+}
+
+function isString(stringToCheck: any): boolean {
+  return typeof stringToCheck === 'string';
+}
 
 /**
  * Creates a Upstash Redis instance

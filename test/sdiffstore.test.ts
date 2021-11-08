@@ -1,4 +1,4 @@
-import { sadd, sdiffstore, smembers } from '../src';
+import { sadd, sdiffstore, smembers } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('sdiff command', () => {

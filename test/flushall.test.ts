@@ -1,4 +1,4 @@
-import { flushall } from '../src';
+import { flushall } from '../dist/main';
 
 describe('flushdb command', () => {
   it('delete all keys and all database', async () => {

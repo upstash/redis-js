@@ -1,27 +1,24 @@
-import { set, exists } from '../src';
+import { auth, set, exists } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('exists command', () => {
   it('single key', async () => {
-    const key1 = nanoid();
-    const value = nanoid();
+    const key = nanoid();
 
-    await set(key1, value);
+    await set(key, 'value');
 
-    const { data } = await exists([key1]);
+    const { data } = await exists([key]);
     expect(data).toBe(1);
   });
 
   it('multiple keys', async () => {
     const key1 = nanoid();
     const key2 = nanoid();
-    const key3 = nanoid();
-    const value = nanoid();
 
-    await set(key1, value);
-    await set(key2, value);
+    await set(key1, 'value1');
+    // await set(key2, 'value2');
 
-    const { data } = await exists([key1, key2, key3]);
-    expect(data).toBe(2);
+    const { data } = await exists([key1, key2, 'key3']);
+    expect(data).toBe(1);
   });
 });

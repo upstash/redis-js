@@ -1,4 +1,4 @@
-import { set, bitop } from '../src';
+import { set, bitop } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('bitop command', () => {

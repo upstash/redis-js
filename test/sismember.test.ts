@@ -1,4 +1,4 @@
-import { sadd, sismember } from '../src';
+import { sadd, sismember } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('sismember command', () => {

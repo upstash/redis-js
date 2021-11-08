@@ -1,4 +1,4 @@
-import { flushdb, scan, hscan, hset } from '../src';
+import { flushdb, scan, hscan, hset } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('hscan command', () => {

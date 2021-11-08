@@ -1,4 +1,4 @@
-import { rpush, lrange } from '../src';
+import { rpush, lrange } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('rpush command', () => {

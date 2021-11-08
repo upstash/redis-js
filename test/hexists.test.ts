@@ -1,4 +1,4 @@
-import { hset, hexists } from '../src';
+import { hset, hexists } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('hexists command', () => {

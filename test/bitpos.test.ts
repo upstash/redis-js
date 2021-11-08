@@ -1,4 +1,4 @@
-import { set, bitpos } from '../src';
+import { set, bitpos } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('bitpos command', () => {

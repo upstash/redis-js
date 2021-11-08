@@ -1,4 +1,4 @@
-import { setbit } from '../src';
+import { setbit } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('setbit command', () => {

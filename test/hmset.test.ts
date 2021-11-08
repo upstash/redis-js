@@ -1,4 +1,4 @@
-import { hmset, hget } from '../src';
+import { hmset, hget } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('hmset command', () => {

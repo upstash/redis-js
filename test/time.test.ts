@@ -1,4 +1,4 @@
-import { time } from '../src';
+import { time } from '../dist/main';
 
 describe('time command', () => {
   it('basic', async () => {

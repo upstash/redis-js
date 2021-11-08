@@ -1,4 +1,4 @@
-import { getrange, set } from '../src';
+import { getrange, set } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('getrange command', () => {

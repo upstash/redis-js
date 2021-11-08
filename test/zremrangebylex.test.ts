@@ -1,4 +1,4 @@
-import { zadd, zremrangebylex, zrange } from '../src';
+import { zadd, zremrangebylex, zrange } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('zremrangebylex command', () => {

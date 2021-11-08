@@ -1,4 +1,4 @@
-import { hset, hkeys } from '../src';
+import { hset, hkeys } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('hkeys command', () => {

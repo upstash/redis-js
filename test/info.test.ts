@@ -1,4 +1,4 @@
-import { info } from '../src';
+import { info } from '../dist/main';
 
 describe('info command', () => {
   it('basic', async () => {

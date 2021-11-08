@@ -1,4 +1,4 @@
-import { set, ttl, expire } from '../src';
+import { set, ttl, expire } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('ttl command', () => {
@@ -11,7 +11,7 @@ describe('ttl command', () => {
     expect(expireData).toBe(1);
 
     const { data: ttlData } = await ttl(key);
-    expect(ttlData).toBeGreaterThanOrEqual(-2);
+    expect(ttlData).toBeGreaterThanOrEqual(0);
   });
 
   it('key does not exist', async () => {

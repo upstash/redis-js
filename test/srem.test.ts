@@ -1,4 +1,4 @@
-import { sadd, smembers, srem } from '../src';
+import { sadd, smembers, srem } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('srem command', () => {

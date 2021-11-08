@@ -1,4 +1,4 @@
-import { set, pttl, pexpire, exists } from '../src';
+import { set, pttl, pexpire, exists } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('pexpire command', () => {

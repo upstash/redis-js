@@ -1,4 +1,4 @@
-import { zadd, zscore } from '../src';
+import { zadd, zscore } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('zscore command', () => {

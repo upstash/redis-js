@@ -1,4 +1,4 @@
-import { lindex, rpush } from '../src';
+import { lindex, rpush } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('lindex command', () => {

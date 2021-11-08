@@ -1,4 +1,4 @@
-import { set, ttl, expire } from '../src';
+import { set, ttl, expire } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('expire command', () => {

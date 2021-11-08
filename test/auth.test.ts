@@ -1,4 +1,4 @@
-import { auth, echo } from '../src';
+import { auth, echo } from '../dist/main';
 
 describe('api connection', () => {
   it('succeed', async () => {

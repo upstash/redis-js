@@ -1,4 +1,4 @@
-import { zadd, zremrangebyrank, zrange } from '../src';
+import { zadd, zremrangebyrank, zrange } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('zremrangebyrank command', () => {

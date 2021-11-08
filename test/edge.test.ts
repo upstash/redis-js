@@ -1,4 +1,4 @@
-import { set, get, auth } from '../src';
+import { set, get, auth } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('edge request', () => {

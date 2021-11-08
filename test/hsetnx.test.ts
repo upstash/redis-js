@@ -1,4 +1,4 @@
-import { hget, hsetnx } from '../src';
+import { hget, hsetnx } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('hsetnx command', () => {

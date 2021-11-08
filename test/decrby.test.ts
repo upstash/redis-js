@@ -1,4 +1,4 @@
-import { set, decrby } from '../src';
+import { set, decrby } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('decrby command', () => {

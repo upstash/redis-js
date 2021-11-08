@@ -1,4 +1,4 @@
-import { hset, hdel } from '../src';
+import { hset, hdel } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('hdel command', () => {

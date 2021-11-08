@@ -1,4 +1,4 @@
-import { set, incr } from '../src';
+import { set, incr } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('incr command', () => {

@@ -1,4 +1,4 @@
-import { llen, rpush } from '../src';
+import { llen, rpush } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('llen command', () => {

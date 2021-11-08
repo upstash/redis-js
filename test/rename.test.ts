@@ -1,4 +1,4 @@
-import { set, rename, get } from '../src';
+import { set, rename, get } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('rename command', () => {

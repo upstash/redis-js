@@ -1,4 +1,4 @@
-import { zadd, zrank } from '../src';
+import { zadd, zrank } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('zrank command', () => {

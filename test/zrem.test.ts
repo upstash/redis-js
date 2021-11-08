@@ -1,4 +1,4 @@
-import { zadd, zrem } from '../src';
+import { zadd, zrem } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('zrem command', () => {

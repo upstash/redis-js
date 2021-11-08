@@ -1,4 +1,4 @@
-import { set, bitcount } from '../src';
+import { set, bitcount } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('bitcount command', () => {

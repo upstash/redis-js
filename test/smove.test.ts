@@ -1,4 +1,4 @@
-import { sadd, smembers, smove } from '../src';
+import { sadd, smembers, smove } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('smove command', () => {

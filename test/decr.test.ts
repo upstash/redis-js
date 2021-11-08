@@ -1,4 +1,4 @@
-import { set, decr } from '../src';
+import { set, decr } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('decr command', () => {

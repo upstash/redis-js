@@ -1,4 +1,4 @@
-import { set, expire, pttl } from '../src';
+import { set, expire, pttl } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('ttl command', () => {

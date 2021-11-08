@@ -1,4 +1,4 @@
-import { mset, set, touch, unlink } from '../src';
+import { mset, set, touch, unlink } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('unlink command', () => {

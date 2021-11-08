@@ -1,4 +1,4 @@
-import { set, append } from '../src';
+import { set, append } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('append command', () => {

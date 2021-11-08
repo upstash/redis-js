@@ -1,4 +1,4 @@
-import { sadd, sinterstore, smembers } from '../src';
+import { sadd, sinterstore, smembers } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('sinterstore command', () => {

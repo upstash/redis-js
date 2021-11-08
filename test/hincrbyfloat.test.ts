@@ -1,4 +1,4 @@
-import { hset, hincrby, hincrbyfloat } from '../src';
+import { hset, hincrby, hincrbyfloat } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('hincrbyfloat command', () => {

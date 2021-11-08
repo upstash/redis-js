@@ -1,4 +1,4 @@
-import { echo } from '../src';
+import { echo } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('echo command', () => {

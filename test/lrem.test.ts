@@ -1,4 +1,4 @@
-import { lrange, lrem, rpush } from '../src';
+import { lrange, lrem, rpush } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('lrem command', () => {

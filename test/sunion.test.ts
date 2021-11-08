@@ -1,4 +1,4 @@
-import { sadd, sunion } from '../src';
+import { sadd, sunion } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('sunion command', () => {

@@ -1,4 +1,4 @@
-import { zadd, zlexcount } from '../src';
+import { zadd, zlexcount } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('zlexcount command', () => {

@@ -1,4 +1,4 @@
-import { exists, pexpireat, pttl, set } from '../src';
+import { exists, pexpireat, pttl, set } from '../dist/main';
 import { nanoid } from 'nanoid';
 
 describe('pexpireat command', () => {

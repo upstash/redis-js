@@ -16,7 +16,7 @@
     "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p tsconfig.module.json",
     "build:umd": "webpack",
-    "test": "npm run build && jest --runInBand && npm run size",
+    "test": "jest --runInBand && npm run size",
     "size": "size-limit"
   },
   "dependencies": {

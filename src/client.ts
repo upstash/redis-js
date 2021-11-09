@@ -1,29 +1,154 @@
 import fetch from 'isomorphic-unfetch';
 import {
   ClientObjectProps,
-  ReturnType,
-  RequestConfig,
-  Callback,
+  EdgeCacheType,
   MethodReturn,
   Part,
+  RequestConfig,
+  ReturnType,
   Upstash,
-  Bit,
-  ZSetNumber,
-  EdgeCacheType,
 } from './type';
-
-function isFunction(functionToCheck: any): boolean {
-  return (
-    functionToCheck && {}.toString.call(functionToCheck) === '[object Function]'
-  );
-}
 
 function isObject(objectToCheck: any): boolean {
   return typeof objectToCheck === 'object' && objectToCheck !== null;
 }
 
-function isString(stringToCheck: any): boolean {
-  return typeof stringToCheck === 'string';
+/**
+ * Parse Options
+ */
+function parseOptions(
+  url?: string | ClientObjectProps,
+  token?: string,
+  edgeUrl?: string,
+  readFromEdge?: boolean
+): ClientObjectProps {
+  // try auto fill from env variables
+  if (!url) url = process.env.UPSTASH_REDIS_REST_URL;
+  if (!token) token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!edgeUrl) edgeUrl = process.env.UPSTASH_REDIS_EDGE_URL;
+  readFromEdge = readFromEdge ?? !!edgeUrl;
+
+  if (typeof url !== 'string') {
+    return parseOptions(url?.url, url?.token, url?.edgeUrl, url?.readFromEdge);
+  }
+
+  return edgeUrl ? { url, token, edgeUrl, readFromEdge } : { url, token };
+}
+
+/**
+ * Fetch
+ */
+async function fetchData(
+  url: string,
+  options: ClientObjectProps,
+  init: RequestInit
+): Promise<ReturnType> {
+  try {
+    const res = await fetch(url, {
+      ...init,
+      headers: {
+        Authorization: `Bearer ${options.token}`,
+        ...init.headers,
+      },
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      let edge = false;
+      let cache: EdgeCacheType = null;
+
+      switch (res.headers.get('x-cache')) {
+        case 'Hit from cloudfront':
+          edge = true;
+          cache = 'hit';
+          break;
+        case 'Miss from cloudfront':
+          edge = true;
+          cache = 'miss';
+          break;
+      }
+
+      return {
+        data: data.result,
+        error: null,
+        metadata: { edge, cache },
+      };
+    } else {
+      if (data.error) throw data;
+      throw new Error(
+        `Upstash failed with (${res.status}): ${JSON.stringify(data, null, 2)}`
+      );
+    }
+  } catch (err) {
+    return {
+      data: null,
+      error: typeof err.data === 'object' ? err.data.message : err,
+      metadata: { edge: false, cache: null },
+    };
+  }
+}
+
+/**
+ * Request
+ */
+function request(
+  options: ClientObjectProps,
+  config: RequestConfig,
+  ...parts: Part[]
+): MethodReturn {
+  if (!options.url) {
+    return new Promise((resolve) =>
+      resolve({ data: null, error: 'Database url not found?' })
+    );
+  }
+
+  if (!options.edgeUrl && options.readFromEdge) {
+    return new Promise((resolve) =>
+      resolve({
+        data: null,
+        error: 'You need to set Edge Url to read from edge.',
+      })
+    );
+  }
+
+  if (!options.edgeUrl && config?.edge) {
+    throw new Error('You need to set Edge Url to read from edge.');
+  }
+
+  let fromEdge = !!options.edgeUrl && options.readFromEdge !== false;
+
+  if (config === undefined) {
+    fromEdge = false;
+  } else if (options.edgeUrl) {
+    fromEdge = config?.edge ?? true;
+  }
+
+  if (fromEdge) {
+    const command = encodeURI(parts.join('/'));
+    const edgeUrlWithPath = `${options.edgeUrl!}/${command}`;
+    return fetchData(edgeUrlWithPath, options, { method: 'GET' });
+  } else {
+    return fetchData(options.url!, options, {
+      method: 'POST',
+      body: JSON.stringify(parts),
+    });
+  }
+}
+
+function hasConfig(options: ClientObjectProps, command: string, a: any) {
+  let lastArg;
+  let args = [...a];
+
+  if (a.length > 0) {
+    lastArg = args.pop();
+  }
+
+  if (isObject(lastArg)) {
+    return request(options, lastArg, command, ...args);
+  } else {
+    return request(options, {}, command, ...args, lastArg);
+  }
 }
 
 /**
@@ -40,621 +165,264 @@ function isString(stringToCheck: any): boolean {
  *
  * @example
  * ```js
- * import Upstash from '@upstash/redis'
+ * import upstash from '@upstash/redis'
  *
- * const redis1 = new Upstash('url', token);
- * const redis2 = new Upstash({ url: '', token: '', edgeUrl: '', readFromEdge: false });
+ * const redis1 = upstash('url', token);
+ * const redis2 = upstash({ url: '', token: '', edgeUrl: '', readFromEdge: false });
  * ```
  */
-export default Upstash;
-function Upstash(url?: string, token?: string): Upstash;
-function Upstash(options?: ClientObjectProps): Upstash;
-function Upstash(): Upstash {
-  let OPTIONS: {
-    url: string;
-    token: string;
-    edgeUrl?: string;
-    readFromEdge?: boolean;
-  };
 
-  // @ts-ignore
-  parseOptions(arguments[0], arguments[1]);
-
-  /**
-   * Parse Options
-   */
-  function parseOptions() {
-    const arg0 = arguments[0];
-    const arg1 = arguments[1];
-
-    OPTIONS = { url: '', token: '', edgeUrl: '', readFromEdge: false };
-
-    // Upstash({})
-    if (isObject(arg0)) {
-      const { url, token, edgeUrl, readFromEdge } = arg0;
-      OPTIONS.url = url;
-      OPTIONS.token = token;
-      OPTIONS.edgeUrl = edgeUrl;
-      OPTIONS.readFromEdge = readFromEdge ?? !!edgeUrl;
-    }
-    // Upstash(url, token)
-    else if (isString(arg0) && isString(arg1)) {
-      OPTIONS.url = arg0;
-      OPTIONS.token = arg1;
-    }
-    // try auto fill from env variable
-    else if (process) {
-      const {
-        UPSTASH_REDIS_REST_URL,
-        UPSTASH_REDIS_REST_TOKEN,
-        UPSTASH_REDIS_EDGE_URL,
-      } = process.env;
-      OPTIONS.url = UPSTASH_REDIS_REST_URL ?? '';
-      OPTIONS.token = UPSTASH_REDIS_REST_TOKEN ?? '';
-      OPTIONS.edgeUrl = UPSTASH_REDIS_EDGE_URL ?? '';
-      OPTIONS.readFromEdge = !!UPSTASH_REDIS_EDGE_URL;
-    }
-  }
-
-  /**
-   * Fetch
-   */
-  function fetchData(url: string, options: object): Promise<ReturnType> {
-    let cache: EdgeCacheType = null;
-    let edge: boolean = false;
-    return new Promise((resolve) => {
-      fetch(url, {
-        ...options,
-        headers: {
-          Authorization: `Bearer ${OPTIONS.token}`,
-        },
-      })
-        .then((res) => {
-          switch (res.headers.get('x-cache')) {
-            case 'Hit from cloudfront':
-              edge = true;
-              cache = 'hit';
-              break;
-            case 'Miss from cloudfront':
-              edge = true;
-              cache = 'miss';
-              break;
-          }
-          return res.json().then();
-        })
-        .then((data) => {
-          if (data.error) throw data.error;
-          resolve({
-            data: data.result,
-            error: null,
-            metadata: { edge, cache },
-          });
-        })
-        .catch((error) => {
-          resolve({
-            data: null,
-            error: typeof error === 'object' ? error.message : error,
-            metadata: { edge, cache },
-          });
-        });
-    });
-  }
-
-  /**
-   * Request
-   */
-  function request(
-    configOrCallback?: RequestConfig | Callback,
-    callback?: Callback,
-    ...parts: Part[]
-  ): MethodReturn {
-    if (!OPTIONS.url) {
-      return new Promise((resolve) =>
-        resolve({ data: null, error: 'Database url not found?' })
-      );
-    }
-
-    if (!OPTIONS.edgeUrl && OPTIONS.readFromEdge) {
-      return new Promise((resolve) =>
-        resolve({
-          data: null,
-          error: 'You need to set Edge Url to read from edge.',
-        })
-      );
-    }
-
-    let promise: Promise<ReturnType>;
-
-    let isRequestDefaultEdge = !!OPTIONS.edgeUrl && OPTIONS.readFromEdge;
-    let isRequestCustomEdge = isRequestDefaultEdge;
-
-    // write command?
-    if (configOrCallback === false) {
-      isRequestCustomEdge = false;
-    }
-    // get command
-    // has config & has edgeUrl
-    else if (isObject(configOrCallback)) {
-      // @ts-ignore
-      if (!OPTIONS.edgeUrl && configOrCallback?.edge) {
-        return new Promise((resolve) =>
-          resolve({
-            data: null,
-            error: 'You need to set Edge Url to read from edge.',
-          })
-        );
-      }
-      if (OPTIONS.edgeUrl) {
-        // @ts-ignore
-        isRequestCustomEdge = configOrCallback?.edge;
-      }
-    }
-
-    if (isRequestCustomEdge) {
-      const command = encodeURI(parts.join('/'));
-      const edgeUrlWithPath = `${OPTIONS.edgeUrl}/${command}`;
-      promise = fetchData(edgeUrlWithPath, {
-        method: 'GET',
-      });
-    } else {
-      promise = fetchData(OPTIONS.url, {
-        method: 'POST',
-        body: JSON.stringify(parts),
-      });
-    }
-
-    if (isFunction(configOrCallback)) {
-      // @ts-ignore
-      return promise.then(configOrCallback);
-    } else if (isFunction(callback)) {
-      return promise.then(callback);
-    }
-
-    return promise;
-  }
+function upstash(options?: ClientObjectProps): Upstash;
+function upstash(url?: string, token?: string): Upstash;
+function upstash(url?: string | ClientObjectProps, token?: string): Upstash {
+  const options: ClientObjectProps = parseOptions(url, token);
 
   /**
    * Auth
    */
-  function auth(url?: string, token?: string): void;
-  function auth(options?: ClientObjectProps): void;
+
   function auth(): void {
-    // @ts-ignore
-    parseOptions(arguments[0], arguments[1]);
+    Object.assign(options, parseOptions(arguments[0], arguments[1]));
   }
 
   /**
    * STRING
    */
 
-  function append(key: string, value: string): MethodReturn {
-    return request(false, arguments[2], 'append', key, value);
+  function append() {
+    return request(options, undefined, 'append', ...arguments);
   }
-
-  function decr(key: string): MethodReturn {
-    return request(false, arguments[1], 'decr', key);
+  function decr() {
+    return request(options, undefined, 'decr', ...arguments);
   }
-
-  function decrby(key: string, decrement: number): MethodReturn {
-    return request(false, arguments[2], 'decrby', key, decrement);
+  function decrby() {
+    return request(options, undefined, 'decrby', ...arguments);
   }
-
-  function get(key: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'get', key);
+  function get() {
+    return hasConfig(options, 'get', arguments);
   }
-
-  function getrange(key: string, start: number, end: number): MethodReturn {
-    return request(arguments[3], arguments[4], 'getrange', key, start, end);
+  function getrange() {
+    return hasConfig(options, 'getrange', arguments);
   }
-
-  function getset(key: string, value: string): MethodReturn {
-    return request(false, arguments[2], 'getset', key, value);
+  function getset() {
+    return request(options, undefined, 'getset', ...arguments);
   }
-
-  function incr(key: string): MethodReturn {
-    return request(false, arguments[1], 'incr', key);
+  function incr() {
+    return request(options, undefined, 'incr', ...arguments);
   }
-
-  function incrby(key: string, value: number | string): MethodReturn {
-    return request(false, arguments[2], 'incrby', key, value);
+  function incrby() {
+    return request(options, undefined, 'incrby', ...arguments);
   }
-
-  function incrbyfloat(key: string, value: number | string): MethodReturn {
-    return request(false, arguments[2], 'incrbyfloat', key, value);
+  function incrbyfloat() {
+    return request(options, undefined, 'incrbyfloat', ...arguments);
   }
-
-  function mget(values: string[]): MethodReturn {
-    return request(arguments[1], arguments[2], 'mget', ...values);
+  function mget() {
+    return hasConfig(options, 'mget', arguments);
   }
-
-  function mset(values: string[]): MethodReturn {
-    return request(false, arguments[1], 'mset', ...values);
+  function mset() {
+    return request(options, undefined, 'mset', ...arguments);
   }
-
-  function msetnx(values: string[]): MethodReturn {
-    return request(false, arguments[1], 'msetnx', ...values);
+  function msetnx() {
+    return request(options, undefined, 'msetnx', ...arguments);
   }
-
-  function psetex(
-    key: string,
-    miliseconds: number,
-    value: string | number
-  ): MethodReturn {
-    return request(false, arguments[3], 'psetex', key, miliseconds, value);
+  function psetex() {
+    return request(options, undefined, 'psetex', ...arguments);
   }
-
-  function set(key: string, value: string | number): MethodReturn {
-    return request(false, arguments[2], 'set', key, value);
+  function set() {
+    return request(options, undefined, 'set', ...arguments);
   }
-
-  function setex(
-    key: string,
-    seconds: number,
-    value: string | number
-  ): MethodReturn {
-    return request(false, arguments[3], 'setex', key, seconds, value);
+  function setex() {
+    return request(options, undefined, 'setex', ...arguments);
   }
-
-  function setnx(key: string, value: string): MethodReturn {
-    return request(false, arguments[2], 'setnx', key, value);
+  function setnx() {
+    return request(options, undefined, 'setnx', ...arguments);
   }
-
-  function setrange(
-    key: string,
-    offset: number | string,
-    value: string
-  ): MethodReturn {
-    return request(false, arguments[3], 'setrange', key, offset, value);
+  function setrange() {
+    return request(options, undefined, 'setrange', ...arguments);
   }
-
-  function strlen(key: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'strlen', key);
+  function strlen() {
+    return hasConfig(options, 'strlen', arguments);
   }
 
   /**
    * BITMAPS
    */
 
-  function bitcount(key: string, start?: number, end?: number): MethodReturn {
-    if (start !== undefined && end !== undefined) {
-      return request(arguments[3], arguments[4], 'bitcount', key, start, end);
-    }
-    return request(arguments[3], arguments[4], 'bitcount', key);
+  function bitcount() {
+    return hasConfig(options, 'bitcount', arguments);
   }
-
-  function bitop(
-    operation: 'AND' | 'OR' | 'XOR' | 'NOT',
-    destinationKey: string,
-    sourceKeys: string[]
-  ): MethodReturn {
-    return request(
-      false,
-      arguments[3],
-      'bitop',
-      operation,
-      destinationKey,
-      ...sourceKeys
-    );
+  function bitop() {
+    return request(options, undefined, 'bitop', ...arguments);
   }
-
-  function bitpos(
-    key: string,
-    bit: Bit,
-    start?: number,
-    end?: number
-  ): MethodReturn {
-    if (start !== undefined && end !== undefined) {
-      return request(
-        arguments[4],
-        arguments[5],
-        'bitpos',
-        key,
-        bit,
-        start,
-        end
-      );
-    } else if (start !== undefined) {
-      return request(arguments[4], arguments[5], 'bitpos', key, bit, start);
-    }
-    return request(arguments[4], arguments[5], 'bitpos', key, bit);
+  function bitpos() {
+    return hasConfig(options, 'bitpos', arguments);
   }
-
-  function getbit(key: string, offset: number): MethodReturn {
-    return request(arguments[2], arguments[3], 'getbit', key, offset);
+  function getbit() {
+    return hasConfig(options, 'getbit', arguments);
   }
-
-  function setbit(key: string, offset: number, value: Bit): MethodReturn {
-    return request(false, arguments[3], 'setbit', key, offset, value);
+  function setbit() {
+    return request(options, undefined, 'setbit', ...arguments);
   }
 
   /**
    * CONNECTION
    */
 
-  function echo(value: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'echo', value);
+  function echo() {
+    return hasConfig(options, 'echo', arguments);
   }
-
-  function ping(value?: string): MethodReturn {
-    if (value) {
-      return request(arguments[1], arguments[2], 'ping', value);
-    }
-    return request(arguments[1], arguments[2], 'ping');
+  function ping() {
+    return hasConfig(options, 'ping', arguments);
   }
 
   /**
    * HASHES
    */
 
-  function hdel(key: string, fields: string[]): MethodReturn {
-    return request(false, arguments[2], 'hdel', key, ...fields);
+  function hdel(): MethodReturn {
+    return request(options, undefined, 'hdel', ...arguments);
   }
-
-  function hexists(key: string, field: string): MethodReturn {
-    return request(arguments[2], arguments[3], 'hexists', key, field);
+  function hexists(): MethodReturn {
+    return hasConfig(options, 'hexists', arguments);
   }
-
-  function hget(key: string, field: string): MethodReturn {
-    return request(arguments[2], arguments[3], 'hget', key, field);
+  function hget(): MethodReturn {
+    return hasConfig(options, 'hget', arguments);
   }
-
-  function hgetall(key: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'hgetall', key);
+  function hgetall(): MethodReturn {
+    return hasConfig(options, 'hgetall', arguments);
   }
-
-  function hincrby(
-    key: string,
-    field: string,
-    increment: number | string
-  ): MethodReturn {
-    return request(false, arguments[3], 'hincrby', key, field, increment);
+  function hincrby(): MethodReturn {
+    return request(options, undefined, 'hincrby', ...arguments);
   }
-
-  function hincrbyfloat(
-    key: string,
-    field: string,
-    increment: number | string
-  ): MethodReturn {
-    return request(false, arguments[3], 'hincrbyfloat', key, field, increment);
+  function hincrbyfloat(): MethodReturn {
+    return request(options, undefined, 'hincrbyfloat', ...arguments);
   }
-
-  function hkeys(key: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'hkeys', key);
+  function hkeys(): MethodReturn {
+    return hasConfig(options, 'hkeys', arguments);
   }
-
-  function hlen(key: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'hlen', key);
+  function hlen(): MethodReturn {
+    return hasConfig(options, 'hlen', arguments);
   }
-
-  function hmget(key: string, fields: string[]): MethodReturn {
-    return request(arguments[2], arguments[3], 'hmget', key, ...fields);
+  function hmget(): MethodReturn {
+    return hasConfig(options, 'hmget', arguments);
   }
-
-  function hmset(key: string, values: string[]): MethodReturn {
-    return request(false, arguments[2], 'hmset', key, ...values);
+  function hmset(): MethodReturn {
+    return request(options, undefined, 'hmset', ...arguments);
   }
-
-  function hscan(
-    key: string,
-    cursor: number,
-    options?: { match?: number | string; count?: number | string }
-  ): MethodReturn {
-    if (options?.match && options?.count) {
-      return request(
-        false,
-        arguments[3],
-        'hscan',
-        key,
-        cursor,
-        'match',
-        options.match,
-        'count',
-        options.count
-      );
-    } else if (options?.match) {
-      return request(
-        false,
-        arguments[3],
-        'hscan',
-        key,
-        cursor,
-        'match',
-        options.match
-      );
-    } else if (options?.count) {
-      return request(
-        false,
-        arguments[3],
-        'hscan',
-        key,
-        cursor,
-        'count',
-        options.count
-      );
-    }
-    return request(false, arguments[3], 'hscan', key, cursor);
+  function hscan(): MethodReturn {
+    return request(options, undefined, 'hscan', ...arguments);
   }
-
-  function hset(key: string, values: string[]): MethodReturn {
-    return request(false, arguments[2], 'hset', key, ...values);
+  function hset(): MethodReturn {
+    return request(options, undefined, 'hset', ...arguments);
   }
-
-  function hsetnx(key: string, field: string, value: string): MethodReturn {
-    return request(false, arguments[3], 'hsetnx', key, field, value);
+  function hsetnx(): MethodReturn {
+    return request(options, undefined, 'hsetnx', ...arguments);
   }
-
-  function hvals(key: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'hvals', key);
+  function hvals(): MethodReturn {
+    return hasConfig(options, 'hvals', arguments);
   }
 
   /**
    * KEYS
    */
 
-  function del(keys: string[]): MethodReturn {
-    return request(false, arguments[1], 'del', ...keys);
+  function del(): MethodReturn {
+    return request(options, undefined, 'del', ...arguments);
   }
-
-  function exists(keys: string[]): MethodReturn {
-    return request(arguments[1], arguments[2], 'exists', ...keys);
+  function exists(): MethodReturn {
+    return hasConfig(options, 'exists', arguments);
   }
-
-  function expire(key: string, seconds: number): MethodReturn {
-    return request(false, arguments[2], 'expire', key, seconds);
+  function expire(): MethodReturn {
+    return request(options, undefined, 'expire', ...arguments);
   }
-
-  function expireat(key: string, timestamp: number | string): MethodReturn {
-    return request(false, arguments[2], 'expireat', key, timestamp);
+  function expireat(): MethodReturn {
+    return request(options, undefined, 'expireat', ...arguments);
   }
-
-  function keys(pattern: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'keys', pattern);
+  function keys(): MethodReturn {
+    return hasConfig(options, 'keys', arguments);
   }
-
-  function persist(key: string): MethodReturn {
-    return request(false, arguments[1], 'persist', key);
+  function persist(): MethodReturn {
+    return request(options, undefined, 'persist', ...arguments);
   }
-
-  function pexpire(key: string, miliseconds: number): MethodReturn {
-    return request(false, arguments[2], 'pexpire', key, miliseconds);
+  function pexpire(): MethodReturn {
+    return request(options, undefined, 'pexpire', ...arguments);
   }
-
-  function pexpireat(key: string, miliseconds: number): MethodReturn {
-    return request(false, arguments[2], 'pexpireat', key, miliseconds);
+  function pexpireat(): MethodReturn {
+    return request(options, undefined, 'pexpireat', ...arguments);
   }
-
-  function pttl(key: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'pttl', key);
+  function pttl(): MethodReturn {
+    return hasConfig(options, 'pttl', arguments);
   }
-
   function randomkey(): MethodReturn {
-    return request(false, arguments[0], 'randomkey');
+    return request(options, undefined, 'randomkey', ...arguments);
   }
-
-  function rename(key: string, newKey: string): MethodReturn {
-    return request(false, arguments[2], 'rename', key, newKey);
+  function rename(): MethodReturn {
+    return request(options, undefined, 'rename', ...arguments);
   }
-
-  function renamenx(key: string, newKey: string): MethodReturn {
-    return request(false, arguments[2], 'renamenx', key, newKey);
+  function renamenx(): MethodReturn {
+    return request(options, undefined, 'renamenx', ...arguments);
   }
-
-  function scan(
-    cursor: number,
-    opitons?: { match?: number | string; count?: number | string }
-  ): MethodReturn {
-    if (opitons?.match && opitons?.count) {
-      return request(
-        false,
-        arguments[2],
-        'scan',
-        cursor,
-        'match',
-        opitons.match,
-        'count',
-        opitons.count
-      );
-    } else if (opitons?.match) {
-      return request(
-        false,
-        arguments[2],
-        'scan',
-        cursor,
-        'match',
-        opitons.match
-      );
-    } else if (opitons?.count) {
-      return request(
-        false,
-        arguments[2],
-        'scan',
-        cursor,
-        'count',
-        opitons.count
-      );
-    }
-    return request(false, arguments[2], 'scan', cursor);
+  function scan(): MethodReturn {
+    return request(options, undefined, 'scan', ...arguments);
   }
-
-  function touch(keys: string[]): MethodReturn {
-    return request(false, arguments[1], 'touch', ...keys);
+  function touch(): MethodReturn {
+    return request(options, undefined, 'touch', ...arguments);
   }
-
-  function ttl(key: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'ttl', key);
+  function ttl(): MethodReturn {
+    return hasConfig(options, 'ttl', arguments);
   }
-
-  function type(key: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'type', key);
+  function type(): MethodReturn {
+    return hasConfig(options, 'type', arguments);
   }
-
-  function unlink(keys: string[]): MethodReturn {
-    return request(false, arguments[1], 'unlink', ...keys);
+  function unlink(): MethodReturn {
+    return request(options, undefined, 'unlink', ...arguments);
   }
 
   /**
    * LISTS
    */
 
-  function lindex(key: string, index: number): MethodReturn {
-    return request(arguments[2], arguments[3], 'lindex', key, index);
+  function lindex(): MethodReturn {
+    return hasConfig(options, 'lindex', arguments);
   }
-
-  function linsert(
-    key: string,
-    option: 'BEFORE' | 'AFTER',
-    pivot: string,
-    element: string
-  ): MethodReturn {
-    return request(false, arguments[4], 'linsert', key, option, pivot, element);
+  function linsert(): MethodReturn {
+    return request(options, undefined, 'linsert', ...arguments);
   }
-
-  function llen(key: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'llen', key);
+  function llen(): MethodReturn {
+    return hasConfig(options, 'llen', arguments);
   }
-
-  function lpop(key: string): MethodReturn {
-    return request(false, arguments[1], 'lpop', key);
+  function lpop(): MethodReturn {
+    return request(options, undefined, 'lpop', ...arguments);
   }
-
-  function lpush(key: string, elements: string[]): MethodReturn {
-    return request(false, arguments[2], 'lpush', key, ...elements);
+  function lpush(): MethodReturn {
+    return request(options, undefined, 'lpush', ...arguments);
   }
-
-  function lpushx(key: string, elements: string[]): MethodReturn {
-    return request(false, arguments[2], 'lpushx', key, ...elements);
+  function lpushx(): MethodReturn {
+    return request(options, undefined, 'lpushx', ...arguments);
   }
-
-  function lrange(key: string, start: number, stop: number): MethodReturn {
-    return request(arguments[3], arguments[4], 'lrange', key, start, stop);
+  function lrange(): MethodReturn {
+    return hasConfig(options, 'lrange', arguments);
   }
-
-  function lrem(key: string, count: number, element: string): MethodReturn {
-    return request(false, arguments[3], 'lrem', key, count, element);
+  function lrem(): MethodReturn {
+    return request(options, undefined, 'lrem', ...arguments);
   }
-
-  function lset(key: string, index: number, element: string): MethodReturn {
-    return request(false, arguments[3], 'lset', key, index, element);
+  function lset(): MethodReturn {
+    return request(options, undefined, 'lset', ...arguments);
   }
-
-  function ltrim(key: string, start: number, stop: number): MethodReturn {
-    return request(false, arguments[3], 'ltrim', key, start, stop);
+  function ltrim(): MethodReturn {
+    return request(options, undefined, 'ltrim', ...arguments);
   }
-
-  function rpop(key: string): MethodReturn {
-    return request(false, arguments[1], 'rpop', key);
+  function rpop(): MethodReturn {
+    return request(options, undefined, 'rpop', ...arguments);
   }
-
-  function rpoplpush(source: string, destination: string): MethodReturn {
-    return request(false, arguments[2], 'rpoplpush', source, destination);
+  function rpoplpush(): MethodReturn {
+    return request(options, undefined, 'rpoplpush', ...arguments);
   }
-
-  function rpush(key: string, elements: string[]): MethodReturn {
-    return request(false, arguments[2], 'rpush', key, ...elements);
+  function rpush(): MethodReturn {
+    return request(options, undefined, 'rpush', ...arguments);
   }
-
-  function rpushx(key: string, elements: string[]): MethodReturn {
-    return request(false, arguments[2], 'rpushx', key, ...elements);
+  function rpushx(): MethodReturn {
+    return request(options, undefined, 'rpushx', ...arguments);
   }
 
   /**
@@ -662,461 +430,137 @@ function Upstash(): Upstash {
    */
 
   function dbsize(): MethodReturn {
-    return request(arguments[0], arguments[1], 'dbsize');
+    return hasConfig(options, 'dbsize', arguments);
   }
-
-  function flushall(mode?: 'ASYNC'): MethodReturn {
-    if (mode) {
-      return request(false, arguments[1], 'flushall', mode);
-    }
-    return request(false, arguments[1], 'flushall');
+  function flushall(): MethodReturn {
+    return request(options, undefined, 'flushall', ...arguments);
   }
-
-  function flushdb(mode?: 'ASYNC'): MethodReturn {
-    if (mode) {
-      return request(false, arguments[1], 'flushdb', mode);
-    }
-    return request(false, arguments[1], 'flushdb');
+  function flushdb(): MethodReturn {
+    return request(options, undefined, 'flushdb', ...arguments);
   }
-
   function info(): MethodReturn {
-    return request(arguments[0], arguments[1], 'info');
+    return hasConfig(options, 'info', arguments);
   }
-
   function time(): MethodReturn {
-    return request(false, arguments[0], 'time');
+    return request(options, undefined, 'time', ...arguments);
   }
 
   /**
    * SET
    */
 
-  function sadd(key: string, members: string[]): MethodReturn {
-    return request(false, arguments[2], 'sadd', key, ...members);
+  function sadd(): MethodReturn {
+    return request(options, undefined, 'sadd', ...arguments);
   }
-
-  function scard(key: string): MethodReturn {
-    return request(false, arguments[1], 'scard', key);
+  function scard(): MethodReturn {
+    return request(options, undefined, 'scard', ...arguments);
   }
-
-  function sdiff(keys: string[]): MethodReturn {
-    return request(arguments[1], arguments[2], 'sdiff', ...keys);
+  function sdiff(): MethodReturn {
+    return hasConfig(options, 'sdiff', arguments);
   }
-
-  function sdiffstore(destination: string, keys: string[]): MethodReturn {
-    return request(false, arguments[2], 'sdiffstore', destination, ...keys);
+  function sdiffstore(): MethodReturn {
+    return request(options, undefined, 'sdiffstore', ...arguments);
   }
-
-  function sinter(keys: string[]): MethodReturn {
-    return request(arguments[1], arguments[2], 'sinter', ...keys);
+  function sinter(): MethodReturn {
+    return hasConfig(options, 'sinter', arguments);
   }
-
-  function sinterstore(destination: string, keys: string[]): MethodReturn {
-    return request(false, arguments[2], 'sinterstore', destination, ...keys);
+  function sinterstore(): MethodReturn {
+    return request(options, undefined, 'sinterstore', ...arguments);
   }
-
-  function sismember(key: string, member: string): MethodReturn {
-    return request(arguments[2], arguments[3], 'sismember', key, member);
+  function sismember(): MethodReturn {
+    return hasConfig(options, 'sismember', arguments);
   }
-
-  function smembers(key: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'smembers', key);
+  function smembers(): MethodReturn {
+    return hasConfig(options, 'smembers', arguments);
   }
-
-  function smove(
-    source: string,
-    destination: string,
-    member: string
-  ): MethodReturn {
-    return request(false, arguments[3], 'smove', source, destination, member);
+  function smove(): MethodReturn {
+    return request(options, undefined, 'smove', ...arguments);
   }
-
-  function spop(key: string, count?: number): MethodReturn {
-    if (count) {
-      return request(false, arguments[2], 'spop', key, count);
-    }
-    return request(false, arguments[2], 'spop', key);
+  function spop(): MethodReturn {
+    return request(options, undefined, 'spop', ...arguments);
   }
-
-  function srandmember(key: string, count?: number): MethodReturn {
-    if (count) {
-      return request(arguments[2], arguments[3], 'srandmember', key, count);
-    }
-    return request(arguments[2], arguments[3], 'srandmember', key);
+  function srandmember(): MethodReturn {
+    return hasConfig(options, 'srandmember', arguments);
   }
-
-  function srem(key: string, members: string[]): MethodReturn {
-    return request(false, arguments[2], 'srem', key, ...members);
+  function srem(): MethodReturn {
+    return request(options, undefined, 'srem', ...arguments);
   }
-
-  function sunion(keys: string[]): MethodReturn {
-    return request(arguments[1], arguments[2], 'sunion', ...keys);
+  function sunion(): MethodReturn {
+    return hasConfig(options, 'sunion', arguments);
   }
-
-  function sunionstore(destination: string, keys: string[]): MethodReturn {
-    return request(false, arguments[2], 'sunionstore', destination, ...keys);
+  function sunionstore(): MethodReturn {
+    return request(options, undefined, 'sunionstore', ...arguments);
   }
 
   /**
    * SORTED SETS
    */
 
-  function zadd(
-    key: string,
-    values: ZSetNumber[],
-    options?: ({ xx?: boolean } | { nx?: boolean }) & {
-      ch?: boolean;
-      incr: boolean;
-    }
-  ): MethodReturn {
-    if (options) {
-      const allOptions = Object.entries(options)
-        .filter((e) => ['string', 'number', 'boolean'].includes(typeof e[1]))
-        .map((e) => e[0].toUpperCase());
-
-      return request(
-        false,
-        arguments[3],
-        'zadd',
-        key,
-        ...allOptions,
-        ...values
-      );
-    }
-    return request(arguments[3], arguments[4], 'zadd', key, ...values);
+  function zadd(): MethodReturn {
+    return request(options, undefined, 'zadd', ...arguments);
   }
-
-  function zcard(key: string): MethodReturn {
-    return request(arguments[1], arguments[2], 'zcard', key);
+  function zcard(): MethodReturn {
+    return hasConfig(options, 'zcard', arguments);
   }
-
-  function zcount(key: string, min: ZSetNumber, max: ZSetNumber): MethodReturn {
-    return request(arguments[3], arguments[4], 'zcount', key, min, max);
+  function zcount(): MethodReturn {
+    return hasConfig(options, 'zcount', arguments);
   }
-
-  function zincrby(
-    key: string,
-    increment: number | string,
-    member: string
-  ): MethodReturn {
-    return request(false, arguments[3], 'zincrby', key, increment, member);
+  function zincrby(): MethodReturn {
+    return request(options, undefined, 'zincrby', ...arguments);
   }
-
-  function zinterstore(
-    destination: string,
-    keys: string[],
-    options?: { weights?: number[]; aggregate?: 'MIN' | 'MAX' | 'SUM' }
-  ): MethodReturn {
-    if (options) {
-      if (options.weights && options.aggregate) {
-        return request(
-          false,
-          arguments[3],
-          'zinterstore',
-          destination,
-          keys.length,
-          ...keys,
-          'weights',
-          ...options.weights,
-          'aggregate',
-          options.aggregate
-        );
-      } else if (options.weights) {
-        return request(
-          false,
-          arguments[3],
-          'zinterstore',
-          destination,
-          keys.length,
-          ...keys,
-          'weights',
-          ...options.weights
-        );
-      } else if (options.aggregate) {
-        return request(
-          false,
-          arguments[3],
-          'zinterstore',
-          destination,
-          keys.length,
-          ...keys,
-          'aggregate',
-          options.aggregate
-        );
-      }
-    }
-    return request(
-      false,
-      arguments[3],
-      'zinterstore',
-      destination,
-      keys.length,
-      ...keys
-    );
+  function zinterstore(): MethodReturn {
+    return request(options, undefined, 'zinterstore', ...arguments);
   }
-
-  function zlexcount(
-    key: string,
-    min: ZSetNumber,
-    max: ZSetNumber
-  ): MethodReturn {
-    return request(arguments[3], arguments[4], 'zlexcount', key, min, max);
+  function zlexcount(): MethodReturn {
+    return hasConfig(options, 'zlexcount', arguments);
   }
-
-  function zpopmax(key: string, count?: number): MethodReturn {
-    if (count) {
-      return request(false, arguments[2], 'zpopmax', key, count);
-    }
-    return request(false, arguments[2], 'zpopmax', key);
+  function zpopmax(): MethodReturn {
+    return request(options, undefined, 'zpopmax', ...arguments);
   }
-
-  function zpopmin(key: string, count?: number): MethodReturn {
-    if (count) {
-      return request(false, arguments[2], 'zpopmin', key, count);
-    }
-    return request(false, arguments[2], 'zpopmin', key);
+  function zpopmin(): MethodReturn {
+    return request(options, undefined, 'zpopmin', ...arguments);
   }
-
-  function zrange(
-    key: string,
-    min: ZSetNumber,
-    max: ZSetNumber,
-    options?: { withScores: boolean }
-  ): MethodReturn {
-    if (options?.withScores) {
-      return request(
-        arguments[4],
-        arguments[5],
-        'zrange',
-        key,
-        min,
-        max,
-        'WITHSCORES'
-      );
-    }
-    return request(arguments[4], arguments[5], 'zrange', key, min, max);
+  function zrange(): MethodReturn {
+    return hasConfig(options, 'zrange', arguments);
   }
-
-  function zrangebylex(
-    key: string,
-    min: ZSetNumber,
-    max: ZSetNumber,
-    offset?: number,
-    count?: number
-  ): MethodReturn {
-    if (offset && count) {
-      return request(
-        arguments[5],
-        arguments[6],
-        'zrangebylex',
-        key,
-        min,
-        max,
-        'LIMIT',
-        offset,
-        count
-      );
-    }
-    return request(arguments[5], arguments[6], 'zrangebylex', key, min, max);
+  function zrangebylex(): MethodReturn {
+    return hasConfig(options, 'zrangebylex', arguments);
   }
-
-  function zrangebyscore(
-    key: string,
-    min: ZSetNumber,
-    max: ZSetNumber,
-    options?: {
-      withScores?: boolean;
-      limit?: { offset: number; count: number };
-    }
-  ): MethodReturn {
-    if (options?.withScores && options?.limit) {
-      return request(
-        arguments[4],
-        arguments[5],
-        'zrangebyscore',
-        key,
-        min,
-        max,
-        'WITHSCORES',
-        'LIMIT',
-        options.limit.offset,
-        options.limit.count
-      );
-    } else if (options?.withScores) {
-      return request(
-        arguments[4],
-        arguments[5],
-        'zrangebyscore',
-        key,
-        min,
-        max,
-        'WITHSCORES'
-      );
-    } else if (options?.limit) {
-      return request(
-        arguments[4],
-        arguments[5],
-        'zrangebyscore',
-        key,
-        min,
-        max,
-        'LIMIT',
-        options.limit.offset,
-        options.limit.count
-      );
-    }
-    return request(arguments[4], arguments[5], 'zrangebyscore', key, min, max);
+  function zrangebyscore(): MethodReturn {
+    return hasConfig(options, 'zrangebyscore', arguments);
   }
-
-  function zrank(key: string, member: string): MethodReturn {
-    return request(arguments[2], arguments[3], 'zrank', key, member);
+  function zrank(): MethodReturn {
+    return hasConfig(options, 'zrank', arguments);
   }
-
-  function zrem(key: string, members: string[]): MethodReturn {
-    return request(false, arguments[2], 'zrem', key, ...members);
+  function zrem(): MethodReturn {
+    return request(options, undefined, 'zrem', ...arguments);
   }
-
-  function zremrangebylex(
-    key: string,
-    min: ZSetNumber,
-    max: ZSetNumber
-  ): MethodReturn {
-    return request(false, arguments[3], 'zremrangebylex', key, min, max);
+  function zremrangebylex(): MethodReturn {
+    return request(options, undefined, 'zremrangebylex', ...arguments);
   }
-
-  function zremrangebyrank(
-    key: string,
-    start: number,
-    stop: number
-  ): MethodReturn {
-    return request(false, arguments[3], 'zremrangebyrank', key, start, stop);
+  function zremrangebyrank(): MethodReturn {
+    return request(options, undefined, 'zremrangebyrank', ...arguments);
   }
-
-  function zremrangebyscore(
-    key: string,
-    min: ZSetNumber,
-    max: ZSetNumber
-  ): MethodReturn {
-    return request(false, arguments[3], 'zremrangebyscore', key, min, max);
+  function zremrangebyscore(): MethodReturn {
+    return request(options, undefined, 'zremrangebyscore', ...arguments);
   }
-
-  function zrevrange(
-    key: string,
-    start: number,
-    stop: number,
-    options?: { withScores: boolean }
-  ): MethodReturn {
-    if (options?.withScores) {
-      return request(
-        arguments[4],
-        arguments[5],
-        'zrevrange',
-        key,
-        start,
-        stop,
-        'WITHSCORES'
-      );
-    }
-    return request(arguments[4], arguments[5], 'zrevrange', key, start, stop);
+  function zrevrange(): MethodReturn {
+    return hasConfig(options, 'zrevrange', arguments);
   }
-
-  function zrevrangebylex(
-    key: string,
-    max: ZSetNumber,
-    min: ZSetNumber,
-    offset?: number,
-    count?: number
-  ): MethodReturn {
-    if (offset && count) {
-      return request(
-        arguments[5],
-        arguments[6],
-        'zrevrangebylex',
-        key,
-        max,
-        min,
-        'LIMIT',
-        offset,
-        count
-      );
-    }
-    return request(arguments[5], arguments[6], 'zrevrangebylex', key, max, min);
+  function zrevrangebylex(): MethodReturn {
+    return hasConfig(options, 'zrevrangebylex', arguments);
   }
-
-  function zrevrangebyscore(
-    key: string,
-    min: ZSetNumber,
-    max: ZSetNumber
-  ): MethodReturn {
-    return request(
-      arguments[3],
-      arguments[4],
-      'zrevrangebyscore',
-      key,
-      min,
-      max
-    );
+  function zrevrangebyscore(): MethodReturn {
+    return hasConfig(options, 'zrevrangebyscore', arguments);
   }
-
-  function zrevrank(key: string, member: string): MethodReturn {
-    return request(arguments[2], arguments[3], 'zrevrank', key, member);
+  function zrevrank(): MethodReturn {
+    return hasConfig(options, 'zrevrank', arguments);
   }
-
-  function zscore(key: string, member: string): MethodReturn {
-    return request(arguments[2], arguments[3], 'zscore', key, member);
+  function zscore(): MethodReturn {
+    return hasConfig(options, 'zscore', arguments);
   }
-
-  function zunionstore(
-    destination: string,
-    keys: string[],
-    options?: { weights?: number[]; aggregate?: 'MIN' | 'MAX' | 'SUM' }
-  ): MethodReturn {
-    if (options) {
-      if (options.weights && options.aggregate) {
-        return request(
-          false,
-          arguments[3],
-          'zunionstore',
-          destination,
-          keys.length,
-          ...keys,
-          'weights',
-          ...options.weights,
-          'aggregate',
-          options.aggregate
-        );
-      } else if (options.weights) {
-        return request(
-          false,
-          arguments[3],
-          'zunionstore',
-          destination,
-          keys.length,
-          ...keys,
-          'weights',
-          ...options.weights
-        );
-      } else if (options.aggregate) {
-        return request(
-          false,
-          arguments[3],
-          'zunionstore',
-          destination,
-          keys.length,
-          ...keys,
-          'aggregate',
-          options.aggregate
-        );
-      }
-    }
-    return request(
-      false,
-      arguments[3],
-      'zunionstore',
-      destination,
-      keys.length,
-      ...keys
-    );
+  function zunionstore(): MethodReturn {
+    return request(options, undefined, 'zunionstore', ...arguments);
   }
 
   return {
@@ -1243,3 +687,5 @@ function Upstash(): Upstash {
     zunionstore,
   };
 }
+
+export default upstash;

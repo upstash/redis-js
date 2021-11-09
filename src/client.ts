@@ -22,15 +22,11 @@ function parseOptions(
   edgeUrl?: string,
   readFromEdge?: boolean
 ): ClientObjectProps {
-  // try auto fill from env variables
-  if (!url) url = process.env.UPSTASH_REDIS_REST_URL;
-  if (!token) token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!edgeUrl) edgeUrl = process.env.UPSTASH_REDIS_EDGE_URL;
-  readFromEdge = readFromEdge ?? !!edgeUrl;
-
-  if (typeof url !== 'string') {
+  if (url && typeof url !== 'string') {
     return parseOptions(url?.url, url?.token, url?.edgeUrl, url?.readFromEdge);
   }
+
+  readFromEdge = readFromEdge ?? !!edgeUrl;
 
   return edgeUrl ? { url, token, edgeUrl, readFromEdge } : { url, token };
 }
@@ -147,7 +143,8 @@ function hasConfig(options: ClientObjectProps, command: string, a: any) {
   if (isObject(lastArg)) {
     return request(options, lastArg, command, ...args);
   } else {
-    return request(options, {}, command, ...args, lastArg);
+    args = [...args, lastArg].filter((o) => ![undefined, null].includes(o));
+    return request(options, {}, command, ...args);
   }
 }
 

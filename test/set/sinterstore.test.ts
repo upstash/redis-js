@@ -1,5 +1,12 @@
-import { sadd, sinterstore, smembers } from '../../dist/main';
+import { sadd, sinterstore, smembers, auth } from '../../dist/main';
 import { nanoid } from 'nanoid';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('sinterstore command', () => {
   it('save data', async () => {

@@ -1,5 +1,12 @@
-import { rpush, linsert, lrange } from '../../dist/main';
+import { rpush, linsert, lrange, auth } from '../../dist/main';
 import { nanoid } from 'nanoid';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('linsert command', () => {
   it('basic', async () => {

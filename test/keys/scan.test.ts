@@ -1,5 +1,11 @@
-import { flushdb, mget, mset, scan } from '../../dist/main';
-import { nanoid } from 'nanoid';
+import { auth, flushdb, mset, scan } from '../../dist/main';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('scan command', () => {
   it('basic', async () => {

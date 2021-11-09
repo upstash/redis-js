@@ -31,11 +31,4 @@ describe('api connection', () => {
     const { data } = await echo('hi');
     expect(data).toBe('hi');
   });
-
-  it('new instance auto credential', async () => {
-    const { echo } = upstash();
-
-    const { data } = await echo('hi');
-    expect(data).toBe('hi');
-  });
 });

@@ -1,5 +1,12 @@
-import { sadd, sismember } from '../../dist/main';
+import { sadd, sismember, auth } from '../../dist/main';
 import { nanoid } from 'nanoid';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('sismember command', () => {
   it('save data', async () => {

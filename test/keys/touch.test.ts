@@ -1,5 +1,12 @@
-import { mset, touch } from '../../dist/main';
+import { auth, mset, touch } from '../../dist/main';
 import { nanoid } from 'nanoid';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('touch command', () => {
   it('basic', async () => {

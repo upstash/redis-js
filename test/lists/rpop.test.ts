@@ -1,5 +1,12 @@
-import { rpush, lrange, rpop } from '../../dist/main';
+import { rpush, lrange, rpop, auth } from '../../dist/main';
 import { nanoid } from 'nanoid';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('rpop command', () => {
   it('basic', async () => {

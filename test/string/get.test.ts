@@ -1,5 +1,12 @@
-import { get, set } from '../../dist/main';
+import { get, set, auth } from '../../dist/main';
 import { nanoid } from 'nanoid';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('get command', () => {
   it('return null', async () => {
@@ -11,7 +18,7 @@ describe('get command', () => {
     const key = nanoid();
     await set(key, 'hello');
 
-    const { data } = await get(key, { edge: false });
+    const { data } = await get(key);
     expect(data).toBe('hello');
   });
 

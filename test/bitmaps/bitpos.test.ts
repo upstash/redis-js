@@ -1,5 +1,12 @@
-import { set, bitpos } from '../../dist/main';
+import { auth, set, bitpos } from '../../dist/main';
 import { nanoid } from 'nanoid';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('bitpos command', () => {
   it('just start', async () => {

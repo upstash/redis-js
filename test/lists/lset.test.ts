@@ -1,5 +1,12 @@
-import { lset, rpush, lrange } from '../../dist/main';
+import { lset, rpush, lrange, auth } from '../../dist/main';
 import { nanoid } from 'nanoid';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('lset command', () => {
   it('basic', async () => {

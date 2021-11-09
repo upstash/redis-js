@@ -1,5 +1,12 @@
-import { zadd, zrange, zinterstore } from '../../dist/main';
+import { zadd, zrange, zinterstore, auth } from '../../dist/main';
 import { nanoid } from 'nanoid';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('zinterstore command', () => {
   it('basic', async () => {

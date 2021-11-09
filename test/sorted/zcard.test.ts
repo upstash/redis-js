@@ -1,5 +1,12 @@
-import { zadd, zcard } from '../../dist/main';
+import { zadd, zcard, auth } from '../../dist/main';
 import { nanoid } from 'nanoid';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('zcard command', () => {
   it('basic', async () => {

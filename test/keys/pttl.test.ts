@@ -1,5 +1,12 @@
-import { set, expire, pttl } from '../../dist/main';
+import { set, expire, pttl, auth } from '../../dist/main';
 import { nanoid } from 'nanoid';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('ttl command', () => {
   it('remaining time', async () => {

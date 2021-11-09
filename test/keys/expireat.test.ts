@@ -1,5 +1,12 @@
-import { set, exists, expireat } from '../../dist/main';
+import { set, exists, expireat, auth } from '../../dist/main';
 import { nanoid } from 'nanoid';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('expireat command', () => {
   it('basic', async () => {
@@ -13,7 +20,7 @@ describe('expireat command', () => {
     const { data: data2 } = await expireat(key, 1293840000);
     expect(data2).toBe(1);
 
-    const { data: data3 } = await exists(key, { edge: false });
+    const { data: data3 } = await exists(key);
     expect(data3).toBe(0);
   });
 });

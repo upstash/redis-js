@@ -1,5 +1,12 @@
-import { mset, get } from '../../dist/main';
+import { mset, get, auth } from '../../dist/main';
 import { nanoid } from 'nanoid';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('mset command', () => {
   it('multiple save', async () => {

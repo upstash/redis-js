@@ -1,5 +1,12 @@
-import { mset, set, touch, unlink } from '../../dist/main';
+import { auth, mset, unlink } from '../../dist/main';
 import { nanoid } from 'nanoid';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('unlink command', () => {
   it('basic', async () => {

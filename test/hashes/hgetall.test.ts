@@ -1,5 +1,12 @@
-import { hset, hgetall } from '../../dist/main';
+import { hset, hgetall, auth } from '../../dist/main';
 import { nanoid } from 'nanoid';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('hgetall command', () => {
   it('basic', async () => {

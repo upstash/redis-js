@@ -1,4 +1,11 @@
-import { keys, mset, flushdb } from '../../dist/main';
+import { keys, mset, flushdb, auth } from '../../dist/main';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('keys command', () => {
   it('all keys', async () => {

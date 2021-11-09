@@ -1,5 +1,12 @@
-import { set, ttl, expire } from '../../dist/main';
+import { set, expire, auth } from '../../dist/main';
 import { nanoid } from 'nanoid';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('expire command', () => {
   it('single key', async () => {

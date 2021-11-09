@@ -1,5 +1,12 @@
-import { set, exists } from '../../dist/main';
+import { set, exists, auth } from '../../dist/main';
 import { nanoid } from 'nanoid';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('exists command', () => {
   it('single key', async () => {

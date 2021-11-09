@@ -1,5 +1,12 @@
-import { sadd, smembers, spop, srandmember } from '../../dist/main';
+import { sadd, auth, srandmember } from '../../dist/main';
 import { nanoid } from 'nanoid';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('srandmember command', () => {
   it('basic', async () => {

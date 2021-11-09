@@ -1,5 +1,12 @@
-import { zadd, zrevrangebylex } from '../../dist/main';
+import { zadd, zrevrangebylex, auth } from '../../dist/main';
 import { nanoid } from 'nanoid';
+
+beforeAll(() => {
+  auth(
+    process.env.UPSTASH_REDIS_REST_URL,
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+});
 
 describe('zrevrangebylex command', () => {
   it('basic', async () => {

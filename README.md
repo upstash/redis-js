@@ -26,7 +26,20 @@ See [the list of APIs](https://docs.upstash.com/features/restapi#rest---redis-ap
 npm install @upstash/redis
 ```
 
-### Usage with async/await (Promise)
+### Usage with Promise
+
+```typescript
+import { auth, set } from '@upstash/redis';
+
+auth('UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN');
+
+set('key', 'value').then(({ data }) => {
+  console.log(data);
+  // -> "OK"
+});
+```
+
+### Usage with async/await
 
 ```typescript
 import upstash from '@upstash/redis';
@@ -35,9 +48,10 @@ const redis = upstash('UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN');
 
 (async () => {
   try {
-    const { data, error } = await redis.get('key');
+    const { data, error } = await redis.set('key', 'value');
     if (error) throw error;
     console.log(data);
+    // -> "OK"
   } catch (error) {
     console.error(error);
   }
@@ -46,7 +60,7 @@ const redis = upstash('UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN');
 
 ### Edge Support
 
-Once you set `edgeUrl`, all read commands are fetched using edge url. The REST URL is used for write/update commands. 
+Once you set `edgeUrl`, all read commands are fetched using edge url. The REST URL is used for write/update commands.
 
 ```typescript
 import upstash from '@upstash/redis';
@@ -66,9 +80,9 @@ const redis = upstash({
     // -> null | string
     console.log(metadata);
     // -> { edge: boolean, cache: null | 'miss' | 'hit' }
-    
+
     // the below reads using REST url (non-edge)
-    const get1 = await redis.get('key', {edge: false});
+    const get1 = await redis.get('key', { edge: false });
     if (get1.error) throw get1.error;
   } catch (error) {
     console.error(error);

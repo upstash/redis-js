@@ -30,17 +30,4 @@ describe('get command', () => {
     const { data } = await get(key);
     expect(data).toBe('hello');
   });
-
-  it('callback', (done) => {
-    const key = nanoid();
-
-    set(key, 'hello').then(({ data }) => {
-      expect(data).toBe('OK');
-
-      get(key).then(({ data }) => {
-        expect(data).toBe('hello');
-        done();
-      });
-    });
-  });
 });

@@ -94,22 +94,13 @@ function request(
   ...parts: Part[]
 ): MethodReturn {
   if (!options.url) {
-    return new Promise((resolve) =>
-      resolve({ data: null, error: 'Database url not found?' })
-    );
+    throw new Error('Database url not found?');
   }
 
-  if (!options.edgeUrl && options.readFromEdge) {
-    return new Promise((resolve) =>
-      resolve({
-        data: null,
-        error: 'You need to set Edge Url to read from edge.',
-      })
-    );
-  }
-
-  if (!options.edgeUrl && config?.edge) {
-    throw new Error('You need to set Edge Url to read from edge.');
+  if (!options.edgeUrl) {
+    if (options.readFromEdge || config?.edge) {
+      throw new Error('You need to set Edge Url to read from edge.');
+    }
   }
 
   let fromEdge = !!options.edgeUrl && options.readFromEdge !== false;

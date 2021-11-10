@@ -1,6 +1,6 @@
-import Upstash from './client';
+import upstash from './client';
 
-export default Upstash;
+export default upstash;
 
 const {
   auth,
@@ -115,7 +115,7 @@ const {
   zrevrank,
   zscore,
   zunionstore,
-} = Upstash();
+} = upstash();
 
 export {
   auth,

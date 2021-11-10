@@ -143,8 +143,7 @@ function hasConfig(options: ClientObjectProps, command: string, a: any) {
   if (isObject(lastArg)) {
     return request(options, lastArg, command, ...args);
   } else {
-    args = [...args, lastArg].filter((o) => ![undefined, null].includes(o));
-    return request(options, {}, command, ...args);
+    return request(options, {}, command, ...a);
   }
 }
 

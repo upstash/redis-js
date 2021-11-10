@@ -1,11 +1,4 @@
-import { info, auth } from '../../dist/main';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
+import { info } from '../../src';
 
 describe('info command', () => {
   it('basic', async () => {

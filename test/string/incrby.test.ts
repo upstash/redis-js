@@ -1,12 +1,5 @@
-import { set, incrby, auth } from '../../dist/main';
+import { set, incrby } from '../../src';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('incrby command', () => {
   const key = nanoid();

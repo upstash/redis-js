@@ -1,12 +1,5 @@
-import { lpush, lrange, lpushx, auth } from '../../dist/main';
+import { lpush, lrange, lpushx } from '../../src';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('lpushx command', () => {
   it('basic', async () => {

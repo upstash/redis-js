@@ -1,12 +1,5 @@
-import { set, expire, ttl, persist, auth } from '../../dist/main';
+import { set, expire, ttl, persist } from '../../src';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('persist command', () => {
   it('basic', async () => {
@@ -23,7 +16,7 @@ describe('persist command', () => {
     const { data: data3 } = await persist(key);
     expect(data3).toBe(1);
 
-    const { data: data4 } = await ttl(key);
+    const { data: data4 } = await ttl(key, { edge: false });
     expect(data4).toBe(-1);
   });
 });

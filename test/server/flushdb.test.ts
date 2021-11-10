@@ -1,11 +1,4 @@
-import { flushdb, auth } from '../../dist/main';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
+import { flushdb } from '../../src';
 
 describe('flushdb command', () => {
   it('delete all keys current database', async () => {

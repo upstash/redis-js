@@ -1,12 +1,5 @@
-import { zadd, zrem, auth } from '../../dist/main';
+import { zadd, zrem } from '../../src';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('zrem command', () => {
   it('basic', async () => {

@@ -1,12 +1,5 @@
-import { auth, echo } from '../../dist/main';
+import { echo } from '../../src';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('echo command', () => {
   it('basic', async () => {

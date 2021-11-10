@@ -1,12 +1,5 @@
-import { sadd, sunionstore, smembers, auth } from '../../dist/main';
+import { sadd, sunionstore, smembers } from '../../dist/main';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('sunionstore command', () => {
   it('basic', async () => {

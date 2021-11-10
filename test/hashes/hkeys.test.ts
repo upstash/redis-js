@@ -1,12 +1,5 @@
-import { hset, hkeys, auth } from '../../dist/main';
+import { hset, hkeys } from '../../src';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('hkeys command', () => {
   it('basic', async () => {

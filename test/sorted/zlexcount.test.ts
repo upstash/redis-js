@@ -1,12 +1,5 @@
-import { zadd, zlexcount, auth } from '../../dist/main';
+import { zadd, zlexcount } from '../../src';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('zlexcount command', () => {
   it('basic', async () => {

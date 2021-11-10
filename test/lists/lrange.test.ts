@@ -1,12 +1,5 @@
-import { lrange, rpush, auth } from '../../dist/main';
+import { lrange, rpush } from '../../src';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('lrange command', () => {
   it('basic', async () => {

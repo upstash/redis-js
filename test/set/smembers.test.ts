@@ -1,12 +1,5 @@
-import { sadd, smembers, auth } from '../../dist/main';
+import { sadd, smembers } from '../../src';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('smembers command', () => {
   it('save data', async () => {

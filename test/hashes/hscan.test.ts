@@ -1,12 +1,5 @@
-import { flushdb, hscan, hset, auth } from '../../dist/main';
+import { flushdb, hscan, hset } from '../../src';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('hscan command', () => {
   it('basic', async () => {

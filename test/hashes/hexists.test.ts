@@ -1,12 +1,5 @@
-import { hset, hexists, auth } from '../../dist/main';
+import { hset, hexists } from '../../src';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('hexists command', () => {
   it('basic', async () => {

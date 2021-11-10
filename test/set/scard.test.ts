@@ -1,12 +1,5 @@
-import { sadd, scard, auth } from '../../dist/main';
+import { sadd, scard } from '../../src';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('scard command', () => {
   it('save data', async () => {

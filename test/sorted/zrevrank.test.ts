@@ -1,12 +1,5 @@
-import { zadd, zrevrank, auth } from '../../dist/main';
+import { zadd, zrevrank } from '../../src';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('zrevrank command', () => {
   it('basic', async () => {

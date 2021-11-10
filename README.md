@@ -42,13 +42,11 @@ set('key', 'value').then(({ data }) => {
 ### Usage with async/await
 
 ```typescript
-import upstash from '@upstash/redis';
-
-const redis = upstash('UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN');
+import { set } from '@upstash/redis';
 
 (async () => {
   try {
-    const { data, error } = await redis.set('key', 'value');
+    const { data, error } = await set('key', 'value');
     if (error) throw error;
     console.log(data);
     // -> "OK"
@@ -57,6 +55,8 @@ const redis = upstash('UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN');
   }
 })();
 ```
+
+> If you define `UPSTASH_REDIS_REST_URL` and` UPSTASH_REDIS_REST_TOKEN` environment variables, you can run the Redis commands directly.
 
 ### Edge Support
 

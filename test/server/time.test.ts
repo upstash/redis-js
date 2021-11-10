@@ -1,11 +1,4 @@
-import { time, auth } from '../../dist/main';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
+import { time } from '../../src';
 
 describe('time command', () => {
   it('basic', async () => {

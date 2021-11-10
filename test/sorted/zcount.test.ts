@@ -1,12 +1,5 @@
-import { zadd, zincrby, zrange, auth } from '../../dist/main';
+import { zadd, zincrby, zrange } from '../../dist/main';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('zcount command', () => {
   it('basic', async () => {

@@ -1,12 +1,5 @@
-import { sadd, smembers, spop, auth } from '../../dist/main';
+import { sadd, smembers, spop } from '../../dist/main';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('spop command', () => {
   it('basic', async () => {

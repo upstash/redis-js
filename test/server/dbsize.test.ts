@@ -1,11 +1,4 @@
-import { dbsize, flushdb, auth } from '../../dist/main';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
+import { dbsize, flushdb } from '../../src';
 
 describe('dbsize command', () => {
   it('basic', async () => {

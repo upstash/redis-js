@@ -1,12 +1,5 @@
-import { zadd, zremrangebyrank, zrange, auth } from '../../dist/main';
+import { zadd, zremrangebyrank, zrange } from '../../src';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('zremrangebyrank command', () => {
   it('basic', async () => {

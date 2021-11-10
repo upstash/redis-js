@@ -1,12 +1,5 @@
-import { sadd, sdiff, auth } from '../../dist/main';
+import { sadd, sdiff } from '../../src';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('sdiff command', () => {
   it('save data', async () => {

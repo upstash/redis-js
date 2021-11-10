@@ -1,11 +1,9 @@
 import dotenv from 'dotenv';
 import upstash from '@upstash/redis';
 
-console.log(upstash);
-
 dotenv.config();
 
-const { echo } = upstash(
+const { echo } = upstash.default(
   process.env.UPSTASH_REDIS_REST_URL,
   process.env.UPSTASH_REDIS_REST_TOKEN
 );

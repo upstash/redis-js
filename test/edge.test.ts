@@ -1,4 +1,4 @@
-import { set, get, auth } from '../dist/main';
+import { auth, set, get } from '../src';
 import { nanoid } from 'nanoid';
 
 describe('edge request', () => {
@@ -42,8 +42,11 @@ describe('edge request', () => {
 
     auth({ url, token, readFromEdge: true });
 
-    const get0 = await get('asddfghj');
-    expect(get0.metadata?.edge).toBeFalsy();
+    try {
+      await get('asddfghj');
+    } catch (e) {
+      expect(e.message).toBe('You need to set Edge Url to read from edge.');
+    }
   });
 
   it('force edge request', async () => {

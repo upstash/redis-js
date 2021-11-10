@@ -1,12 +1,5 @@
-import { llen, rpush, auth } from '../../dist/main';
+import { llen, rpush } from '../../src';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('llen command', () => {
   it('basic', async () => {

@@ -1,12 +1,5 @@
-import { auth, exists, pexpireat, pttl, set } from '../../dist/main';
+import { exists, pexpireat, pttl, set } from '../../src';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('pexpireat command', () => {
   it('basic', async () => {

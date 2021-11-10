@@ -42,15 +42,15 @@
   "size-limit": [
     {
       "path": "dist/main/index.js",
-      "limit": "4 KB"
+      "limit": "5 KB"
     },
     {
       "path": "dist/module/index.js",
-      "limit": "4 KB"
+      "limit": "5 KB"
     },
     {
       "path": "dist/umd/upstash-redis.js",
-      "limit": "4 KB"
+      "limit": "5 KB"
     }
   ],
   "prettier": {

@@ -26,6 +26,13 @@ function parseOptions(
     return parseOptions(url?.url, url?.token, url?.edgeUrl, url?.readFromEdge);
   }
 
+  if (!url) {
+    // try auto fill from env variables
+    url = process.env.UPSTASH_REDIS_REST_URL;
+    token = process.env.UPSTASH_REDIS_REST_TOKEN;
+    edgeUrl = process.env.UPSTASH_REDIS_EDGE_URL;
+  }
+
   readFromEdge = readFromEdge ?? !!edgeUrl;
 
   return edgeUrl ? { url, token, edgeUrl, readFromEdge } : { url, token };
@@ -169,7 +176,15 @@ function upstash(url?: string | ClientObjectProps, token?: string): Upstash {
    */
 
   function auth(): void {
-    Object.assign(options, parseOptions(arguments[0], arguments[1]));
+    Object.assign(
+      options,
+      {
+        url: undefined,
+        token: undefined,
+        edgeUrl: undefined,
+      },
+      parseOptions(arguments[0], arguments[1])
+    );
   }
 
   /**

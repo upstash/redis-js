@@ -1,12 +1,5 @@
-import { auth, set, bitcount } from '../../dist/main';
+import { set, bitcount } from '../../src';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('bitcount command', () => {
   it('basic', async () => {

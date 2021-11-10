@@ -1,12 +1,5 @@
-import { auth, setbit } from '../../dist/main';
+import { setbit } from '../../src';
 import { nanoid } from 'nanoid';
-
-beforeAll(() => {
-  auth(
-    process.env.UPSTASH_REDIS_REST_URL,
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  );
-});
 
 describe('setbit command', () => {
   it('save data', async () => {

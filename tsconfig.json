@@ -9,10 +9,10 @@
     "sourceMap": true,
     "target": "ES2019",
     "strict": true,
-    "esModuleInterop": true,
     "moduleResolution": "Node",
     "forceConsistentCasingInFileNames": true,
     "stripInternal": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
   }
 }

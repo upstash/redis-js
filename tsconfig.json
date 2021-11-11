@@ -1,5 +1,5 @@
 {
-  "include": ["src", "types"],
+  "include": ["src"],
   "exclude": ["node_modules/**/*.ts"],
   "compilerOptions": {
     "declaration": true,
@@ -9,10 +9,10 @@
     "sourceMap": true,
     "target": "ES2019",
     "strict": true,
-    "esModuleInterop": true,
     "moduleResolution": "Node",
     "forceConsistentCasingInFileNames": true,
     "stripInternal": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
   }
 }

@@ -1,4 +1,4 @@
-import upstash from '../src';
+import upstash from '../dist/main';
 
 describe('api connection', () => {
   it('new instance', async () => {
@@ -27,13 +27,6 @@ describe('api connection', () => {
       token: process.env.UPSTASH_REDIS_REST_TOKEN,
       edgeUrl: process.env.UPSTASH_REDIS_EDGE_URL,
     });
-
-    const { data } = await echo('hi');
-    expect(data).toBe('hi');
-  });
-
-  it('new instance auto credential', async () => {
-    const { echo } = upstash();
 
     const { data } = await echo('hi');
     expect(data).toBe('hi');

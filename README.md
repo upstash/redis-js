@@ -56,16 +56,16 @@ import { set } from '@upstash/redis';
 })();
 ```
 
-> If you define `UPSTASH_REDIS_REST_URL` and` UPSTASH_REDIS_REST_TOKEN` environment variables, you can run the Redis commands directly.
+> If you define `UPSTASH_REDIS_REST_URL` and` UPSTASH_REDIS_REST_TOKEN` environment variables, you can skip the auth().
 
 ### Edge Support
 
 Once you set `edgeUrl`, all read commands are fetched using edge url. The REST URL is used for write/update commands.
 
 ```typescript
-import upstash from '@upstash/redis';
+import { auth, get } from '@upstash/redis';
 
-const redis = upstash({
+auth({
   url: 'UPSTASH_REDIS_REST_URL',
   token: 'UPSTASH_REDIS_REST_TOKEN',
   edgeUrl: 'UPSTASH_REDIS_EDGE_URL',
@@ -74,7 +74,7 @@ const redis = upstash({
 (async () => {
   try {
     // the below reads using edge url
-    const { data, error, metadata } = await redis.get('key');
+    const { data, error, metadata } = await get('key');
     if (error) throw error;
     console.log(data);
     // -> null | string
@@ -82,10 +82,14 @@ const redis = upstash({
     // -> { edge: boolean, cache: null | 'miss' | 'hit' }
 
     // the below reads using REST url (non-edge)
-    const get1 = await redis.get('key', { edge: false });
+    const get1 = await get('key', { edge: false });
     if (get1.error) throw get1.error;
   } catch (error) {
     console.error(error);
   }
 })();
 ```
+                       
+           
+## Docs
+See [the documentation](https://docs.upstash.com/features/javascriptsdk) for details.

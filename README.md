@@ -89,7 +89,7 @@ auth({
   }
 })();
 ```
-                       
-           
+
 ## Docs
+
 See [the documentation](https://docs.upstash.com/features/javascriptsdk) for details.

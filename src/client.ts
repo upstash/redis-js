@@ -7,11 +7,7 @@ import {
   RequestConfig,
   ReturnType,
   Upstash,
-} from './type';
-
-function isObject(objectToCheck: any): boolean {
-  return typeof objectToCheck === 'object' && objectToCheck !== null;
-}
+} from './types';
 
 /**
  * Parse Options
@@ -22,18 +18,18 @@ function parseOptions(
   edgeUrl?: string,
   readFromEdge?: boolean
 ): ClientObjectProps {
-  if (url && typeof url !== 'string') {
-    return parseOptions(url?.url, url?.token, url?.edgeUrl, url?.readFromEdge);
+  if (typeof url === 'object' && url !== null) {
+    return parseOptions(url.url, url.token, url.edgeUrl, url.readFromEdge);
   }
 
-  if (!url) {
+  if (!url && typeof window === 'undefined') {
     // try auto fill from env variables
     url = process.env.UPSTASH_REDIS_REST_URL;
     token = process.env.UPSTASH_REDIS_REST_TOKEN;
     edgeUrl = process.env.UPSTASH_REDIS_EDGE_URL;
   }
 
-  readFromEdge = readFromEdge ?? !!edgeUrl;
+  readFromEdge = edgeUrl ? readFromEdge ?? true : false;
 
   return edgeUrl ? { url, token, edgeUrl, readFromEdge } : { url, token };
 }
@@ -57,36 +53,39 @@ async function fetchData(
 
     const data = await res.json();
 
-    if (res.ok) {
-      let edge = false;
-      let cache: EdgeCacheType = null;
-
-      switch (res.headers.get('x-cache')) {
-        case 'Hit from cloudfront':
-          edge = true;
-          cache = 'hit';
-          break;
-        case 'Miss from cloudfront':
-          edge = true;
-          cache = 'miss';
-          break;
-      }
-
-      return {
-        data: data.result,
-        error: null,
-        metadata: { edge, cache },
-      };
-    } else {
-      if (data.error) throw data;
-      throw new Error(
-        `Upstash failed with (${res.status}): ${JSON.stringify(data, null, 2)}`
-      );
+    if (!res.ok) {
+      if (data.error) throw data.error;
+      throw `Upstash failed with (${res.status}): ${JSON.stringify(
+        data,
+        null,
+        2
+      )}`;
     }
+
+    let edge = false;
+    let cache: EdgeCacheType = null;
+
+    switch (res.headers.get('x-cache')) {
+      case 'Hit from cloudfront':
+        edge = true;
+        cache = 'hit';
+        break;
+      case 'Miss from cloudfront':
+        edge = true;
+        cache = 'miss';
+        break;
+    }
+
+    return {
+      data: data.result,
+      error: null,
+      metadata: { edge, cache },
+    };
   } catch (err) {
     return {
       data: null,
-      error: typeof err.data === 'object' ? err.data.message : err,
+      // @ts-ignore
+      error: err,
       metadata: { edge: false, cache: null },
     };
   }
@@ -101,12 +100,12 @@ function request(
   ...parts: Part[]
 ): MethodReturn {
   if (!options.url) {
-    throw new Error('Database url not found?');
+    throw 'Database url not found?';
   }
 
   if (!options.edgeUrl) {
     if (options.readFromEdge || config?.edge) {
-      throw new Error('You need to set Edge Url to read from edge.');
+      throw 'You need to set Edge Url to read from edge.';
     }
   }
 
@@ -138,7 +137,7 @@ function hasConfig(options: ClientObjectProps, command: string, a: any) {
     lastArg = args.pop();
   }
 
-  if (isObject(lastArg)) {
+  if (typeof lastArg === 'object' && lastArg !== null) {
     return request(options, lastArg, command, ...args);
   } else {
     return request(options, {}, command, ...a);
@@ -182,6 +181,7 @@ function upstash(url?: string | ClientObjectProps, token?: string): Upstash {
         url: undefined,
         token: undefined,
         edgeUrl: undefined,
+        readFromEdge: undefined,
       },
       parseOptions(arguments[0], arguments[1])
     );

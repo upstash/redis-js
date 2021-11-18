@@ -1,18 +1,23 @@
 {
   "include": ["src"],
-  "exclude": ["node_modules/**/*.ts"],
+  "exclude": ["./**/dist", "node_modules"],
   "compilerOptions": {
     "declaration": true,
-    "declarationMap": true,
-    "module": "CommonJS",
+    "lib": ["esnext", "dom"],
+    "module": "commonjs",
+    "rootDir": "src",
     "outDir": "dist/main",
-    "sourceMap": true,
-    "target": "ES2019",
+    "target": "es2015",
     "strict": true,
-    "moduleResolution": "Node",
+    "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
     "stripInternal": true,
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "swr": ["./src/index.ts"]
+    },
+    "typeRoots": ["./src/types", "node_modules/@types"]
   }
 }

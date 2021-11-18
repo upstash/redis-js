@@ -1,4 +1,4 @@
-import { set } from '../dist/main';
+import { set } from '../src';
 import { nanoid } from 'nanoid';
 
 describe('promise then', () => {

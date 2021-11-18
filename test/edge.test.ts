@@ -45,7 +45,7 @@ describe('edge request', () => {
     try {
       await get('asddfghj');
     } catch (e) {
-      expect(e.message).toBe('You need to set Edge Url to read from edge.');
+      expect(e).toBe('You need to set Edge Url to read from edge.');
     }
   });
 
@@ -56,9 +56,9 @@ describe('edge request', () => {
     auth({ url, token });
 
     try {
-      await get('asddfghj', { edge: true });
+      await get('asddfghj', 'ddf', { edge: true });
     } catch (e) {
-      expect(e.message).toBe('You need to set Edge Url to read from edge.');
+      expect(e).toBe('You need to set Edge Url to read from edge.');
     }
   });
 });

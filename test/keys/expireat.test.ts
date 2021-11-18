@@ -1,4 +1,4 @@
-import { set, exists, expireat } from '../../dist/main';
+import { set, exists, expireat } from '../../src';
 import { nanoid } from 'nanoid';
 
 describe('expireat command', () => {

@@ -1,4 +1,4 @@
-import { flushdb, mset, scan } from '../../dist/main';
+import { flushdb, mset, scan } from '../../src';
 
 describe('scan command', () => {
   it('basic', async () => {

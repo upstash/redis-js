@@ -1,4 +1,4 @@
-import { auth, echo } from '../dist/main';
+import { auth, echo } from '../src';
 
 describe('api connection', () => {
   it('succeed', async () => {
@@ -7,8 +7,9 @@ describe('api connection', () => {
       process.env.UPSTASH_REDIS_REST_TOKEN
     );
 
-    const { data } = await echo('hi');
+    const { data, metadata } = await echo('hi');
     expect(data).toBe('hi');
+    expect(metadata?.edge).toBeFalsy();
   });
 
   it('edge URL', async () => {

@@ -1,4 +1,4 @@
-import { zadd, zincrby, zrange } from '../../dist/main';
+import { zadd, zincrby, zrange } from '../../src';
 import { nanoid } from 'nanoid';
 
 describe('zcount command', () => {

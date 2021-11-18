@@ -3,7 +3,7 @@ import upstash, { auth, get } from '@upstash/redis';
 
 dotenv.config();
 
-const redis = upstash({
+const redis = upstash.default({
   url: process.env.UPSTASH_REDIS_REST_URL,
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
   edgeUrl: process.env.UPSTASH_REDIS_EDGE_URL,

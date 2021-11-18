@@ -1,6 +1,6 @@
 {
   "name": "@upstash/redis",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "An HTTP/REST based Redis client built on top of Upstash REST API.",
   "author": "Adem ilter <adem@upstash.com>",
   "license": "MIT",

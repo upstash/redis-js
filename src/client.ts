@@ -16,13 +16,20 @@ function parseOptions(
   url?: string | ClientObjectProps,
   token?: string,
   edgeUrl?: string,
-  readFromEdge?: boolean
+  readFromEdge?: boolean,
+  backend?: string
 ): ClientObjectProps {
   if (typeof url === 'object' && url !== null) {
-    return parseOptions(url.url, url.token, url.edgeUrl, url.readFromEdge);
+    return parseOptions(
+      url.url,
+      url.token,
+      url.edgeUrl,
+      url.readFromEdge,
+      url.backend
+    );
   }
 
-  if (!url && typeof window === 'undefined') {
+  if (!backend && !url && typeof window === 'undefined') {
     // try auto fill from env variables
     url = process.env.UPSTASH_REDIS_REST_URL;
     token = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -31,7 +38,9 @@ function parseOptions(
 
   readFromEdge = edgeUrl ? readFromEdge ?? true : false;
 
-  return edgeUrl ? { url, token, edgeUrl, readFromEdge } : { url, token };
+  return edgeUrl
+    ? { url: url as string, token, edgeUrl, readFromEdge, backend }
+    : { url: url as string, token, backend };
 }
 
 /**
@@ -49,6 +58,8 @@ async function fetchData(
         Authorization: `Bearer ${options.token}`,
         ...init.headers,
       },
+      // @ts-ignore Fastly requires a backend specifying for fetch requests
+      backend: options.backend,
     });
 
     const data = await res.json();

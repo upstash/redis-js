@@ -17,7 +17,7 @@ function parseOptions(
   token?: string,
   edgeUrl?: string,
   readFromEdge?: boolean,
-  backend?: string
+  extraOptions?: string
 ): ClientObjectProps {
   if (typeof url === 'object' && url !== null) {
     return parseOptions(
@@ -25,11 +25,11 @@ function parseOptions(
       url.token,
       url.edgeUrl,
       url.readFromEdge,
-      url.backend
+      url.extraOptions
     );
   }
 
-  if (!backend && !url && typeof window === 'undefined') {
+  if (!url && typeof window === 'undefined') {
     // try auto fill from env variables
     url = process.env.UPSTASH_REDIS_REST_URL;
     token = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -39,8 +39,8 @@ function parseOptions(
   readFromEdge = edgeUrl ? readFromEdge ?? true : false;
 
   return edgeUrl
-    ? { url: url as string, token, edgeUrl, readFromEdge, backend }
-    : { url: url as string, token, backend };
+    ? { url: url as string, token, edgeUrl, readFromEdge, extraOptions }
+    : { url: url as string, token, extraOptions };
 }
 
 /**
@@ -58,8 +58,7 @@ async function fetchData(
         Authorization: `Bearer ${options.token}`,
         ...init.headers,
       },
-      // @ts-ignore Fastly requires a backend specifying for fetch requests
-      backend: options.backend,
+      ...options.extraOptions,
     });
 
     const data = await res.json();

@@ -3,5 +3,6 @@
   "files": ["src/index.ts"],
   "compilerOptions": {
     "outDir": "dist/module",
+    "module": "ESNext"
   }
 }

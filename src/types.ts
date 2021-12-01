@@ -1,26 +1,15 @@
 export type ClientObjectProps = {
   url?: undefined | string;
   token?: undefined | string;
-  edgeUrl?: undefined | string;
-  readFromEdge?: boolean;
   requestOptions?: undefined | RequestInit;
 };
-
-export type EdgeCacheType = null | 'miss' | 'hit';
 
 export type ReturnType = {
   data: string | number | [] | any;
   error: string | null;
-  metadata?: { edge: boolean; cache: EdgeCacheType };
 };
 
 export type MethodReturn = Promise<ReturnType>;
-
-export type RequestConfig =
-  | undefined
-  | {
-      edge?: boolean;
-    };
 
 export type Part = string | boolean | number;
 

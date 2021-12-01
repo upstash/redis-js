@@ -6,7 +6,7 @@ const router = new Router();
 auth({
   url: 'UPSTASH_REDIS_REST_URL',
   token: 'UPSTASH_REDIS_REST_TOKEN',
-  backend: 'upstash_origin'
+  extraOptions: {'backend':'upstash_origin'}
 });
 
 router.get("/", async (req, res) => {

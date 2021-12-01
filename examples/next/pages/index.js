@@ -12,11 +12,22 @@ function HomePage({ count }) {
     setCacheCount(data.count);
   };
 
+  const decr = async () => {
+    const response = await fetch('/api/decr', {
+      method: 'GET',
+    });
+    const data = await response.json();
+    setCacheCount(data.count);
+  };
+
   return (
     <div>
       <h2>Count: {cacheCount}</h2>
       <button type="button" onClick={incr}>
         increment
+      </button>
+      <button type="button" onClick={decr}>
+        decrement
       </button>
     </div>
   );

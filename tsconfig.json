@@ -1,23 +1,20 @@
 {
-  "include": ["src"],
+  "files": ["src/index-cjs.ts"],
   "exclude": ["./**/dist", "node_modules"],
   "compilerOptions": {
     "declaration": true,
-    "lib": ["esnext", "dom"],
-    "module": "commonjs",
+    "lib": ["ESNext", "DOM"],
+    "module": "CommonJS",
     "rootDir": "src",
     "outDir": "dist/main",
-    "target": "es2015",
+    "target": "ESNext",
     "strict": true,
-    "moduleResolution": "node",
+    "moduleResolution": "Node",
     "forceConsistentCasingInFileNames": true,
     "stripInternal": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "baseUrl": ".",
-    "paths": {
-      "swr": ["./src/index.ts"]
-    },
     "typeRoots": ["./src/types", "node_modules/@types"]
   }
 }

@@ -16,10 +16,17 @@ function parseOptions(
   url?: string | ClientObjectProps,
   token?: string,
   edgeUrl?: string,
-  readFromEdge?: boolean
+  readFromEdge?: boolean,
+  requestOptions: undefined | RequestInit = {}
 ): ClientObjectProps {
   if (typeof url === 'object' && url !== null) {
-    return parseOptions(url.url, url.token, url.edgeUrl, url.readFromEdge);
+    return parseOptions(
+      url.url,
+      url.token,
+      url.edgeUrl,
+      url.readFromEdge,
+      url.requestOptions
+    );
   }
 
   if (!url && typeof window === 'undefined') {
@@ -31,7 +38,9 @@ function parseOptions(
 
   readFromEdge = edgeUrl ? readFromEdge ?? true : false;
 
-  return edgeUrl ? { url, token, edgeUrl, readFromEdge } : { url, token };
+  return edgeUrl
+    ? { url: url as string, token, edgeUrl, readFromEdge, requestOptions }
+    : { url: url as string, token, requestOptions };
 }
 
 /**
@@ -48,7 +57,9 @@ async function fetchData(
       headers: {
         Authorization: `Bearer ${options.token}`,
         ...init.headers,
+        ...options.requestOptions?.headers,
       },
+      ...options.requestOptions,
     });
 
     const data = await res.json();

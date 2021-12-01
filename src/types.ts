@@ -3,6 +3,7 @@ export type ClientObjectProps = {
   token?: undefined | string;
   edgeUrl?: undefined | string;
   readFromEdge?: boolean;
+  requestOptions?: undefined | RequestInit;
 };
 
 export type EdgeCacheType = null | 'miss' | 'hit';

@@ -16,7 +16,7 @@ describe('persist command', () => {
     const { data: data3 } = await persist(key);
     expect(data3).toBe(1);
 
-    const { data: data4 } = await ttl(key, { edge: false });
+    const { data: data4 } = await ttl(key);
     expect(data4).toBe(-1);
   });
 });

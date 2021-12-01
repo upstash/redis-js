@@ -4,7 +4,6 @@ const upstash = require('@upstash/redis');
 const redis = upstash({
   url: process.env.UPSTASH_REDIS_REST_URL,
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
-  edgeUrl: process.env.UPSTASH_REDIS_EDGE_URL,
 });
 
 (async function run() {

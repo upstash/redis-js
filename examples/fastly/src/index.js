@@ -6,10 +6,10 @@ const router = new Router();
 auth({
   url: 'UPSTASH_REDIS_REST_URL',
   token: 'UPSTASH_REDIS_REST_TOKEN',
-  extraOptions: {'backend':'upstash_origin'}
+  requestOptions: { backend: 'upstash-db' },
 });
 
-router.get("/", async (req, res) => {
+router.get('/', async (req, res) => {
   const { data: count } = await incr('count');
   res.send(`Fastly with Upstash! Count: ${count}`);
 });

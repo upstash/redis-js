@@ -17,7 +17,7 @@ function parseOptions(
   token?: string,
   edgeUrl?: string,
   readFromEdge?: boolean,
-  extraOptions?: string
+  requestOptions: undefined | RequestInit = {}
 ): ClientObjectProps {
   if (typeof url === 'object' && url !== null) {
     return parseOptions(
@@ -25,7 +25,7 @@ function parseOptions(
       url.token,
       url.edgeUrl,
       url.readFromEdge,
-      url.extraOptions
+      url.requestOptions
     );
   }
 
@@ -39,8 +39,8 @@ function parseOptions(
   readFromEdge = edgeUrl ? readFromEdge ?? true : false;
 
   return edgeUrl
-    ? { url: url as string, token, edgeUrl, readFromEdge, extraOptions }
-    : { url: url as string, token, extraOptions };
+    ? { url: url as string, token, edgeUrl, readFromEdge, requestOptions }
+    : { url: url as string, token, requestOptions };
 }
 
 /**
@@ -57,8 +57,9 @@ async function fetchData(
       headers: {
         Authorization: `Bearer ${options.token}`,
         ...init.headers,
+        ...options.requestOptions?.headers,
       },
-      ...options.extraOptions,
+      ...options.requestOptions,
     });
 
     const data = await res.json();

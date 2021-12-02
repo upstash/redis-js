@@ -58,7 +58,6 @@ import { set } from '@upstash/redis';
 
 > If you define `UPSTASH_REDIS_REST_URL` and` UPSTASH_REDIS_REST_TOKEN` environment variables, you can skip the auth().
 
-
 ## Docs
 
 See [the documentation](https://docs.upstash.com/features/javascriptsdk) for details.

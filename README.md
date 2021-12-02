@@ -58,37 +58,6 @@ import { set } from '@upstash/redis';
 
 > If you define `UPSTASH_REDIS_REST_URL` and` UPSTASH_REDIS_REST_TOKEN` environment variables, you can skip the auth().
 
-### Edge Support
-
-Once you set `edgeUrl`, all read commands are fetched using edge url. The REST URL is used for write/update commands.
-
-```typescript
-import { auth, get } from '@upstash/redis';
-
-auth({
-  url: 'UPSTASH_REDIS_REST_URL',
-  token: 'UPSTASH_REDIS_REST_TOKEN',
-  edgeUrl: 'UPSTASH_REDIS_EDGE_URL',
-});
-
-(async () => {
-  try {
-    // the below reads using edge url
-    const { data, error, metadata } = await get('key');
-    if (error) throw error;
-    console.log(data);
-    // -> null | string
-    console.log(metadata);
-    // -> { edge: boolean, cache: null | 'miss' | 'hit' }
-
-    // the below reads using REST url (non-edge)
-    const get1 = await get('key', { edge: false });
-    if (get1.error) throw get1.error;
-  } catch (error) {
-    console.error(error);
-  }
-})();
-```
 
 ## Docs
 

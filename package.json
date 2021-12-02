@@ -37,11 +37,11 @@
   "size-limit": [
     {
       "path": "dist/main/index-cjs.js",
-      "limit": "4 KB"
+      "limit": "3 KB"
     },
     {
       "path": "dist/module/index.js",
-      "limit": "4 KB"
+      "limit": "3 KB"
     }
   ],
   "prettier": {

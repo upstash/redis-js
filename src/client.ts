@@ -45,7 +45,6 @@ async function fetchData(
       body: JSON.stringify(parts),
       headers: {
         Authorization: `Bearer ${options.token}`,
-        ...options.requestOptions?.headers,
       },
       ...options.requestOptions,
     });

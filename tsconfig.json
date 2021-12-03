@@ -3,11 +3,11 @@
   "exclude": ["./**/dist", "node_modules"],
   "compilerOptions": {
     "declaration": true,
-    "lib": ["ESNext", "DOM"],
+    "lib": ["ES2015", "DOM"],
     "module": "CommonJS",
     "rootDir": "src",
     "outDir": "dist/main",
-    "target": "ESNext",
+    "target": "ES2015",
     "strict": true,
     "moduleResolution": "Node",
     "forceConsistentCasingInFileNames": true,

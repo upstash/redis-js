@@ -40,12 +40,13 @@ async function fetchData(
   }
 
   try {
-    const res = await fetch(options.url!, {
+    const optHeaders = options.requestOptions && options.requestOptions.headers;
+    const res = await fetch(options.url, {
       method: 'POST',
       body: JSON.stringify(parts),
       headers: {
         Authorization: `Bearer ${options.token}`,
-        ...options.requestOptions?.headers,
+        ...optHeaders,
       },
       ...options.requestOptions,
     });

@@ -1,4 +1,4 @@
-import { get, set } from '../../src';
+import { set } from '../../src';
 import { nanoid } from 'nanoid';
 
 describe('set command', () => {

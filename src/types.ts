@@ -23,10 +23,10 @@ type Auth1 = (options?: ClientObjectProps) => void;
 type Auth2 = (url?: string, token?: string) => void;
 type Auth3 = (url?: string | ClientObjectProps, token?: string) => void;
 
-type SET1 = (key: string, value: string) => MethodReturn;
+type SET1 = (key: string, value: string | number) => MethodReturn;
 type SET2 = (
   key: string,
-  value: string,
+  value: string | number,
   timeType: 'EX' | 'PX',
   time: number | string
 ) => MethodReturn;
@@ -102,6 +102,118 @@ type INFO2 = (section: string) => MethodReturn;
 
 type SPOP1 = (key: string) => MethodReturn;
 type SPOP2 = (key: string, count: number) => MethodReturn;
+
+type SRANDMEMBER1 = (key: string) => MethodReturn;
+type SRANDMEMBER2 = (key: string, count: number) => MethodReturn;
+
+type ZPOPMAX1 = (key: string) => MethodReturn;
+type ZPOPMAX2 = (key: string, count: number | string) => MethodReturn;
+
+type ZRANGE1 = (key: string, min: ZSetNumber, max: ZSetNumber) => MethodReturn;
+type ZRANGE2 = (
+  key: string,
+  min: ZSetNumber,
+  max: ZSetNumber,
+  withscores: 'WITHSCORES'
+) => MethodReturn;
+
+type ZRANGEBYLEX1 = (
+  key: string,
+  min: ZSetNumber,
+  max: ZSetNumber
+) => MethodReturn;
+type ZRANGEBYLEX2 = (
+  key: string,
+  min: ZSetNumber,
+  max: ZSetNumber,
+  limit: 'LIMIT',
+  offset: number | string,
+  count: number | string
+) => MethodReturn;
+
+type ZRANGEBYSCORE1 = (
+  key: string,
+  min: ZSetNumber,
+  max: ZSetNumber
+) => MethodReturn;
+type ZRANGEBYSCORE2 = (
+  key: string,
+  min: ZSetNumber,
+  max: ZSetNumber,
+  withScores: 'WITHSCORES'
+) => MethodReturn;
+type ZRANGEBYSCORE3 = (
+  key: string,
+  min: ZSetNumber,
+  max: ZSetNumber,
+  limit: 'LIMIT',
+  offset: number | string,
+  count: number | string
+) => MethodReturn;
+type ZRANGEBYSCORE4 = (
+  key: string,
+  min: ZSetNumber,
+  max: ZSetNumber,
+  withScores: 'WITHSCORES',
+  limit: 'LIMIT',
+  offset: number | string,
+  count: number | string
+) => MethodReturn;
+
+type ZREVRANGEBYLEX1 = (
+  key: string,
+  max: ZSetNumber,
+  min: ZSetNumber
+) => MethodReturn;
+type ZREVRANGEBYLEX2 = (
+  key: string,
+  max: ZSetNumber,
+  min: ZSetNumber,
+  limit: 'LIMIT',
+  offset: number | string,
+  count: number | string
+) => MethodReturn;
+
+type ZREVRANGEBYSCORE1 = (
+  key: string,
+  max: ZSetNumber,
+  min: ZSetNumber
+) => MethodReturn;
+type ZREVRANGEBYSCORE2 = (
+  key: string,
+  max: ZSetNumber,
+  min: ZSetNumber,
+  withScores: 'WITHSCORES'
+) => MethodReturn;
+type ZREVRANGEBYSCORE3 = (
+  key: string,
+  max: ZSetNumber,
+  min: ZSetNumber,
+  limit: 'LIMIT',
+  offset: number | string,
+  count: number | string
+) => MethodReturn;
+type ZREVRANGEBYSCORE4 = (
+  key: string,
+  max: ZSetNumber,
+  min: ZSetNumber,
+  withScores: 'WITHSCORES',
+  limit: 'LIMIT',
+  offset: number | string,
+  count: number | string
+) => MethodReturn;
+
+type ZREVRANGE1 = (
+  key: string,
+  start: number | string,
+  stop: number | string
+) => MethodReturn;
+type ZREVRANGE2 = (
+  key: string,
+  start: number | string,
+  stop: number | string,
+  withscores: 'WITHSCORES'
+) => MethodReturn;
 
 export type Upstash = {
   auth: Auth1 & Auth2 & Auth3;
@@ -203,8 +315,8 @@ export type Upstash = {
   ) => MethodReturn;
   llen: (key: string) => MethodReturn;
   lpop: (key: string) => MethodReturn;
-  lpush: (key: string, element: any) => MethodReturn;
-  lpushx: (key: string, element: any) => MethodReturn;
+  lpush: (key: string, ...element: any) => MethodReturn;
+  lpushx: (key: string, ...element: any) => MethodReturn;
   lrange: (
     key: string,
     start: number | string,
@@ -238,19 +350,12 @@ export type Upstash = {
   smembers: (key: string) => MethodReturn;
   smove: (source: string, destination: string, member: string) => MethodReturn;
   spop: SPOP1 & SPOP2;
-  srandmember: (key: string, count?: number) => MethodReturn;
-  srem: (key: string, members: string[]) => MethodReturn;
-  sunion: (keys: string[]) => MethodReturn;
-  sunionstore: (destination: string, keys: string[]) => MethodReturn;
+  srandmember: SRANDMEMBER1 & SRANDMEMBER2;
+  srem: (key: string, ...member: any) => MethodReturn;
+  sunion: (...key: any) => MethodReturn;
+  sunionstore: (destination: string, ...key: any) => MethodReturn;
   //
-  zadd: (
-    key: string,
-    values: ZSetNumber[],
-    options?: ({ xx?: boolean } | { nx?: boolean }) & {
-      ch?: boolean;
-      incr: boolean;
-    }
-  ) => MethodReturn;
+  zadd: (key: string, ...scoreMember: any) => MethodReturn;
   zcard: (key: string) => MethodReturn;
   zcount: (key: string, min: ZSetNumber, max: ZSetNumber) => MethodReturn;
   zincrby: (
@@ -258,72 +363,46 @@ export type Upstash = {
     increment: number | string,
     member: string
   ) => MethodReturn;
+  // TODO: fix args
   zinterstore: (
     destination: string,
-    keys: string[],
-    options?: { weights?: number[]; aggregate?: 'MIN' | 'MAX' | 'SUM' }
+    numkeys: number | string,
+    ...key: any
   ) => MethodReturn;
   zlexcount: (key: string, min: ZSetNumber, max: ZSetNumber) => MethodReturn;
-  zpopmax: (key: string, count?: number) => MethodReturn;
-  zpopmin: (key: string, count?: number) => MethodReturn;
-  zrange: (
-    key: string,
-    min: ZSetNumber,
-    max: ZSetNumber,
-    options?: { withScores: boolean }
-  ) => MethodReturn;
-  zrangebylex: (
-    key: string,
-    min: ZSetNumber,
-    max: ZSetNumber,
-    offset?: number,
-    count?: number
-  ) => MethodReturn;
-  zrangebyscore: (
-    key: string,
-    min: ZSetNumber,
-    max: ZSetNumber,
-    options?: {
-      withScores?: boolean;
-      limit?: { offset: number; count: number };
-    }
-  ) => MethodReturn;
+  zpopmax: ZPOPMAX1 & ZPOPMAX2;
+  zpopmin: ZPOPMAX1 & ZPOPMAX2;
+  zrange: ZRANGE1 & ZRANGE2;
+  zrangebylex: ZRANGEBYLEX1 & ZRANGEBYLEX2;
+  zrangebyscore: ZRANGEBYSCORE1 &
+    ZRANGEBYSCORE2 &
+    ZRANGEBYSCORE3 &
+    ZRANGEBYSCORE4;
   zrank: (key: string, member: string) => MethodReturn;
-  zrem: (key: string, members: string[]) => MethodReturn;
+  zrem: (key: string, ...member: any) => MethodReturn;
   zremrangebylex: (
     key: string,
     min: ZSetNumber,
     max: ZSetNumber
   ) => MethodReturn;
-  zremrangebyrank: (key: string, start: number, stop: number) => MethodReturn;
+  zremrangebyrank: (
+    key: string,
+    start: number | string,
+    stop: number | string
+  ) => MethodReturn;
   zremrangebyscore: (
     key: string,
     min: ZSetNumber,
     max: ZSetNumber
   ) => MethodReturn;
-  zrevrange: (
-    key: string,
-    start: number,
-    stop: number,
-    options?: { withScores: boolean }
-  ) => MethodReturn;
-  zrevrangebylex: (
-    key: string,
-    max: ZSetNumber,
-    min: ZSetNumber,
-    offset?: number,
-    count?: number
-  ) => MethodReturn;
-  zrevrangebyscore: (
-    key: string,
-    min: ZSetNumber,
-    max: ZSetNumber
-  ) => MethodReturn;
+  zrevrange: ZREVRANGE1 & ZREVRANGE2;
+  zrevrangebylex: ZREVRANGEBYLEX1 & ZREVRANGEBYLEX2;
+  zrevrangebyscore: ZREVRANGEBYSCORE1 &
+    ZREVRANGEBYSCORE2 &
+    ZREVRANGEBYSCORE3 &
+    ZREVRANGEBYSCORE4;
   zrevrank: (key: string, member: string) => MethodReturn;
   zscore: (key: string, member: string) => MethodReturn;
-  zunionstore: (
-    destination: string,
-    keys: string[],
-    options?: { weights?: number[]; aggregate?: 'MIN' | 'MAX' | 'SUM' }
-  ) => MethodReturn;
+  // TODO: fix args
+  zunionstore: (destination: string, ...numkeys: any) => MethodReturn;
 };

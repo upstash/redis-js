@@ -13,6 +13,12 @@ export type MethodReturn = Promise<ReturnType>;
 
 export type Part = string | boolean | number;
 
+export type Bit = 0 | 1;
+
+export type Infinities = '+inf' | '-inf';
+
+export type ZSetNumber = Infinities | number | string;
+
 type Auth1 = (options?: ClientObjectProps) => void;
 type Auth2 = (url?: string, token?: string) => void;
 type Auth3 = (url?: string | ClientObjectProps, token?: string) => void;
@@ -20,123 +26,216 @@ type Auth3 = (url?: string | ClientObjectProps, token?: string) => void;
 export type Upstash = {
   auth: Auth1 & Auth2 & Auth3;
   //
-  append: (...args: any) => MethodReturn;
-  decr: (...args: any) => MethodReturn;
-  decrby: (...args: any) => MethodReturn;
-  get: (...args: any) => MethodReturn;
-  getrange: (...args: any) => MethodReturn;
-  getset: (...args: any) => MethodReturn;
-  incr: (...args: any) => MethodReturn;
-  incrby: (...args: any) => MethodReturn;
-  incrbyfloat: (...args: any) => MethodReturn;
-  mget: (...args: any) => MethodReturn;
-  mset: (...args: any) => MethodReturn;
-  msetnx: (...args: any) => MethodReturn;
-  psetex: (...args: any) => MethodReturn;
-  set: (...args: any) => MethodReturn;
-  setex: (...args: any) => MethodReturn;
-  setnx: (...args: any) => MethodReturn;
-  setrange: (...args: any) => MethodReturn;
-  strlen: (...args: any) => MethodReturn;
+  append: (key: string, value: string) => MethodReturn;
+  decr: (key: string) => MethodReturn;
+  decrby: (key: string, decrement: number) => MethodReturn;
+  get: (key: string) => MethodReturn;
+  getrange: (key: string, start: number, end: number) => MethodReturn;
+  getset: (key: string, value: string) => MethodReturn;
+  incr: (key: string) => MethodReturn;
+  incrby: (key: string, value: number | string) => MethodReturn;
+  incrbyfloat: (key: string, value: number | string) => MethodReturn;
+  mget: (values: string[]) => MethodReturn;
+  mset: (values: string[]) => MethodReturn;
+  msetnx: (values: string[]) => MethodReturn;
+  psetex: (
+    key: string,
+    miliseconds: number,
+    value: string | number
+  ) => MethodReturn;
+  set: (key: string, value: number | string) => MethodReturn;
+  setex: (key: string, seconds: number, value: string | number) => MethodReturn;
+  setnx: (key: string, value: string) => MethodReturn;
+  setrange: (
+    key: string,
+    offset: number | string,
+    value: string
+  ) => MethodReturn;
+  strlen: (key: string) => MethodReturn;
   //
-  bitcount: (...args: any) => MethodReturn;
-  bitop: (...args: any) => MethodReturn;
-  bitpos: (...args: any) => MethodReturn;
-  getbit: (...args: any) => MethodReturn;
-  setbit: (...args: any) => MethodReturn;
+  bitcount: (key: string, start?: number, end?: number) => MethodReturn;
+  bitop: (
+    operation: 'AND' | 'OR' | 'XOR' | 'NOT',
+    destinationKey: string,
+    sourceKeys: string[]
+  ) => MethodReturn;
+  bitpos: (key: string, bit: Bit, start?: number, end?: number) => MethodReturn;
+  getbit: (key: string, offset: number) => MethodReturn;
+  setbit: (key: string, offset: number, value: Bit) => MethodReturn;
   //
-  echo: (...args: any) => MethodReturn;
-  ping: (...args: any) => MethodReturn;
+  echo: (value: string) => MethodReturn;
+  ping: (value?: string) => MethodReturn;
   //
-  hdel: (...args: any) => MethodReturn;
-  hexists: (...args: any) => MethodReturn;
-  hget: (...args: any) => MethodReturn;
-  hgetall: (...args: any) => MethodReturn;
-  hincrby: (...args: any) => MethodReturn;
-  hincrbyfloat: (...args: any) => MethodReturn;
-  hkeys: (...args: any) => MethodReturn;
-  hlen: (...args: any) => MethodReturn;
-  hmget: (...args: any) => MethodReturn;
-  hmset: (...args: any) => MethodReturn;
-  hscan: (...args: any) => MethodReturn;
-  hset: (...args: any) => MethodReturn;
-  hsetnx: (...args: any) => MethodReturn;
-  hvals: (...args: any) => MethodReturn;
+  hdel: (key: string, fields: string[]) => MethodReturn;
+  hexists: (key: string, field: string) => MethodReturn;
+  hget: (key: string, field: string) => MethodReturn;
+  hgetall: (key: string) => MethodReturn;
+  hincrby: (
+    key: string,
+    field: string,
+    increment: number | string
+  ) => MethodReturn;
+  hincrbyfloat: (
+    key: string,
+    field: string,
+    increment: number | string
+  ) => MethodReturn;
+  hkeys: (key: string) => MethodReturn;
+  hlen: (key: string) => MethodReturn;
+  hmget: (key: string, fields: string[]) => MethodReturn;
+  hmset: (key: string, values: string[]) => MethodReturn;
+  hscan: (
+    key: string,
+    cursor: number,
+    options?: { match?: number | string; count?: number | string }
+  ) => MethodReturn;
+  hset: (key: string, values: string[]) => MethodReturn;
+  hsetnx: (key: string, field: string, value: string) => MethodReturn;
+  hvals: (key: string) => MethodReturn;
   //
-  del: (...args: any) => MethodReturn;
-  exists: (...args: any) => MethodReturn;
-  expire: (...args: any) => MethodReturn;
-  expireat: (...args: any) => MethodReturn;
-  keys: (...args: any) => MethodReturn;
-  persist: (...args: any) => MethodReturn;
-  pexpire: (...args: any) => MethodReturn;
-  pexpireat: (...args: any) => MethodReturn;
-  pttl: (...args: any) => MethodReturn;
-  randomkey: (...args: any) => MethodReturn;
-  rename: (...args: any) => MethodReturn;
-  renamenx: (...args: any) => MethodReturn;
-  scan: (...args: any) => MethodReturn;
-  touch: (...args: any) => MethodReturn;
-  ttl: (...args: any) => MethodReturn;
-  type: (...args: any) => MethodReturn;
-  unlink: (...args: any) => MethodReturn;
+  del: (keys: string[]) => MethodReturn;
+  exists: (keys: string[]) => MethodReturn;
+  expire: (key: string, seconds: number) => MethodReturn;
+  expireat: (key: string, timestamp: number | string) => MethodReturn;
+  keys: (pattern: string) => MethodReturn;
+  persist: (key: string) => MethodReturn;
+  pexpire: (key: string, miliseconds: number) => MethodReturn;
+  pexpireat: (key: string, miliseconds: number) => MethodReturn;
+  pttl: (key: string) => MethodReturn;
+  randomkey: () => MethodReturn;
+  rename: (key: string, newKey: string) => MethodReturn;
+  renamenx: (key: string, newKey: string) => MethodReturn;
+  scan: (
+    cursor: number,
+    opitons?: { match?: number | string; count?: number | string }
+  ) => MethodReturn;
+  touch: (keys: string[]) => MethodReturn;
+  ttl: (key: string) => MethodReturn;
+  type: (key: string) => MethodReturn;
+  unlink: (keys: string[]) => MethodReturn;
   //
-  lindex: (...args: any) => MethodReturn;
-  linsert: (...args: any) => MethodReturn;
-  llen: (...args: any) => MethodReturn;
-  lpop: (...args: any) => MethodReturn;
-  lpush: (...args: any) => MethodReturn;
-  lpushx: (...args: any) => MethodReturn;
-  lrange: (...args: any) => MethodReturn;
-  lrem: (...args: any) => MethodReturn;
-  lset: (...args: any) => MethodReturn;
-  ltrim: (...args: any) => MethodReturn;
-  rpop: (...args: any) => MethodReturn;
-  rpoplpush: (...args: any) => MethodReturn;
-  rpush: (...args: any) => MethodReturn;
-  rpushx: (...args: any) => MethodReturn;
+  lindex: (key: string, index: number) => MethodReturn;
+  linsert: (
+    key: string,
+    option: 'BEFORE' | 'AFTER',
+    pivot: string,
+    element: string
+  ) => MethodReturn;
+  llen: (key: string) => MethodReturn;
+  lpop: (key: string) => MethodReturn;
+  lpush: (key: string, elements: string[]) => MethodReturn;
+  lpushx: (key: string, elements: string[]) => MethodReturn;
+  lrange: (key: string, start: number, stop: number) => MethodReturn;
+  lrem: (key: string, count: number, element: string) => MethodReturn;
+  lset: (key: string, index: number, element: string) => MethodReturn;
+  ltrim: (key: string, start: number, stop: number) => MethodReturn;
+  rpop: (key: string) => MethodReturn;
+  rpoplpush: (source: string, destination: string) => MethodReturn;
+  rpush: (key: string, elements: string[]) => MethodReturn;
+  rpushx: (key: string, elements: string[]) => MethodReturn;
   //
-  dbsize: (...args: any) => MethodReturn;
-  flushall: (...args: any) => MethodReturn;
-  flushdb: (...args: any) => MethodReturn;
-  info: (...args: any) => MethodReturn;
-  time: (...args: any) => MethodReturn;
+  dbsize: () => MethodReturn;
+  flushall: (mode?: 'ASYNC') => MethodReturn;
+  flushdb: (mode?: 'ASYNC') => MethodReturn;
+  info: () => MethodReturn;
+  time: () => MethodReturn;
   //
-  sadd: (...args: any) => MethodReturn;
-  scard: (...args: any) => MethodReturn;
-  sdiff: (...args: any) => MethodReturn;
-  sdiffstore: (...args: any) => MethodReturn;
-  sinter: (...args: any) => MethodReturn;
-  sinterstore: (...args: any) => MethodReturn;
-  sismember: (...args: any) => MethodReturn;
-  smembers: (...args: any) => MethodReturn;
-  smove: (...args: any) => MethodReturn;
-  spop: (...args: any) => MethodReturn;
-  srandmember: (...args: any) => MethodReturn;
-  srem: (...args: any) => MethodReturn;
-  sunion: (...args: any) => MethodReturn;
-  sunionstore: (...args: any) => MethodReturn;
+  sadd: (key: string, members: string[]) => MethodReturn;
+  scard: (key: string) => MethodReturn;
+  sdiff: (keys: string[]) => MethodReturn;
+  sdiffstore: (destination: string, keys: string[]) => MethodReturn;
+  sinter: (keys: string[]) => MethodReturn;
+  sinterstore: (destination: string, keys: string[]) => MethodReturn;
+  sismember: (key: string, member: string) => MethodReturn;
+  smembers: (key: string) => MethodReturn;
+  smove: (source: string, destination: string, member: string) => MethodReturn;
+  spop: (key: string, count?: number) => MethodReturn;
+  srandmember: (key: string, count?: number) => MethodReturn;
+  srem: (key: string, members: string[]) => MethodReturn;
+  sunion: (keys: string[]) => MethodReturn;
+  sunionstore: (destination: string, keys: string[]) => MethodReturn;
   //
-  zadd: (...args: any) => MethodReturn;
-  zcard: (...args: any) => MethodReturn;
-  zcount: (...args: any) => MethodReturn;
-  zincrby: (...args: any) => MethodReturn;
-  zinterstore: (...args: any) => MethodReturn;
-  zlexcount: (...args: any) => MethodReturn;
-  zpopmax: (...args: any) => MethodReturn;
-  zpopmin: (...args: any) => MethodReturn;
-  zrange: (...args: any) => MethodReturn;
-  zrangebylex: (...args: any) => MethodReturn;
-  zrangebyscore: (...args: any) => MethodReturn;
-  zrank: (...args: any) => MethodReturn;
-  zrem: (...args: any) => MethodReturn;
-  zremrangebylex: (...args: any) => MethodReturn;
-  zremrangebyrank: (...args: any) => MethodReturn;
-  zremrangebyscore: (...args: any) => MethodReturn;
-  zrevrange: (...args: any) => MethodReturn;
-  zrevrangebylex: (...args: any) => MethodReturn;
-  zrevrangebyscore: (...args: any) => MethodReturn;
-  zrevrank: (...args: any) => MethodReturn;
-  zscore: (...args: any) => MethodReturn;
-  zunionstore: (...args: any) => MethodReturn;
+  zadd: (
+    key: string,
+    values: ZSetNumber[],
+    options?: ({ xx?: boolean } | { nx?: boolean }) & {
+      ch?: boolean;
+      incr: boolean;
+    }
+  ) => MethodReturn;
+  zcard: (key: string) => MethodReturn;
+  zcount: (key: string, min: ZSetNumber, max: ZSetNumber) => MethodReturn;
+  zincrby: (
+    key: string,
+    increment: number | string,
+    member: string
+  ) => MethodReturn;
+  zinterstore: (
+    destination: string,
+    keys: string[],
+    options?: { weights?: number[]; aggregate?: 'MIN' | 'MAX' | 'SUM' }
+  ) => MethodReturn;
+  zlexcount: (key: string, min: ZSetNumber, max: ZSetNumber) => MethodReturn;
+  zpopmax: (key: string, count?: number) => MethodReturn;
+  zpopmin: (key: string, count?: number) => MethodReturn;
+  zrange: (
+    key: string,
+    min: ZSetNumber,
+    max: ZSetNumber,
+    options?: { withScores: boolean }
+  ) => MethodReturn;
+  zrangebylex: (
+    key: string,
+    min: ZSetNumber,
+    max: ZSetNumber,
+    offset?: number,
+    count?: number
+  ) => MethodReturn;
+  zrangebyscore: (
+    key: string,
+    min: ZSetNumber,
+    max: ZSetNumber,
+    options?: {
+      withScores?: boolean;
+      limit?: { offset: number; count: number };
+    }
+  ) => MethodReturn;
+  zrank: (key: string, member: string) => MethodReturn;
+  zrem: (key: string, members: string[]) => MethodReturn;
+  zremrangebylex: (
+    key: string,
+    min: ZSetNumber,
+    max: ZSetNumber
+  ) => MethodReturn;
+  zremrangebyrank: (key: string, start: number, stop: number) => MethodReturn;
+  zremrangebyscore: (
+    key: string,
+    min: ZSetNumber,
+    max: ZSetNumber
+  ) => MethodReturn;
+  zrevrange: (
+    key: string,
+    start: number,
+    stop: number,
+    options?: { withScores: boolean }
+  ) => MethodReturn;
+  zrevrangebylex: (
+    key: string,
+    max: ZSetNumber,
+    min: ZSetNumber,
+    offset?: number,
+    count?: number
+  ) => MethodReturn;
+  zrevrangebyscore: (
+    key: string,
+    min: ZSetNumber,
+    max: ZSetNumber
+  ) => MethodReturn;
+  zrevrank: (key: string, member: string) => MethodReturn;
+  zscore: (key: string, member: string) => MethodReturn;
+  zunionstore: (
+    destination: string,
+    keys: string[],
+    options?: { weights?: number[]; aggregate?: 'MIN' | 'MAX' | 'SUM' }
+  ) => MethodReturn;
 };

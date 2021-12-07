@@ -50,28 +50,6 @@ type BITPOS3 = (
 type PING1 = () => MethodReturn;
 type PING2 = (message: string) => MethodReturn;
 
-type HSCAN1 = (key: string, cursor: number | string) => MethodReturn;
-type HSCAN2 = (
-  key: string,
-  cursor: number | string,
-  match: 'MATCH',
-  pattern: string
-) => MethodReturn;
-type HSCAN3 = (
-  key: string,
-  cursor: number | string,
-  count: 'COUNT',
-  value: number | string
-) => MethodReturn;
-type HSCAN4 = (
-  key: string,
-  cursor: number | string,
-  match: 'MATCH',
-  pattern: string,
-  count: 'COUNT',
-  value: number | string
-) => MethodReturn;
-
 type SCAN1 = (cursor: number | string) => MethodReturn;
 type SCAN2 = (
   cursor: number | string,
@@ -99,6 +77,28 @@ type FLUSHDB2 = (mode: 'ASYNC' | 'SYNC') => MethodReturn;
 
 type INFO1 = () => MethodReturn;
 type INFO2 = (section: string) => MethodReturn;
+
+type XSCAN1 = (key: string, cursor: number | string) => MethodReturn;
+type XSCAN2 = (
+  key: string,
+  cursor: number | string,
+  match: 'MATCH',
+  pattern: string
+) => MethodReturn;
+type XSCAN3 = (
+  key: string,
+  cursor: number | string,
+  count: 'COUNT',
+  value: number | string
+) => MethodReturn;
+type XSCAN4 = (
+  key: string,
+  cursor: number | string,
+  match: 'MATCH',
+  pattern: string,
+  count: 'COUNT',
+  value: number | string
+) => MethodReturn;
 
 type SPOP1 = (key: string) => MethodReturn;
 type SPOP2 = (key: string, count: number) => MethodReturn;
@@ -280,7 +280,7 @@ export type Upstash = {
   hlen: (key: string) => MethodReturn;
   hmget: (key: string, ...field: any) => MethodReturn;
   hmset: (key: string, ...fieldValue: any) => MethodReturn;
-  hscan: HSCAN1 & HSCAN2 & HSCAN3 & HSCAN4;
+  hscan: XSCAN1 & XSCAN2 & XSCAN3 & XSCAN4;
   hset: (key: string, ...fieldValue: any) => MethodReturn;
   hsetnx: (key: string, field: string, value: string) => MethodReturn;
   hvals: (key: string) => MethodReturn;
@@ -352,6 +352,7 @@ export type Upstash = {
   spop: SPOP1 & SPOP2;
   srandmember: SRANDMEMBER1 & SRANDMEMBER2;
   srem: (key: string, ...member: any) => MethodReturn;
+  sscan: XSCAN1 & XSCAN2 & XSCAN3 & XSCAN4;
   sunion: (...key: any) => MethodReturn;
   sunionstore: (destination: string, ...key: any) => MethodReturn;
   //
@@ -402,6 +403,7 @@ export type Upstash = {
     ZREVRANGEBYSCORE3 &
     ZREVRANGEBYSCORE4;
   zrevrank: (key: string, member: string) => MethodReturn;
+  zscan: XSCAN1 & XSCAN2 & XSCAN3 & XSCAN4;
   zscore: (key: string, member: string) => MethodReturn;
   // TODO: fix args
   zunionstore: (destination: string, ...numkeys: any) => MethodReturn;

@@ -412,6 +412,9 @@ function upstash(url?: string | ClientObjectProps, token?: string): Upstash {
   function srem(): MethodReturn {
     return fetchData(options, 'srem', ...arguments);
   }
+  function sscan(): MethodReturn {
+    return fetchData(options, 'sscan', ...arguments);
+  }
   function sunion(): MethodReturn {
     return fetchData(options, 'sunion', ...arguments);
   }
@@ -482,6 +485,9 @@ function upstash(url?: string | ClientObjectProps, token?: string): Upstash {
   }
   function zrevrank(): MethodReturn {
     return fetchData(options, 'zrevrank', ...arguments);
+  }
+  function zscan(): MethodReturn {
+    return fetchData(options, 'zscan', ...arguments);
   }
   function zscore(): MethodReturn {
     return fetchData(options, 'zscore', ...arguments);
@@ -587,6 +593,7 @@ function upstash(url?: string | ClientObjectProps, token?: string): Upstash {
     spop,
     srandmember,
     srem,
+    sscan,
     sunion,
     sunionstore,
     // SORTED SETS
@@ -610,6 +617,7 @@ function upstash(url?: string | ClientObjectProps, token?: string): Upstash {
     zrevrangebylex,
     zrevrangebyscore,
     zrevrank,
+    zscan,
     zscore,
     zunionstore,
   };

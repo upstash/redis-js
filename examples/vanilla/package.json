@@ -11,6 +11,6 @@
     "vite": "^2.6.4"
   },
   "dependencies": {
-    "@upstash/redis": "file:../.."
+    "@upstash/redis": "^0.2.0"
   }
 }

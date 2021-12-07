@@ -6,7 +6,7 @@ description = "Example of using Upstash with Fastly Compute@Edge"
 language = "javascript"
 manifest_version = 2
 name = "fastly-upstash"
-service_id = ""
+service_id = "SERVICE_ID"
 
 [local_server.backends.upstash-db]
 url = "UPSTASH_REDIS_REST_URL"

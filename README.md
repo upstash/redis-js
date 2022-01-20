@@ -58,6 +58,26 @@ import { set } from '@upstash/redis';
 
 > If you define `UPSTASH_REDIS_REST_URL` and` UPSTASH_REDIS_REST_TOKEN` environment variables, you can skip the auth().
 
+### Instantiate New Client
+
+This is useful, if you need seperate clients in the same context.
+
+```typescript
+import upstash from '@upstash/redis';
+
+const redis = upstash('UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN');
+
+(async () => {
+  try {
+    const { data, error } = await redis.get('key');
+    if (error) throw error;
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+})();
+```
+
 ## Docs
 
 See [the documentation](https://docs.upstash.com/features/javascriptsdk) for details.

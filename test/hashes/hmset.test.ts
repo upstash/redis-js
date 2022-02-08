@@ -1,20 +1,20 @@
-import { hmset, hget } from '../../src';
-import { nanoid } from 'nanoid';
+import { hmset, hget } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('hmset command', () => {
-  it('basic', async () => {
+describe("hmset command", () => {
+  it("basic", async () => {
     const myHash = nanoid();
 
     const { data: data1 } = await hmset(
       myHash,
-      'field1',
-      'hello',
-      'field2',
-      'upstash'
+      "field1",
+      "hello",
+      "field2",
+      "upstash"
     );
-    expect(data1).toBe('OK');
+    expect(data1).toBe("OK");
 
-    const { data: data2 } = await hget(myHash, 'field1');
-    expect(data2).toBe('hello');
+    const { data: data2 } = await hget(myHash, "field1");
+    expect(data2).toBe("hello");
   });
 });

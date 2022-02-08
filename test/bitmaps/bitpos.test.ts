@@ -1,20 +1,20 @@
-import { set, bitpos } from '../../src';
-import { nanoid } from 'nanoid';
+import { set, bitpos } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('bitpos command', () => {
-  it('just start', async () => {
+describe("bitpos command", () => {
+  it("just start", async () => {
     const key = nanoid();
 
-    await set(key, '\xff\xf0\x00');
+    await set(key, "\xff\xf0\x00");
 
     const { data } = await bitpos(key, 0);
     expect(data).toBe(2);
   });
 
-  it('start and end', async () => {
+  it("start and end", async () => {
     const key = nanoid();
 
-    await set(key, '\x00\xff\xf0');
+    await set(key, "\x00\xff\xf0");
 
     const { data } = await bitpos(key, 1, 0);
     expect(data).toBe(8);

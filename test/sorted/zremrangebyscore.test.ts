@@ -1,27 +1,27 @@
-import { zadd, zremrangebyscore, zrange } from '../../src';
-import { nanoid } from 'nanoid';
+import { zadd, zremrangebyscore, zrange } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('zremrangebyscore command', () => {
-  it('basic', async () => {
+describe("zremrangebyscore command", () => {
+  it("basic", async () => {
     const key = nanoid();
 
     const { data: addData } = await zadd(
       key,
       1,
-      'donatello',
+      "donatello",
       2,
-      'leonardo',
+      "leonardo",
       3,
-      'michelangelo',
+      "michelangelo",
       4,
-      'rafael'
+      "rafael"
     );
     expect(addData).toBe(4);
 
-    const { data } = await zremrangebyscore(key, '-inf', 2);
+    const { data } = await zremrangebyscore(key, "-inf", 2);
     expect(data).toBe(2);
 
     const { data: rangeData } = await zrange(key, 0, -1);
-    expect(rangeData).toMatchObject(['michelangelo', 'rafael']);
+    expect(rangeData).toMatchObject(["michelangelo", "rafael"]);
   });
 });

@@ -1,18 +1,18 @@
-import { set } from '../../src';
-import { nanoid } from 'nanoid';
+import { set } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('set command', () => {
-  it('save data', async () => {
+describe("set command", () => {
+  it("save data", async () => {
     const key = nanoid();
 
-    const { data } = await set(key, 'value1');
-    expect(data).toBe('OK');
+    const { data } = await set(key, "value1");
+    expect(data).toBe("OK");
   });
 
-  it('save data with ex', async () => {
+  it("save data with ex", async () => {
     const key = nanoid();
 
-    const { data } = await set(key, 'value1', 'EX', 10);
-    expect(data).toBe('OK');
+    const { data } = await set(key, "value1", "EX", 10);
+    expect(data).toBe("OK");
   });
 });

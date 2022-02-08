@@ -1,23 +1,23 @@
-import { auth, incr } from '@upstash/redis';
+import { auth, incr } from "@upstash/redis";
 
 auth(UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN);
 
-addEventListener('fetch', (event) => {
+addEventListener("fetch", (event) => {
   event.respondWith(handleRequest(event.request));
 });
 
 async function handleRequest(request) {
   const url = new URL(request.url);
 
-  if (url.pathname !== '/') {
+  if (url.pathname !== "/") {
     return new Response();
   }
 
-  const { data: count } = await incr('workers-count');
+  const { data: count } = await incr("workers-count");
 
   return new Response(html(count), {
     headers: {
-      'content-type': 'text/html;charset=UTF-8',
+      "content-type": "text/html;charset=UTF-8",
     },
   });
 }

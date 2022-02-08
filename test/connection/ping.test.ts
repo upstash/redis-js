@@ -1,13 +1,13 @@
-import { ping } from '../../src';
-import { nanoid } from 'nanoid';
+import { ping } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('ping command', () => {
-  it('basic', async () => {
+describe("ping command", () => {
+  it("basic", async () => {
     const { data } = await ping();
-    expect(data).toBe('PONG');
+    expect(data).toBe("PONG");
   });
 
-  it('return value', async () => {
+  it("return value", async () => {
     const value = nanoid();
 
     const { data } = await ping(value);

@@ -1,20 +1,20 @@
-import { auth, incr } from '@upstash/redis';
-import { useState } from 'react';
+import { auth, incr } from "@upstash/redis";
+import { useState } from "react";
 
 function HomePage({ count }) {
   const [cacheCount, setCacheCount] = useState(count);
 
   const incr = async () => {
-    const response = await fetch('/api/incr', {
-      method: 'GET',
+    const response = await fetch("/api/incr", {
+      method: "GET",
     });
     const data = await response.json();
     setCacheCount(data.count);
   };
 
   const decr = async () => {
-    const response = await fetch('/api/decr', {
-      method: 'GET',
+    const response = await fetch("/api/decr", {
+      method: "GET",
     });
     const data = await response.json();
     setCacheCount(data.count);
@@ -41,7 +41,7 @@ export async function getStaticProps() {
 
   let count = 0;
   try {
-    const response = await incr('nextjs');
+    const response = await incr("nextjs");
     if (response.error) throw response.error;
     count = response.data;
   } catch (e) {

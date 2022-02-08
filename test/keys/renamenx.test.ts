@@ -1,13 +1,13 @@
-import { set, renamenx, get } from '../../src';
-import { nanoid } from 'nanoid';
+import { set, renamenx, get } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('renamenx command', () => {
-  it('basic', async () => {
+describe("renamenx command", () => {
+  it("basic", async () => {
     const key1 = nanoid();
-    const value1 = 'Hello';
+    const value1 = "Hello";
 
     const key2 = nanoid();
-    const value2 = 'Hello';
+    const value2 = "Hello";
 
     await set(key1, value1);
     await set(key2, value2);

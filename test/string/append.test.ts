@@ -1,8 +1,8 @@
-import { set, append } from '../../src';
-import { nanoid } from 'nanoid';
+import { set, append } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('append command', () => {
-  it('success', async () => {
+describe("append command", () => {
+  it("success", async () => {
     const key = nanoid();
     const value = nanoid();
 

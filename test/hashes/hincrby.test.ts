@@ -1,12 +1,12 @@
-import { hset, hincrby } from '../../src';
-import { nanoid } from 'nanoid';
+import { hset, hincrby } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('hincrby command', () => {
-  it('basic', async () => {
+describe("hincrby command", () => {
+  it("basic", async () => {
     const myHash = nanoid();
     const field1 = nanoid();
 
-    const { data: data1 } = await hset(myHash, field1, '10');
+    const { data: data1 } = await hset(myHash, field1, "10");
     expect(data1).toBe(1);
 
     const { data: data2 } = await hincrby(myHash, field1, 1);

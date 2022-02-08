@@ -1,8 +1,8 @@
-import { set, expire } from '../../src';
-import { nanoid } from 'nanoid';
+import { set, expire } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('expire command', () => {
-  it('single key', async () => {
+describe("expire command", () => {
+  it("single key", async () => {
     const key = nanoid();
     const value = nanoid();
 

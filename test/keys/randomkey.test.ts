@@ -1,8 +1,8 @@
-import { randomkey, set } from '../../src';
-import { nanoid } from 'nanoid';
+import { randomkey, set } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('randomkey command', () => {
-  it('basic', async () => {
+describe("randomkey command", () => {
+  it("basic", async () => {
     await set(nanoid(), nanoid());
 
     const { data } = await randomkey();

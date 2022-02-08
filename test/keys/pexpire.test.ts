@@ -1,11 +1,11 @@
-import { set, pttl, pexpire, exists } from '../../src';
-import { nanoid } from 'nanoid';
+import { set, pttl, pexpire, exists } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('pexpire command', () => {
-  it('basic', async () => {
+describe("pexpire command", () => {
+  it("basic", async () => {
     const key = nanoid();
 
-    await set(key, 'Hello');
+    await set(key, "Hello");
 
     const { data: data1 } = await exists(key);
     expect(data1).toBe(1);

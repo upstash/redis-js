@@ -1,8 +1,8 @@
-import { get, getset, set } from '../../src';
-import { nanoid } from 'nanoid';
+import { get, getset, set } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('getset command', () => {
-  it('basic', async () => {
+describe("getset command", () => {
+  it("basic", async () => {
     const key = nanoid();
     const value1 = nanoid();
     const value2 = nanoid();

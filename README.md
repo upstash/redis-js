@@ -29,11 +29,11 @@ npm install @upstash/redis
 ### Usage with Promise
 
 ```typescript
-import { auth, set } from '@upstash/redis';
+import { auth, set } from "@upstash/redis";
 
-auth('UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN');
+auth("UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN");
 
-set('key', 'value').then(({ data }) => {
+set("key", "value").then(({ data }) => {
   console.log(data);
   // -> "OK"
 });
@@ -42,11 +42,11 @@ set('key', 'value').then(({ data }) => {
 ### Usage with async/await
 
 ```typescript
-import { set } from '@upstash/redis';
+import { set } from "@upstash/redis";
 
 (async () => {
   try {
-    const { data, error } = await set('key', 'value');
+    const { data, error } = await set("key", "value");
     if (error) throw error;
     console.log(data);
     // -> "OK"
@@ -63,13 +63,13 @@ import { set } from '@upstash/redis';
 This is useful, if you need separate clients in the same context.
 
 ```typescript
-import upstash from '@upstash/redis';
+import upstash from "@upstash/redis";
 
-const redis = upstash('UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN');
+const redis = upstash("UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN");
 
 (async () => {
   try {
-    const { data, error } = await redis.get('key');
+    const { data, error } = await redis.get("key");
     if (error) throw error;
     console.log(data);
   } catch (error) {

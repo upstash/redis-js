@@ -1,14 +1,14 @@
-import { lrange, lpush } from '../../src';
-import { nanoid } from 'nanoid';
+import { lrange, lpush } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('lpush command', () => {
-  it('basic', async () => {
+describe("lpush command", () => {
+  it("basic", async () => {
     const myList = nanoid();
 
-    const { data: pushData } = await lpush(myList, 'Hello', 'Upstash');
+    const { data: pushData } = await lpush(myList, "Hello", "Upstash");
     expect(pushData).toBe(2);
 
     const { data: rangeData } = await lrange(myList, 0, -1);
-    expect(rangeData).toMatchObject(['Upstash', 'Hello']);
+    expect(rangeData).toMatchObject(["Upstash", "Hello"]);
   });
 });

@@ -1,8 +1,8 @@
-import { mset, get } from '../../src';
-import { nanoid } from 'nanoid';
+import { mset, get } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('mset command', () => {
-  it('multiple save', async () => {
+describe("mset command", () => {
+  it("multiple save", async () => {
     const key1 = nanoid();
     const value1 = nanoid();
     const key2 = nanoid();

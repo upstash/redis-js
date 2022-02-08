@@ -1,8 +1,8 @@
-import { setbit } from '../../src';
-import { nanoid } from 'nanoid';
+import { setbit } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('setbit command', () => {
-  it('save data', async () => {
+describe("setbit command", () => {
+  it("save data", async () => {
     const key = nanoid();
 
     const { data: data1 } = await setbit(key, 7, 1);

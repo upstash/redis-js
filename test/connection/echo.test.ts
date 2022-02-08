@@ -1,8 +1,8 @@
-import { echo } from '../../src';
-import { nanoid } from 'nanoid';
+import { echo } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('echo command', () => {
-  it('basic', async () => {
+describe("echo command", () => {
+  it("basic", async () => {
     const value = nanoid();
 
     const { data } = await echo(value);

@@ -1,7 +1,7 @@
-import { dbsize, flushdb } from '../../src';
+import { dbsize, flushdb } from "../../src";
 
-describe('dbsize command', () => {
-  it('basic', async () => {
+describe("dbsize command", () => {
+  it("basic", async () => {
     await flushdb();
 
     const { data } = await dbsize();

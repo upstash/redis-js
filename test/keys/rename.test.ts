@@ -1,16 +1,16 @@
-import { set, rename, get } from '../../src';
-import { nanoid } from 'nanoid';
+import { set, rename, get } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('rename command', () => {
-  it('basic', async () => {
+describe("rename command", () => {
+  it("basic", async () => {
     const key = nanoid();
     const newKey = nanoid();
-    const value = 'Hello';
+    const value = "Hello";
 
     await set(key, value);
 
     const { data } = await rename(key, newKey);
-    expect(data).toBe('OK');
+    expect(data).toBe("OK");
 
     const { data: data1 } = await get(newKey);
     expect(data1).toBe(value);

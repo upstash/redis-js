@@ -1,9 +1,9 @@
-import './style.css';
-import upstash from '@upstash/redis';
+import "./style.css";
+import upstash from "@upstash/redis";
 
 console.log(upstash);
 
-const app = document.querySelector<HTMLDivElement>('#app')!;
+const app = document.querySelector<HTMLDivElement>("#app")!;
 
 app.innerHTML = `
   <h1>Hello Vite!</h1>

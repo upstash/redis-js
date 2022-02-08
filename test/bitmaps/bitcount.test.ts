@@ -1,20 +1,20 @@
-import { set, bitcount } from '../../src';
-import { nanoid } from 'nanoid';
+import { set, bitcount } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('bitcount command', () => {
-  it('basic', async () => {
+describe("bitcount command", () => {
+  it("basic", async () => {
     const key = nanoid();
 
-    await set(key, 'foobar');
+    await set(key, "foobar");
 
     const { data } = await bitcount(key);
     expect(data).toBe(26);
   });
 
-  it('with range', async () => {
+  it("with range", async () => {
     const key = nanoid();
 
-    await set(key, 'foobar');
+    await set(key, "foobar");
 
     const { data } = await bitcount(key, 0, 0);
     expect(data).toBe(4);

@@ -1,8 +1,8 @@
-import { set, incrbyfloat } from '../../src';
-import { nanoid } from 'nanoid';
+import { set, incrbyfloat } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('incrbyfloat command', () => {
-  it('basic', async () => {
+describe("incrbyfloat command", () => {
+  it("basic", async () => {
     const key = nanoid();
     const value1 = 2.3;
     const value2 = 0.4;

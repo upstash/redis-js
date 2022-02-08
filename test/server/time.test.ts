@@ -1,7 +1,7 @@
-import { time } from '../../src';
+import { time } from "../../src";
 
-describe('time command', () => {
-  it('basic', async () => {
+describe("time command", () => {
+  it("basic", async () => {
     const { data } = await time();
     expect(data).toBeInstanceOf(Array);
   });

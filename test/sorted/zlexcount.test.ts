@@ -1,29 +1,29 @@
-import { zadd, zlexcount } from '../../src';
-import { nanoid } from 'nanoid';
+import { zadd, zlexcount } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('zlexcount command', () => {
-  it('basic', async () => {
+describe("zlexcount command", () => {
+  it("basic", async () => {
     const key = nanoid();
 
     const { data: addData } = await zadd(
       key,
       0,
-      'a',
+      "a",
       0,
-      'b',
+      "b",
       0,
-      'c',
+      "c",
       0,
-      'd',
+      "d",
       0,
-      'e'
+      "e"
     );
     expect(addData).toBe(5);
 
-    const { data: count } = await zlexcount(key, '-', '+');
+    const { data: count } = await zlexcount(key, "-", "+");
     expect(count).toBe(5);
 
-    const { data } = await zlexcount(key, '[b', '[c');
+    const { data } = await zlexcount(key, "[b", "[c");
     expect(data).toBe(2);
   });
 });

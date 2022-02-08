@@ -1,20 +1,20 @@
-import { zadd, zremrangebyrank, zrange } from '../../src';
-import { nanoid } from 'nanoid';
+import { zadd, zremrangebyrank, zrange } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('zremrangebyrank command', () => {
-  it('basic', async () => {
+describe("zremrangebyrank command", () => {
+  it("basic", async () => {
     const key = nanoid();
 
     const { data: addData } = await zadd(
       key,
       1,
-      'donatello',
+      "donatello",
       2,
-      'leonardo',
+      "leonardo",
       3,
-      'michelangelo',
+      "michelangelo",
       4,
-      'rafael'
+      "rafael"
     );
     expect(addData).toBe(4);
 
@@ -22,6 +22,6 @@ describe('zremrangebyrank command', () => {
     expect(data).toBe(2);
 
     const { data: rangeData } = await zrange(key, 0, -1);
-    expect(rangeData).toMatchObject(['michelangelo', 'rafael']);
+    expect(rangeData).toMatchObject(["michelangelo", "rafael"]);
   });
 });

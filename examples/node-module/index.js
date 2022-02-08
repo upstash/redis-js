@@ -1,5 +1,5 @@
-import dotenv from 'dotenv';
-import upstash, { auth, get } from '@upstash/redis';
+import dotenv from "dotenv";
+import upstash, { auth, get } from "@upstash/redis";
 
 dotenv.config();
 
@@ -9,7 +9,7 @@ const redis = upstash({
 });
 
 (async function run() {
-  const res1 = await redis.set('node', '23');
+  const res1 = await redis.set("node", "23");
   console.log(res1);
 
   auth({
@@ -17,6 +17,6 @@ const redis = upstash({
     token: process.env.UPSTASH_REDIS_REST_TOKEN,
   });
 
-  const res2 = await get('node');
+  const res2 = await get("node");
   console.log(res2);
 })();

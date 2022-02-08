@@ -1,43 +1,43 @@
-import { flushdb, mset, scan } from '../../src';
+import { flushdb, mset, scan } from "../../src";
 
-describe('scan command', () => {
-  it('basic', async () => {
+describe("scan command", () => {
+  it("basic", async () => {
     await flushdb();
 
-    await mset('key1', '1', 'key2', '2');
+    await mset("key1", "1", "key2", "2");
 
     const { data } = await scan(0);
-    expect(data[0]).toBe('0');
+    expect(data[0]).toBe("0");
     expect(data[1].length).toBeGreaterThanOrEqual(2);
   });
 
-  it('with match', async () => {
+  it("with match", async () => {
     await flushdb();
 
-    await mset('key1', '1', 'key2', '2', 'mykey1', '3');
+    await mset("key1", "1", "key2", "2", "mykey1", "3");
 
-    const { data } = await scan(0, 'MATCH', 'key*');
-    expect(data[0]).toBe('0');
+    const { data } = await scan(0, "MATCH", "key*");
+    expect(data[0]).toBe("0");
     expect(data[1].length).toBeGreaterThanOrEqual(2);
   });
 
-  it('with count', async () => {
+  it("with count", async () => {
     await flushdb();
 
-    await mset('key1', '1', 'key2', '2');
+    await mset("key1", "1", "key2", "2");
 
-    const { data } = await scan(0, 'COUNT', 1);
-    expect(data[0]).toBe('1');
+    const { data } = await scan(0, "COUNT", 1);
+    expect(data[0]).toBe("1");
     expect(data[1].length).toBeGreaterThanOrEqual(1);
   });
 
-  it('with match and count', async () => {
+  it("with match and count", async () => {
     await flushdb();
 
-    await mset('key1', '1', 'key2', '2', 'mykey1', '3');
+    await mset("key1", "1", "key2", "2", "mykey1", "3");
 
-    const { data } = await scan(0, 'MATCH', 'key*', 'COUNT', 1);
-    expect(data[0]).toBe('1');
+    const { data } = await scan(0, "MATCH", "key*", "COUNT", 1);
+    expect(data[0]).toBe("1");
     expect(data[1].length).toBeGreaterThanOrEqual(1);
   });
 });

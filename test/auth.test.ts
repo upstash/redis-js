@@ -1,23 +1,23 @@
-import { auth, echo } from '../src';
+import { auth, echo } from "../src";
 
-describe('api connection', () => {
-  it('succeed', async () => {
+describe("api connection", () => {
+  it("succeed", async () => {
     auth(
       process.env.UPSTASH_REDIS_REST_URL,
       process.env.UPSTASH_REDIS_REST_TOKEN
     );
 
-    const { data } = await echo('hi');
-    expect(data).toBe('hi');
+    const { data } = await echo("hi");
+    expect(data).toBe("hi");
   });
 
-  it('edge URL', async () => {
+  it("edge URL", async () => {
     auth({
       url: process.env.UPSTASH_REDIS_REST_URL,
       token: process.env.UPSTASH_REDIS_REST_TOKEN,
     });
 
-    const { data } = await echo('hi');
-    expect(data).toBe('hi');
+    const { data } = await echo("hi");
+    expect(data).toBe("hi");
   });
 });

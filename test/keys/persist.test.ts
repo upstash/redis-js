@@ -1,11 +1,11 @@
-import { set, expire, ttl, persist } from '../../src';
-import { nanoid } from 'nanoid';
+import { set, expire, ttl, persist } from "../../src";
+import { nanoid } from "nanoid";
 
-describe('persist command', () => {
-  it('basic', async () => {
+describe("persist command", () => {
+  it("basic", async () => {
     const key = nanoid();
 
-    await set(key, 'Hello');
+    await set(key, "Hello");
 
     const { data: data1 } = await expire(key, 10);
     expect(data1).toBe(1);

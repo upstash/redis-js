@@ -1,4 +1,4 @@
-.next
-node_modules
-package-lock.json
-docker*
+node_modules/
+dist/
+.idea/
+coverage/

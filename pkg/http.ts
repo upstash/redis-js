@@ -1,52 +1,52 @@
-import "isomorphic-fetch";
-import { UpstashError } from "./error";
+import "isomorphic-fetch"
+import { UpstashError } from "./error"
 
 export type Request = {
-  path?: string[];
+  path?: string[]
   /**
    * Request body will be serialized to json
    */
-  body?: unknown;
+  body?: unknown
 
-  headers?: Record<string, string>;
+  headers?: Record<string, string>
 
-  retries?: number;
-};
+  retries?: number
+}
 
 export type HttpClientConfig = {
-  headers?: Record<string, string>;
-  baseUrl: string;
-};
-type ErrorResponse = { result: string; error: string; status: number };
+  headers?: Record<string, string>
+  baseUrl: string
+}
+type ErrorResponse = { result: string; error: string; status: number }
 
 export class HttpClient {
-  public readonly baseUrl: string;
-  public readonly headers: Record<string, string>;
+  public baseUrl: string
+  public headers: Record<string, string>
 
   public constructor(config: HttpClientConfig) {
-    this.baseUrl = config.baseUrl.replace(/\/$/, "");
+    this.baseUrl = config.baseUrl.replace(/\/$/, "")
 
-    this.headers = config.headers ?? {};
+    this.headers = config.headers ?? {}
   }
 
   private async request<TResponse>(
     method: "GET" | "POST" | "PUT" | "DELETE",
-    req: Request
+    req: Request,
   ): Promise<TResponse> {
     if (!req.path) {
-      req.path = [];
+      req.path = []
     }
     const headers = {
       "Content-Type": "application/json",
       ...this.headers,
       ...req.headers,
-    };
+    }
 
-    let err = new Error();
+    let err = new Error()
     for (let attempt = 0; attempt <= (req.retries ?? 5); attempt++) {
       if (attempt > 0) {
         // 0.25s up to 8s timeouts
-        await new Promise((r) => setTimeout(r, 2 ** attempt * 250));
+        await new Promise((r) => setTimeout(r, 2 ** attempt * 250))
       }
 
       try {
@@ -56,26 +56,26 @@ export class HttpClient {
           method,
           headers,
           body: JSON.stringify(req.body),
-        });
+        })
 
-        const body = await res.json();
+        const body = await res.json()
         if (!res.ok) {
-          throw new UpstashError(body as ErrorResponse);
+          throw new UpstashError(body as ErrorResponse)
         }
 
-        return body as TResponse;
+        return body as TResponse
       } catch (e) {
-        err = e as Error;
+        err = e as Error
       }
     }
-    throw err;
+    throw err
   }
 
   public async get<TResponse>(req: Request): Promise<TResponse> {
-    return await this.request<TResponse>("GET", req);
+    return await this.request<TResponse>("GET", req)
   }
 
   public async post<TResponse>(req: Request): Promise<TResponse> {
-    return await this.request<TResponse>("POST", req);
+    return await this.request<TResponse>("POST", req)
   }
 }

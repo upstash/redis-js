@@ -1,6 +1,7 @@
 # Upstash Redis
 
-An HTTP/REST based Redis client built on top of [Upstash REST API](https://docs.upstash.com/features/restapi).
+An HTTP/REST based Redis client built on top of
+[Upstash REST API](https://docs.upstash.com/features/restapi).
 
 [![Tests](https://github.com/upstash/upstash-redis/actions/workflows/test.yml/badge.svg)](https://github.com/upstash/upstash-redis/actions/workflows/test.yml)
 ![npm (scoped)](https://img.shields.io/npm/v/@upstash/redis)
@@ -9,14 +10,17 @@ An HTTP/REST based Redis client built on top of [Upstash REST API](https://docs.
 It is the only connectionless (HTTP based) Redis client and designed for:
 
 - Serverless functions (AWS Lambda ...)
-- Cloudflare Workers (see [the example](https://github.com/upstash/upstash-redis/tree/master/examples/cloudflare-workers))
+- Cloudflare Workers (see
+  [the example](https://github.com/upstash/upstash-redis/tree/master/examples/cloudflare-workers))
 - Fastly Compute@Edge
 - Next.js, Jamstack ...
 - Client side web/mobile applications
 - WebAssembly
 - and other environments where HTTP is preferred over TCP.
 
-See [the list of APIs](https://docs.upstash.com/features/restapi#rest---redis-api-compatibility) supported.
+See
+[the list of APIs](https://docs.upstash.com/features/restapi#rest---redis-api-compatibility)
+supported.
 
 ## Quick Start
 
@@ -56,7 +60,8 @@ import { set } from "@upstash/redis";
 })();
 ```
 
-> If you define `UPSTASH_REDIS_REST_URL` and` UPSTASH_REDIS_REST_TOKEN` environment variables, you can skip the auth().
+> If you define `UPSTASH_REDIS_REST_URL` and`UPSTASH_REDIS_REST_TOKEN`
+> environment variables, you can skip the auth().
 
 ### Instantiate New Clients
 
@@ -80,4 +85,5 @@ const redis = upstash("UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN");
 
 ## Docs
 
-See [the documentation](https://docs.upstash.com/features/javascriptsdk) for details.
+See [the documentation](https://docs.upstash.com/features/javascriptsdk) for
+details.

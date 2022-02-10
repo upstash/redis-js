@@ -1,6 +1,6 @@
 export type UpstashResponse<TResult> = {
-  result?: TResult;
-  error?: string;
-};
+  result?: TResult
+  error?: string
+}
 
-export type PipelineResponse<T> = UpstashResponse<T[]>;
+export type PipelineResponse<T> = UpstashResponse<T[]>

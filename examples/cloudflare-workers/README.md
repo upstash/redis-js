@@ -1,11 +1,12 @@
 # Deploying to Cloudflare Workers
 
-You can use @upstash/redis in Cloudflare Workers as it accesses the Redis using REST calls.
+You can use @upstash/redis in Cloudflare Workers as it accesses the Redis using
+REST calls.
 
 ## 1. Installing wrangler CLI
 
-Workers requires wrangler, a tool to deploy your function. Run the
-following command:
+Workers requires wrangler, a tool to deploy your function. Run the following
+command:
 
 ```bash
 npm install -g @cloudflare/wrangler
@@ -22,9 +23,9 @@ wrangler generate workers-with-redis
 You’ll notice your project structure should now look something like:
 
 ```
-  ├── wrangler.toml
-  ├── index.js
-  ├── package.json
+├── wrangler.toml
+├── index.js
+├── package.json
 ```
 
 ## 3. Add Upstash Redis to project
@@ -36,7 +37,9 @@ cd workers-with-redis
 npm install @upstash/redis
 ```
 
-Create a database in [Upstash Console](https://console.upstash.com/). Global database is recommended for Cloudflare Workers as it provides better global latency.
+Create a database in [Upstash Console](https://console.upstash.com/). Global
+database is recommended for Cloudflare Workers as it provides better global
+latency.
 
 Copy following variable from Upstash console and paste them to `wrangler.toml`
 
@@ -91,7 +94,10 @@ const html = (count) => `
 
 To authenticate into your Cloudflare account and copy `account_id`
 
-> Follow the [Quick Start](https://developers.cloudflare.com/workers/get-started/guide#configure) for steps on gathering the correct account ID and API token to link wrangler to your Cloudflare account.
+> Follow the
+> [Quick Start](https://developers.cloudflare.com/workers/get-started/guide#configure)
+> for steps on gathering the correct account ID and API token to link wrangler
+> to your Cloudflare account.
 
 ```toml
 # wrangler.toml

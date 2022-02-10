@@ -1,11 +1,11 @@
-import { Command } from "../command";
+import { Command } from "../command"
 
 /**
  * @see https://redis.io/commands/append
  */
 export class AppendCommand extends Command<number> {
   constructor(key: string, value: string) {
-    super(["append", key, value]);
+    super(["append", key, value])
   }
 }
 
@@ -14,7 +14,7 @@ export class AppendCommand extends Command<number> {
  */
 export class DecrCommand extends Command<number> {
   constructor(key: string) {
-    super(["decr", key]);
+    super(["decr", key])
   }
 }
 
@@ -23,7 +23,7 @@ export class DecrCommand extends Command<number> {
  */
 export class DecrByCommand extends Command<number> {
   constructor(key: string, value: number) {
-    super(["decrby", key, value]);
+    super(["decrby", key, value])
   }
 }
 
@@ -32,7 +32,7 @@ export class DecrByCommand extends Command<number> {
  */
 export class GetCommand<TData = string> extends Command<TData> {
   constructor(key: string) {
-    super(["get", key]);
+    super(["get", key])
   }
 }
 
@@ -41,7 +41,7 @@ export class GetCommand<TData = string> extends Command<TData> {
  */
 export class GetRangeCommand extends Command<string> {
   constructor(key: string, start: number, end: number) {
-    super(["getrange", key, start, end]);
+    super(["getrange", key, start, end])
   }
 }
 
@@ -50,7 +50,7 @@ export class GetRangeCommand extends Command<string> {
  */
 export class GetSetCommand<TData = string> extends Command<TData> {
   constructor(key: string, value: TData) {
-    super(["getset", key, value]);
+    super(["getset", key, value])
   }
 }
 
@@ -59,7 +59,7 @@ export class GetSetCommand<TData = string> extends Command<TData> {
  */
 export class IncrCommand extends Command<number> {
   constructor(key: string) {
-    super(["incr", key]);
+    super(["incr", key])
   }
 }
 
@@ -68,7 +68,7 @@ export class IncrCommand extends Command<number> {
  */
 export class IncrByCommand extends Command<number> {
   constructor(key: string, value: number) {
-    super(["incrby", key, value]);
+    super(["incrby", key, value])
   }
 }
 /**
@@ -76,7 +76,7 @@ export class IncrByCommand extends Command<number> {
  */
 export class IncrByFloatCommand extends Command<number> {
   constructor(key: string, value: number) {
-    super(["incrbyfloat", key, value]);
+    super(["incrbyfloat", key, value])
   }
 }
 /**
@@ -84,7 +84,7 @@ export class IncrByFloatCommand extends Command<number> {
  */
 export class MGetCommand<TData = string> extends Command<TData[]> {
   constructor(...keys: string[]) {
-    super(["mget", ...keys]);
+    super(["mget", ...keys])
   }
 }
 
@@ -93,7 +93,7 @@ export class MGetCommand<TData = string> extends Command<TData[]> {
  */
 export class MSetCommand<TData = string> extends Command<string> {
   constructor(...kvPairs: { key: string; value: TData }[]) {
-    super(["mset", ...kvPairs.flatMap(({ key, value }) => [key, value])]);
+    super(["mset", ...kvPairs.flatMap(({ key, value }) => [key, value])])
   }
 }
 
@@ -102,7 +102,7 @@ export class MSetCommand<TData = string> extends Command<string> {
  */
 export class MSetNXCommand<TData = string> extends Command<number> {
   constructor(...kvPairs: { key: string; value: TData }[]) {
-    super(["msetnx", ...kvPairs.flatMap(({ key, value }) => [key, value])]);
+    super(["msetnx", ...kvPairs.flatMap(({ key, value }) => [key, value])])
   }
 }
 
@@ -111,70 +111,67 @@ export class MSetNXCommand<TData = string> extends Command<number> {
  */
 export class PSetEXCommand<TData = string> extends Command<string> {
   constructor(key: string, ttl: number, value: TData) {
-    super(["psetex", key, ttl, value]);
+    super(["psetex", key, ttl, value])
   }
 }
 
 export type SetCommandOptions = (
   | {
-      ex: number;
+      ex: number
     }
   | {
-      px: number;
+      px: number
     }
   | {
-      exat: number;
+      exat: number
     }
   | {
-      pxat: number;
+      pxat: number
     }
   | { keepttl: boolean }
 ) &
   (
     | {
-        nx: boolean;
+        nx: boolean
       }
     | {
-        xx: boolean;
+        xx: boolean
       }
-  ) & { get: boolean };
+  ) & { get: boolean }
 
 /**
  * @see https://redis.io/commands/set
  */
-export class SetCommand<
-  TData = string,
-  TResult = string
-> extends Command<TResult> {
+export class SetCommand<TData = string, TResult = string> extends Command<TResult> {
   constructor(key: string, value: TData, opts?: SetCommandOptions) {
-    const command = ["set", key, value];
+    const command = ["set", key, value]
     if (opts) {
       if ("ex" in opts) {
-        command.push("ex", opts.ex.toString());
+        command.push("ex", opts.ex.toString())
       }
       if ("px" in opts) {
-        command.push("px", opts.px.toString());
+        command.push("px", opts.px.toString())
       }
       if ("exat" in opts) {
-        command.push("exat", opts.exat.toString());
+        command.push("exat", opts.exat.toString())
       }
       if ("pxat" in opts) {
-        command.push("pxat", opts.pxat.toString());
+        command.push("pxat", opts.pxat.toString())
       }
       if ("keepttl" in opts) {
-        command.push("keepttl");
+        command.push("keepttl")
       }
 
       if ("nx" in opts) {
-        command.push("nx");
+        command.push("nx")
       } else if ("xx" in opts) {
-        command.push("xx");
+        command.push("xx")
       }
       if ("get" in opts) {
-        command.push("get");
+        command.push("get")
       }
     }
-    super(command);
+    super(command)
   }
 }
 
@@ -183,7 +180,7 @@ export class SetCommand<
  */
 export class SetExCommand<TData = string> extends Command<string> {
   constructor(key: string, ttl: number, value: TData) {
-    super(["setex", key, ttl, value]);
+    super(["setex", key, ttl, value])
   }
 }
 
@@ -192,7 +189,7 @@ export class SetExCommand<TData = string> extends Command<string> {
  */
 export class SetNxCommand<TData = string> extends Command<number> {
   constructor(key: string, value: TData) {
-    super(["setnx", key, value]);
+    super(["setnx", key, value])
   }
 }
 
@@ -201,7 +198,7 @@ export class SetNxCommand<TData = string> extends Command<number> {
  */
 export class SetRangeCommand extends Command<number> {
   constructor(key: string, offset: number, value: string) {
-    super(["setrange", key, offset, value]);
+    super(["setrange", key, offset, value])
   }
 }
 
@@ -210,6 +207,6 @@ export class SetRangeCommand extends Command<number> {
  */
 export class StrLenCommand extends Command<number> {
   constructor(key: string) {
-    super(["strlen", key]);
+    super(["strlen", key])
   }
 }

@@ -118,57 +118,49 @@ export class PSetEXCommand<TData = string> extends Command<string> {
 export type SetCommandOptions = (
   | {
       ex: number
+      px?: never
     }
   | {
+      ex?: never
       px: number
     }
   | {
-      exat: number
+      ex?: never
+      px?: never
     }
-  | {
-      pxat: number
-    }
-  | { keepttl: boolean }
 ) &
   (
     | {
-        nx: boolean
+        nx: true
+        xx?: never
       }
     | {
-        xx: boolean
+        xx: true
+        nx?: never
       }
-  ) & { get: boolean }
+    | {
+        xx?: never
+        nx?: never
+      }
+  )
 
 /**
  * @see https://redis.io/commands/set
  */
 export class SetCommand<TData = string, TResult = string> extends Command<TResult> {
   constructor(key: string, value: TData, opts?: SetCommandOptions) {
-    const command = ["set", key, value]
+    const command: unknown[] = ["set", key, value]
     if (opts) {
-      if ("ex" in opts) {
-        command.push("ex", opts.ex.toString())
-      }
-      if ("px" in opts) {
-        command.push("px", opts.px.toString())
-      }
-      if ("exat" in opts) {
-        command.push("exat", opts.exat.toString())
-      }
-      if ("pxat" in opts) {
-        command.push("pxat", opts.pxat.toString())
-      }
-      if ("keepttl" in opts) {
-        command.push("keepttl")
+      if ("ex" in opts && typeof opts.ex === "number") {
+        command.push("ex", opts.ex)
+      } else if ("px" in opts && typeof opts.px === "number") {
+        command.push("px", opts.px)
       }
 
-      if ("nx" in opts) {
+      if ("nx" in opts && opts.nx) {
         command.push("nx")
-      } else if ("xx" in opts) {
+      } else if ("xx" in opts && opts.xx) {
         command.push("xx")
-      }
-      if ("get" in opts) {
-        command.push("get")
       }
     }
     super(command)

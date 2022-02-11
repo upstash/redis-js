@@ -19,6 +19,7 @@ import {
   HStrLenCommand,
   HValsCommand,
 } from "./hash"
+import { DelCommand } from "./keys"
 
 const client = newHttpClient()
 const generatedKeys: string[] = []
@@ -28,10 +29,8 @@ const newKey = () => {
   return key
 }
 
-afterEach(() => {
-  // while(generatedKeys.length>0){
-  //     await
-  // }
+afterEach(async () => {
+  await new DelCommand(...generatedKeys).exec(client)
 })
 
 describe("hdel", () => {
@@ -126,14 +125,17 @@ describe("hgetall", () => {
     const key = newKey()
     const field1 = randomUUID()
     const field2 = randomUUID()
-    const value1 = { v: randomUUID() }
+    const value1 = false
     const value2 = true
     await new HSetCommand(key, field1, value1).exec(client)
     await new HSetCommand(key, field2, value2).exec(client)
-    const res = await new HGetAllCommand<[string, { v: string }, string, boolean]>(key).exec(client)
+    const res = await new HGetAllCommand<[string, boolean, string, boolean]>(key).exec(client)
     expect(res.error).not.toBeDefined()
     expect(res.result).toBeDefined()
-    expect(res.result).toEqual([field1, value1, field2, value2])
+    expect(res.result?.includes(field1)).toBe(true)
+    expect(res.result?.includes(field2)).toBe(true)
+    expect(res.result?.includes(value1)).toBe(true)
+    expect(res.result?.includes(value2)).toBe(true)
   })
   describe("when hash does not exist", () => {
     test("it returns an empty array", async () => {
@@ -196,7 +198,8 @@ describe("hkeys", () => {
       ).exec(client)
       const res = await new HKeysCommand(key).exec(client)
       expect(res.error).not.toBeDefined()
-      expect(res.result).toEqual([field1, field2])
+      expect(res.result?.includes(field1)).toBe(true)
+      expect(res.result?.includes(field2)).toBe(true)
     })
   })
 })

@@ -22,6 +22,7 @@ import {
   SetRangeCommand,
   StrLenCommand,
 } from "./strings"
+import { DelCommand } from "./keys"
 
 const client = newHttpClient()
 const generatedKeys: string[] = []
@@ -31,10 +32,8 @@ const newKey = () => {
   return key
 }
 
-afterEach(() => {
-  // while(generatedKeys.length>0){
-  //     await
-  // }
+afterEach(async () => {
+  await new DelCommand(...generatedKeys).exec(client)
 })
 
 describe("append", () => {
@@ -127,7 +126,7 @@ describe("getrange", () => {
     const res = await new GetRangeCommand(key, 2, 4).exec(client)
     expect(res.error).not.toBeDefined()
     expect(res.result).toBeDefined()
-    expect(res.result!.toString()).toEqual(value.slice(2, 5))
+    expect(res.result!.toString()).toEqual(value.slice(2, 5).toString())
   })
 
   test("gets a non-existing value", async () => {
@@ -318,6 +317,126 @@ describe("psetex", () => {
 })
 
 describe("set", () => {
+  describe("without options", () => {
+    test("sets value", async () => {
+      const key = newKey()
+      const value = randomUUID()
+
+      const res = await new SetCommand(key, value).exec(client)
+      expect(res.error).not.toBeDefined()
+      expect(res.result).toEqual("OK")
+      const res2 = await new GetCommand(key).exec(client)
+      expect(res2.error).not.toBeDefined()
+      expect(res2.result).toEqual(value)
+    })
+  })
+  describe("ex", () => {
+    test("sets value", async () => {
+      const key = newKey()
+      const value = randomUUID()
+
+      const res = await new SetCommand(key, value, { ex: 1 }).exec(client)
+      expect(res.error).not.toBeDefined()
+      expect(res.result).toEqual("OK")
+      const res2 = await new GetCommand(key).exec(client)
+      expect(res2.error).not.toBeDefined()
+      expect(res2.result).toEqual(value)
+      await new Promise((res) => setTimeout(res, 2000))
+
+      const res3 = await new GetCommand(key).exec(client)
+      expect(res3.error).not.toBeDefined()
+      expect(res3.result).toEqual(null)
+    })
+  })
+  describe("px", () => {
+    test("sets value", async () => {
+      const key = newKey()
+      const value = randomUUID()
+
+      const res = await new SetCommand(key, value, { px: 1000 }).exec(client)
+      expect(res.error).not.toBeDefined()
+      expect(res.result).toEqual("OK")
+      const res2 = await new GetCommand(key).exec(client)
+      expect(res2.error).not.toBeDefined()
+      expect(res2.result).toEqual(value)
+      await new Promise((res) => setTimeout(res, 2000))
+
+      const res3 = await new GetCommand(key).exec(client)
+      expect(res3.error).not.toBeDefined()
+      expect(res3.result).toEqual(null)
+    })
+  })
+  describe("nx", () => {
+    describe("when key exists", () => {
+      test("does nothing", async () => {
+        const key = newKey()
+        const value = randomUUID()
+        const newValue = randomUUID()
+
+        await new SetCommand(key, value).exec(client)
+        const res = await new SetCommand(key, newValue, {
+          nx: true,
+        }).exec(client)
+        expect(res.error).not.toBeDefined()
+        expect(res.result).toBeNull()
+        const res2 = await new GetCommand(key).exec(client)
+        expect(res2.error).not.toBeDefined()
+        expect(res2.result).toEqual(value)
+      })
+    })
+    describe("when key does not exists", () => {
+      test("overwrites key", async () => {
+        const key = newKey()
+        const value = randomUUID()
+
+        const res = await new SetCommand(key, value, {
+          nx: true,
+        }).exec(client)
+        expect(res.error).not.toBeDefined()
+        expect(res.result).toEqual("OK")
+        const res2 = await new GetCommand(key).exec(client)
+        expect(res2.error).not.toBeDefined()
+        expect(res2.result).toEqual(value)
+      })
+    })
+  })
+  describe("xx", () => {
+    describe("when key exists", () => {
+      test("overwrites key", async () => {
+        const key = newKey()
+        const value = randomUUID()
+        const newValue = randomUUID()
+
+        await new SetCommand(key, value).exec(client)
+        const res = await new SetCommand(key, newValue, {
+          xx: true,
+        }).exec(client)
+        expect(res.error).not.toBeDefined()
+        expect(res.result).toEqual("OK")
+        const res2 = await new GetCommand(key).exec(client)
+        expect(res2.error).not.toBeDefined()
+        expect(res2.result).toEqual(newValue)
+      })
+    })
+    describe("when key does not exists", () => {
+      test("does nothing", async () => {
+        const key = newKey()
+        const value = randomUUID()
+
+        const res = await new SetCommand(key, value, {
+          xx: true,
+        }).exec(client)
+        expect(res.error).not.toBeDefined()
+        expect(res.result).toBeNull()
+        const res2 = await new GetCommand(key).exec(client)
+        expect(res2.error).not.toBeDefined()
+        expect(res2.result).toBeNull()
+      })
+    })
+  })
+})
+
+describe("setnx", () => {
   test("sets value", async () => {
     const key = newKey()
     const value = randomUUID()
@@ -336,7 +455,7 @@ describe("setex", () => {
     const key = newKey()
     const value = randomUUID()
 
-    const res = await new PSetEXCommand(key, 1, value).exec(client)
+    const res = await new SetExCommand(key, 1, value).exec(client)
     expect(res.error).not.toBeDefined()
     expect(res.result).toEqual("OK")
     await new Promise((res) => setTimeout(res, 2000))
@@ -345,7 +464,7 @@ describe("setex", () => {
     expect(res2.result).toBeNull()
   })
 })
-describe("setex", () => {
+describe("setnx", () => {
   test("sets value", async () => {
     const key = newKey()
     const value = randomUUID()
@@ -377,5 +496,16 @@ describe("setrange", () => {
     const res3 = await new GetCommand(key).exec(client)
     expect(res3.error).not.toBeDefined()
     expect(res3.result).toEqual("orighelloWorld")
+  })
+})
+
+describe("strlen", () => {
+  test("returns the correct length", async () => {
+    const key = newKey()
+    const value = "abcd"
+    await new SetCommand(key, value).exec(client)
+    const res = await new StrLenCommand(key).exec(client)
+    expect(res.error).toBeUndefined()
+    expect(res.result).toBe(value.length)
   })
 })

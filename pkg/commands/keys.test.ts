@@ -3,8 +3,8 @@ import { afterEach, describe, expect, test } from "@jest/globals"
 import { randomUUID } from "crypto"
 import { newHttpClient } from "../test_setup"
 
-import { DelCommand, E, ExistsCommand } from "./keys"
-import { SetCommand } from "./strings"
+import { DelCommand, ExistsCommand, ExpireCommand } from "./keys"
+import { SetCommand, GetCommand } from "./strings"
 
 const client = newHttpClient()
 const generatedKeys: string[] = []
@@ -81,5 +81,20 @@ describe("exists", () => {
       expect(res.error).toBeUndefined()
       expect(res.result).toEqual(2)
     })
+  })
+})
+
+describe("expire", () => {
+  test("expires a key correctly", async () => {
+    const key = newKey()
+    const value = randomUUID()
+    await new SetCommand(key, value).exec(client)
+    const res = await new ExpireCommand(key, 1).exec(client)
+    expect(res.error).toBeUndefined()
+    expect(res.result).toEqual(1)
+    await new Promise((res) => setTimeout(res, 2000))
+    const res2 = await new GetCommand(key).exec(client)
+    expect(res2.error).toBeUndefined()
+    expect(res2.result).toBeNull()
   })
 })

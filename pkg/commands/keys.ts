@@ -1,14 +1,6 @@
 import { Command } from "../command"
 
 /**
- * @see https://redis.io/commands/copy
- */
-export class CopyCommand extends Command<0 | 1> {
-  constructor(source: string, destination: string) {
-    super(["copy", source, destination])
-  }
-}
-/**
  * @see https://redis.io/commands/del
  */
 export class DelCommand extends Command<number> {

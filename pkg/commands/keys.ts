@@ -18,6 +18,14 @@ export class DelCommand extends Command<number> {
 }
 
 /**
+ * @see https://redis.io/commands/exists
+ */
+export class ExistsCommand extends Command<number> {
+  constructor(...keys: string[]) {
+    super(["exists", ...keys])
+  }
+}
+/**
  * @see https://redis.io/commands/expire
  */
 export class ExpireCommand extends Command<0 | 1> {

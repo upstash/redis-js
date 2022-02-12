@@ -20,7 +20,7 @@ import {
   SetNxCommand,
   SetRangeCommand,
   StrLenCommand,
-} from "./commands/strings"
+} from "./commands/strlen"
 import { Pipeline } from "./pipeline"
 /**
  * Connection credentials for upstash redis.

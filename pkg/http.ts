@@ -17,7 +17,6 @@ export type HttpClientConfig = {
   headers?: Record<string, string>
   baseUrl: string
 }
-type ErrorResponse = { result: string; error: string; status: number }
 
 export class HttpClient {
   public baseUrl: string
@@ -42,33 +41,20 @@ export class HttpClient {
       ...req.headers,
     }
 
-    let err = new Error()
-    for (let attempt = 0; attempt <= (req.retries ?? 5); attempt++) {
-      if (attempt > 0) {
-        // 0.25s up to 8s timeouts
-        await new Promise((r) => setTimeout(r, 2 ** attempt * 250))
-      }
+    // fetch is defined by isomorphic fetch
+    // eslint-disable-next-line no-undef
+    const res = await fetch([this.baseUrl, ...req.path].join("/"), {
+      method,
+      headers,
+      body: JSON.stringify(req.body),
+    })
 
-      try {
-        // fetch is defined by isomorphic fetch
-        // eslint-disable-next-line no-undef
-        const res = await fetch([this.baseUrl, ...req.path].join("/"), {
-          method,
-          headers,
-          body: JSON.stringify(req.body),
-        })
-
-        const body = await res.json()
-        if (!res.ok) {
-          throw new UpstashError(body as ErrorResponse)
-        }
-
-        return body as TResponse
-      } catch (e) {
-        err = e as Error
-      }
+    const body = await res.json()
+    if (!res.ok) {
+      throw new UpstashError(body.error)
     }
-    throw err
+
+    return body as TResponse
   }
 
   public async get<TResponse>(req: Request): Promise<TResponse> {

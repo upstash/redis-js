@@ -1,0 +1,10 @@
+import { Command } from "../command"
+
+/**
+ * @see https://redis.io/commands/randomkey
+ */
+export class RandomKeyCommand extends Command<string | null> {
+  constructor() {
+    super(["randomkey"])
+  }
+}

@@ -22,7 +22,7 @@ import {
   GetRangeCommand,
   MSetNXCommand,
   PSetEXCommand,
-} from "./commands/strings"
+} from "./commands/strlen"
 /**
  * Pipelines allow you to chain commands together and save roundtrips to upstash.
  */

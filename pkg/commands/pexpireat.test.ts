@@ -3,7 +3,7 @@ import { randomUUID } from "crypto"
 import { describe, it, expect, afterAll } from "@jest/globals"
 import { SetCommand } from "./set"
 import { GetCommand } from "./get"
-import { ExpireAtCommand } from "./expireat"
+import { PExpireAtCommand } from "./pexpireat"
 const client = newHttpClient()
 
 const { newKey, cleanup } = keygen()
@@ -15,7 +15,7 @@ describe("without options", () => {
     const value = randomUUID()
     await new SetCommand(key, value).exec(client)
 
-    const res = await new ExpireAtCommand(key, 1).exec(client)
+    const res = await new PExpireAtCommand(key, 1000).exec(client)
     expect(res.error).not.toBeDefined()
     expect(res.result).toEqual(1)
     await new Promise((res) => setTimeout(res, 2000))

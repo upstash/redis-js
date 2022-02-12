@@ -3,6 +3,7 @@ import { randomUUID } from "crypto"
 import { it, expect, afterAll } from "@jest/globals"
 import { GetSetCommand } from "./getset"
 import { SetCommand } from "./set"
+import { GetCommand } from "./get"
 const client = newHttpClient()
 
 const { newKey, cleanup } = keygen()

@@ -1,6 +1,7 @@
 import { keygen, newHttpClient } from "../test-utils"
 import { it, expect, afterAll } from "@jest/globals"
 import { SetCommand } from "./set"
+import { DecrCommand } from "./decr"
 const client = newHttpClient()
 
 const { newKey, cleanup } = keygen()

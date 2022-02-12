@@ -16,3 +16,16 @@ describe("when key is not set", () => {
     expect(res.result).toEqual(value.length)
   })
 })
+
+describe("when key is set", () => {
+  it("appends to existing value", async () => {
+    const key = newKey()
+    const value = randomUUID()
+    const res = await new AppendCommand(key, value).exec(client)
+    expect(res.error).not.toBeDefined()
+    expect(res.result).toEqual(value.length)
+    const res2 = await new AppendCommand(key, "_").exec(client)
+    expect(res2.error).not.toBeDefined()
+    expect(res2.result).toEqual(value.length + 1)
+  })
+})

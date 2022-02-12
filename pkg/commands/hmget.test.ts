@@ -5,7 +5,6 @@ import { it, expect, afterAll } from "@jest/globals"
 import { HMSetCommand } from "./hmset"
 import { HMGetCommand } from "./hmget"
 import { HSetCommand } from "./hset"
-import { HSetCommand } from "./hset"
 const client = newHttpClient()
 
 const { newKey, cleanup } = keygen()

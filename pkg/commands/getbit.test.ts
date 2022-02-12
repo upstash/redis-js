@@ -1,7 +1,17 @@
 import { keygen, newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { describe, it, expect, afterAll } from "@jest/globals"
+import { it, expect, afterAll } from "@jest/globals"
+import { SetBitCommand } from "./setbit"
+import { GetBitCommand } from "./getbit"
 const client = newHttpClient()
 
 const { newKey, cleanup } = keygen()
 afterAll(cleanup)
+
+it("returns the bit at offset", async () => {
+  const key = newKey()
+
+  await new SetBitCommand(key, 0, 1).exec(client)
+  const res = await new GetBitCommand(key, 0).exec(client)
+  expect(res.error).toBeUndefined()
+  expect(res.result).toBe(1)
+})

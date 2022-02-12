@@ -3,9 +3,9 @@ import { randomUUID } from "crypto"
 import { describe, it, expect, afterAll } from "@jest/globals"
 import { SetCommand } from "./set"
 import { TypeCommand } from "./type"
-import { LSetCommand } from "./lset"
 import { LPushCommand } from "./lpush"
 import { HSetCommand } from "./hset"
+import { SAddCommand } from "./sadd"
 const client = newHttpClient()
 
 const { newKey, cleanup } = keygen()
@@ -22,7 +22,6 @@ describe("string", () => {
   })
 })
 
-// string" | "list" | "set" | "zset" | "hash" | "stream">
 describe("list", () => {
   it("returns the correct type", async () => {
     const key = newKey()
@@ -38,7 +37,7 @@ describe("set", () => {
   it("returns the correct type", async () => {
     const key = newKey()
     const value = randomUUID()
-    await new (key, value).exec(client)
+    await new SAddCommand(key, value).exec(client)
     const res = await new TypeCommand(key).exec(client)
     expect(res.error).not.toBeDefined()
     expect(res.result).toEqual("string")

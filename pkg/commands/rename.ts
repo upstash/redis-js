@@ -3,8 +3,8 @@ import { Command } from "../command"
 /**
  * @see https://redis.io/commands/rename
  */
-export class RenameCommand extends Command<string> {
+export class RenameCommand extends Command<"OK"> {
   constructor(source: string, destination: string) {
-    super(["reame", source, destination])
+    super(["rename", source, destination])
   }
 }

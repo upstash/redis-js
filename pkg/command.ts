@@ -22,15 +22,7 @@ export abstract class Command<TResult = string> implements Executor<TResult> {
       /**
        * Try to parse the response if possible
        */
-      const result = Array.isArray(res.result)
-        ? res.result.map((r) => {
-            try {
-              return JSON.parse(r)
-            } catch {
-              return r
-            }
-          })
-        : JSON.parse(res.result as unknown as string)
+      const result = parseRecursive(res.result) as TResult
 
       return {
         ...res,
@@ -40,4 +32,16 @@ export abstract class Command<TResult = string> implements Executor<TResult> {
       return res
     }
   }
+}
+
+function parseRecursive(obj: unknown): unknown {
+  return Array.isArray(obj)
+    ? obj.map((o) => {
+        try {
+          return parseRecursive(o)
+        } catch {
+          return o
+        }
+      })
+    : JSON.parse(obj as string)
 }

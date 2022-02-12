@@ -14,9 +14,11 @@ describe("with single set", () => {
     const value1 = { v: randomUUID() }
     const value2 = { v: randomUUID() }
     await new SAddCommand(key, value1, value2).exec(client)
-    const res = await new SInterCommand(key).exec(client)
+    const res = await new SInterCommand<{ v: string }>(key).exec(client)
     expect(res.error).toBeUndefined()
-    expect(res.result).toEqual([value1, value2])
+    expect(res.result).toHaveLength(2)
+    expect(res.result!.map(({ v }) => v).includes(value1.v)).toBe(true)
+    expect(res.result!.map(({ v }) => v).includes(value2.v)).toBe(true)
   })
 })
 

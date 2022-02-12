@@ -18,6 +18,6 @@ it("returns all members of the set", async () => {
   expect(res.error).toBeUndefined()
   expect(res.result).toBeDefined()
   expect(res.result!.length).toBe(2)
-  expect(res.result!.includes(value1)).toBe(true)
-  expect(res.result!.includes(value2)).toBe(true)
+  expect(res.result!.map(({ v }) => v).includes(value1.v)).toBe(true)
+  expect(res.result!.map(({ v }) => v).includes(value2.v)).toBe(true)
 })

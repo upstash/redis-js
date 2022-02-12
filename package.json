@@ -20,7 +20,7 @@
     "dist"
   ],
   "scripts": {
-    "test": "jest",
+    "test": "jest -i",
     "fmt": "pnpm lint && pnpm prettier --write .",
     "lint": "eslint --ext .ts --fix .",
     "build": "tsup ./pkg/index.ts --format=cjs,esm --dts --clean --splitting"

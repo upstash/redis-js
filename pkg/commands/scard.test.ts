@@ -1,7 +1,16 @@
 import { keygen, newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { describe, it, expect, afterAll } from "@jest/globals"
+import { it, expect, afterAll } from "@jest/globals"
+import { SAddCommand } from "./sadd"
+import { SCardCommand } from "./scard"
 const client = newHttpClient()
 
 const { newKey, cleanup } = keygen()
 afterAll(cleanup)
+
+it("returns the cardinality", async () => {
+  const key = newKey()
+  await new SAddCommand(key, "member1").exec(client)
+  const res = await new SCardCommand(key).exec(client)
+  expect(res.error).toBeUndefined()
+  expect(res.result).toBe(1)
+})

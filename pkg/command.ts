@@ -15,9 +15,6 @@ export abstract class Command<TResult = string> implements Executor<TResult> {
       body: this.command,
     })
 
-    if (res.error) {
-      return res
-    }
     try {
       /**
        * Try to parse the response if possible

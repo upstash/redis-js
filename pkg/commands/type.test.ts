@@ -40,7 +40,7 @@ describe("set", () => {
     await new SAddCommand(key, value).exec(client)
     const res = await new TypeCommand(key).exec(client)
     expect(res.error).not.toBeDefined()
-    expect(res.result).toEqual("string")
+    expect(res.result).toEqual("set")
   })
 })
 

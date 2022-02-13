@@ -33,6 +33,8 @@ module.exports = {
      */
     "import/prefer-default-export": "off",
 
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": ["error"],
     "object-curly-newline": "off",
     "max-len": [
       2,

@@ -1,6 +1,6 @@
 import { Command } from "../command"
 
-export type ZUnionStoreCommandOptions = {
+export type ZInterStoreCommandOptions = {
   aggregate?: "sum" | "min" | "max"
 } & (
   | {
@@ -18,23 +18,23 @@ export type ZUnionStoreCommandOptions = {
 )
 
 /**
- * @see https://redis.io/commands/zunionstore
+ * @see https://redis.io/commands/zInterstore
  */
-export class ZUnionStoreCommand extends Command<number> {
-  constructor(destination: string, numKeys: 1, key: string, opts?: ZUnionStoreCommandOptions)
+export class ZInterStoreCommand extends Command<number> {
+  constructor(destination: string, numKeys: 1, key: string, opts?: ZInterStoreCommandOptions)
   constructor(
     destination: string,
     numKeys: number,
     keys: string[],
-    opts?: ZUnionStoreCommandOptions,
+    opts?: ZInterStoreCommandOptions,
   )
   constructor(
     destination: string,
     numKeys: number,
     keyOrKeys: string | string[],
-    opts?: ZUnionStoreCommandOptions,
+    opts?: ZInterStoreCommandOptions,
   ) {
-    const command: unknown[] = ["zunionstore", destination, numKeys]
+    const command: unknown[] = ["zinterstore", destination, numKeys]
     if (Array.isArray(keyOrKeys)) {
       command.push(...keyOrKeys)
     } else {

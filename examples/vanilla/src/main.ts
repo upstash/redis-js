@@ -3,6 +3,7 @@ import upstash from "@upstash/redis"
 
 console.log(upstash)
 
+// eslint-disable-next-line no-undef
 const app = document.querySelector<HTMLDivElement>("#app")!
 
 app.innerHTML = `

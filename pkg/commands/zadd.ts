@@ -1,4 +1,3 @@
-import { isGeneratorFunction } from "util/types"
 import { Command } from "../command"
 
 export type ZAddCommandOptions = (

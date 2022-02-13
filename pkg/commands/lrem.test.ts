@@ -1,7 +1,6 @@
 import { keygen, newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { describe, it, expect, afterAll } from "@jest/globals"
-import { LPopCommand } from "./lpop"
+import { it, expect, afterAll } from "@jest/globals"
+
 import { LPushCommand } from "./lpush"
 import { LRemCommand } from "./lrem"
 const client = newHttpClient()

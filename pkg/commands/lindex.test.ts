@@ -3,7 +3,7 @@ import { randomUUID } from "crypto"
 import { describe, it, expect, afterAll } from "@jest/globals"
 import { LPushCommand } from "./lpush"
 import { LIndexCommand } from "./lindex"
-import { LPopCommand } from "./lpop"
+
 const client = newHttpClient()
 
 const { newKey, cleanup } = keygen()

@@ -1,7 +1,7 @@
 import { keygen, newHttpClient } from "../test-utils"
 import { randomUUID } from "crypto"
 import { describe, it, expect, afterAll } from "@jest/globals"
-import { ZUnionStoreCommand } from "./zunionstore"
+import { ZInterStoreCommand } from "./zinterstore"
 import { ZAddCommand } from "./zadd"
 
 const client = newHttpClient()
@@ -12,8 +12,8 @@ afterAll(cleanup)
 describe("command format", () => {
   describe("without options", () => {
     it("builds the correct command", () => {
-      expect(new ZUnionStoreCommand("destination", 1, "key").command).toEqual([
-        "zunionstore",
+      expect(new ZInterStoreCommand("destination", 1, "key").command).toEqual([
+        "zinterstore",
         "destination",
         "1",
         "key",
@@ -22,8 +22,8 @@ describe("command format", () => {
   })
   describe("with multiple keys", () => {
     it("builds the correct command", () => {
-      expect(new ZUnionStoreCommand("destination", 2, ["key1", "key2"]).command).toEqual([
-        "zunionstore",
+      expect(new ZInterStoreCommand("destination", 2, ["key1", "key2"]).command).toEqual([
+        "zinterstore",
         "destination",
         "2",
         "key1",
@@ -33,8 +33,8 @@ describe("command format", () => {
   })
   describe("with single weight", () => {
     it("builds the correct command", () => {
-      expect(new ZUnionStoreCommand("destination", 1, "key", { weight: 4 }).command).toEqual([
-        "zunionstore",
+      expect(new ZInterStoreCommand("destination", 1, "key", { weight: 4 }).command).toEqual([
+        "zinterstore",
         "destination",
         "1",
         "key",
@@ -46,41 +46,41 @@ describe("command format", () => {
   describe("with multiple weights", () => {
     it("builds the correct command", () => {
       expect(
-        new ZUnionStoreCommand("destination", 2, ["key1", "key2"], { weights: [2, 3] }).command,
-      ).toEqual(["zunionstore", "destination", "2", "key1", "key2", "weights", "2", "3"])
+        new ZInterStoreCommand("destination", 2, ["key1", "key2"], { weights: [2, 3] }).command,
+      ).toEqual(["zinterstore", "destination", "2", "key1", "key2", "weights", "2", "3"])
     })
     describe("with aggregate", () => {
       describe("sum", () => {
         it("builds the correct command", () => {
           expect(
-            new ZUnionStoreCommand("destination", 1, "key", { aggregate: "sum" }).command,
-          ).toEqual(["zunionstore", "destination", "1", "key", "aggregate", "sum"])
+            new ZInterStoreCommand("destination", 1, "key", { aggregate: "sum" }).command,
+          ).toEqual(["zinterstore", "destination", "1", "key", "aggregate", "sum"])
         })
       })
       describe("min", () => {
         it("builds the correct command", () => {
           expect(
-            new ZUnionStoreCommand("destination", 1, "key", { aggregate: "min" }).command,
-          ).toEqual(["zunionstore", "destination", "1", "key", "aggregate", "min"])
+            new ZInterStoreCommand("destination", 1, "key", { aggregate: "min" }).command,
+          ).toEqual(["zinterstore", "destination", "1", "key", "aggregate", "min"])
         })
       })
       describe("max", () => {
         it("builds the correct command", () => {
           expect(
-            new ZUnionStoreCommand("destination", 1, "key", { aggregate: "max" }).command,
-          ).toEqual(["zunionstore", "destination", "1", "key", "aggregate", "max"])
+            new ZInterStoreCommand("destination", 1, "key", { aggregate: "max" }).command,
+          ).toEqual(["zinterstore", "destination", "1", "key", "aggregate", "max"])
         })
       })
     })
     describe("complex", () => {
       it("builds the correct command", () => {
         expect(
-          new ZUnionStoreCommand("destination", 2, ["key1", "key2"], {
+          new ZInterStoreCommand("destination", 2, ["key1", "key2"], {
             weights: [4, 2],
             aggregate: "max",
           }).command,
         ).toEqual([
-          "zunionstore",
+          "zinterstore",
           "destination",
           "2",
           "key1",
@@ -107,11 +107,15 @@ describe("without options", () => {
     const member2 = randomUUID()
 
     await new ZAddCommand(key1, { score: score1, member: member1 }).exec(client)
-    await new ZAddCommand(key2, { score: score2, member: member2 }).exec(client)
+    await new ZAddCommand(
+      key2,
+      { score: score1, member: member1 },
+      { score: score2, member: member2 },
+    ).exec(client)
 
-    const res = await new ZUnionStoreCommand(destination, 2, [key1, key2]).exec(client)
+    const res = await new ZInterStoreCommand(destination, 2, [key1, key2]).exec(client)
     expect(res.error).toBeUndefined()
-    expect(res.result).toBe(2)
+    expect(res.result).toBe(1)
   })
 })
 
@@ -127,13 +131,17 @@ describe("with weights", () => {
       const member2 = randomUUID()
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(client)
-      await new ZAddCommand(key2, { score: score2, member: member2 }).exec(client)
+      await new ZAddCommand(
+        key2,
+        { score: score1, member: member1 },
+        { score: score2, member: member2 },
+      ).exec(client)
 
-      const res = await new ZUnionStoreCommand(destination, 2, [key1, key2], {
+      const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
         weights: [2, 3],
       }).exec(client)
       expect(res.error).toBeUndefined()
-      expect(res.result).toBe(2)
+      expect(res.result).toBe(1)
     })
   })
   describe("multiple weight", () => {
@@ -147,13 +155,17 @@ describe("with weights", () => {
       const member2 = randomUUID()
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(client)
-      await new ZAddCommand(key2, { score: score2, member: member2 }).exec(client)
+      await new ZAddCommand(
+        key2,
+        { score: score1, member: member1 },
+        { score: score2, member: member2 },
+      ).exec(client)
 
-      const res = await new ZUnionStoreCommand(destination, 2, [key1, key2], {
+      const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
         weights: [1, 2],
       }).exec(client)
       expect(res.error).toBeUndefined()
-      expect(res.result).toBe(2)
+      expect(res.result).toBe(1)
     })
   })
 })
@@ -169,13 +181,17 @@ describe("aggregate", () => {
       const member2 = randomUUID()
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(client)
-      await new ZAddCommand(key2, { score: score2, member: member2 }).exec(client)
+      await new ZAddCommand(
+        key2,
+        { score: score1, member: member1 },
+        { score: score2, member: member2 },
+      ).exec(client)
 
-      const res = await new ZUnionStoreCommand(destination, 2, [key1, key2], {
+      const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
         aggregate: "sum",
       }).exec(client)
       expect(res.error).toBeUndefined()
-      expect(res.result).toBe(2)
+      expect(res.result).toBe(1)
     })
   })
   describe("min", () => {
@@ -189,13 +205,17 @@ describe("aggregate", () => {
       const member2 = randomUUID()
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(client)
-      await new ZAddCommand(key2, { score: score2, member: member2 }).exec(client)
+      await new ZAddCommand(
+        key2,
+        { score: score1, member: member1 },
+        { score: score2, member: member2 },
+      ).exec(client)
 
-      const res = await new ZUnionStoreCommand(destination, 2, [key1, key2], {
+      const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
         aggregate: "min",
       }).exec(client)
       expect(res.error).toBeUndefined()
-      expect(res.result).toBe(2)
+      expect(res.result).toBe(1)
     })
   })
   describe("max", () => {
@@ -209,13 +229,17 @@ describe("aggregate", () => {
       const member2 = randomUUID()
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(client)
-      await new ZAddCommand(key2, { score: score2, member: member2 }).exec(client)
+      await new ZAddCommand(
+        key2,
+        { score: score1, member: member1 },
+        { score: score2, member: member2 },
+      ).exec(client)
 
-      const res = await new ZUnionStoreCommand(destination, 2, [key1, key2], {
+      const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
         aggregate: "max",
       }).exec(client)
       expect(res.error).toBeUndefined()
-      expect(res.result).toBe(2)
+      expect(res.result).toBe(1)
     })
   })
 })

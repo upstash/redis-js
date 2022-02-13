@@ -57,10 +57,6 @@ export class HttpClient {
     return body as TResponse
   }
 
-  public async get<TResponse>(req: Request): Promise<TResponse> {
-    return await this.request<TResponse>("GET", req)
-  }
-
   public async post<TResponse>(req: Request): Promise<TResponse> {
     return await this.request<TResponse>("POST", req)
   }

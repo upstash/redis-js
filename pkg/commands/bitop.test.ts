@@ -2,7 +2,6 @@ import { BitOpCommand } from "./bitop"
 import { keygen, newHttpClient } from "../test-utils"
 import { describe, it, expect, afterAll } from "@jest/globals"
 import { SetCommand } from "./set"
-import { GetCommand } from "./get"
 const client = newHttpClient()
 
 const { newKey, cleanup } = keygen()

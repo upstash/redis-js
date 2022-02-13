@@ -1,19 +1,21 @@
 import { keygen, newHttpClient } from "../test-utils"
-import { randomInt, randomUUID } from "crypto"
 import { it, expect, afterAll } from "@jest/globals"
+import { ZIncrByComand } from "./zincrby"
 import { ZAddCommand } from "./zadd"
-import { ZScoreCommand } from "./zscore"
+import { randomUUID } from "crypto"
+
 const client = newHttpClient()
 
 const { newKey, cleanup } = keygen()
 afterAll(cleanup)
 
-it("returns the score", async () => {
+it("increments and existing value", async () => {
   const key = newKey()
+  const score = 1
   const member = randomUUID()
-  const score = randomInt(10)
   await new ZAddCommand(key, { score, member }).exec(client)
-  const res = await new ZScoreCommand(key, member).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(score)
+  const res = await new ZIncrByComand(key, 2, member).exec(client)
+
+  expect(res.error).not.toBeDefined()
+  expect(res.result).toEqual(3)
 })

@@ -16,6 +16,5 @@ it("returns the number of removed members", async () => {
     client,
   )
   const res = await new ZRemCommand(key, member1, member2).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(2)
+  expect(res).toBe(2)
 })

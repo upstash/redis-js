@@ -1,6 +1,6 @@
 import { Command } from "../command"
-export class LInsertCommand<TValue = string> extends Command<number> {
-  constructor(key: string, direction: "before" | "after", pivot: TValue, value: TValue) {
+export class LInsertCommand<TData = string> extends Command<number> {
+  constructor(key: string, direction: "before" | "after", pivot: TData, value: TData) {
     super(["linsert", key, direction, pivot, value])
   }
 }

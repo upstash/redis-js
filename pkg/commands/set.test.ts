@@ -14,11 +14,9 @@ describe("without options", () => {
     const value = randomUUID()
 
     const res = await new SetCommand(key, value).exec(client)
-    expect(res.error).not.toBeDefined()
-    expect(res.result).toEqual("OK")
+    expect(res).toEqual("OK")
     const res2 = await new GetCommand(key).exec(client)
-    expect(res2.error).not.toBeDefined()
-    expect(res2.result).toEqual(value)
+    expect(res2).toEqual(value)
   })
 })
 describe("ex", () => {
@@ -27,16 +25,13 @@ describe("ex", () => {
     const value = randomUUID()
 
     const res = await new SetCommand(key, value, { ex: 1 }).exec(client)
-    expect(res.error).not.toBeDefined()
-    expect(res.result).toEqual("OK")
+    expect(res).toEqual("OK")
     const res2 = await new GetCommand(key).exec(client)
-    expect(res2.error).not.toBeDefined()
-    expect(res2.result).toEqual(value)
+    expect(res2).toEqual(value)
     await new Promise((res) => setTimeout(res, 2000))
 
     const res3 = await new GetCommand(key).exec(client)
-    expect(res3.error).not.toBeDefined()
-    expect(res3.result).toEqual(null)
+    expect(res3).toEqual(null)
   })
 })
 describe("px", () => {
@@ -45,16 +40,14 @@ describe("px", () => {
     const value = randomUUID()
 
     const res = await new SetCommand(key, value, { px: 1000 }).exec(client)
-    expect(res.error).not.toBeDefined()
-    expect(res.result).toEqual("OK")
+    expect(res).toEqual("OK")
     const res2 = await new GetCommand(key).exec(client)
-    expect(res2.error).not.toBeDefined()
-    expect(res2.result).toEqual(value)
+    expect(res2).toEqual(value)
     await new Promise((res) => setTimeout(res, 2000))
 
     const res3 = await new GetCommand(key).exec(client)
-    expect(res3.error).not.toBeDefined()
-    expect(res3.result).toEqual(null)
+
+    expect(res3).toBeNull()
   })
 })
 describe("nx", () => {
@@ -68,11 +61,9 @@ describe("nx", () => {
       const res = await new SetCommand(key, newValue, {
         nx: true,
       }).exec(client)
-      expect(res.error).not.toBeDefined()
-      expect(res.result).toBeNull()
+      expect(res).toBeNull()
       const res2 = await new GetCommand(key).exec(client)
-      expect(res2.error).not.toBeDefined()
-      expect(res2.result).toEqual(value)
+      expect(res2).toEqual(value)
     })
   })
   describe("when key does not exists", () => {
@@ -83,11 +74,9 @@ describe("nx", () => {
       const res = await new SetCommand(key, value, {
         nx: true,
       }).exec(client)
-      expect(res.error).not.toBeDefined()
-      expect(res.result).toEqual("OK")
+      expect(res).toEqual("OK")
       const res2 = await new GetCommand(key).exec(client)
-      expect(res2.error).not.toBeDefined()
-      expect(res2.result).toEqual(value)
+      expect(res2).toEqual(value)
     })
   })
 })
@@ -102,11 +91,9 @@ describe("xx", () => {
       const res = await new SetCommand(key, newValue, {
         xx: true,
       }).exec(client)
-      expect(res.error).not.toBeDefined()
-      expect(res.result).toEqual("OK")
+      expect(res).toEqual("OK")
       const res2 = await new GetCommand(key).exec(client)
-      expect(res2.error).not.toBeDefined()
-      expect(res2.result).toEqual(newValue)
+      expect(res2).toEqual(newValue)
     })
   })
   describe("when key does not exists", () => {
@@ -117,11 +104,9 @@ describe("xx", () => {
       const res = await new SetCommand(key, value, {
         xx: true,
       }).exec(client)
-      expect(res.error).not.toBeDefined()
-      expect(res.result).toBeNull()
+      expect(res).toBeNull()
       const res2 = await new GetCommand(key).exec(client)
-      expect(res2.error).not.toBeDefined()
-      expect(res2.result).toBeNull()
+      expect(res2).toBeNull()
     })
   })
 })

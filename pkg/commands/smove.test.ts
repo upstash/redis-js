@@ -14,6 +14,5 @@ it("moves the member", async () => {
   const member = randomUUID()
   await new SAddCommand(source, member).exec(client)
   const res = await new SMoveCommand(source, destination, member).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(1)
+  expect(res).toBe(1)
 })

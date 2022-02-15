@@ -3,8 +3,8 @@ import { Command } from "../command"
 /**
  * @see https://redis.io/commands/hsetnx
  */
-export class HSetNXCommand<TValue> extends Command<0 | 1> {
-  constructor(key: string, field: string, value: TValue) {
+export class HSetNXCommand<TData> extends Command<0 | 1> {
+  constructor(key: string, field: string, value: TData) {
     super(["hsetnx", key, field, value])
   }
 }

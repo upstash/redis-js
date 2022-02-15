@@ -6,14 +6,12 @@ const client = newHttpClient()
 describe("without options", () => {
   it("flushes the db", async () => {
     const res = await new FlushDBCommand().exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toBe("OK")
+    expect(res).toBe("OK")
   })
 })
 describe("async", () => {
   it("flushes the db", async () => {
     const res = await new FlushDBCommand({ async: true }).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toBe("OK")
+    expect(res).toBe("OK")
   })
 })

@@ -13,8 +13,8 @@ it("increments a non-existing value", async () => {
   const key = newKey()
   const field = randomUUID()
   const res = await new HIncrByCommand(key, field, 2).exec(client)
-  expect(res.error).not.toBeDefined()
-  expect(res.result).toEqual(2)
+
+  expect(res).toEqual(2)
 })
 
 it("increments and existing value", async () => {
@@ -22,6 +22,6 @@ it("increments and existing value", async () => {
   const field = randomUUID()
   await new HSetCommand(key, field, 5).exec(client)
   const res = await new HIncrByCommand(key, field, 2).exec(client)
-  expect(res.error).not.toBeDefined()
-  expect(res.result).toEqual(7)
+
+  expect(res).toEqual(7)
 })

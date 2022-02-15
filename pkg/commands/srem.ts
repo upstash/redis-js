@@ -1,9 +1,10 @@
+import { NonEmptyArray } from "../types"
 import { Command } from "../command"
 /**
  * @see https://redis.io/commands/srem
  */
-export class SRemCommand<TValue = string> extends Command<number> {
-  constructor(key: string, member: TValue, ...members: TValue[]) {
-    super(["srem", key, member, ...members])
+export class SRemCommand<TData = string> extends Command<number> {
+  constructor(key: string, ...members: NonEmptyArray<TData>) {
+    super(["srem", key, ...members])
   }
 }

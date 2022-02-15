@@ -24,9 +24,8 @@ describe("without options", () => {
     ).exec(client)
 
     const res = await new ZRangeCommand(key, 1, 3).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toHaveLength(1)
-    expect(res.result![0]).toEqual(member2)
+    expect(res).toHaveLength(1)
+    expect(res![0]).toEqual(member2)
   })
 })
 
@@ -46,9 +45,8 @@ describe("withscores", () => {
     ).exec(client)
 
     const res = await new ZRangeCommand(key, 1, 3, { withScores: true }).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toHaveLength(2)
-    expect(res.result![0]).toEqual(member2)
-    expect(res.result![1]).toEqual(score2)
+    expect(res).toHaveLength(2)
+    expect(res![0]).toEqual(member2)
+    expect(res![1]).toEqual(score2)
   })
 })

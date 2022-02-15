@@ -15,6 +15,5 @@ it("returns the number of deleted elements", async () => {
   await new LPushCommand(key, "something else").exec(client)
 
   const res = await new LRemCommand(key, 2, "element").exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(2)
+  expect(res).toBe(2)
 })

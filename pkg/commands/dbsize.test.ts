@@ -13,6 +13,5 @@ it("returns the db size", async () => {
   const value = randomUUID()
   await new SetCommand(key, value).exec(client)
   const res = await new DBSizeCommand().exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBeGreaterThan(0)
+  expect(res).toBeGreaterThan(0)
 })

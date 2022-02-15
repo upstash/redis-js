@@ -11,14 +11,14 @@ afterAll(cleanup)
 it("increments a non-existing value", async () => {
   const key = newKey()
   const res = await new IncrByFloatCommand(key, 2.5).exec(client)
-  expect(res.error).not.toBeDefined()
-  expect(res.result).toEqual(2.5)
+
+  expect(res).toEqual(2.5)
 })
 
 it("increments and existing value", async () => {
   const key = newKey()
   await new SetCommand(key, 5).exec(client)
   const res = await new IncrByFloatCommand(key, 2.5).exec(client)
-  expect(res.error).not.toBeDefined()
-  expect(res.result).toEqual(7.5)
+
+  expect(res).toEqual(7.5)
 })

@@ -15,8 +15,7 @@ describe("when the list exists", () => {
     await new LPushCommand(key, randomUUID()).exec(client)
     await new LPushCommand(key, randomUUID()).exec(client)
     const res = await new LTrimCommand(key, 1, 2).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toEqual("OK")
+    expect(res).toEqual("OK")
   })
 })
 
@@ -25,7 +24,6 @@ describe("when the list does not exist", () => {
     const key = newKey()
 
     const res = await new LTrimCommand(key, 1, 2).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toEqual("OK")
+    expect(res).toEqual("OK")
   })
 })

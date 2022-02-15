@@ -14,8 +14,7 @@ describe("when key does not exist", () => {
     const key = newKey()
 
     const res = await new DelCommand(key).exec(client)
-    expect(res.error).not.toBeDefined()
-    expect(res.result).toEqual(0)
+    expect(res).toEqual(0)
   })
 })
 describe("when key does exist", () => {
@@ -23,8 +22,7 @@ describe("when key does exist", () => {
     const key = newKey()
     await new SetCommand(key, "value").exec(client)
     const res = await new DelCommand(key).exec(client)
-    expect(res.error).not.toBeDefined()
-    expect(res.result).toEqual(1)
+    expect(res).toEqual(1)
   })
 })
 describe("with multiple keys", () => {
@@ -34,8 +32,7 @@ describe("with multiple keys", () => {
       const key2 = newKey()
       await new SetCommand(key1, "value").exec(client)
       const res = await new DelCommand(key1, key2).exec(client)
-      expect(res.error).not.toBeDefined()
-      expect(res.result).toEqual(1)
+      expect(res).toEqual(1)
     })
   })
 })

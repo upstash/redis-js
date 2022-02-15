@@ -11,8 +11,7 @@ describe("when key is not set", () => {
   it("returns 0", async () => {
     const key = newKey()
     const res = await new BitPosCommand(key, 1, 1).exec(client)
-    expect(res.error).not.toBeDefined()
-    expect(res.result).toEqual(-1)
+    expect(res).toEqual(-1)
   })
 })
 
@@ -22,7 +21,6 @@ describe("when key is set", () => {
     const value = "Hello World"
     await new SetCommand(key, value).exec(client)
     const res = await new BitPosCommand(key, 2, 3).exec(client)
-    expect(res.error).not.toBeDefined()
-    expect(res.result).toEqual(24)
+    expect(res).toEqual(24)
   })
 })

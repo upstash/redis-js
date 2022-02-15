@@ -17,6 +17,5 @@ it("returns the diff", async () => {
   await new SAddCommand(key1, member1).exec(client)
   await new SAddCommand(key2, member2).exec(client)
   const res = await new SDiffStoreCommand(destination, key1, key2).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toEqual(1)
+  expect(res).toEqual(1)
 })

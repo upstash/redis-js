@@ -16,6 +16,5 @@ it("increments and existing value", async () => {
   await new ZAddCommand(key, { score, member }).exec(client)
   const res = await new ZIncrByComand(key, 2, member).exec(client)
 
-  expect(res.error).not.toBeDefined()
-  expect(res.result).toEqual(3)
+  expect(res).toEqual(3)
 })

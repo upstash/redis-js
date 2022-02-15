@@ -23,6 +23,5 @@ it("returns the number of removed elements", async () => {
     { score: score3, member: member3 },
   ).exec(client)
   const res = await new ZRemRangeByRankCommand(key, 1, 2).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(2)
+  expect(res).toBe(2)
 })

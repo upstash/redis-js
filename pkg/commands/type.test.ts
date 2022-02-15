@@ -6,6 +6,7 @@ import { TypeCommand } from "./type"
 import { LPushCommand } from "./lpush"
 import { HSetCommand } from "./hset"
 import { SAddCommand } from "./sadd"
+import { ZAddCommand } from "."
 const client = newHttpClient()
 
 const { newKey, cleanup } = keygen()
@@ -17,8 +18,7 @@ describe("string", () => {
     const value = randomUUID()
     await new SetCommand(key, value).exec(client)
     const res = await new TypeCommand(key).exec(client)
-    expect(res.error).not.toBeDefined()
-    expect(res.result).toEqual("string")
+    expect(res).toEqual("string")
   })
 })
 
@@ -28,8 +28,7 @@ describe("list", () => {
     const value = randomUUID()
     await new LPushCommand(key, value).exec(client)
     const res = await new TypeCommand(key).exec(client)
-    expect(res.error).not.toBeDefined()
-    expect(res.result).toEqual("list")
+    expect(res).toEqual("list")
   })
 })
 
@@ -39,8 +38,7 @@ describe("set", () => {
     const value = randomUUID()
     await new SAddCommand(key, value).exec(client)
     const res = await new TypeCommand(key).exec(client)
-    expect(res.error).not.toBeDefined()
-    expect(res.result).toEqual("set")
+    expect(res).toEqual("set")
   })
 })
 
@@ -51,18 +49,24 @@ describe("hash", () => {
     const value = randomUUID()
     await new HSetCommand(key, field, value).exec(client)
     const res = await new TypeCommand(key).exec(client)
-    expect(res.error).not.toBeDefined()
-    expect(res.result).toEqual("hash")
+    expect(res).toEqual("hash")
   })
 })
 
 describe("zset", () => {
   it("returns the correct type", async () => {
     const key = newKey()
-    const value = randomUUID()
-    await new SetCommand(key, value).exec(client)
+    const member = randomUUID()
+    await new ZAddCommand(key, { score: 0, member }).exec(client)
     const res = await new TypeCommand(key).exec(client)
-    expect(res.error).not.toBeDefined()
-    expect(res.result).toEqual("string")
+    expect(res).toEqual("zset")
+  })
+})
+
+describe("none", () => {
+  it("returns the correct type", async () => {
+    const key = newKey()
+    const res = await new TypeCommand(key).exec(client)
+    expect(res).toEqual("none")
   })
 })

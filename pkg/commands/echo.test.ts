@@ -7,6 +7,5 @@ const client = newHttpClient()
 it("returns the message", async () => {
   const message = randomUUID()
   const res = await new EchoCommand(message).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(message)
+  expect(res).toBe(message)
 })

@@ -17,6 +17,5 @@ it("returns the number of touched keys", async () => {
   ).exec(client)
 
   const res = await new TouchCommand(key1, key2).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(2)
+  expect(res).toBe(2)
 })

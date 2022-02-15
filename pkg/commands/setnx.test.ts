@@ -16,12 +16,12 @@ it("sets value", async () => {
   const newValue = randomUUID()
 
   const res = await new SetCommand(key, value).exec(client)
-  expect(res.error).not.toBeDefined()
-  expect(res.result).toEqual("OK")
+
+  expect(res).toEqual("OK")
   const res2 = await new SetNxCommand(key, newValue).exec(client)
-  expect(res2.error).not.toBeDefined()
-  expect(res2.result).toEqual(0)
+
+  expect(res2).toEqual(0)
   const res3 = await new GetCommand(key).exec(client)
-  expect(res3.error).not.toBeDefined()
-  expect(res3.result).toEqual(value)
+
+  expect(res3).toEqual(value)
 })

@@ -14,8 +14,7 @@ describe("when member exists", () => {
     const value = randomUUID()
     await new SAddCommand(key, value).exec(client)
     const res = await new SIsMemberCommand(key, value).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toBe(1)
+    expect(res).toBe(1)
   })
 })
 
@@ -26,7 +25,6 @@ describe("when member exists", () => {
     const value2 = randomUUID()
     await new SAddCommand(key, value1).exec(client)
     const res = await new SIsMemberCommand(key, value2).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toBe(0)
+    expect(res).toBe(0)
   })
 })

@@ -114,8 +114,7 @@ describe("without options", () => {
     ).exec(client)
 
     const res = await new ZInterStoreCommand(destination, 2, [key1, key2]).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toBe(1)
+    expect(res).toBe(1)
   })
 })
 
@@ -140,8 +139,7 @@ describe("with weights", () => {
       const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
         weights: [2, 3],
       }).exec(client)
-      expect(res.error).toBeUndefined()
-      expect(res.result).toBe(1)
+      expect(res).toBe(1)
     })
   })
   describe("multiple weight", () => {
@@ -164,8 +162,7 @@ describe("with weights", () => {
       const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
         weights: [1, 2],
       }).exec(client)
-      expect(res.error).toBeUndefined()
-      expect(res.result).toBe(1)
+      expect(res).toBe(1)
     })
   })
 })
@@ -190,8 +187,7 @@ describe("aggregate", () => {
       const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
         aggregate: "sum",
       }).exec(client)
-      expect(res.error).toBeUndefined()
-      expect(res.result).toBe(1)
+      expect(res).toBe(1)
     })
   })
   describe("min", () => {
@@ -214,8 +210,7 @@ describe("aggregate", () => {
       const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
         aggregate: "min",
       }).exec(client)
-      expect(res.error).toBeUndefined()
-      expect(res.result).toBe(1)
+      expect(res).toBe(1)
     })
   })
   describe("max", () => {
@@ -238,8 +233,7 @@ describe("aggregate", () => {
       const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
         aggregate: "max",
       }).exec(client)
-      expect(res.error).toBeUndefined()
-      expect(res.result).toBe(1)
+      expect(res).toBe(1)
     })
   })
 })

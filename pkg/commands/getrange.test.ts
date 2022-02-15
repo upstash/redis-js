@@ -12,14 +12,14 @@ it("gets an exiting value", async () => {
   const value = "Hello World"
   await new SetCommand(key, value).exec(client)
   const res = await new GetRangeCommand(key, 2, 4).exec(client)
-  expect(res.error).not.toBeDefined()
-  expect(res.result).toBeDefined()
-  expect(res.result!).toEqual(value.slice(2, 5))
+
+  expect(res).toBeDefined()
+  expect(res!).toEqual(value.slice(2, 5))
 })
 
 it("gets a non-existing value", async () => {
   const key = newKey()
   const res = await new GetRangeCommand(key, 10, 24).exec(client)
-  expect(res.error).not.toBeDefined()
-  expect(res.result).toEqual("")
+
+  expect(res).toEqual("")
 })

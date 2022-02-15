@@ -13,8 +13,7 @@ describe("when list exists", () => {
     const key = newKey()
     await new LPushCommand(key, randomUUID()).exec(client)
     const res = await new LLenCommand(key).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toEqual(1)
+    expect(res).toEqual(1)
   })
 })
 
@@ -22,7 +21,6 @@ describe("when list does not exist", () => {
   it("returns 0", async () => {
     const key = newKey()
     const res = await new LLenCommand(key).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toEqual(0)
+    expect(res).toEqual(0)
   })
 })

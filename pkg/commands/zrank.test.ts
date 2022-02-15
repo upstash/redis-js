@@ -18,6 +18,5 @@ it("returns the rank", async () => {
   ).exec(client)
 
   const res = await new ZRankCommand(key, "member2").exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(1)
+  expect(res).toBe(1)
 })

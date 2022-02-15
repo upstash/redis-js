@@ -14,6 +14,5 @@ it("returns the score", async () => {
   const score = randomInt(10)
   await new ZAddCommand(key, { score, member }).exec(client)
   const res = await new ZScoreCommand(key, member).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(score)
+  expect(res).toBe(score)
 })

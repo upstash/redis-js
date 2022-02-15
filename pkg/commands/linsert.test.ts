@@ -15,6 +15,5 @@ it("adds the element", async () => {
 
   await new LPushCommand(key, value1).exec(client)
   const res = await new LInsertCommand(key, "before", value1, value2).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(2)
+  expect(res).toBe(2)
 })

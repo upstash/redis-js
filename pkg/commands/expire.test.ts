@@ -14,10 +14,9 @@ it("expires a key correctly", async () => {
   const value = randomUUID()
   await new SetCommand(key, value).exec(client)
   const res = await new ExpireCommand(key, 1).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toEqual(1)
+  expect(res).toEqual(1)
   await new Promise((res) => setTimeout(res, 2000))
   const res2 = await new GetCommand(key).exec(client)
-  expect(res2.error).toBeUndefined()
-  expect(res2.result).toBeNull()
+
+  expect(res2).toBeNull()
 })

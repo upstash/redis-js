@@ -11,6 +11,5 @@ it("returns the cardinality", async () => {
   const key = newKey()
   await new SAddCommand(key, "member1").exec(client)
   const res = await new SCardCommand(key).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(1)
+  expect(res).toBe(1)
 })

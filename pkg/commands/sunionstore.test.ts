@@ -20,11 +20,10 @@ it("writes the union to destination", async () => {
   await new SAddCommand(key1, member1).exec(client)
   await new SAddCommand(key2, member2).exec(client)
   const res = await new SUnionStoreCommand(dest, key1, key2).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(2)
+  expect(res).toBe(2)
 
   const res2 = await new SMembersCommand(dest).exec(client)
-  expect(res2.error).toBeUndefined()
-  expect(res2.result).toBeDefined()
-  expect(res2.result!.sort()).toEqual([member1, member2].sort())
+
+  expect(res2).toBeDefined()
+  expect(res2!.sort()).toEqual([member1, member2].sort())
 })

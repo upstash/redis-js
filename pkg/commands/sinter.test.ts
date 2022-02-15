@@ -15,10 +15,9 @@ describe("with single set", () => {
     const value2 = { v: randomUUID() }
     await new SAddCommand(key, value1, value2).exec(client)
     const res = await new SInterCommand<{ v: string }>(key).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toHaveLength(2)
-    expect(res.result!.map(({ v }) => v).includes(value1.v)).toBe(true)
-    expect(res.result!.map(({ v }) => v).includes(value2.v)).toBe(true)
+    expect(res).toHaveLength(2)
+    expect(res.map(({ v }) => v).includes(value1.v)).toBe(true)
+    expect(res.map(({ v }) => v).includes(value2.v)).toBe(true)
   })
 })
 
@@ -32,7 +31,6 @@ describe("with multiple sets", () => {
     await new SAddCommand(key1, value1, value2).exec(client)
     await new SAddCommand(key2, value2, value3).exec(client)
     const res = await new SInterCommand(key1, key2).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toEqual([value2])
+    expect(res).toEqual([value2])
   })
 })

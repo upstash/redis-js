@@ -3,8 +3,8 @@ import { Command } from "../command"
 /**
  * @see https://redis.io/commands/zscore
  */
-export class ZScoreCommand<TValue = string> extends Command<number | null> {
-  constructor(key: string, member: TValue) {
+export class ZScoreCommand<TData = string> extends Command<number | null> {
+  constructor(key: string, member: TData) {
     super(["zscore", key, member])
   }
 }

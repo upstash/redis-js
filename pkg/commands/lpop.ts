@@ -3,7 +3,7 @@ import { Command } from "../command"
 /**
  * @see https://redis.io/commands/lpop
  */
-export class LPopCommand<TValue = string> extends Command<TValue | null> {
+export class LPopCommand<TData = string> extends Command<TData | null> {
   constructor(key: string) {
     super(["lpop", key])
   }

@@ -15,11 +15,10 @@ it("returns correct length", async () => {
   const value = randomUUID()
 
   const res = await new HStrLenCommand(key, field).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(0)
+  expect(res).toBe(0)
   await new HSetCommand(key, field, value).exec(client)
 
   const res2 = await new HStrLenCommand(key, field).exec(client)
-  expect(res2.error).not.toBeDefined()
-  expect(res2.result).toBe(36)
+
+  expect(res2).toBe(36)
 })

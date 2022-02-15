@@ -24,8 +24,7 @@ describe("without options", () => {
       { score: score3, member: member3 },
     ).exec(client)
     const res = await new ZPopMinCommand(key).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toEqual([member1, score1])
+    expect(res).toEqual([member1, score1])
   })
 })
 
@@ -45,7 +44,6 @@ describe("with count", () => {
       { score: score3, member: member3 },
     ).exec(client)
     const res = await new ZPopMinCommand(key, 2).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toEqual([member1, score1, member2, score2])
+    expect(res).toEqual([member1, score1, member2, score2])
   })
 })

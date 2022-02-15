@@ -20,9 +20,9 @@ it("gets exiting values", async () => {
     { field: field1, value: value1 },
     { field: field2, value: value2 },
   ).exec(client)
-  expect(res.error).not.toBeDefined()
-  expect(res.result).toEqual("OK")
+
+  expect(res).toEqual("OK")
   const res2 = await new HMGetCommand(key, field1, field2).exec(client)
-  expect(res2.error).not.toBeDefined()
-  expect(res2.result).toEqual([value1, value2])
+
+  expect(res2).toEqual([value1, value2])
 })

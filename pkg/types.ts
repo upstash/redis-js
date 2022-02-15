@@ -3,4 +3,7 @@ export type UpstashResponse<TResult> = {
   error?: string
 }
 
-export type PipelineResponse<T> = UpstashResponse<T[]>
+export type NonEmptyArray<T> = [T, ...T[]]
+
+export type CommandArgs<TCommand extends new (...args: any) => any> =
+  ConstructorParameters<TCommand>

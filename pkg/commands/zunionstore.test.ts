@@ -110,8 +110,7 @@ describe("without options", () => {
     await new ZAddCommand(key2, { score: score2, member: member2 }).exec(client)
 
     const res = await new ZUnionStoreCommand(destination, 2, [key1, key2]).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toBe(2)
+    expect(res).toBe(2)
   })
 })
 
@@ -132,8 +131,7 @@ describe("with weights", () => {
       const res = await new ZUnionStoreCommand(destination, 2, [key1, key2], {
         weights: [2, 3],
       }).exec(client)
-      expect(res.error).toBeUndefined()
-      expect(res.result).toBe(2)
+      expect(res).toBe(2)
     })
   })
   describe("multiple weight", () => {
@@ -152,8 +150,7 @@ describe("with weights", () => {
       const res = await new ZUnionStoreCommand(destination, 2, [key1, key2], {
         weights: [1, 2],
       }).exec(client)
-      expect(res.error).toBeUndefined()
-      expect(res.result).toBe(2)
+      expect(res).toBe(2)
     })
   })
 })
@@ -174,8 +171,7 @@ describe("aggregate", () => {
       const res = await new ZUnionStoreCommand(destination, 2, [key1, key2], {
         aggregate: "sum",
       }).exec(client)
-      expect(res.error).toBeUndefined()
-      expect(res.result).toBe(2)
+      expect(res).toBe(2)
     })
   })
   describe("min", () => {
@@ -194,8 +190,7 @@ describe("aggregate", () => {
       const res = await new ZUnionStoreCommand(destination, 2, [key1, key2], {
         aggregate: "min",
       }).exec(client)
-      expect(res.error).toBeUndefined()
-      expect(res.result).toBe(2)
+      expect(res).toBe(2)
     })
   })
   describe("max", () => {
@@ -214,8 +209,7 @@ describe("aggregate", () => {
       const res = await new ZUnionStoreCommand(destination, 2, [key1, key2], {
         aggregate: "max",
       }).exec(client)
-      expect(res.error).toBeUndefined()
-      expect(res.result).toBe(2)
+      expect(res).toBe(2)
     })
   })
 })

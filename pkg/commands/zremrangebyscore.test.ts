@@ -2,7 +2,7 @@ import { keygen, newHttpClient } from "../test-utils"
 import { randomUUID } from "crypto"
 import { ZAddCommand } from "./zadd"
 import { it, expect, afterAll } from "@jest/globals"
-import { ZRemRangeByRankCommand } from "./zremrangebyrank"
+import { ZRemRangeByScoreCommand } from "./zremrangebyscore"
 const client = newHttpClient()
 
 const { newKey, cleanup } = keygen()
@@ -19,7 +19,6 @@ it("returns the number of removed elements", async () => {
     { score: 2, member: member2 },
     { score: 3, member: member3 },
   ).exec(client)
-  const res = await new ZRemRangeByRankCommand(key, 1, 2).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(2)
+  const res = await new ZRemRangeByScoreCommand(key, 1, 2).exec(client)
+  expect(res).toBe(2)
 })

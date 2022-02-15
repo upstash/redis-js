@@ -13,9 +13,9 @@ it("sets value", async () => {
   const value = randomUUID()
 
   const res = await new HSetCommand(key, field, value).exec(client)
-  expect(res.error).not.toBeDefined()
-  expect(res.result).toEqual(1)
+
+  expect(res).toEqual(1)
   const res2 = await new HGetCommand(key, field).exec(client)
-  expect(res2.error).not.toBeDefined()
-  expect(res2.result).toEqual(value)
+
+  expect(res2).toEqual(value)
 })

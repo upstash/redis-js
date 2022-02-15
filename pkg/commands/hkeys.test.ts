@@ -19,8 +19,7 @@ describe("with existing hash", () => {
       { field: field2, value: randomUUID() },
     ).exec(client)
     const res = await new HKeysCommand(key).exec(client)
-    expect(res.error).not.toBeDefined()
-    expect(res.result?.includes(field1)).toBe(true)
-    expect(res.result?.includes(field2)).toBe(true)
+    expect(res?.includes(field1)).toBe(true)
+    expect(res?.includes(field2)).toBe(true)
   })
 })

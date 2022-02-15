@@ -17,8 +17,7 @@ describe("when list exists", () => {
       const value = randomUUID()
       await new LPushCommand(key, value).exec(client)
       const res = await new LIndexCommand(key, 0).exec(client)
-      expect(res.error).toBeUndefined()
-      expect(res.result).toEqual(value)
+      expect(res).toEqual(value)
     })
     describe("when the index is out of bounds", () => {
       it("returns null", async () => {
@@ -27,8 +26,7 @@ describe("when list exists", () => {
         const value = randomUUID()
         await new LPushCommand(key, value).exec(client)
         const res = await new LIndexCommand(key, 1).exec(client)
-        expect(res.error).toBeUndefined()
-        expect(res.result).toBeNull()
+        expect(res).toBeNull()
       })
     })
   })

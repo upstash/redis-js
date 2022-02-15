@@ -19,7 +19,6 @@ describe("with existing hash", () => {
       { field: field2, value: randomUUID() },
     ).exec(client)
     const res = await new HLenCommand(key).exec(client)
-    expect(res.error).not.toBeDefined()
-    expect(res.result).toEqual(2)
+    expect(res).toEqual(2)
   })
 })

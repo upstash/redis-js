@@ -21,10 +21,9 @@ describe("without options", () => {
       { score: score2, member: member2 },
     ).exec(client)
     const res = await new ZPopMaxCommand(key).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toHaveLength(2)
-    expect(res.result![0]).toEqual(member2)
-    expect(res.result![1]).toEqual(score2)
+    expect(res).toHaveLength(2)
+    expect(res![0]).toEqual(member2)
+    expect(res![1]).toEqual(score2)
   })
 })
 
@@ -41,7 +40,6 @@ describe("with count", () => {
       { score: score2, member: member2 },
     ).exec(client)
     const res = await new ZPopMaxCommand(key, 2).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toEqual([member2, score2, member1, score1])
+    expect(res).toEqual([member2, score2, member1, score1])
   })
 })

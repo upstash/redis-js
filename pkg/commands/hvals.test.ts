@@ -14,11 +14,10 @@ it("returns correct length", async () => {
   const value = randomUUID()
 
   const res = await new HValsCommand(key).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toEqual([])
+  expect(res).toEqual([])
   await new HSetCommand(key, field, value).exec(client)
 
   const res2 = await new HValsCommand(key).exec(client)
-  expect(res2.error).not.toBeDefined()
-  expect(res2.result).toEqual([value])
+
+  expect(res2).toEqual([value])
 })

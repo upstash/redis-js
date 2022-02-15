@@ -17,8 +17,7 @@ describe("when the key exists", () => {
     await new SetCommand(source, sourceValue).exec(client)
     await new SetCommand(destination, destinationValue).exec(client)
     const res = await new RenameNXCommand(source, destination).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toBe(0)
+    expect(res).toBe(0)
   })
 })
 describe("when the key does not exist", () => {
@@ -28,7 +27,6 @@ describe("when the key does not exist", () => {
     const value = randomUUID()
     await new SetCommand(source, value).exec(client)
     const res = await new RenameNXCommand(source, destination).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toBe(1)
+    expect(res).toBe(1)
   })
 })

@@ -94,8 +94,7 @@ describe("without options", () => {
     const member = randomUUID()
     const score = randomInt(10)
     const res = await new ZAddCommand(key, { score, member }).exec(client)
-    expect(res.error).not.toBeDefined()
-    expect(res.result).toBe(1)
+    expect(res).toBe(1)
   })
 })
 
@@ -108,12 +107,10 @@ describe("xx", () => {
       await new ZAddCommand(key, { score, member }).exec(client)
       const newScore = score + 1
       const res = await new ZAddCommand(key, { xx: true }, { score: newScore, member }).exec(client)
-      expect(res.error).not.toBeDefined()
-      expect(res.result).toBe(0)
+      expect(res).toBe(0)
 
       const res2 = await new ZScoreCommand(key, member).exec(client)
-      expect(res2.error).not.toBeDefined()
-      expect(res2.result).toBe(newScore)
+      expect(res2).toBe(newScore)
     })
   })
   describe("when the element does not exist", () => {
@@ -124,8 +121,7 @@ describe("xx", () => {
       await new ZAddCommand(key, { score, member }).exec(client)
       const newScore = score + 1
       const res = await new ZAddCommand(key, { xx: true }, { score: newScore, member }).exec(client)
-      expect(res.error).not.toBeDefined()
-      expect(res.result).toBe(0)
+      expect(res).toBe(0)
     })
   })
 })
@@ -139,12 +135,10 @@ describe("nx", () => {
       await new ZAddCommand(key, { score, member }).exec(client)
       const newScore = score + 1
       const res = await new ZAddCommand(key, { nx: true }, { score: newScore, member }).exec(client)
-      expect(res.error).not.toBeDefined()
-      expect(res.result).toBe(0)
+      expect(res).toBe(0)
 
       const res2 = await new ZScoreCommand(key, member).exec(client)
-      expect(res2.error).not.toBeDefined()
-      expect(res2.result).toBe(score)
+      expect(res2).toBe(score)
     })
   })
   describe("when the element does not exist", () => {
@@ -153,8 +147,7 @@ describe("nx", () => {
       const member = randomUUID()
       const score = randomInt(10)
       const res = await new ZAddCommand(key, { nx: true }, { score, member }).exec(client)
-      expect(res.error).not.toBeDefined()
-      expect(res.result).toBe(1)
+      expect(res).toBe(1)
     })
   })
 })
@@ -167,8 +160,7 @@ describe("ch", () => {
     await new ZAddCommand(key, { score, member }).exec(client)
     const newScore = score + 1
     const res = await new ZAddCommand(key, { ch: true }, { score: newScore, member }).exec(client)
-    expect(res.error).not.toBeDefined()
-    expect(res.result).toBe(1)
+    expect(res).toBe(1)
   })
 })
 
@@ -180,7 +172,6 @@ describe("incr", () => {
     await new ZAddCommand(key, { score, member }).exec(client)
     const newScore = score + 1
     const res = await new ZAddCommand(key, { ch: true }, { score: newScore, member }).exec(client)
-    expect(res.error).not.toBeDefined()
-    expect(res.result).toBe(1)
+    expect(res).toBe(1)
   })
 })

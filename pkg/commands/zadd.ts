@@ -16,7 +16,7 @@ export type ZAddCommandOptionsWithIncr = ZAddCommandOptions & {
   incr: true
 }
 
-type ScoreMember<TData> = {
+export type ScoreMember<TData> = {
   score: number
   member: TData
 }
@@ -29,12 +29,10 @@ export class ZAddCommand<TData = string, TResult = number> extends Command<TResu
     scoreMember: ScoreMember<TData>,
     ...scoreMemberPairs: ScoreMember<TData>[]
   )
-  constructor(key: string, opts: ZAddCommandOptionsWithIncr, scoreMember: ScoreMember<TData>)
   constructor(
     key: string,
-    opts: ZAddCommandOptions,
-    scoreMember: { score: number; member: TData },
-    ...scoreMemberPairs: ScoreMember<TData>[]
+    opts: ZAddCommandOptions | ZAddCommandOptionsWithIncr,
+    ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]]
   )
   constructor(
     key: string,

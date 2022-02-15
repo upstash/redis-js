@@ -13,11 +13,10 @@ describe("when list exists", () => {
     const key = newKey()
     await new LPushCommand(key, randomUUID()).exec(client)
     const res = await new RPushXCommand(key, randomUUID()).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toEqual(2)
+    expect(res).toEqual(2)
     const res2 = await new RPushXCommand(key, randomUUID(), randomUUID()).exec(client)
-    expect(res2.error).toBeUndefined()
-    expect(res2.result).toEqual(4)
+
+    expect(res2).toEqual(4)
   })
 })
 
@@ -25,7 +24,6 @@ describe("when list does not exist", () => {
   it("does nothing", async () => {
     const key = newKey()
     const res = await new RPushXCommand(key, randomUUID()).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toEqual(0)
+    expect(res).toEqual(0)
   })
 })

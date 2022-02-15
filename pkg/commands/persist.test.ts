@@ -14,10 +14,9 @@ it("persists the key", async () => {
   const value = randomUUID()
   await new SetCommand(key, value, { ex: 2 }).exec(client)
   const res = await new PersistCommand(key).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(1)
+  expect(res).toBe(1)
   await new Promise((resolve) => setTimeout(resolve, 2000))
   const res2 = await new GetCommand(key).exec(client)
-  expect(res2.error).toBeUndefined()
-  expect(res2.result).toEqual(value)
+
+  expect(res2).toEqual(value)
 })

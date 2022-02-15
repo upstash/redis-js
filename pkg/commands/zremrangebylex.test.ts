@@ -22,6 +22,5 @@ it("returns the number of elements removed", async () => {
   ).exec(client)
 
   const res = await new ZRemRangeByLexCommand(key, "[b", "[e").exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(4)
+  expect(res).toBe(4)
 })

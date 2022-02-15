@@ -12,6 +12,5 @@ it("returns the bit at offset", async () => {
 
   await new SetBitCommand(key, 0, 1).exec(client)
   const res = await new GetBitCommand(key, 0).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(1)
+  expect(res).toBe(1)
 })

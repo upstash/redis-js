@@ -13,6 +13,5 @@ it("returns the ttl on a key", async () => {
   const ttl = 60
   await new SetExCommand(key, ttl, "value").exec(client)
   const res = await new TtlCommand(key).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBeLessThanOrEqual(ttl)
+  expect(res).toBeLessThanOrEqual(ttl)
 })

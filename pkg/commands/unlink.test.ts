@@ -17,6 +17,5 @@ it("unlinks the keys", async () => {
     { key: key2, value: randomUUID() },
   ).exec(client)
   const res = await new UnlinkCommand(key1, key2, key3).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toEqual(2)
+  expect(res).toEqual(2)
 })

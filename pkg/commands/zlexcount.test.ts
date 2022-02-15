@@ -18,6 +18,5 @@ it("returns the number of elements in the specified score range", async () => {
     { score: 0, member: "e" },
   ).exec(client)
   const res = await new ZLexCountCommand(key, "[b", "[f").exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(4)
+  expect(res).toBe(4)
 })

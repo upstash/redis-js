@@ -1,7 +1,7 @@
 import { Command } from "../command"
 
-export class LSetCommand<TValue = string> extends Command<"OK"> {
-  constructor(key: string, value: TValue, index: number) {
+export class LSetCommand<TData = string> extends Command<"OK"> {
+  constructor(key: string, value: TData, index: number) {
     super(["lset", key, index, value])
   }
 }

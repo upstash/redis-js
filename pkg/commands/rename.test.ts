@@ -14,6 +14,5 @@ it("renames the key", async () => {
   const value = randomUUID()
   await new SetCommand(source, value).exec(client)
   const res = await new RenameCommand(source, destination).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe("OK")
+  expect(res).toBe("OK")
 })

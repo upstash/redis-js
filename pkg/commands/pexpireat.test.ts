@@ -16,11 +16,9 @@ describe("without options", () => {
     await new SetCommand(key, value).exec(client)
 
     const res = await new PExpireAtCommand(key, 1000).exec(client)
-    expect(res.error).not.toBeDefined()
-    expect(res.result).toEqual(1)
+    expect(res).toEqual(1)
     await new Promise((res) => setTimeout(res, 2000))
     const res2 = await new GetCommand(key).exec(client)
-    expect(res2.error).not.toBeDefined()
-    expect(res2.result).toBeNull
+    expect(res2).toBeNull
   })
 })

@@ -10,14 +10,14 @@ afterAll(cleanup)
 it("decrements a non-existing value", async () => {
   const key = newKey()
   const res = await new DecrByCommand(key, 2).exec(client)
-  expect(res.error).not.toBeDefined()
-  expect(res.result).toEqual(-2)
+
+  expect(res).toEqual(-2)
 })
 
 it("decrements and existing value", async () => {
   const key = newKey()
   await new SetCommand(key, 5).exec(client)
   const res = await new DecrByCommand(key, 2).exec(client)
-  expect(res.error).not.toBeDefined()
-  expect(res.result).toEqual(3)
+
+  expect(res).toEqual(3)
 })

@@ -12,7 +12,6 @@ describe("when keys are found", () => {
     const key = newKey()
     await new SetCommand(key, "value").exec(client)
     const res = await new KeysCommand(key).exec(client)
-    expect(res.error).toBeUndefined()
-    expect(res.result).toEqual([key])
+    expect(res).toEqual([key])
   })
 })

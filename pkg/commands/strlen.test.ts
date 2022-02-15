@@ -12,6 +12,5 @@ it("returns the correct length", async () => {
   const value = "abcd"
   await new SetCommand(key, value).exec(client)
   const res = await new StrLenCommand(key).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(value.length)
+  expect(res).toBe(value.length)
 })

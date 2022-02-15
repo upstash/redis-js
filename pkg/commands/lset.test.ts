@@ -18,12 +18,11 @@ describe("when list exists", () => {
       const newValue = randomUUID()
       await new LPushCommand(key, value).exec(client)
       const res = await new LSetCommand(key, newValue, 0).exec(client)
-      expect(res.error).toBeUndefined()
-      expect(res.result).toEqual("OK")
+      expect(res).toEqual("OK")
 
       const res2 = await new LPopCommand(key).exec(client)
-      expect(res2.error).toBeUndefined()
-      expect(res2.result).toEqual(newValue)
+
+      expect(res2).toEqual(newValue)
     })
     describe("when the index is out of bounds", () => {
       it("returns null", async () => {

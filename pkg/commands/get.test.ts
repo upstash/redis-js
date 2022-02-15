@@ -13,15 +13,15 @@ it("gets an exiting value", async () => {
   const value = randomUUID()
   await new SetCommand(key, value).exec(client)
   const res = await new GetCommand(key).exec(client)
-  expect(res.error).not.toBeDefined()
-  expect(res.result).toEqual(value)
+
+  expect(res).toEqual(value)
 })
 
 it("gets a non-existing value", async () => {
   const key = newKey()
   const res = await new GetCommand(key).exec(client)
-  expect(res.error).not.toBeDefined()
-  expect(res.result).toBeNull()
+
+  expect(res).toBeNull()
 })
 
 it("gets an object", async () => {
@@ -29,6 +29,6 @@ it("gets an object", async () => {
   const value = { v: randomUUID() }
   await new SetCommand(key, value).exec(client)
   const res = await new GetCommand(key).exec(client)
-  expect(res.error).not.toBeDefined()
-  expect(res.result).toEqual(value)
+
+  expect(res).toEqual(value)
 })

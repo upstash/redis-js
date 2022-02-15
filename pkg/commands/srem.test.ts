@@ -14,6 +14,5 @@ it("returns the number of removed members", async () => {
   const value2 = randomUUID()
   await new SAddCommand(key, value1, value2).exec(client)
   const res = await new SRemCommand(key, value1).exec(client)
-  expect(res.error).toBeUndefined()
-  expect(res.result).toBe(1)
+  expect(res).toBe(1)
 })

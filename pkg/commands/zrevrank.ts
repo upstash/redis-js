@@ -3,8 +3,8 @@ import { Command } from "../command"
  *  @see https://redis.io/commands/zrevrank
  */
 
-export class ZRevRankCommand extends Command<number | null> {
-  constructor(key: string, member: string) {
+export class ZRevRankCommand<TData> extends Command<number | null> {
+  constructor(key: string, member: TData) {
     super(["zrevrank", key, member])
   }
 }

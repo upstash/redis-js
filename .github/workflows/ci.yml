@@ -32,7 +32,7 @@ jobs:
 
 
       - name: Verify formatting
-        run: pnpm prettier --check --ignore-path=.gitignore .
+        run: pnpm prettier --check .
 
       - name: Run linter
         run: pnpm eslint --ext .ts .

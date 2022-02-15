@@ -15,11 +15,10 @@ it("gets exiting values", async () => {
   const value1 = randomUUID()
   const field2 = randomUUID()
   const value2 = randomUUID()
-  const res = await new HMSetCommand(
-    key,
-    { field: field1, value: value1 },
-    { field: field2, value: value2 },
-  ).exec(client)
+  const kv: Record<string, string> = {}
+  kv[field1] = randomUUID()
+  kv[field2] = randomUUID()
+  const res = await new HMSetCommand(key, kv).exec(client)
 
   expect(res).toEqual("OK")
   const res2 = await new HMGetCommand(key, field1, field2).exec(client)

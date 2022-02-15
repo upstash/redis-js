@@ -1,6 +1,6 @@
 import { Command } from "../command"
-export class LRemCommand extends Command<number> {
-  constructor(key: string, count: number, value: string) {
+export class LRemCommand<TData> extends Command<number> {
+  constructor(key: string, count: number, value: TData) {
     super(["lrem", key, count, value])
   }
 }

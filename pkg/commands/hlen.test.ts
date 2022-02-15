@@ -13,11 +13,11 @@ describe("with existing hash", () => {
     const key = newKey()
     const field1 = randomUUID()
     const field2 = randomUUID()
-    await new HMSetCommand(
-      key,
-      { field: field1, value: randomUUID() },
-      { field: field2, value: randomUUID() },
-    ).exec(client)
+
+    const kv: Record<string, string> = {}
+    kv[field1] = randomUUID()
+    kv[field2] = randomUUID()
+    await new HMSetCommand(key, kv).exec(client)
     const res = await new HLenCommand(key).exec(client)
     expect(res).toEqual(2)
   })

@@ -105,10 +105,18 @@ import {
   ScoreMember,
   ZAddCommandOptions,
   ZAddCommandOptionsWithIncr,
+  IncrByFloatCommand,
+  SInterStoreCommand,
+  SRandMemberCommand,
+  SUnionStoreCommand,
+  ZInterStoreCommand,
+  ZRemRangeByScoreCommand,
+  ZUnionStoreCommand,
 } from "./commands"
 import { HttpClient } from "./http"
 import { UpstashResponse, CommandArgs } from "./types"
 import { parseResponse } from "./util"
+import { UpstashError } from "."
 
 /**
  * Upstash REST API supports command pipelining to send multiple commands in
@@ -173,11 +181,18 @@ export class Pipeline {
     if (this.commands.length === 0) {
       throw new Error("Pipeline is empty")
     }
-    const res = await this.client.post<UpstashResponse<TCommandResults>>({
+    const res = await this.client.post<UpstashResponse<any>[]>({
       path: ["pipeline"],
       body: Object.values(this.commands).map((c) => c.command),
     })
-    return parseResponse<TCommandResults>(res)
+    return res.map((r, i) => {
+      if (r.error) {
+        throw new UpstashError(
+          `Command ${i + 1} [ ${this.commands[i].command[0]} ] failed: ${r.error}`,
+        )
+      }
+      return parseResponse(r)
+    }) as TCommandResults
   }
 
   /**
@@ -206,8 +221,23 @@ export class Pipeline {
   /**
    * @see https://redis.io/commands/bitop
    */
-  public bitop(...args: CommandArgs<typeof BitOpCommand>): this {
-    return this.chain(new BitOpCommand(...args))
+  public bitop(
+    op: "and" | "or" | "xor",
+    destinationKey: string,
+    sourceKey: string,
+    ...sourceKeys: string[]
+  ): this
+  // eslint-disable-next-line no-dupe-class-members,@typescript-eslint/no-unused-vars
+  public bitop(op: "not", destinationKey: string, sourceKey: string): this
+
+  // eslint-disable-next-line no-dupe-class-members,@typescript-eslint/no-unused-vars
+  public bitop(
+    op: "and" | "or" | "xor" | "not",
+    destinationKey: string,
+    sourceKey: string,
+    ...sourceKeys: string[]
+  ): this {
+    return this.chain(new BitOpCommand(op as any, destinationKey, sourceKey, ...sourceKeys))
   }
 
   /**
@@ -381,8 +411,8 @@ export class Pipeline {
   /**
    * @see https://redis.io/commands/hmset
    */
-  public hmset<TData = unknown>(key: string, ...kv: { field: string; value: TData }[]): this {
-    return this.chain(new HMSetCommand(key, ...kv))
+  public hmset<TData>(key: string, kv: { [field: string]: TData }): this {
+    return this.chain(new HMSetCommand(key, kv))
   }
 
   /**
@@ -432,6 +462,13 @@ export class Pipeline {
    */
   public incrby(...args: CommandArgs<typeof IncrByCommand>): this {
     return this.chain(new IncrByCommand(...args))
+  }
+
+  /**
+   * @see https://redis.io/commands/incrbyfloat
+   */
+  public incrbyfloat(...args: CommandArgs<typeof IncrByFloatCommand>): this {
+    return this.chain(new IncrByFloatCommand(...args))
   }
 
   /**
@@ -498,8 +535,8 @@ export class Pipeline {
   /**
    * @see https://redis.io/commands/lrem
    */
-  public lrem(...args: CommandArgs<typeof LRemCommand>): this {
-    return this.chain(new LRemCommand(...args))
+  public lrem<TData>(key: string, count: number, value: TData): this {
+    return this.chain(new LRemCommand(key, count, value))
   }
 
   /**
@@ -526,15 +563,15 @@ export class Pipeline {
   /**
    * @see https://redis.io/commands/mset
    */
-  public mset<TData = unknown>(...kvPairs: { key: string; value: TData }[]): this {
-    return this.chain(new MSetCommand<TData>(...kvPairs))
+  public mset<TData>(kv: { [key: string]: TData }): this {
+    return this.chain(new MSetCommand<TData>(kv))
   }
 
   /**
    * @see https://redis.io/commands/msetnx
    */
-  public msetnx<TData = unknown>(...kvPairs: { key: string; value: TData }[]): this {
-    return this.chain(new MSetNXCommand<TData>(...kvPairs))
+  public msetnx<TData>(kv: { [key: string]: TData }): this {
+    return this.chain(new MSetNXCommand<TData>(kv))
   }
 
   /**
@@ -699,6 +736,13 @@ export class Pipeline {
   }
 
   /**
+   * @see https://redis.io/commands/sinterstore
+   */
+  public sinterstore(...args: CommandArgs<typeof SInterStoreCommand>): this {
+    return this.chain(new SInterStoreCommand(...args))
+  }
+
+  /**
    * @see https://redis.io/commands/sismember
    */
   public sismember<TData>(key: string, member: TData): this {
@@ -727,6 +771,13 @@ export class Pipeline {
   }
 
   /**
+   * @see https://redis.io/commands/srandmember
+   */
+  public srandmember<TData>(...args: CommandArgs<typeof SRandMemberCommand>): this {
+    return this.chain(new SRandMemberCommand<TData>(...args))
+  }
+
+  /**
    * @see https://redis.io/commands/srem
    */
   public srem<TData>(key: string, ...members: NonEmptyArray<TData>): this {
@@ -752,6 +803,12 @@ export class Pipeline {
    */
   public sunion(...args: CommandArgs<typeof SUnionCommand>): this {
     return this.chain(new SUnionCommand(...args))
+  }
+  /**
+   * @see https://redis.io/commands/sunionstore
+   */
+  public sunionstore(...args: CommandArgs<typeof SUnionStoreCommand>): this {
+    return this.chain(new SUnionStoreCommand(...args))
   }
 
   /**
@@ -813,13 +870,7 @@ export class Pipeline {
     // if ("score" in arg1) {
     //   return this.chain(new ZAddCommand<TData>(key, arg1 as ScoreMember<TData>, ...arg2))
     // }
-    return this.chain(
-      new ZAddCommand<TData>(
-        key,
-        arg1 as ScoreMember<TData> | ZAddCommandOptions | ZAddCommandOptionsWithIncr,
-        ...arg2,
-      ),
-    )
+    return this.chain(new ZAddCommand<TData>(key, arg1 as any, ...arg2))
   }
 
   /**
@@ -841,6 +892,13 @@ export class Pipeline {
    */
   public zincrby<TData>(key: string, increment: number, member: TData): this {
     return this.chain(new ZIncrByComand<TData>(key, increment, member))
+  }
+
+  /**
+   * @see https://redis.io/commands/zinterstore
+   */
+  public zinterstore(...args: CommandArgs<typeof ZInterStoreCommand>): this {
+    return this.chain(new ZInterStoreCommand(...args))
   }
 
   /**
@@ -900,6 +958,13 @@ export class Pipeline {
   }
 
   /**
+   * @see https://redis.io/commands/zremrangebyscore
+   */
+  public zremrangebyscore(...args: CommandArgs<typeof ZRemRangeByScoreCommand>): this {
+    return this.chain(new ZRemRangeByScoreCommand(...args))
+  }
+
+  /**
    * @see https://redis.io/commands/zrevrank
    */
   public zrevrank<TData>(key: string, member: TData): this {
@@ -918,5 +983,11 @@ export class Pipeline {
    */
   public zscore<TData>(key: string, member: TData): this {
     return this.chain(new ZScoreCommand<TData>(key, member))
+  }
+  /**
+   * @see https://redis.io/commands/zunionstore
+   */
+  public zunionstore(...args: CommandArgs<typeof ZUnionStoreCommand>): this {
+    return this.chain(new ZUnionStoreCommand(...args))
   }
 }

@@ -368,8 +368,8 @@ export class Redis {
   /**
    * @see https://redis.io/commands/hmset
    */
-  public async hmset<TData = unknown>(key: string, ...kv: { field: string; value: TData }[]) {
-    return await new HMSetCommand(key, ...kv).exec(this.client)
+  public async hmset<TData = unknown>(key: string, kv: { [key: string]: TData }) {
+    return await new HMSetCommand<TData>(key, kv).exec(this.client)
   }
 
   /**
@@ -513,15 +513,15 @@ export class Redis {
   /**
    * @see https://redis.io/commands/mset
    */
-  public async mset<TData = unknown>(...kvPairs: { key: string; value: TData }[]) {
-    return await new MSetCommand<TData>(...kvPairs).exec(this.client)
+  public async mset<TData>(kv: { [key: string]: TData }) {
+    return await new MSetCommand<TData>(kv).exec(this.client)
   }
 
   /**
    * @see https://redis.io/commands/msetnx
    */
-  public async msetnx<TData = unknown>(...kvPairs: { key: string; value: TData }[]) {
-    return await new MSetNXCommand<TData>(...kvPairs).exec(this.client)
+  public async msetnx<TData>(kv: { [key: string]: TData }) {
+    return await new MSetNXCommand<TData>(kv).exec(this.client)
   }
 
   /**
@@ -802,7 +802,7 @@ export class Redis {
         this.client,
       )
     }
-    return await new ZAddCommand<TData, TResult>(key, arg1, ...arg2).exec(this.client)
+    return await new ZAddCommand<TData, TResult>(key, arg1 as any, ...arg2).exec(this.client)
   }
 
   /**

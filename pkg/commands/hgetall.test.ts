@@ -8,20 +8,20 @@ const client = newHttpClient()
 
 const { newKey, cleanup } = keygen()
 afterAll(cleanup)
-
 it("returns all fields", async () => {
   const key = newKey()
   const field2 = randomUUID()
   const field1 = randomUUID()
   const value1 = false
-  const value2 = true
+  const value2 = randomUUID()
   await new HSetCommand(key, field1, value1).exec(client)
   await new HSetCommand(key, field2, value2).exec(client)
   const res = await new HGetAllCommand(key).exec(client)
 
-  const obj: Record<string, boolean> = {}
-  obj[field1] = value1
-  obj[field2] = value2
+  const obj = {
+    [field1]: value1,
+    [field2]: value2,
+  }
   expect(res).toEqual(obj)
 })
 describe("when hash does not exist", () => {

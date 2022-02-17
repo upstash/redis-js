@@ -7,10 +7,10 @@ export class ScanCommand extends Command<[number, string[]], [number, string[]]>
   constructor(cursor: number, match?: string, count?: number) {
     const command = ["scan", cursor]
     if (match) {
-      command.push("MATCH", match)
+      command.push("match", match)
     }
     if (typeof count === "number") {
-      command.push("COUNT", count)
+      command.push("count", count)
     }
     super(command)
   }

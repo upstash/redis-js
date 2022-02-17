@@ -17,6 +17,6 @@ describe("with existing hash", () => {
     }
     await new HMSetCommand(key, kv).exec(client)
     const res = await new HKeysCommand(key).exec(client)
-    expect(res).toEqual(Object.keys(kv))
+    expect(res.sort()).toEqual(Object.keys(kv).sort())
   })
 })

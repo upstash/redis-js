@@ -6,7 +6,7 @@ export type ZRangeCommandOptions = {
 /**
  * @see https://redis.io/commands/zrange
  */
-export class ZRangeCommand<TData extends unknown[]> extends Command<TData> {
+export class ZRangeCommand<TData extends unknown[]> extends Command<TData, string[]> {
   constructor(
     key: string,
     min: number | `(${number}`,

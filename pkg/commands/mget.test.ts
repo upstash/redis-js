@@ -22,14 +22,14 @@ it("gets exiting values", async () => {
   const res = await new MSetCommand(kv).exec(client)
 
   expect(res).toEqual("OK")
-  const res2 = await new MGetCommand(key1, key2).exec(client)
+  const res2 = await new MGetCommand<[string, string]>(key1, key2).exec(client)
 
   expect(res2).toEqual([value1, value2])
 })
 
 it("gets a non-existing value", async () => {
   const key = newKey()
-  const res = await new MGetCommand(key).exec(client)
+  const res = await new MGetCommand<[null]>(key).exec(client)
 
   expect(res).toEqual([null])
 })
@@ -38,7 +38,7 @@ it("gets an object", async () => {
   const key = newKey()
   const value = { v: randomUUID() }
   await new SetCommand(key, value).exec(client)
-  const res = await new MGetCommand(key).exec(client)
+  const res = await new MGetCommand<[{ v: string }]>(key).exec(client)
 
   expect(res).toEqual([value])
 })

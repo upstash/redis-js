@@ -115,7 +115,6 @@ import {
 } from "./commands"
 import { HttpClient } from "./http"
 import { UpstashResponse, CommandArgs } from "./types"
-import { parseResponse } from "./util"
 import { UpstashError } from "."
 
 /**
@@ -159,7 +158,7 @@ import { UpstashError } from "."
  */
 export class Pipeline {
   private client: HttpClient
-  private commands: Command<unknown>[]
+  private commands: Command<unknown, unknown>[]
 
   constructor(client: HttpClient) {
     this.client = client
@@ -185,13 +184,13 @@ export class Pipeline {
       path: ["pipeline"],
       body: Object.values(this.commands).map((c) => c.command),
     })
-    return res.map((r, i) => {
-      if (r.error) {
+    return res.map(({ error, result }, i) => {
+      if (error) {
         throw new UpstashError(
-          `Command ${i + 1} [ ${this.commands[i].command[0]} ] failed: ${r.error}`,
+          `Command ${i + 1} [ ${this.commands[i].command[0]} ] failed: ${error}`,
         )
       }
-      return parseResponse(r)
+      return this.commands[i].deserialize(result)
     }) as TCommandResults
   }
 
@@ -199,7 +198,7 @@ export class Pipeline {
    * Pushes a command into the pipelien and returns a chainable instance of the
    * pipeline
    */
-  private chain<T>(command: Command<T>): this {
+  private chain<T>(command: Command<T, any>): this {
     this.commands.push(command)
     return this
   }
@@ -369,7 +368,9 @@ export class Pipeline {
   /**
    * @see https://redis.io/commands/hgetall
    */
-  public hgetall<TData extends unknown[]>(...args: CommandArgs<typeof HGetAllCommand>): this {
+  public hgetall<TData extends Record<string, unknown>>(
+    ...args: CommandArgs<typeof HGetAllCommand>
+  ): this {
     return this.chain(new HGetAllCommand<TData>(...args))
   }
 
@@ -404,7 +405,9 @@ export class Pipeline {
   /**
    * @see https://redis.io/commands/hmget
    */
-  public hmget<TData extends unknown[]>(...args: CommandArgs<typeof HMGetCommand>): this {
+  public hmget<TData extends Record<string, unknown>>(
+    ...args: CommandArgs<typeof HMGetCommand>
+  ): this {
     return this.chain(new HMGetCommand<TData>(...args))
   }
 
@@ -556,7 +559,9 @@ export class Pipeline {
   /**
    * @see https://redis.io/commands/mget
    */
-  public mget<TData extends unknown[]>(...args: CommandArgs<typeof MGetCommand>): this {
+  public mget<TData extends [unknown, ...unknown[]]>(
+    ...args: CommandArgs<typeof MGetCommand>
+  ): this {
     return this.chain(new MGetCommand<TData>(...args))
   }
 

@@ -3,7 +3,7 @@ import { Command } from "../command"
 /**
  * @see https://redis.io/commands/hvals
  */
-export class HValsCommand<TDatas extends unknown[]> extends Command<TDatas> {
+export class HValsCommand<TData extends unknown[]> extends Command<TData, unknown[]> {
   constructor(key: string) {
     super(["hvals", key])
   }

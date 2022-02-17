@@ -1,19 +1,36 @@
+import { UpstashError } from "../dist"
 import { HttpClient } from "./http"
 import { UpstashResponse } from "./types"
 import { parseResponse } from "./util"
 
 /**
- * Generic string command that gets extended by specific commands such as `get` and `set`
+ *
+ *
+ * TData represents what the user will enter or receive,
+ * TResult is the raw data returned from upstash, which may need to be transformed or parsed.
  */
-export abstract class Command<TResult = string> {
+export abstract class Command<TData, TResult> {
   public readonly command: string[]
-  constructor(command: (string | unknown)[]) {
+  public deserialize: (result: TResult) => TData
+  constructor(command: (string | unknown)[], opts?: { deserialize?: (result: TResult) => TData }) {
     this.command = command.map((c) => (typeof c === "string" ? c : JSON.stringify(c)))
+    this.deserialize = opts?.deserialize ?? parseResponse
   }
-  public async exec(client: HttpClient): Promise<TResult> {
-    const res = await client.post<UpstashResponse<TResult>>({
+
+  /**
+   * Execute the command using a client.
+   */
+  public async exec(client: HttpClient): Promise<TData> {
+    const { result, error } = await client.post<UpstashResponse<TResult>>({
       body: this.command,
     })
-    return parseResponse(res)
+    if (error) {
+      throw new UpstashError(error)
+    }
+    if (typeof result === "undefined") {
+      throw new Error(`Request did not return a result`)
+    }
+
+    return this.deserialize(result)
   }
 }

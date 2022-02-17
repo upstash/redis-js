@@ -93,7 +93,7 @@ describe("use all the things", () => {
       .lrem(newKey(), 1, "value")
       .lset(persistentKey, "value", 0)
       .ltrim(newKey(), 0, 1)
-      .mget(newKey(), newKey())
+      .mget<[string, string]>(newKey(), newKey())
       .mset({ key1: "value", key2: "value" })
       .msetnx({ key3: "value", key4: "value" })
       .persist(newKey())

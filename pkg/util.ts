@@ -1,5 +1,3 @@
-import { UpstashResponse } from "./types"
-
 function parseRecursive(obj: unknown): unknown {
   return Array.isArray(obj)
     ? obj.map((o) => {
@@ -12,13 +10,13 @@ function parseRecursive(obj: unknown): unknown {
     : JSON.parse(obj as string)
 }
 
-export function parseResponse<TResult>(res: UpstashResponse<TResult>): TResult {
+export function parseResponse<TResult>(result: unknown): TResult {
   try {
     /**
      * Try to parse the response if possible
      */
-    return parseRecursive(res.result) as TResult
+    return parseRecursive(result) as TResult
   } catch {
-    return res.result as TResult
+    return result as TResult
   }
 }

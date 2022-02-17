@@ -11,17 +11,14 @@ afterAll(cleanup)
 
 it("gets exiting values", async () => {
   const key = newKey()
-  const field1 = randomUUID()
-  const value1 = randomUUID()
-  const field2 = randomUUID()
-  const value2 = randomUUID()
-  const kv: Record<string, string> = {}
-  kv[field1] = randomUUID()
-  kv[field2] = randomUUID()
+  const kv = {
+    [randomUUID()]: randomUUID(),
+    [randomUUID()]: randomUUID(),
+  }
   const res = await new HMSetCommand(key, kv).exec(client)
 
   expect(res).toEqual("OK")
-  const res2 = await new HMGetCommand(key, field1, field2).exec(client)
+  const res2 = await new HMGetCommand(key, ...Object.keys(kv)).exec(client)
 
-  expect(res2).toEqual([value1, value2])
+  expect(res2).toEqual(kv)
 })

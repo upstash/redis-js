@@ -11,24 +11,22 @@ afterAll(cleanup)
 
 it("returns all fields", async () => {
   const key = newKey()
-  const field1 = randomUUID()
   const field2 = randomUUID()
+  const field1 = randomUUID()
   const value1 = false
   const value2 = true
   await new HSetCommand(key, field1, value1).exec(client)
   await new HSetCommand(key, field2, value2).exec(client)
-  const res = await new HGetAllCommand<[string, boolean, string, boolean]>(key).exec(client)
+  const res = await new HGetAllCommand(key).exec(client)
 
-  expect(res).toBeDefined()
-  expect(res?.includes(field1)).toBe(true)
-  expect(res?.includes(field2)).toBe(true)
-  expect(res?.includes(value1)).toBe(true)
-  expect(res?.includes(value2)).toBe(true)
+  const obj: Record<string, boolean> = {}
+  obj[field1] = value1
+  obj[field2] = value2
+  expect(res).toEqual(obj)
 })
 describe("when hash does not exist", () => {
-  it("it returns an empty array", async () => {
+  it("it returns null", async () => {
     const res = await new HGetAllCommand(randomUUID()).exec(client)
-    expect(res).toBeDefined()
-    expect(res!.length).toBe(0)
+    expect(res).toBeNull()
   })
 })

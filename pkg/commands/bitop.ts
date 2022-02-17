@@ -3,7 +3,7 @@ import { Command } from "../command"
 /**
  * @see https://redis.io/commands/bitop
  */
-export class BitOpCommand extends Command<number> {
+export class BitOpCommand extends Command<number, number> {
   constructor(
     op: "and" | "or" | "xor",
     destinationKey: string,

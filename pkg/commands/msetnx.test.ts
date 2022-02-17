@@ -21,8 +21,8 @@ it("sets values", async () => {
   kv[key2] = value2
   const res = await new MSetNXCommand(kv).exec(client)
 
-  expect(res).toEqual("OK")
-  const res2 = await new MGetCommand(key1, key2).exec(client)
+  expect(res).toEqual(1)
+  const res2 = await new MGetCommand<[string, string]>(key1, key2).exec(client)
 
   expect(res2).toEqual([value1, value2])
 })

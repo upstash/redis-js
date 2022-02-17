@@ -23,7 +23,7 @@ export type ScoreMember<TData> = {
 /**
  * @see https://redis.io/commands/zadd
  */
-export class ZAddCommand<TData = string, TResult = number> extends Command<TResult> {
+export class ZAddCommand<TData = string> extends Command<number | null, number | null> {
   constructor(
     key: string,
     scoreMember: ScoreMember<TData>,

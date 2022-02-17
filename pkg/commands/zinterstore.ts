@@ -20,7 +20,7 @@ export type ZInterStoreCommandOptions = {
 /**
  * @see https://redis.io/commands/zInterstore
  */
-export class ZInterStoreCommand extends Command<number> {
+export class ZInterStoreCommand extends Command<number, number> {
   constructor(destination: string, numKeys: 1, key: string, opts?: ZInterStoreCommandOptions)
   constructor(
     destination: string,

@@ -20,7 +20,7 @@ export type ZUnionStoreCommandOptions = {
 /**
  * @see https://redis.io/commands/zunionstore
  */
-export class ZUnionStoreCommand extends Command<number> {
+export class ZUnionStoreCommand extends Command<number, number> {
   constructor(destination: string, numKeys: 1, key: string, opts?: ZUnionStoreCommandOptions)
   constructor(
     destination: string,

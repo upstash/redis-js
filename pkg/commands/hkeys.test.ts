@@ -11,14 +11,12 @@ afterAll(cleanup)
 describe("with existing hash", () => {
   it("returns all keys", async () => {
     const key = newKey()
-    const field1 = randomUUID()
-    const field2 = randomUUID()
-    const kv: Record<string, string> = {}
-    kv[field1] = randomUUID()
-    kv[field1] = randomUUID()
+    const kv = {
+      [randomUUID()]: randomUUID(),
+      [randomUUID()]: randomUUID(),
+    }
     await new HMSetCommand(key, kv).exec(client)
     const res = await new HKeysCommand(key).exec(client)
-    expect(res?.includes(field1)).toBe(true)
-    expect(res?.includes(field2)).toBe(true)
+    expect(res).toEqual(Object.keys(kv))
   })
 })

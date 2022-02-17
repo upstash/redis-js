@@ -22,7 +22,7 @@
   "scripts": {
     "test": "jest -i",
     "fmt": "pnpm lint && pnpm prettier --write .",
-    "lint": "eslint --ext .ts --fix .",
+    "lint": "eslint --ext .ts --fix --ignore-path .gitignore .",
     "build": "tsup ./pkg/index.ts --format=cjs,esm --dts --clean --splitting"
   },
   "repository": {

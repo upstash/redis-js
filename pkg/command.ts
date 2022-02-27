@@ -12,6 +12,11 @@ import { parseResponse } from "./util"
 export abstract class Command<TData, TResult> {
   public readonly command: string[]
   public deserialize: (result: TResult) => TData
+  /**
+   * Create a new command instance.
+   * 
+   * You can define a custom `deserialize` function. By default we try to deserialize as json.
+   */
   constructor(command: (string | unknown)[], opts?: { deserialize?: (result: TResult) => TData }) {
     this.command = command.map((c) => (typeof c === "string" ? c : JSON.stringify(c)))
     this.deserialize = opts?.deserialize ?? parseResponse

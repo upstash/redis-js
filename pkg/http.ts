@@ -48,7 +48,6 @@ export class HttpClient {
       headers,
       body: JSON.stringify(req.body),
     })
-
     const body = await res.json()
     if (!res.ok) {
       throw new UpstashError(body.error)

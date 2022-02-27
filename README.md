@@ -30,59 +30,107 @@ supported.
 npm install @upstash/redis
 ```
 
-### Usage with Promise
+```ts
+import { Redis } from "@upstash/redis"
 
-```typescript
-import { auth, set } from "@upstash/redis"
-
-auth("UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN")
-
-set("key", "value").then(({ data }) => {
-  console.log(data)
-  // -> "OK"
+const redis = new Redis({
+  url: <UPSTASH_REDIS_REST_URL>,
+  token: <UPSTASH_REDIS_REST_TOKEN>,
 })
+
+
+const data = await redis.get("key)
+
 ```
 
-### Usage with async/await
+### Working with types
 
-```typescript
-import { set } from "@upstash/redis"
-;(async () => {
-  try {
-    const { data, error } = await set("key", "value")
-    if (error) throw error
-    console.log(data)
-    // -> "OK"
-  } catch (error) {
-    console.error(error)
-  }
-})()
+Most commands allow you to provide a type to make working with typescript easier.
+
+```ts
+const data = await redis.get<MyCustomType>("key")
+// data is typed as `MyCustomType`
 ```
 
-> If you define `UPSTASH_REDIS_REST_URL` and`UPSTASH_REDIS_REST_TOKEN`
-> environment variables, you can skip the auth().
+## Migrating from v1 to v2
 
-### Instantiate New Clients
+TODO:
 
-This is useful, if you need separate clients in the same context.
+- explicit auth.
+-
 
-```typescript
-import upstash from "@upstash/redis"
+### Pipeline
 
-const redis = upstash("UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN")
+Pipelining commands allows you to send a single http request with multiple commands.
 
-;(async () => {
-  try {
-    const { data, error } = await redis.get("key")
-    if (error) throw error
-    console.log(data)
-  } catch (error) {
-    console.error(error)
-  }
-})()
+```ts
+import { Redis } from "@upstash/redis"
+
+const redis = new Redis({
+  url: <UPSTASH_REDIS_REST_URL>,
+  token: <UPSTASH_REDIS_REST_TOKEN>,
+})
+
+const p = redis.pipeline()
+
+// Now you can chain multiple commands to create your pipeline:
+
+p.set("key",2)
+p.incr("key")
+
+// or inline:
+p.hset("key2", "field", { hello: "world" }).hvals("key2")
+
+// Execute the pipeline once you are done building it:
+// `exec` returns an array where each element represents the response of a command in the pipeline.
+// You can optionally provide a type like this to get a typed response.
+const res = await p.exec<[Type1, Type2, Type3]>()
+
+```
+
+For more information about pipelines using REST see [here](https://blog.upstash.com/pipeline).
+
+### Advanded
+
+Low level `Command` classes can be imported from `@upstash/redis/commands`.
+`Redis` is just a wrapper around these commands for your convenience.
+In case you need more control about types and or (de)serialization, please use a `Command`-class directly.
+
+```ts
+import { GetCommand } from "@upstash/redis/commands"
+import { HttpClient } from "@upstash/redis/http"
+
+const client = new HttpClient({
+  baseUrl: <UPSTASH_REDIS_REST_URL>,
+  headers: {
+    authorization: `Bearer ${<UPSTASH_REDIS_REST_TOKEN>}`,
+  },
+})
+
+const get = new GetCommand<OptionalCustomType>("key")
+
+const data = await get.exec(client)
 ```
 
 ## Docs
 
 See [the documentation](https://docs.upstash.com/features/javascriptsdk) for
 details.
+
+## Contributing
+
+### Installing dependencies
+
+```bash
+pnpm install
+```
+
+### Database
+
+Create a new redis database on [upstash](https://console.upstash.com/) and copy the url and token to `.env` (See `.env.example` for reference)
+
+### Running tests
+
+```sh
+pnpm test
+```

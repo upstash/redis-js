@@ -4,7 +4,7 @@ import { UpstashResponse } from "./types"
 import { parseResponse } from "./util"
 
 /**
- *
+ * Command offers default (de)serialization and the exec method to all commands.
  *
  * TData represents what the user will enter or receive,
  * TResult is the raw data returned from upstash, which may need to be transformed or parsed.

@@ -13,11 +13,22 @@ it("remove trailing slash from urls", () => {
 describe("when the request is invalid", () => {
   it("throws", async () => {
     const client = newHttpClient()
-    expect(
-      async () =>
-        await client.post({
-          body: ["get", "1", "2"],
-        }),
+    expect(() =>
+      client.post({
+        body: ["get", "1", "2"],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot()
+  })
+})
+
+describe("whithout authorization", () => {
+  it("throws", async () => {
+    const client = newHttpClient()
+    client.headers = {}
+    expect(() =>
+      client.post({
+        body: ["get", "1", "2"],
+      }),
     ).rejects.toThrowErrorMatchingInlineSnapshot()
   })
 })

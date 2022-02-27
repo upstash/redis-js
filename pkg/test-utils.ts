@@ -2,6 +2,7 @@ import { HttpClient } from "./http"
 import { config } from "dotenv"
 import { randomUUID } from "crypto"
 import { DelCommand } from "./commands/del"
+import { NonEmptyArray } from "."
 config()
 
 export const newHttpClient = () => {
@@ -31,7 +32,9 @@ export function keygen(): { newKey: () => string; cleanup: () => Promise<void> }
       return key
     },
     cleanup: async () => {
-      await new DelCommand(...keys).exec(newHttpClient())
+      if (keys.length > 0) {
+        await new DelCommand(...(keys as NonEmptyArray<string>)).exec(newHttpClient())
+      }
     },
   }
 }

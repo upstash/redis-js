@@ -26,7 +26,21 @@ describe("with match", () => {
     const key = newKey()
     const value = randomUUID()
     await new SetCommand(key, value).exec(client)
-    const res = await new ScanCommand(0, key).exec(client)
+    const res = await new ScanCommand(0, { match: key }).exec(client)
+
+    expect(res).toBeDefined()
+    expect(res.length).toBe(2)
+    expect(typeof res[0]).toBe("number")
+    expect(res![1].length).toBeGreaterThan(0)
+  })
+})
+
+describe("with count", () => {
+  it("returns cursor and keys", async () => {
+    const key = newKey()
+    const value = randomUUID()
+    await new SetCommand(key, value).exec(client)
+    const res = await new ScanCommand(0, { count: 1 }).exec(client)
 
     expect(res).toBeDefined()
     expect(res.length).toBe(2)

@@ -39,6 +39,23 @@ describe("when chaining inline", () => {
   })
 })
 
+describe("when no commands were added", () => {
+  it("throws", async () => {
+    expect(() => new Pipeline(client).exec()).rejects.toThrowErrorMatchingInlineSnapshot(
+      `"Pipeline is empty"`,
+    )
+  })
+})
+
+describe("when one command throws an error", () => {
+  it("throws", async () => {
+    const p = new Pipeline(client).set("key", "value").hget("key", "field")
+    expect(() => p.exec()).rejects.toThrowErrorMatchingInlineSnapshot(
+      `"Command 2 [ hget ] failed: WRONGTYPE Operation against a key holding the wrong kind of value"`,
+    )
+  })
+})
+
 describe("use all the things", () => {
   it("works", async () => {
     const p = new Pipeline(client)

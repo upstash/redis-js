@@ -1,12 +1,10 @@
 import { Command } from "../command"
 
+export type Type = "string" | "list" | "set" | "zset" | "hash" | "none"
 /**
  * @see https://redis.io/commands/type
  */
-export class TypeCommand extends Command<
-  "string" | "list" | "set" | "zset" | "hash" | "none",
-  "string" | "list" | "set" | "zset" | "hash" | "none"
-> {
+export class TypeCommand extends Command<Type, Type> {
   constructor(key: string) {
     super(["type", key])
   }

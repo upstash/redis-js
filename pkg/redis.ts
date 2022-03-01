@@ -157,6 +157,56 @@ export class Redis {
   }
 
   /**
+   * Create a new Upstash Redis instance from environment variables.
+   *
+   * Use this to automatically load connection secrets from your environment
+   * variables. For instance when using the Vercel integration.
+   *
+   * This tries to load `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` from
+   * your environment.
+   *
+   * If you are using Cloudflare, please use `fromCloudflareEnv()` instead.
+   */
+  static fromEnv(): Redis {
+    if (typeof process?.env === "undefined") {
+      throw new Error(
+        "Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please use `fromCloudflareEnv()` instead",
+      )
+    }
+    const url = process.env["UPSTASH_REDIS_REST_URL"]
+    if (!url) {
+      throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_URL`")
+    }
+    const token = process.env["UPSTASH_REDIS_REST_TOKEN"]
+    if (!token) {
+      throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`")
+    }
+    return new Redis({ url, token })
+  }
+
+  /**
+   * Create a new Upstash Redis instance from environment variables on cloudflare.
+   *
+   * This tries to load `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` from
+   * the global namespace
+   */
+  static fromCloudflareEnv(): Redis {
+    /**
+     * These should be injected by cloudflare.
+     */
+    var UPSTASH_REDIS_REST_URL: string | undefined
+    var UPSTASH_REDIS_REST_TOKEN: string | undefined
+
+    if (!UPSTASH_REDIS_REST_URL) {
+      throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_URL`")
+    }
+    if (!UPSTASH_REDIS_REST_TOKEN) {
+      throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`")
+    }
+    return new Redis({ url: UPSTASH_REDIS_REST_URL, token: UPSTASH_REDIS_REST_TOKEN })
+  }
+
+  /**
    * Create a new pipeline that allows you to send requests in bulk.
    *
    * @see {@link Pipeline}

@@ -1,6 +1,5 @@
-import { UpstashError } from "../dist"
-import { HttpClient } from "./http"
-import { UpstashResponse } from "./types"
+import { UpstashError } from "./error"
+import { HttpClient, UpstashResponse } from "./http"
 import { parseResponse } from "./util"
 
 /**
@@ -14,7 +13,7 @@ export abstract class Command<TData, TResult> {
   public deserialize: (result: TResult) => TData
   /**
    * Create a new command instance.
-   * 
+   *
    * You can define a custom `deserialize` function. By default we try to deserialize as json.
    */
   constructor(command: (string | unknown)[], opts?: { deserialize?: (result: TResult) => TData }) {

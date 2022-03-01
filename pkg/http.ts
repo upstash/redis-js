@@ -1,7 +1,7 @@
 import "isomorphic-fetch"
 import { UpstashError } from "./error"
 
-export type Request = {
+export type HttpRequest = {
   path?: string[]
   /**
    * Request body will be serialized to json
@@ -11,6 +11,11 @@ export type Request = {
   headers?: Record<string, string>
 
   retries?: number
+}
+
+export type UpstashResponse<TResult> = {
+  result?: TResult
+  error?: string
 }
 
 export type HttpClientConfig = {
@@ -30,7 +35,7 @@ export class HttpClient {
 
   private async request<TResponse>(
     method: "GET" | "POST" | "PUT" | "DELETE",
-    req: Request,
+    req: HttpRequest,
   ): Promise<TResponse> {
     if (!req.path) {
       req.path = []
@@ -56,7 +61,7 @@ export class HttpClient {
     return body as TResponse
   }
 
-  public async post<TResponse>(req: Request): Promise<TResponse> {
+  public async post<TResponse>(req: HttpRequest): Promise<TResponse> {
     return await this.request<TResponse>("POST", req)
   }
 }

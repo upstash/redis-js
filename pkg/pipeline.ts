@@ -114,9 +114,9 @@ import {
   ZUnionStoreCommand,
 } from "./commands"
 import { HttpClient } from "./http"
-import { UpstashResponse, CommandArgs } from "./types"
-import { UpstashError } from "."
-
+import { CommandArgs } from "./types"
+import { UpstashError } from "./error"
+import { UpstashResponse } from "./http"
 /**
  * Upstash REST API supports command pipelining to send multiple commands in
  * batch, instead of sending each command one by one and waiting for a response.

@@ -86,7 +86,7 @@ jobs:
      
       
       - name: Run tests
-        run: pnpm test
+        run: pnpm test ./pkg
         env:
           UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}

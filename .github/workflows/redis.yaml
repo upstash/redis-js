@@ -13,6 +13,8 @@ jobs:
     name: Create a local redis instance
     runs-on: ubuntu-latest
     steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
       - name: Check out Redis Server
         uses: actions/checkout@v2
         with:

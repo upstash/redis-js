@@ -42,7 +42,7 @@ jobs:
      
 
       - name: Start redis server
-        uses: ./.github/workflows/redis.yml
+        uses: upstash/upstash-redis/.github/workflows/redis.yml
         with:
           url:  http://127.0.0.1:6379
           token: ${{ secrets.UPSTASH_AUTH_TOKEN }}
@@ -91,7 +91,7 @@ jobs:
      
 
       - name: Start redis server
-        uses: ./.github/workflows/redis.yml
+        uses: upstash/upstash-redis/.github/workflows/redis.yml
         with:
           url:  http://127.0.0.1:6379
           token: ${{ secrets.UPSTASH_AUTH_TOKEN }}

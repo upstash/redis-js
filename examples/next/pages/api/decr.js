@@ -1,9 +1,6 @@
-import upstash from "@upstash/redis"
+import { Redis } from "@upstash/redis"
 
-const redis = upstash({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-})
+const redis = Redis.fromEnv()
 
 export default async function handler(req, res) {
   try {

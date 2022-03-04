@@ -43,6 +43,19 @@ const data = await redis.get("key)
 
 ```
 
+#### Automatic authentication from environment variables
+
+If you have added `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` as environent variables, you can automatically load them:
+
+```ts
+import { Redis } from "@upstash/redis"
+
+const redis = Redis.fromEnv()
+
+// or on cloudflare workers
+const redis = Redis.fromCloudflareEnv()
+```
+
 ### Working with types
 
 Most commands allow you to provide a type to make working with typescript easier.
@@ -52,12 +65,49 @@ const data = await redis.get<MyCustomType>("key")
 // data is typed as `MyCustomType`
 ```
 
-## Migrating from v1 to v2
+## Migrating to v1
 
-TODO:
+### API changes
 
-- explicit auth.
--
+### Explicit authentication
+
+Authentication is no longer automatically trying to load connection secrets from environment variables.
+You must either supply them yourself:
+
+```ts
+import { Redis } from "@upstash/redis"
+
+const redis = new Redis({
+  url: <UPSTASH_REDIS_REST_URL>,
+  token: <UPSTASH_REDIS_REST_TOKEN>,
+})
+```
+
+Or use one of the static constructors to load from environment variables:
+
+```ts
+import { Redis } from "@upstash/redis"
+
+const redis = Redis.fromEnv()
+
+// or when deploying to cloudflare workers
+const redis = Redis.fromCloudflareEnv()
+```
+
+### Error handling
+
+Errors are now thrown automatically instead of being returned to you.
+
+```ts
+// old
+const { data, error } = await set("key", "value")
+if (error) {
+  throw new Error(error)
+}
+
+// new
+const data = await redis.set("key", "value") // error is thrown automatically
+```
 
 ### Pipeline
 
@@ -97,8 +147,7 @@ Low level `Command` classes can be imported from `@upstash/redis/commands`.
 In case you need more control about types and or (de)serialization, please use a `Command`-class directly.
 
 ```ts
-import { GetCommand } from "@upstash/redis/commands"
-import { HttpClient } from "@upstash/redis/http"
+import { GetCommand, HttpClient} from "@upstash/redis"
 
 const client = new HttpClient({
   baseUrl: <UPSTASH_REDIS_REST_URL>,

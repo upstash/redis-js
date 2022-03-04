@@ -1,4 +1,4 @@
-import { auth, incr } from "@upstash/redis"
+import { Redis } from "@upstash/redis"
 import { useState } from "react"
 
 function HomePage({ count }) {
@@ -34,19 +34,12 @@ function HomePage({ count }) {
 }
 
 export async function getStaticProps() {
-  auth({
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
-  })
+  const redis = Redis.fromEnv()
 
   let count = 0
-  try {
-    const response = await incr("nextjs")
-    if (response.error) throw response.error
-    count = response.data
-  } catch (e) {
-    console.log(e)
-  }
+  count = await redis.incr("nextjs").catch((e) => {
+    console.error(e)
+  })
 
   return {
     props: { count },

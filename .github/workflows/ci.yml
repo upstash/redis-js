@@ -93,6 +93,8 @@ jobs:
 
   
   example-nextjs:
+    needs:
+      - test
     env:
       UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
@@ -167,16 +169,16 @@ jobs:
             
       
       - name: Install example
-        run: pnpm install
+        run: npm install
         working-directory: ./examples/next
       
       - name: Build example
-        run: pnpm build
+        run: npm run build
         working-directory: ./examples/next
       
 
       - name: Start example
-        run: pnpm start &
+        run: npm run start &
         working-directory: ./examples/next
       
       - name: Ping api

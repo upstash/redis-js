@@ -1,7 +1,7 @@
 import { Redis } from "@upstash/redis"
 import { useState } from "react"
 
-function HomePage({ count }) {
+function HomePage({ count }: { count: number }) {
   const [cacheCount, setCacheCount] = useState(count)
 
   const incr = async () => {
@@ -36,10 +36,7 @@ function HomePage({ count }) {
 export async function getStaticProps() {
   const redis = Redis.fromEnv()
 
-  let count = 0
-  count = await redis.incr("nextjs").catch((e) => {
-    console.error(e)
-  })
+  const count = await redis.incr("nextjs")
 
   return {
     props: { count },

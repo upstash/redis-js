@@ -41,48 +41,11 @@ jobs:
         run: pnpm build
      
 
-      - name: Check out Redis Server
-        uses: actions/checkout@v2
+      - name: Start redis server
+        uses: ./.github/workflows/redis.yml
         with:
-          repository: upstash/redis-server
-          token: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
-          path: redis-server
-
-      - name: Setup Go
-        uses: actions/setup-go@v2
-        with:
-          stable: "true"
-          go-version: "^1.17"
-
-      - name: Cache Go modules
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: ${{ runner.os }}-redis-server-${{ hashFiles('**/go.mod') }}
-          restore-keys: |
-            ${{ runner.os }}-redis-server
-
-      - name: Create Server Config
-        run: |
-          echo "$REDIS_SERVER_CONFIG" >> config.json
-        shell: bash
-        env:
-          REDIS_SERVER_CONFIG: ${{secrets.REDIS_SERVER_CONFIG}}
-
-      - name: Start Redis Server
-        run: |
-          make
-          ./upstash-redis -log-level error -config $GITHUB_WORKSPACE/config.json &
-        working-directory: ./redis-server/cmd
-
-      - name: Ping redis server
-        run: |
-          curl $UPSTASH_REDIS_REST_URL/info -H "Authorization: Bearer $UPSTASH_REDIS_REST_TOKEN"
-        env:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          url:  http://127.0.0.1:6379
+          token: ${{ secrets.UPSTASH_AUTH_TOKEN }}
      
       
       - name: Run tests
@@ -95,6 +58,10 @@ jobs:
   example-nextjs:
     needs:
       - test
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["14", "16", "17"]
     env:
       UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
@@ -105,7 +72,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: lts
+          node-version: ${{ matrix.node }}
       - name: Cache pnpm modules
         uses: actions/cache@v2
         with:
@@ -123,46 +90,12 @@ jobs:
         run: pnpm build
      
 
-      - name: Check out Redis Server
-        uses: actions/checkout@v2
+      - name: Start redis server
+        uses: ./.github/workflows/redis.yml
         with:
-          repository: upstash/redis-server
-          token: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
-          path: redis-server
-
-      - name: Setup Go
-        uses: actions/setup-go@v2
-        with:
-          stable: "true"
-          go-version: "^1.17"
-
-      - name: Cache Go modules
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: ${{ runner.os }}-redis-server-${{ hashFiles('**/go.mod') }}
-          restore-keys: |
-            ${{ runner.os }}-redis-server
-
-      - name: Create Server Config
-        run: |
-          echo "$REDIS_SERVER_CONFIG" >> config.json
-        shell: bash
-        env:
-          REDIS_SERVER_CONFIG: ${{secrets.REDIS_SERVER_CONFIG}}
-
-      - name: Start Redis Server
-        run: |
-          make
-          ./upstash-redis -log-level error -config $GITHUB_WORKSPACE/config.json &
-        working-directory: ./redis-server/cmd
-
-      - name: Ping redis server
-        run: |
-          curl $UPSTASH_REDIS_REST_URL/info -H "Authorization: Bearer $UPSTASH_REDIS_REST_TOKEN"
-            
+          url:  http://127.0.0.1:6379
+          token: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+     
       
       - name: Install example
         run: npm install

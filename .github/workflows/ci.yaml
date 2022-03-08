@@ -159,10 +159,10 @@ jobs:
           sed -i 's;^UPSTASH_REDIS_REST_TOKEN.*";UPSTASH_REDIS_REST_TOKEN = "${{ secrets.UPSTASH_AUTH_TOKEN }}";' wrangler.toml
 
       - name: Start example
-        run: npx @cloudflare/wrangler dev & sleep 10s
+        run: npx @cloudflare/wrangler dev &
         working-directory: ./examples/cloudflare-workers
 
-      - run: echo $(curl http://localhost:8787/)
+      - run: sleep 30s
 
       - name: Ping api
         run: |

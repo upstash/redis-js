@@ -60,9 +60,9 @@ Edit `index.js`
 
 ```js
 // index.js
-import { auth, incr } from "@upstash/redis"
+import { Redis } from "@upstash/redis"
 
-auth(UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN)
+const redis = Redis.fromCloudflareEnv()
 
 addEventListener("fetch", (event) => {
   event.respondWith(handleRequest(event.request))
@@ -75,7 +75,7 @@ async function handleRequest(request) {
     return new Response()
   }
 
-  const { data: count } = await incr("workers-count")
+  const count = await redis.incr("workers-count")
 
   return new Response(html(count), {
     headers: {

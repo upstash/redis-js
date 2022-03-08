@@ -1,7 +1,6 @@
 name = "workers-with-redis"
 type = "webpack"
 
-account_id = "REPLACE_THIS"
 workers_dev = true
 route = ""
 zone_id = ""

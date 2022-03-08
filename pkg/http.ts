@@ -59,7 +59,7 @@ export class HttpClient {
       headers,
       body: JSON.stringify(req.body),
       // @ts-expect-error
-      backend: this.options.backend,
+      backend: this.options?.backend,
     })
     const body = await res.json()
     if (!res.ok) {

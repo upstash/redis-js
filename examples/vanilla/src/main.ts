@@ -1,7 +1,11 @@
 import "./style.css"
-import upstash from "@upstash/redis"
+import { Redis } from "@upstash/redis"
 
-console.log(upstash)
+const redis = new Redis({
+  url: "",
+  token: "",
+})
+console.log(redis)
 
 // eslint-disable-next-line no-undef
 const app = document.querySelector<HTMLDivElement>("#app")!

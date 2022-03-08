@@ -1,4 +1,4 @@
-import { ScanCommandOptions } from "."
+import { ScanCommandOptions } from "./scan"
 import { Command } from "../command"
 
 /**

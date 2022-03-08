@@ -2,7 +2,7 @@ import { HttpClient } from "./http"
 import { config } from "dotenv"
 import { randomUUID } from "crypto"
 import { DelCommand } from "./commands/del"
-import { NonEmptyArray } from "."
+import { NonEmptyArray } from "./types"
 config()
 
 export const newHttpClient = () => {

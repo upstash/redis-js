@@ -6,7 +6,7 @@ import { TypeCommand } from "./type"
 import { LPushCommand } from "./lpush"
 import { HSetCommand } from "./hset"
 import { SAddCommand } from "./sadd"
-import { ZAddCommand } from "."
+import { ZAddCommand } from "./zadd"
 const client = newHttpClient()
 
 const { newKey, cleanup } = keygen()

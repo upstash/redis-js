@@ -1,7 +1,7 @@
 require("dotenv").config()
-const upstash = require("@upstash/redis")
+const { Redis } = require("@upstash/redis")
 
-const redis = upstash({
+const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL,
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 })

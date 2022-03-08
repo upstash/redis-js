@@ -21,16 +21,22 @@ export type UpstashResponse<TResult> = {
 export type HttpClientConfig = {
   headers?: Record<string, string>
   baseUrl: string
+  options?: {
+    backend?: string
+  }
 }
 
 export class HttpClient {
   public baseUrl: string
   public headers: Record<string, string>
+  public readonly options?: { backend?: string }
 
   public constructor(config: HttpClientConfig) {
     this.baseUrl = config.baseUrl.replace(/\/$/, "")
 
     this.headers = config.headers ?? {}
+
+    this.options = config.options
   }
 
   private async request<TResponse>(
@@ -52,6 +58,8 @@ export class HttpClient {
       method,
       headers,
       body: JSON.stringify(req.body),
+      // @ts-expect-error
+      backend: this.options.backend,
     })
     const body = await res.json()
     if (!res.ok) {

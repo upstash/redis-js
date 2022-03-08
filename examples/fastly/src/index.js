@@ -1,17 +1,17 @@
-import { Router } from "flight-path"
-import { auth, incr } from "@upstash/redis"
+import { Redis } from "@upstash/redis"
 
-const router = new Router()
+addEventListener("fetch", (event) => event.respondWith(handleRequest(event)))
 
-auth({
-  url: "UPSTASH_REDIS_REST_URL",
-  token: "UPSTASH_REDIS_REST_TOKEN",
-  requestOptions: { backend: "upstash-db" },
-})
+async function handleRequest(event) {
+  const redis = new Redis({
+    url: "<UPSTASH_REDIS_REST_URL>",
+    token: "<UPSTASH_REDIS_REST_TOKEN>",
+    requestOptions: { backend: "upstash-db" },
+  })
 
-router.get("/", async (req, res) => {
-  const { data: count } = await incr("count")
-  res.send(`Fastly with Upstash! Count: ${count}`)
-})
-
-router.listen()
+  const counter = await redis.incr("fastly")
+  // Catch all other requests and return a 404.
+  return new Response(`Counter: ${counter}`, {
+    status: 404,
+  })
+}

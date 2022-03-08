@@ -165,8 +165,9 @@ jobs:
 
       - name: Ping api
         run: |
-          count=$(curl -s http://localhost:8787/api/incr | jq -r '.count')
-          if [ $count -ne 2 ]; then
-            echo "Expected count to be 2, got $count"
+          response = $(curl -s http://localhost:8787)
+          echo $response
+          if [[ $response != *<h2>Count: 1</h2>*]]; then
+            echo "Expected response to contain '<h2>Count: 1</h2>', got $response"
             exit 1
           fi

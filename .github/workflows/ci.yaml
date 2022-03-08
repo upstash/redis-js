@@ -150,10 +150,10 @@ jobs:
 
       - name: Install example
         run: npm install
-        working-directory: ./examples/cloudflare
+        working-directory: ./examples/cloudflare-workers
 
       - name: Inject variables
-        working-directory: ./examples/cloudflare
+        working-directory: ./examples/cloudflare-workers
         run: |
           sed -i 's/REPLACE_ME/$UPSTASH_REDIS_REST_URL/' wrangler.toml
           sed -i 's/REPLACE_ME/$UPSTASH_REDIS_REST_TOKEN/' wrangler.toml
@@ -161,7 +161,7 @@ jobs:
 
       - name: Start example
         run: npx wrangler dev &
-        working-directory: ./examples/cloudflare
+        working-directory: ./examples/cloudflare-workers
 
       - name: Ping api
         run: |

@@ -128,6 +128,17 @@ export type RedisConfig = {
    * UPSTASH_REDIS_REST_TOKEN
    */
   token: string
+
+  requestOptions?: {
+    /**
+     * **fastly only**
+     *
+     * A Request can be forwarded to any backend defined on your service. Backends
+     * can be created via the Fastly CLI, API, or web interface, and are
+     * referenced by name.
+     */
+    backend?: string
+  }
 }
 
 /**
@@ -153,6 +164,7 @@ export class Redis {
       headers: {
         authorization: `Bearer ${config.token}`,
       },
+      options: config.requestOptions,
     })
   }
 

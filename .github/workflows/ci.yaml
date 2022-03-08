@@ -105,7 +105,7 @@ jobs:
       - name: Ping api
         run: |
           count=$(curl -s http://localhost:3000/api/incr | jq -r '.count')
-          if [ $count -eq 2 ]; then
+          if [ $count -eq 3 ]; then
             exit 0
           else
             echo "Expected count to be 2, got $count"

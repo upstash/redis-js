@@ -155,8 +155,8 @@ jobs:
       - name: Inject variables
         working-directory: ./examples/cloudflare-workers
         run: |
-          sed -i 's/REPLACE_ME/$UPSTASH_REDIS_REST_URL/' wrangler.toml
-          sed -i 's/REPLACE_ME/$UPSTASH_REDIS_REST_TOKEN/' wrangler.toml
+          sed -i 's/REPLACE_THIS/$UPSTASH_REDIS_REST_URL/' wrangler.toml
+          sed -i 's/REPLACE_THIS/$UPSTASH_REDIS_REST_TOKEN/' wrangler.toml
           cat wrangler.toml
 
       - name: Start example

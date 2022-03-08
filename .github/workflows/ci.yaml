@@ -166,6 +166,7 @@ jobs:
 
       - name: Ping api
         run: |
+          sleep 10
           curl -s http://localhost:8787/ -o response.html
           cat response.html
           if grep -q "Count: 1"; then

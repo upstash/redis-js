@@ -155,11 +155,8 @@ jobs:
       - name: Inject variables
         working-directory: ./examples/cloudflare-workers
         run: |
-
-
           sed -i 's;^UPSTASH_REDIS_REST_URL.*";UPSTASH_REDIS_REST_URL = "http://127.0.0.1:6379";'  wrangler.toml
           sed -i 's;^UPSTASH_REDIS_REST_TOKEN.*";UPSTASH_REDIS_REST_TOKEN = "${{ secrets.UPSTASH_AUTH_TOKEN }}";'  wrangler.toml
-          cat wrangler.toml
 
       - name: Start example
         run: npx @cloudflare/wrangler dev & sleep 10s
@@ -171,7 +168,7 @@ jobs:
         run: |
           response=$(curl -s http://localhost:8787)
           echo $response
-          if [[ $response != *Count: 1* ]]; then
+          if [[ $response != *"Count: 1"* ]]; then
             echo "Expected response to contain 'Count: 1', got $response"
             exit 1
           fi

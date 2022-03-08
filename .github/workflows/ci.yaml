@@ -42,15 +42,15 @@ jobs:
         uses: ./.github/actions/redis
         with:
           UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ input.UPSTASH_AUTH_TOKEN }}
-          UPSTASH_REPO_ACCESS_TOKEN: ${{ input.UPSTASH_REPO_ACCESS_TOKEN }}
-          REDIS_SERVER_CONFIG: ${{ input.REDIS_SERVER_CONFIG }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
+          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Run tests
         run: pnpm test ./pkg
         env:
           UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ input.UPSTASH_AUTH_TOKEN }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
 
   example-nextjs:
     needs:
@@ -61,7 +61,7 @@ jobs:
         node: ["14", "16", "17"]
     env:
       UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      UPSTASH_REDIS_REST_TOKEN: ${{ input.UPSTASH_AUTH_TOKEN }}
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
@@ -90,9 +90,9 @@ jobs:
         uses: ./.github/actions/redis
         with:
           UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ input.UPSTASH_AUTH_TOKEN }}
-          UPSTASH_REPO_ACCESS_TOKEN: ${{ input.UPSTASH_REPO_ACCESS_TOKEN }}
-          REDIS_SERVER_CONFIG: ${{ input.REDIS_SERVER_CONFIG }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
+          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
         run: npm install

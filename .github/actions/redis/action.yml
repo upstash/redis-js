@@ -14,8 +14,8 @@ runs:
   using: "composite"
   env:
     UPSTASH_REDIS_REST_URL: ${{ inputs.UPSTASH_REDIS_REST_URL }}
-    UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
-    REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
+    UPSTASH_REDIS_REST_TOKEN: ${{ inputs.UPSTASH_REDIS_REST_TOKEN }}
+    REDIS_SERVER_CONFIG: ${{ inputs.REDIS_SERVER_CONFIG }}
 
   steps:
     - name: Setup repo
@@ -24,7 +24,7 @@ runs:
       uses: actions/checkout@v2
       with:
         repository: upstash/redis-server
-        token: ${{ secrets.REPO_TOKEN }}
+        token: ${{ inputs.REPO_TOKEN }}
         path: redis-server
 
     - name: Setup Go

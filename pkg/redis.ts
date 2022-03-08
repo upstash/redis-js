@@ -194,16 +194,22 @@ export class Redis {
     /**
      * These should be injected by cloudflare.
      */
-    var UPSTASH_REDIS_REST_URL: string | undefined
-    var UPSTASH_REDIS_REST_TOKEN: string | undefined
 
-    if (!UPSTASH_REDIS_REST_URL) {
+    // @ts-ignore
+    // eslint-disable-next-line no-undef
+    const url = UPSTASH_REDIS_REST_URL
+
+    // @ts-ignore
+    // eslint-disable-next-line no-undef
+    const token = UPSTASH_REDIS_REST_TOKEN
+
+    if (!url) {
       throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_URL`")
     }
-    if (!UPSTASH_REDIS_REST_TOKEN) {
+    if (!token) {
       throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`")
     }
-    return new Redis({ url: UPSTASH_REDIS_REST_URL, token: UPSTASH_REDIS_REST_TOKEN })
+    return new Redis({ url, token })
   }
 
   /**

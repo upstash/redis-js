@@ -29,33 +29,29 @@ jobs:
           version: 6
           run_install: true
 
-
-
       - name: Verify formatting
         run: pnpm prettier --check .
 
       - name: Run linter
         run: pnpm eslint --ext .ts .
 
-      - name: Build   
+      - name: Build
         run: pnpm build
-     
 
       - name: Start redis server
         uses: ./.github/workflows/redis.yaml
         with:
-          UPSTASH_REDIS_REST_URL:  http://127.0.0.1:6379
+          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
           UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
-      
+
       - name: Run tests
         run: pnpm test ./pkg
         env:
           UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
 
-  
   example-nextjs:
     needs:
       - test
@@ -87,34 +83,28 @@ jobs:
           version: 6
           run_install: true
 
-      - name: Build   
+      - name: Build
         run: pnpm build
-     
 
       - name: Start redis server
         uses: ./.github/workflows/redis.yaml
         with:
-          UPSTASH_REDIS_REST_URL:  http://127.0.0.1:6379
+          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
           UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
-      
-     
-      
+
       - name: Install example
         run: npm install
         working-directory: ./examples/nextjs
-      
+
       - name: Build example
         run: npm run build
         working-directory: ./examples/nextjs
-      
 
       - name: Start example
         run: npm run start &
         working-directory: ./examples/nextjs
-      
+
       - name: Ping api
         run: curl http://localhost:3000/api/decr
-            
-      

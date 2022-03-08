@@ -160,8 +160,10 @@ jobs:
           cat wrangler.toml
 
       - name: Start example
-        run: npx wrangler dev &
+        run: npx wrangler dev & sleep 10s
         working-directory: ./examples/cloudflare-workers
+
+      - run: curl http://localhost:8787/
 
       - name: Ping api
         run: |

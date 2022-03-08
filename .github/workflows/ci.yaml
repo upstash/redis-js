@@ -53,8 +53,8 @@ jobs:
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
 
   example-nextjs:
-    # needs:
-    #   - test
+    needs:
+      - test
     env:
       UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
@@ -105,7 +105,7 @@ jobs:
       - name: Ping api
         run: |
           count=$(curl -s http://localhost:3000/api/incr | jq -r '.count')
-          if [ $count -ne 3 ]; then
+          if [ $count -ne 2 ]; then
             echo "Expected count to be 2, got $count"
             exit 1
           fi

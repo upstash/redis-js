@@ -1,11 +1,15 @@
+name: Create local redis server
+
 on:
   workflow_call:
     inputs:
-      url:
+      REST_URL:
         required: true
         type: string
     secrets:
-      token:
+      REST_TOKEN:
+        required: true
+      REPO_TOKEN:
         required: true
 
 jobs:
@@ -19,7 +23,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: upstash/redis-server
-          token: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
+          token: ${{ secrets.REPO_TOKEN }}
           path: redis-server
 
       - name: Setup Go
@@ -55,5 +59,5 @@ jobs:
         run: |
           curl $UPSTASH_REDIS_REST_URL/info -H "Authorization: Bearer $UPSTASH_REDIS_REST_TOKEN"
         env:
-          UPSTASH_REDIS_REST_URL: ${{ inputs.url }}
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.token }}
+          UPSTASH_REDIS_REST_URL: ${{ inputs.REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.REST_TOKEN }}

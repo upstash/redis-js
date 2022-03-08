@@ -14,6 +14,6 @@
     "prettier": "^1.18.2"
   },
   "dependencies": {
-    "@upstash/redis": "^0.2.0"
+    "@upstash/redis": "../.."
   }
 }

@@ -157,8 +157,8 @@ jobs:
         run: |
 
 
-          sed -i 's/UPSTASH_REDIS_REST_URL = "REPLACE_THIS"/UPSTASH_REDIS_REST_URL = "$UPSTASH_REDIS_REST_URL"/'  wrangler.toml
-          sed -i 's/UPSTASH_REDIS_REST_TOKEN = "REPLACE_THIS"/UPSTASH_REDIS_REST_TOKEN = "$UPSTASH_REDIS_REST_TOKEN"/'  wrangler.toml
+          sed -i 's/UPSTASH_REDIS_REST_URL = "REPLACE_THIS"/UPSTASH_REDIS_REST_URL = "http://127.0.0.1:6379"/'  wrangler.toml
+          sed -i 's/UPSTASH_REDIS_REST_TOKEN = "REPLACE_THIS"/UPSTASH_REDIS_REST_TOKEN = "${{ secrets.UPSTASH_AUTH_TOKEN }}"/'  wrangler.toml
           cat wrangler.toml
 
       - name: Start example

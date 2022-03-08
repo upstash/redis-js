@@ -162,7 +162,7 @@ jobs:
         run: npx @cloudflare/wrangler dev &
         working-directory: ./examples/cloudflare-workers
 
-      - run: sleep 30s
+      - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
 
       - name: Ping api
         run: |

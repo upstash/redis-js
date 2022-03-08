@@ -165,7 +165,7 @@ jobs:
 
       - name: Ping api
         run: |
-          response = $(curl -s http://localhost:8787)
+          response=$(curl -s http://localhost:8787)
           echo $response
           if [[ $response != *<h2>Count: 1</h2>*]]; then
             echo "Expected response to contain '<h2>Count: 1</h2>', got $response"

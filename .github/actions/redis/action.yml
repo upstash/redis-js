@@ -3,8 +3,6 @@ name: Create local redis server
 inputs:
   UPSTASH_REDIS_REST_URL:
     required: true
-    type: string
-secrets:
   UPSTASH_REDIS_REST_TOKEN:
     required: true
   UPSTASH_REPO_ACCESS_TOKEN:
@@ -51,11 +49,13 @@ runs:
       shell: bash
 
     - name: Start Redis Server
+      shell: bash
       run: |
         make
         ./upstash-redis -log-level error -config $GITHUB_WORKSPACE/config.json &
       working-directory: ./redis-server/cmd
 
     - name: Ping redis server
+      shell: bash
       run: |
         curl $UPSTASH_REDIS_REST_URL/info -H "Authorization: Bearer $UPSTASH_REDIS_REST_TOKEN"

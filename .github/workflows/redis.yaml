@@ -3,19 +3,27 @@ name: Create local redis server
 on:
   workflow_call:
     inputs:
-      REST_URL:
+      UPSTASH_REDIS_REST_URL:
         required: true
         type: string
     secrets:
-      REST_TOKEN:
+      UPSTASH_REDIS_REST_TOKEN:
         required: true
-      REPO_TOKEN:
+      UPSTASH_REPO_ACCESS_TOKEN:
+        required: true
+      REDIS_SERVER_CONFIG:
         required: true
 
 jobs:
   start-local-redis:
     name: Create a local redis instance
     runs-on: ubuntu-latest
+
+    env:
+      UPSTASH_REDIS_REST_URL: ${{ inputs.UPSTASH_REDIS_REST_URL }}
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+      REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
+
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
@@ -46,8 +54,6 @@ jobs:
         run: |
           echo "$REDIS_SERVER_CONFIG" >> config.json
         shell: bash
-        env:
-          REDIS_SERVER_CONFIG: ${{secrets.REDIS_SERVER_CONFIG}}
 
       - name: Start Redis Server
         run: |
@@ -58,6 +64,3 @@ jobs:
       - name: Ping redis server
         run: |
           curl $UPSTASH_REDIS_REST_URL/info -H "Authorization: Bearer $UPSTASH_REDIS_REST_TOKEN"
-        env:
-          UPSTASH_REDIS_REST_URL: ${{ inputs.REST_URL }}
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.REST_TOKEN }}

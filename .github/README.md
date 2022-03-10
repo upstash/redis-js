@@ -140,7 +140,7 @@ const res = await p.exec<[Type1, Type2, Type3]>()
 
 For more information about pipelines using REST see [here](https://blog.upstash.com/pipeline).
 
-### Advanded
+### Advanced
 
 Low level `Command` classes can be imported from `@upstash/redis/commands`.
 `Redis` is just a wrapper around these commands for your convenience.

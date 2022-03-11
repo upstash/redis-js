@@ -40,7 +40,7 @@ const redis = new Redis({
 })
 
 
-const data = await redis.get("key)
+const data = await redis.get("key")
 
 ```
 
@@ -54,7 +54,7 @@ import { Redis } from "@upstash/redis"
 const redis = Redis.fromEnv()
 
 // or on cloudflare workers
-const redis = Redis.fromCloudflareEnv()
+const redis = Redis.onCloudflare()
 ```
 
 ### Working with types
@@ -92,7 +92,7 @@ import { Redis } from "@upstash/redis"
 const redis = Redis.fromEnv()
 
 // or when deploying to cloudflare workers
-const redis = Redis.fromCloudflareEnv()
+const redis = Redis.onCloudflare()
 ```
 
 ### Error handling

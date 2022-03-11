@@ -210,7 +210,7 @@ const redis = new Redis({
 - [Code example](https://github.com/upstash/upstash-redis/tree/main/examples/fastly)
 - [Documentation](https://blog.upstash.com/fastly-compute-edge-with-redi)
 
-### Advanded
+### Advanced
 
 Low level `Command` classes can be imported from `@upstash/redis/commands`.
 `Redis` is just a wrapper around these commands for your convenience.

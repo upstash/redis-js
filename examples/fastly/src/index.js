@@ -6,7 +6,7 @@ async function handleRequest(event) {
   const redis = new Redis({
     url: "<UPSTASH_REDIS_REST_URL>",
     token: "<UPSTASH_REDIS_REST_TOKEN>",
-    requestOptions: { backend: "upstash-db" },
+    requestOptions: { backend: "upstash-db" }, // same name you used in `fastly.toml`
   })
 
   const counter = await redis.incr("fastly")

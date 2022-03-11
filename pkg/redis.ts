@@ -175,14 +175,14 @@ export class Redis {
    * variables. For instance when using the Vercel integration.
    *
    * This tries to load `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` from
-   * your environment.
+   * your environment using `process.env`.
    *
-   * If you are using Cloudflare, please use `fromCloudflareEnv()` instead.
+   * If you are using Cloudflare, please use `onCloudflare()` instead.
    */
   static fromEnv(): Redis {
     if (typeof process?.env === "undefined") {
       throw new Error(
-        "Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please use `fromCloudflareEnv()` instead",
+        "Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please use `Redis.onCloudflare()` instead",
       )
     }
     const url = process.env["UPSTASH_REDIS_REST_URL"]
@@ -202,7 +202,7 @@ export class Redis {
    * This tries to load `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` from
    * the global namespace
    */
-  static fromCloudflareEnv(): Redis {
+  static onCloudflare(): Redis {
     /**
      * These should be injected by cloudflare.
      */
@@ -216,10 +216,14 @@ export class Redis {
     const token = UPSTASH_REDIS_REST_TOKEN
 
     if (!url) {
-      throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_URL`")
+      throw new Error(
+        "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_URL`",
+      )
     }
     if (!token) {
-      throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`")
+      throw new Error(
+        "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_TOKEN`",
+      )
     }
     return new Redis({ url, token })
   }

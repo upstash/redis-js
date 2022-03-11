@@ -227,7 +227,7 @@ jobs:
 
       - name: Start example
         working-directory: ./examples/fastly
-        run: fastly compute serve &
+        run: ./fastly compute serve &
 
       - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:7676)" != "200" ]]; do sleep 1; done
         timeout-minutes: 2

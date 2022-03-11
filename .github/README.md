@@ -54,7 +54,7 @@ import { Redis } from "@upstash/redis"
 const redis = Redis.fromEnv()
 
 // or on cloudflare workers
-const redis = Redis.fromCloudflareEnv()
+const redis = Redis.onCloudflare()
 ```
 
 ### Working with types

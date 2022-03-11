@@ -161,7 +161,7 @@ jobs:
           echo "UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }}" >> .env
 
       - name: Start example
-        run: miniflare -e=.env 
+        run: miniflare -e=.env
         working-directory: ./examples/cloudflare-workers
         timeout-minutes: 1
       - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done

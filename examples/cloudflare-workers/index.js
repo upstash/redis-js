@@ -1,6 +1,6 @@
-import { Redis } from "@upstash/redis"
+import { Redis } from "@upstash/redis/platforms/cloudflare"
 
-const redis = Redis.onCloudflare()
+const redis = Redis.fromEnv()
 
 addEventListener("fetch", (event) => {
   event.respondWith(handleRequest(event.request))

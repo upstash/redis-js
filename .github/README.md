@@ -68,8 +68,6 @@ const data = await redis.get<MyCustomType>("key")
 
 ## Migrating to v1
 
-### API changes
-
 ### Explicit authentication
 
 Authentication is no longer automatically trying to load connection secrets from environment variables.
@@ -88,11 +86,11 @@ Or use one of the static constructors to load from environment variables:
 
 ```ts
 import { Redis } from "@upstash/redis"
-
 const redis = Redis.fromEnv()
 
 // or when deploying to cloudflare workers
-const redis = Redis.fromCloudflareEnv()
+import { Redis } from "@upstash/redis/platforms/cloudflare"
+const redis = Redis.fromEnv()
 ```
 
 ### Error handling
@@ -109,37 +107,6 @@ if (error) {
 // new
 const data = await redis.set("key", "value") // error is thrown automatically
 ```
-
-### Pipeline
-
-Pipelining commands allows you to send a single http request with multiple commands.
-
-```ts
-import { Redis } from "@upstash/redis"
-
-const redis = new Redis({
-  url: <UPSTASH_REDIS_REST_URL>,
-  token: <UPSTASH_REDIS_REST_TOKEN>,
-})
-
-const p = redis.pipeline()
-
-// Now you can chain multiple commands to create your pipeline:
-
-p.set("key", 2)
-p.incr("key")
-
-// or inline:
-p.hset("key2", "field", { hello: "world" }).hvals("key2")
-
-// Execute the pipeline once you are done building it:
-// `exec` returns an array where each element represents the response of a command in the pipeline.
-// You can optionally provide a type like this to get a typed response.
-const res = await p.exec<[Type1, Type2, Type3]>()
-
-```
-
-For more information about pipelines using REST see [here](https://blog.upstash.com/pipeline).
 
 ### Environments
 
@@ -192,7 +159,6 @@ const redis = Redis.onCloudflare()
 #### Fastly
 
 Fastly introduces a concept called [backend](https://developer.fastly.com/reference/api/services/backend/). You need to configure a backend in your `fastly.toml`. An example can be found [here](https://github.com/upstash/upstash-redis/blob/main/examples/fastly/fastly.toml).
-
 Until the fastly api stabilizes we recommend creating an instance manually:
 
 ```ts
@@ -210,10 +176,40 @@ const redis = new Redis({
 - [Code example](https://github.com/upstash/upstash-redis/tree/main/examples/fastly)
 - [Documentation](https://blog.upstash.com/fastly-compute-edge-with-redi)
 
-### Advanced
+## Pipeline
+
+Pipelining commands allows you to send a single http request with multiple commands.
+
+```ts
+import { Redis } from "@upstash/redis"
+
+const redis = new Redis({
+  url: <UPSTASH_REDIS_REST_URL>,
+  token: <UPSTASH_REDIS_REST_TOKEN>,
+})
+
+const p = redis.pipeline()
+
+// Now you can chain multiple commands to create your pipeline:
+
+p.set("key", 2)
+p.incr("key")
+
+// or inline:
+p.hset("key2", "field", { hello: "world" }).hvals("key2")
+
+// Execute the pipeline once you are done building it:
+// `exec` returns an array where each element represents the response of a command in the pipeline.
+// You can optionally provide a type like this to get a typed response.
+const res = await p.exec<[Type1, Type2, Type3]>()
+
+```
+
+For more information about pipelines using REST see [here](https://blog.upstash.com/pipeline).
+
+## Advanced
 
 Low level `Command` classes can be imported from `@upstash/redis/commands`.
-`Redis` is just a wrapper around these commands for your convenience.
 In case you need more control about types and or (de)serialization, please use a `Command`-class directly.
 
 ```ts
@@ -233,8 +229,7 @@ const data = await get.exec(client)
 
 ## Docs
 
-See [the documentation](https://docs.upstash.com/features/javascriptsdk) for
-details.
+See [the documentation](https://docs.upstash.com/features/javascriptsdk) for details.
 
 ## Contributing
 

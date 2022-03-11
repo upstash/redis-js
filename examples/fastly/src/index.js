@@ -10,8 +10,5 @@ async function handleRequest(event) {
   })
 
   const counter = await redis.incr("fastly")
-  // Catch all other requests and return a 404.
-  return new Response(`Counter: ${counter}`, {
-    status: 404,
-  })
+  return new Response(`Counter: ${counter}`)
 }

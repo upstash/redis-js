@@ -40,7 +40,7 @@ const redis = new Redis({
 })
 
 
-const data = await redis.get("key)
+const data = await redis.get("key")
 
 ```
 
@@ -54,7 +54,7 @@ import { Redis } from "@upstash/redis"
 const redis = Redis.fromEnv()
 
 // or on cloudflare workers
-const redis = Redis.fromCloudflareEnv()
+const redis = Redis.onCloudflare()
 ```
 
 ### Working with types
@@ -91,8 +91,8 @@ const redis = Redis.fromEnv()
 ```
 
 ```ts
-// cloudflare workers
-import { Redis } from "@upstash/redis/platforms/cloudflare"
+// or when deploying to cloudflare workers
+import { Redis } from "@upstash/redis/cloudflare"
 const redis = Redis.fromEnv()
 ```
 
@@ -204,7 +204,76 @@ const res = await p.exec<[Type1, Type2, Type3]>()
 
 For more information about pipelines using REST see [here](https://blog.upstash.com/pipeline).
 
-## Advanced
+### Environments
+
+We support various platforms, such as nodejs, cloudflare and fastly.
+
+Regardless of your environment you can always create a redis instance like this:
+
+```ts
+import { Redis } from "@upstash/redis"
+
+const redis = new Redis({
+  url: <UPSTASH_REDIS_REST_URL>,
+  token: <UPSTASH_REDIS_REST_TOKEN>,
+  // .. optional config
+})
+```
+
+However we offer a more convenient way for specific platforms.
+
+#### Node.js
+
+Examples: Vercel, Netlify, AWS Lambda
+
+If you are running on nodejs you can set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` as environment variable and create a redis instance like this:
+
+```ts
+import { Redis } from "@upstash/redis"
+
+const redis = Redis.fromEnv()
+```
+
+- [Code example](https://github.com/upstash/upstash-redis/tree/main/examples/node)
+
+#### Cloudflare Workers
+
+Cloudflare handles environment variables differently than nodejs.
+Please add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` using `wrangler secret put ...` or in the cloudflare dashboard.
+
+Afterwards you can create a redis instance:
+
+```ts
+import { Redis } from "@upstash/redis"
+
+const redis = Redis.onCloudflare()
+```
+
+- [Code example](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-workers)
+- [Documentation](https://docs.upstash.com/redis/tutorials/cloudflare_workers_with_redis)
+
+#### Fastly
+
+Fastly introduces a concept called [backend](https://developer.fastly.com/reference/api/services/backend/). You need to configure a backend in your `fastly.toml`. An example can be found [here](https://github.com/upstash/upstash-redis/blob/main/examples/fastly/fastly.toml).
+
+Until the fastly api stabilizes we recommend creating an instance manually:
+
+```ts
+import { Redis } from "@upstash/redis"
+
+const redis = new Redis({
+  url: <UPSTASH_REDIS_REST_URL>,
+  token: <UPSTASH_REDIS_REST_TOKEN>,
+  requestOptions: {
+    backend: <BACKEND_NAME>,
+  },
+})
+```
+
+- [Code example](https://github.com/upstash/upstash-redis/tree/main/examples/fastly)
+- [Documentation](https://blog.upstash.com/fastly-compute-edge-with-redi)
+
+### Advanced
 
 Low level `Command` classes can be imported from `@upstash/redis/commands`.
 In case you need more control about types and or (de)serialization, please use a `Command`-class directly.

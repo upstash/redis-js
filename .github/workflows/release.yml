@@ -39,6 +39,7 @@ jobs:
       - name: Build
         run: pnpm build
       - name: Publish
+        working-directory: ./dist
         run: |
           echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
           npm publish --access public

@@ -220,9 +220,9 @@ jobs:
       - name: Inject variables
         working-directory: ./examples/fastly
         run: |
-          sed -i 's;<UPSTASH_REDIS_REST_URL>.*;http://127.0.0.1:6379;' fastly.toml
-          sed -i 's;<UPSTASH_REDIS_REST_URL>.*;http://127.0.0.1:6379;' src/index.js
-          sed -i 's;<UPSTASH_REDIS_REST_TOKEN>.*;${{ secrets.UPSTASH_AUTH_TOKEN }};' src/index.js
+          sed -i 's;<UPSTASH_REDIS_REST_URL>;http://127.0.0.1:6379;' fastly.toml
+          sed -i 's;<UPSTASH_REDIS_REST_URL>;http://127.0.0.1:6379;' src/index.js
+          sed -i 's;<UPSTASH_REDIS_REST_TOKEN>;${{ secrets.UPSTASH_AUTH_TOKEN }};' src/index.js
           cat fastly.toml
       - name: Start example
         working-directory: ./examples/fastly

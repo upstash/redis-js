@@ -224,9 +224,11 @@ jobs:
           sed -i 's;<UPSTASH_REDIS_REST_URL>;http://127.0.0.1:6379;' src/index.js
           sed -i 's;<UPSTASH_REDIS_REST_TOKEN>;${{ secrets.UPSTASH_AUTH_TOKEN }};' src/index.js
           cat fastly.toml
+
       - name: Start example
         working-directory: ./examples/fastly
-        run: ./fastly compute serve &
+        run: ./fastly compute serve
+        timeout-minutes: 2
 
       - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:7676)" != "200" ]]; do sleep 1; done
         timeout-minutes: 2

@@ -133,6 +133,7 @@ export class Redis {
    */
   constructor(client: HttpClient) {
     this.client = client
+
   }
 
   /**

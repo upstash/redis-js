@@ -1,4 +1,4 @@
-import { Redis } from "@upstash/redis/platforms/cloudflare"
+import { Redis } from "@upstash/redis/cloudflare"
 
 const redis = Redis.fromEnv()
 

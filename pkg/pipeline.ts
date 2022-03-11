@@ -183,7 +183,7 @@ export class Pipeline {
 
     const res = await this.client.request<UpstashResponse<any>[]>({
       path: ["pipeline"],
-      body: JSON.stringify(Object.values(this.commands).map((c) => c.command)),
+      body: Object.values(this.commands).map((c) => c.command),
     })
     return res.map(({ error, result }, i) => {
       if (error) {

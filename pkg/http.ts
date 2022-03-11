@@ -6,7 +6,7 @@ export type HttpRequest = {
   /**
    * Request body will be serialized to json
    */
-  body?: string
+  body?: unknown
 }
 
 export type UpstashResponse<TResult> = {
@@ -48,7 +48,7 @@ export class HttpClient {
     const res = await fetch([this.baseUrl, ...req.path].join("/"), {
       method: "POST",
       headers: this.headers,
-      body: req.body,
+      body: JSON.stringify(req.body),
       // @ts-expect-error
       backend: this.options?.backend,
     })

@@ -26,7 +26,7 @@ export abstract class Command<TData, TResult> {
    */
   public async exec(client: HttpClient): Promise<TData> {
     const { result, error } = await client.request<UpstashResponse<TResult>>({
-      body: JSON.stringify(this.command),
+      body: this.command,
     })
     if (error) {
       throw new UpstashError(error)

@@ -1,12 +1,12 @@
 # This file describes a Fastly Compute@Edge package. To learn more visit:
 # https://developer.fastly.com/reference/fastly-toml/
 
-authors = ["woverton@fastly.com"]
+authors = ["upstash"]
 description = "Example of using Upstash with Fastly Compute@Edge"
 language = "javascript"
 manifest_version = 2
 name = "fastly-upstash"
-service_id = "SERVICE_ID"
+service_id = "<SERVICE_ID>"
 
 [local_server.backends.upstash-db]
-url = "UPSTASH_REDIS_REST_URL"
+url = "<UPSTASH_REDIS_REST_URL>"

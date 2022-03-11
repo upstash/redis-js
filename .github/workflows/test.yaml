@@ -228,12 +228,11 @@ jobs:
         working-directory: ./examples/fastly
         run: ./fastly compute serve &
 
-      # - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:7676)" != "200" ]]; do sleep 1; done
-      #   timeout-minutes: 2
+      - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:7676/)" != "200" ]]; do sleep 1; done
+        timeout-minutes: 2
 
       - name: Ping api
         run: |
-          sleep 20
           curl -s http://localhost:7676/ -o response.html
           if grep -q "Counter: 2" response.html; then
             exit 0

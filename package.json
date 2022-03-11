@@ -1,29 +1,18 @@
 {
   "name": "@upstash/redis",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "engines": {
     "node": ">=10"
   },
   "description": "An HTTP/REST based Redis client built on top of Upstash REST API.",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
-    }
-  },
-  "files": [
-    "package.json",
-    "dist"
-  ],
+  "main": "./index.js",
+  "module": "./index.mjs",
+  "types": "./index.d.ts",
   "scripts": {
     "test": "jest -i",
     "fmt": "pnpm lint && pnpm prettier --write .",
     "lint": "eslint --ext .ts --fix --ignore-path .gitignore .",
-    "build": "tsup && pnpm size-limit"
+    "build": "tsup && cp package.json ./dist/ && pnpm size-limit"
   },
   "repository": {
     "type": "git",

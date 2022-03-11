@@ -7,10 +7,6 @@ export type HttpRequest = {
    * Request body will be serialized to json
    */
   body?: unknown
-
-  headers?: Record<string, string>
-
-  retries?: number
 }
 
 export type UpstashResponse<TResult> = {
@@ -34,29 +30,24 @@ export class HttpClient {
   public constructor(config: HttpClientConfig) {
     this.baseUrl = config.baseUrl.replace(/\/$/, "")
 
-    this.headers = config.headers ?? {}
+    this.headers = {
+      "Content-Type": "application/json",
+      ...config.headers,
+    }
 
     this.options = config.options
   }
 
-  private async request<TResponse>(
-    method: "GET" | "POST" | "PUT" | "DELETE",
-    req: HttpRequest,
-  ): Promise<TResponse> {
+  public async request<TResponse>(req: HttpRequest): Promise<TResponse> {
     if (!req.path) {
       req.path = []
-    }
-    const headers = {
-      "Content-Type": "application/json",
-      ...this.headers,
-      ...req.headers,
     }
 
     // fetch is defined by isomorphic fetch
     // eslint-disable-next-line no-undef
     const res = await fetch([this.baseUrl, ...req.path].join("/"), {
-      method,
-      headers,
+      method: "POST",
+      headers: this.headers,
       body: JSON.stringify(req.body),
       // @ts-expect-error
       backend: this.options?.backend,
@@ -67,9 +58,5 @@ export class HttpClient {
     }
 
     return body as TResponse
-  }
-
-  public async post<TResponse>(req: HttpRequest): Promise<TResponse> {
-    return await this.request<TResponse>("POST", req)
   }
 }

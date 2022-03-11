@@ -33,7 +33,7 @@ describe("when list exists", () => {
         await new LPushCommand(key, value).exec(client)
         expect(
           async () => await new LSetCommand(key, newValue, 1).exec(client),
-        ).rejects.toThrowErrorMatchingInlineSnapshot()
+        ).rejects.toThrowErrorMatchingInlineSnapshot(`"ERR index out of range"`)
       })
     })
   })

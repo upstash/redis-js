@@ -149,7 +149,10 @@ jobs:
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
-        run: npm install && npm install -g miniflare
+        run: |
+          npm install
+          npm install -g miniflare wrangler
+
         working-directory: ./examples/cloudflare-workers
 
       - name: Create .env

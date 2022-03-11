@@ -40,7 +40,7 @@ const redis = new Redis({
 })
 
 
-const data = await redis.get("key)
+const data = await redis.get("key")
 
 ```
 

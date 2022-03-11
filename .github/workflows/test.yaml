@@ -152,12 +152,11 @@ jobs:
         run: npm install && npm install -g miniflare
         working-directory: ./examples/cloudflare-workers
 
-
       - name: Create .env
         run: |
           echo "UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379" >> .env
           echo "UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }}" >> .env
-     
+
       - name: Start example
         run: miniflare -e=.env &
         working-directory: ./examples/cloudflare-workers

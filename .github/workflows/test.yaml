@@ -164,13 +164,11 @@ jobs:
 
       - name: Ping api
         run: |
-          sleep 10
           curl -s http://localhost:8787/ -o response.html
-          cat response.html
-          if grep -q "Count: 1"; then
+          if grep -q "Count: 2"; then
             exit 0
           else
-            echo "Expected response to contain 'Count: 1', got $(cat response.html)"
+            echo "Expected response to contain 'Count: 2', got $(cat response.html)"
             exit 1
 
           fi

@@ -111,8 +111,8 @@ jobs:
           fi
 
   example-cloudflare:
-    # needs:
-    #   - test
+    needs:
+      - test
     env:
       UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
@@ -170,5 +170,74 @@ jobs:
           else
             echo "Expected response to contain 'Count: 2', got $(cat response.html)"
             exit 1
+          fi
 
+  example-fastly:
+    # needs:
+    #   - test
+    env:
+      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+          run_install: true
+
+      - name: Build
+        run: pnpm build
+
+      - name: Start redis server
+        uses: ./.github/actions/redis
+        with:
+          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
+          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
+
+      - name: Install example
+        working-directory: ./examples/fastly
+        run: |
+          npm install
+          curl -L https://github.com/fastly/cli/releases/download/v1.7.0/fastly_v1.7.0_linux-amd64.tar.gz > fastly.tar.gz
+          tar -xf ./fastly.tar.gz
+
+      - name: Inject variables
+        working-directory: ./examples/fastly
+        run: |
+
+          sed -i 's;^<UPSTASH_REDIS_REST_URL>.*;http://127.0.0.1:6379;' fastly.toml
+          sed -i 's;^<UPSTASH_REDIS_REST_URL>.*;http://127.0.0.1:6379;' src/index.js
+          sed -i 's;^<UPSTASH_REDIS_REST_TOKEN>.*;${{ secrets.UPSTASH_AUTH_TOKEN }};' src/index.js
+
+      - name: Start example
+        working-directory: ./examples/fastly
+        run: fastly compute serve &
+
+      - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:7676)" != "200" ]]; do sleep 1; done
+        timeout-minutes: 2
+
+      - name: Ping api
+        run: |
+          curl -s http://localhost:7676/ -o response.html
+          if grep -q "Counter: 2" response.html; then
+            exit 0
+          else
+            echo "Expected response to contain 'Counter: 2', got $(cat response.html)"
+            exit 1
           fi

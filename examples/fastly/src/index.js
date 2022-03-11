@@ -1,4 +1,4 @@
-import { Redis } from "@upstash/redis/platforms/fastly"
+import { Redis } from "@upstash/redis/fastly"
 
 addEventListener("fetch", (event) => event.respondWith(handleRequest(event)))
 

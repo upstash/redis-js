@@ -1,4 +1,3 @@
-import "isomorphic-fetch"
 import { UpstashError } from "./error"
 
 export type HttpRequest = {

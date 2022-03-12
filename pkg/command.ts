@@ -8,7 +8,7 @@ import { parseResponse } from "./util"
  * TData represents what the user will enter or receive,
  * TResult is the raw data returned from upstash, which may need to be transformed or parsed.
  */
-export abstract class Command<TData, TResult> {
+export class Command<TData, TResult> {
   public readonly command: string[]
   public deserialize: (result: TResult) => TData
   /**

@@ -19,9 +19,12 @@ It is the only connectionless (HTTP based) Redis client and designed for:
 - WebAssembly
 - and other environments where HTTP is preferred over TCP.
 
-See
-[the list of APIs](https://docs.upstash.com/features/restapi#rest---redis-api-compatibility)
-supported.
+See [the list of APIs](https://docs.upstash.com/features/restapi#rest---redis-api-compatibility) supported.
+
+## Upgrading from v0.2.0?
+
+Please read the [migration guide](https://github.com/upstash/upstash-redis#migrating-to-v1).
+For further explanation we wrote a [blog post](https://blog.upstash.com/upstash-redis-sdk-v1).
 
 ## Quick Start
 
@@ -31,85 +34,9 @@ supported.
 npm install @upstash/redis
 ```
 
-```ts
-import { Redis } from "@upstash/redis"
+### Create database
 
-const redis = new Redis({
-  url: <UPSTASH_REDIS_REST_URL>,
-  token: <UPSTASH_REDIS_REST_TOKEN>,
-})
-
-
-const data = await redis.get("key")
-
-```
-
-#### Automatic authentication from environment variables
-
-If you have added `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` as environent variables, you can automatically load them:
-
-```ts
-import { Redis } from "@upstash/redis"
-
-const redis = Redis.fromEnv()
-
-// or on cloudflare workers
-const redis = Redis.onCloudflare()
-```
-
-### Working with types
-
-Most commands allow you to provide a type to make working with typescript easier.
-
-```ts
-const data = await redis.get<MyCustomType>("key")
-// data is typed as `MyCustomType`
-```
-
-## Migrating to v1
-
-### Explicit authentication
-
-Authentication is no longer automatically trying to load connection secrets from environment variables.
-You must either supply them yourself:
-
-```ts
-import { Redis } from "@upstash/redis"
-
-const redis = new Redis({
-  url: <UPSTASH_REDIS_REST_URL>,
-  token: <UPSTASH_REDIS_REST_TOKEN>,
-})
-```
-
-Or use one of the static constructors to load from environment variables:
-
-```ts
-// Nodejs
-import { Redis } from "@upstash/redis"
-const redis = Redis.fromEnv()
-```
-
-```ts
-// or when deploying to cloudflare workers
-import { Redis } from "@upstash/redis/cloudflare"
-const redis = Redis.fromEnv()
-```
-
-### Error handling
-
-Errors are now thrown automatically instead of being returned to you.
-
-```ts
-// old
-const { data, error } = await set("key", "value")
-if (error) {
-  throw new Error(error)
-}
-
-// new
-const data = await redis.set("key", "value") // error is thrown automatically
-```
+Create a new redis database on [upstash](https://console.upstash.com/)
 
 ### Environments
 
@@ -175,8 +102,63 @@ const redis = new Redis({
 - [Code example](https://github.com/upstash/upstash-redis/tree/main/examples/fastly)
 - [Documentation](https://blog.upstash.com/fastly-compute-edge-with-redi)
 
+### Working with types
+
+Most commands allow you to provide a type to make working with typescript easier.
+
+```ts
+const data = await redis.get<MyCustomType>("key")
+// data is typed as `MyCustomType`
+```
+
+## Migrating to v1
+
+### Explicit authentication
+
+The library is no longer automatically trying to load connection secrets from environment variables.
+You must either supply them yourself:
+
+```ts
+import { Redis } from "@upstash/redis"
+
+const redis = new Redis({
+  url: <UPSTASH_REDIS_REST_URL>,
+  token: <UPSTASH_REDIS_REST_TOKEN>,
+})
+```
+
+Or use one of the static constructors to load from environment variables:
+
+```ts
+// Nodejs
+import { Redis } from "@upstash/redis"
+const redis = Redis.fromEnv()
+```
+
+```ts
+// or when deploying to cloudflare workers
+import { Redis } from "@upstash/redis/cloudflare"
+const redis = Redis.fromEnv()
+```
+
+### Error handling
+
+Errors are now thrown automatically instead of being returned to you.
+
+```ts
+// old
+const { data, error } = await set("key", "value")
+if (error) {
+  throw new Error(error)
+}
+
+// new
+const data = await redis.set("key", "value") // error is thrown automatically
+```
+
 ## Pipeline
 
+`v1.0.0` introduces redis pipelines.
 Pipelining commands allows you to send a single http request with multiple commands.
 
 ```ts
@@ -206,13 +188,13 @@ For more information about pipelines using REST see [here](https://blog.upstash.
 
 ### Advanced
 
-A low level `Command` class can be imported from `@upstash/redis/commands` inn case you need more control about types and or (de)serialization.
+A low level `Command` class can be imported from `@upstash/redis` in case you need more control about types and or (de)serialization.
 
-By default all objects you are storing in redis are serialized using `JSON.stringify` and recursively deserialized as well. Here's an example how you could customize that behaviour:
+By default all objects you are storing in redis are serialized using `JSON.stringify` and recursively deserialized as well. Here's an example how you could customize that behaviour. Keep in mind that you need to provide a `fetch` polyfill if you are running on nodejs. We recommend [isomorphic-fetch](https://www.npmjs.com/package/isomorphic-fetch).
 
 ```ts
 import { Command } from "@upstash/redis/commands"
-import { HttpClient} from "@upstash/redis/http"
+import { HttpClient } from "@upstash/redis/http"
 
 /**
  * TData represents what the user will enter or receive,
@@ -240,7 +222,7 @@ const res = new CustomGetCommand("key").exec(client)
 
 #### Javascript MAX_SAFE_INTEGER
 
-Unfortunately javascript can not handle numbers larger than `2^53 -1` safely and would return wrong results.
+Javascript can not handle numbers larger than `2^53 -1` safely and would return wrong results when trying to deserialize them.
 In these cases the default deserializer will return them as string instead. This might cause a mismatch with your custom types.
 
 ```ts

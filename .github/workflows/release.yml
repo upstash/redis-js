@@ -40,7 +40,7 @@ jobs:
         run: pnpm build
 
       - name: Copy README
-        run: cp .github.README.md ./dist/
+        run: cp .github/README.md ./dist/
 
       - name: Publish
         working-directory: ./dist

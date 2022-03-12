@@ -1,6 +1,6 @@
 name = "workers-with-redis"
 type = "webpack"
-
+compatibility_date = "2022-03-11"
 workers_dev = true
 route = ""
 zone_id = ""

@@ -3,6 +3,7 @@ import { config } from "dotenv"
 import { randomUUID } from "crypto"
 import { DelCommand } from "./commands/del"
 import { NonEmptyArray } from "./types"
+import "isomorphic-fetch"
 config()
 
 export const newHttpClient = () => {

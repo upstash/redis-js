@@ -92,7 +92,7 @@ describe("use all the things", () => {
       .hmget(newKey(), newKey())
       .hmset(newKey(), { field: "field", value: "value" })
       .hscan(newKey(), 0)
-      .hset(newKey(), "field", "value")
+      .hset(newKey(), { field: "value" })
       .hsetnx(newKey(), "field", "value")
       .hstrlen(newKey(), "field")
       .hvals(newKey())

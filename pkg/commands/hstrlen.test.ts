@@ -16,7 +16,7 @@ it("returns correct length", async () => {
 
   const res = await new HStrLenCommand(key, field).exec(client)
   expect(res).toBe(0)
-  await new HSetCommand(key, field, value).exec(client)
+  await new HSetCommand(key, { [field]: value }).exec(client)
 
   const res2 = await new HStrLenCommand(key, field).exec(client)
 

@@ -429,8 +429,8 @@ export class Pipeline {
   /**
    * @see https://redis.io/commands/hset
    */
-  public hset<TData>(key: string, field: string, value: TData): this {
-    return this.chain(new HSetCommand<TData>(key, field, value))
+  public hset<TData>(key: string, kv: { [field: string]: TData }): this {
+    return this.chain(new HSetCommand<TData>(key, kv))
   }
 
   /**

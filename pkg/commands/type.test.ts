@@ -47,7 +47,7 @@ describe("hash", () => {
     const key = newKey()
     const field = randomUUID()
     const value = randomUUID()
-    await new HSetCommand(key, field, value).exec(client)
+    await new HSetCommand(key, { [field]: value }).exec(client)
     const res = await new TypeCommand(key).exec(client)
     expect(res).toEqual("hash")
   })

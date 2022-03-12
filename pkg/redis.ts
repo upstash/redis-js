@@ -367,8 +367,8 @@ export class Redis {
   /**
    * @see https://redis.io/commands/hset
    */
-  public hset<TData>(key: string, field: string, value: TData) {
-    return new HSetCommand<TData>(key, field, value).exec(this.client)
+  public hset<TData>(key: string, kv: { [field: string]: TData }) {
+    return new HSetCommand<TData>(key, kv).exec(this.client)
   }
 
   /**

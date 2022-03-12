@@ -67,6 +67,30 @@
     {
       "path": "dist/index.mjs",
       "limit": "5 KB"
+    },
+    {
+      "path": "dist/cloudflare.js",
+      "limit": "5 KB"
+    },
+    {
+      "path": "dist/cloudflare.mjs",
+      "limit": "5 KB"
+    },
+    {
+      "path": "dist/nodejs.js",
+      "limit": "5 KB"
+    },
+    {
+      "path": "dist/nodejs.mjs",
+      "limit": "5 KB"
+    },
+    {
+      "path": "dist/fastly.js",
+      "limit": "5 KB"
+    },
+    {
+      "path": "dist/fastly.mjs",
+      "limit": "5 KB"
     }
   ]
 }

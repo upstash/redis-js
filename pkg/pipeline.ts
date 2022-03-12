@@ -1,5 +1,5 @@
 import { NonEmptyArray } from "./types"
-import { Command } from "./command"
+import { Command } from "./commands/command"
 import {
   AppendCommand,
   BitCountCommand,

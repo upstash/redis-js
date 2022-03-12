@@ -1,5 +1,5 @@
 function parseRecursive(obj: unknown): unknown {
-  return Array.isArray(obj)
+  const parsed = Array.isArray(obj)
     ? obj.map((o) => {
         try {
           return parseRecursive(o)
@@ -8,6 +8,15 @@ function parseRecursive(obj: unknown): unknown {
         }
       })
     : JSON.parse(obj as string)
+
+  /**
+   * Parsing very large numbers can result in MAX_SAFE_INTEGER
+   * overflow. In that case we return the number as string instead.
+   */
+  if (typeof parsed === "number" && parsed.toString() != obj) {
+    return obj
+  }
+  return parsed
 }
 
 export function parseResponse<TResult>(result: unknown): TResult {

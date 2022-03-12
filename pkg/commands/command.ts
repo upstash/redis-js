@@ -1,6 +1,6 @@
-import { UpstashError } from "./error"
-import { HttpClient, UpstashResponse } from "./http"
-import { parseResponse } from "./util"
+import { UpstashError } from "../error"
+import { HttpClient, UpstashResponse } from "../http"
+import { parseResponse } from "../util"
 
 /**
  * Command offers default (de)serialization and the exec method to all commands.

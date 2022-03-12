@@ -1,5 +1,5 @@
 import { ScanCommandOptions } from "./scan"
-import { Command } from "../command"
+import { Command } from "./command"
 
 /**
  * @see https://redis.io/commands/zscan

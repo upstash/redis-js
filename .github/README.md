@@ -206,12 +206,26 @@ For more information about pipelines using REST see [here](https://blog.upstash.
 
 ### Advanced
 
-Low level `Command` classes can be imported from `@upstash/redis/commands`.
-In case you need more control about types and or (de)serialization, please use a `Command`-class directly.
+A low level `Command` class can be imported from `@upstash/redis/commands` inn case you need more control about types and or (de)serialization.
+
+By default all objects you are storing in redis are serialized using `JSON.stringify` and recursively deserialized as well. Here's an example how you could customize that behaviour:
 
 ```ts
+import { Command } from "@upstash/redis/commands"
 import { HttpClient} from "@upstash/redis/http"
-import { GetCommand} from "@upstash/redis/commands"
+
+/**
+ * TData represents what the user will enter or receive,
+ * TResult is the raw data returned from upstash, which may need to be
+ * transformed or parsed.
+ */
+const deserialize: (raw: TResult) => TData = ...
+
+class CustomGetCommand<TData, TResult> extends Command<TData | null, TResult | null> {
+  constructor(key: string, ) {
+    super(["get", key], { deserialize })
+  }
+}
 
 const client = new HttpClient({
   baseUrl: <UPSTASH_REDIS_REST_URL>,
@@ -220,10 +234,22 @@ const client = new HttpClient({
   },
 })
 
-const get = new GetCommand<OptionalCustomType>("key")
+const res = new CustomGetCommand("key").exec(client)
 
-const data = await get.exec(client)
 ```
+
+#### Javascript MAX_SAFE_INTEGER
+
+Unfortunately javascript can not handle numbers larger than `2^53 -1` safely and would return wrong results.
+In these cases the default deserializer will return them as string instead. This might cause a mismatch with your custom types.
+
+```ts
+await redis.set("key", "101600000000150081467")
+const res = await redis<number>("get")
+```
+
+In this example `res` will still be a string despite the type annotation.
+Please keep that in mind and adjust accordingly.
 
 ## Docs
 

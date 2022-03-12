@@ -35,13 +35,16 @@ jobs:
 
       - name: Set version
         run: echo $(jq --arg v "$VERSION" '(.version) = $v' package.json) > package.json
-
+      
       - name: Build
         run: pnpm build
+
+      - name: Copy README
+        run: cp .github.README.md ./dist/
+
       - name: Publish
+        working-directory: ./dist
         run: |
           echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
           npm publish --access public
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      

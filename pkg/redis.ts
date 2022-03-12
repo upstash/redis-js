@@ -115,22 +115,6 @@ import {
 } from "./commands"
 import { Pipeline } from "./pipeline"
 /**
- * Connection credentials for upstash redis.
- * Get them from https://console.upstash.com/redis/<uuid>
- */
-export type RedisConfig = {
-  /**
-   * UPSTASH_REDIS_REST_URL
-   */
-  url: string
-
-  /**
-   * UPSTASH_REDIS_REST_TOKEN
-   */
-  token: string
-}
-
-/**
  * Serverless redis client for upstash.
  */
 export class Redis {
@@ -147,69 +131,8 @@ export class Redis {
    * });
    * ```
    */
-  constructor(config: RedisConfig) {
-    this.client = new HttpClient({
-      baseUrl: config.url,
-      headers: {
-        authorization: `Bearer ${config.token}`,
-      },
-    })
-  }
-
-  /**
-   * Create a new Upstash Redis instance from environment variables.
-   *
-   * Use this to automatically load connection secrets from your environment
-   * variables. For instance when using the Vercel integration.
-   *
-   * This tries to load `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` from
-   * your environment.
-   *
-   * If you are using Cloudflare, please use `fromCloudflareEnv()` instead.
-   */
-  static fromEnv(): Redis {
-    if (typeof process?.env === "undefined") {
-      throw new Error(
-        "Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please use `fromCloudflareEnv()` instead",
-      )
-    }
-    const url = process.env["UPSTASH_REDIS_REST_URL"]
-    if (!url) {
-      throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_URL`")
-    }
-    const token = process.env["UPSTASH_REDIS_REST_TOKEN"]
-    if (!token) {
-      throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`")
-    }
-    return new Redis({ url, token })
-  }
-
-  /**
-   * Create a new Upstash Redis instance from environment variables on cloudflare.
-   *
-   * This tries to load `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` from
-   * the global namespace
-   */
-  static fromCloudflareEnv(): Redis {
-    /**
-     * These should be injected by cloudflare.
-     */
-
-    // @ts-ignore
-    // eslint-disable-next-line no-undef
-    const url = UPSTASH_REDIS_REST_URL
-
-    // @ts-ignore
-    // eslint-disable-next-line no-undef
-    const token = UPSTASH_REDIS_REST_TOKEN
-
-    if (!url) {
-      throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_URL`")
-    }
-    if (!token) {
-      throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`")
-    }
-    return new Redis({ url, token })
+  constructor(client: HttpClient) {
+    this.client = client
   }
 
   /**

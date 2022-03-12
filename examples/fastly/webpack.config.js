@@ -31,8 +31,5 @@ module.exports = {
     new webpack.ProvidePlugin({
       URL: "core-js/web/url",
     }),
-    new webpack.DefinePlugin({
-      "process.env": {},
-    }),
   ],
 }

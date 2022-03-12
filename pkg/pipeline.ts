@@ -1,5 +1,5 @@
 import { NonEmptyArray } from "./types"
-import { Command } from "./command"
+import { Command } from "./commands/command"
 import {
   AppendCommand,
   BitCountCommand,
@@ -180,7 +180,8 @@ export class Pipeline {
     if (this.commands.length === 0) {
       throw new Error("Pipeline is empty")
     }
-    const res = await this.client.post<UpstashResponse<any>[]>({
+
+    const res = await this.client.request<UpstashResponse<any>[]>({
       path: ["pipeline"],
       body: Object.values(this.commands).map((c) => c.command),
     })

@@ -1,6 +1,6 @@
-import { UpstashError } from "./error"
-import { HttpClient, UpstashResponse } from "./http"
-import { parseResponse } from "./util"
+import { UpstashError } from "../error"
+import { HttpClient, UpstashResponse } from "../http"
+import { parseResponse } from "../util"
 
 /**
  * Command offers default (de)serialization and the exec method to all commands.
@@ -8,7 +8,7 @@ import { parseResponse } from "./util"
  * TData represents what the user will enter or receive,
  * TResult is the raw data returned from upstash, which may need to be transformed or parsed.
  */
-export abstract class Command<TData, TResult> {
+export class Command<TData, TResult> {
   public readonly command: string[]
   public deserialize: (result: TResult) => TData
   /**
@@ -25,7 +25,7 @@ export abstract class Command<TData, TResult> {
    * Execute the command using a client.
    */
   public async exec(client: HttpClient): Promise<TData> {
-    const { result, error } = await client.post<UpstashResponse<TResult>>({
+    const { result, error } = await client.request<UpstashResponse<TResult>>({
       body: this.command,
     })
     if (error) {

@@ -14,7 +14,7 @@ describe("when the request is invalid", () => {
   it("throws", async () => {
     const client = newHttpClient()
     expect(() =>
-      client.post({
+      client.request({
         body: ["get", "1", "2"],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot()
@@ -26,7 +26,7 @@ describe("whithout authorization", () => {
     const client = newHttpClient()
     client.headers = {}
     expect(() =>
-      client.post({
+      client.request({
         body: ["get", "1", "2"],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot()

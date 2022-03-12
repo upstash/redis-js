@@ -12,13 +12,13 @@ afterAll(cleanup)
 it("returns 1 for an existing field", async () => {
   const key = newKey()
   const field = randomUUID()
-  await new HSetCommand(key, field, randomUUID()).exec(client)
+  await new HSetCommand(key, { [field]: randomUUID() }).exec(client)
   const res = await new HExistsCommand(key, field).exec(client)
   expect(res).toEqual(1)
 })
 it("returns 0 if field does not exist", async () => {
   const key = newKey()
-  await new HSetCommand(key, randomUUID(), randomUUID()).exec(client)
+  await new HSetCommand(key, { [randomUUID()]: randomUUID() }).exec(client)
 
   const res = await new HExistsCommand(key, "not-existing-field").exec(client)
   expect(res).toEqual(0)

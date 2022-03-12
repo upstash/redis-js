@@ -18,7 +18,7 @@ it("increments a non-existing value", async () => {
 it("increments and existing value", async () => {
   const key = newKey()
   const field = randomUUID()
-  await new HSetCommand(key, field, 5).exec(client)
+  await new HSetCommand(key, { [field]: 5 }).exec(client)
   const res = await new HIncrByFloatCommand(key, field, 2.5).exec(client)
 
   expect(res).toEqual(7.5)

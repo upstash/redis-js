@@ -41,7 +41,7 @@ it("gets an object", async () => {
   const key = newKey()
   const field = randomUUID()
   const value = { v: randomUUID() }
-  await new HSetCommand(key, field, value).exec(client)
+  await new HSetCommand(key, { [field]: value }).exec(client)
   const cmd = new HMGetCommand(key, field)
   const res = await cmd.exec(client)
   expect(res).toEqual({ [field]: value })

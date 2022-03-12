@@ -9,7 +9,7 @@ afterAll(cleanup)
 describe("without options", () => {
   it("returns cursor and members", async () => {
     const key = newKey()
-    await new HSetCommand(key, "field", "value").exec(client)
+    await new HSetCommand(key, { field: "value" }).exec(client)
     const res = await new HScanCommand(key, 0).exec(client)
 
     expect(res).toBeDefined()
@@ -22,7 +22,7 @@ describe("without options", () => {
 describe("with match", () => {
   it("returns cursor and members", async () => {
     const key = newKey()
-    await new HSetCommand(key, "field", "value").exec(client)
+    await new HSetCommand(key, { field: "value" }).exec(client)
     const res = await new HScanCommand(key, 0, { match: "field" }).exec(client)
 
     expect(res).toBeDefined()
@@ -35,7 +35,7 @@ describe("with match", () => {
 describe("with count", () => {
   it("returns cursor and members", async () => {
     const key = newKey()
-    await new HSetCommand(key, "field", "value").exec(client)
+    await new HSetCommand(key, { field: "value" }).exec(client)
     const res = await new HScanCommand(key, 0, { count: 1 }).exec(client)
 
     expect(res).toBeDefined()

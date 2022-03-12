@@ -15,7 +15,7 @@ it("returns correct length", async () => {
 
   const res = await new HValsCommand(key).exec(client)
   expect(res).toEqual([])
-  await new HSetCommand(key, field, value).exec(client)
+  await new HSetCommand(key, { [field]: value }).exec(client)
 
   const res2 = await new HValsCommand(key).exec(client)
 

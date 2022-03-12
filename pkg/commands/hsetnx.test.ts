@@ -15,7 +15,7 @@ describe("when hash exists already", () => {
     const field = randomUUID()
     const value = randomUUID()
     const newValue = randomUUID()
-    await new HSetCommand(key, field, value).exec(client)
+    await new HSetCommand(key, { [field]: value }).exec(client)
     const res = await new HSetNXCommand(key, field, newValue).exec(client)
     expect(res).toBe(0)
     const res2 = await new HGetCommand(key, field).exec(client)

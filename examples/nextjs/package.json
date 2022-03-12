@@ -9,10 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "12.1.0",
+    "@upstash/redis": "../../dist",
+    "next": "^12.1.0",
     "react": "17.0.2",
-    "react-dom": "17.0.2",
-    "@upstash/redis": "../../dist"
+    "react-dom": "17.0.2"
   },
   "devDependencies": {
     "@types/node": "17.0.21",

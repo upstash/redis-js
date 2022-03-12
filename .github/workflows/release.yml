@@ -39,9 +39,11 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Copy README
-        run: cp .github.README.md ./dist/
-
+      - name: Copy artifacts
+        run: |
+          cp .github/README.md ./dist/
+          cp package.json ./dist/
+          
       - name: Publish
         working-directory: ./dist
         run: |

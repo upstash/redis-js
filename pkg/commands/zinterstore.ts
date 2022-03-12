@@ -1,4 +1,4 @@
-import { Command } from "../command"
+import { Command } from "./command"
 
 export type ZInterStoreCommandOptions = {
   aggregate?: "sum" | "min" | "max"

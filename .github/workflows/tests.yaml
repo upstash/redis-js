@@ -1,4 +1,4 @@
-name: Test
+name: Tests
 on:
   pull_request:
   schedule:
@@ -11,6 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         node: ["14", "16", "17"]
+    name: Tests (node v${{ matrix.node }})
     steps:
       - name: Setup repo
         uses: actions/checkout@v2

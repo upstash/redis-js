@@ -1,4 +1,5 @@
 import { Pipeline } from "./pipeline"
+import { Redis } from "./redis"
 import { keygen, newHttpClient } from "./test-utils"
 import { randomUUID } from "crypto"
 import { describe, it, expect, afterEach } from "@jest/globals"
@@ -6,6 +7,19 @@ const client = newHttpClient()
 
 const { newKey, cleanup } = keygen()
 afterEach(cleanup)
+
+describe("with destructuring", () => {
+  it("correctly binds this", async () => {
+    const { pipeline } = new Redis(client)
+    const p = pipeline()
+
+    const { echo, exec } = p
+    echo("Hello")
+
+    const res = await exec()
+    expect(res).toEqual(["Hello"])
+  })
+})
 
 describe("with single command", () => {
   it("works with multiple commands", async () => {

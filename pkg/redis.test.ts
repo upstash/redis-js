@@ -17,3 +17,14 @@ describe("when destructuring the redis class", () => {
     expect(res).toEqual(value)
   })
 })
+
+describe("zadd", () => {
+  it("adds the set", async () => {
+    const key = newKey()
+    const score = 1
+    const member = randomUUID()
+
+    const res = await new Redis(client).zadd(key, { score, member })
+    expect(res).toBe(1)
+  })
+})

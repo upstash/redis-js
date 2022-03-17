@@ -162,7 +162,7 @@ describe("use all the things", () => {
       .sunion(newKey())
       .sunionstore(newKey(), newKey())
       .time()
-      .touch()
+      .touch(newKey())
       .ttl(newKey())
       .type(newKey())
       .unlink()

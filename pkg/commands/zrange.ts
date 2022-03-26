@@ -15,14 +15,20 @@ export class ZRangeCommand<TData extends unknown[]> extends Command<TData, strin
   constructor(key: string, min: number, max: number, opts?: ZRangeCommandOptions)
   constructor(
     key: string,
-    min: `(${string}` | `[${string}`,
-    max: `(${string}` | `[${string}`,
+    min: `(${string}` | `[${string}` | "-" | "+",
+    max: `(${string}` | `[${string}` | "-" | "+",
     opts: { byLex: true } & ZRangeCommandOptions,
   )
   constructor(
     key: string,
-    min: number | `(${number}` | `(${string}` | `[${string}`,
-    max: number | `(${number}` | `(${string}` | `[${string}`,
+    min: number | `(${number}` | "-inf" | "+inf",
+    max: number | `(${number}` | "-inf" | "+inf",
+    opts: { byScore: true } & ZRangeCommandOptions,
+  )
+  constructor(
+    key: string,
+    min: number | string,
+    max: number | string,
     opts?: ZRangeCommandOptions,
   ) {
     const command: unknown[] = ["zrange", key, min, max]

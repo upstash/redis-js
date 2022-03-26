@@ -81,6 +81,9 @@ describe("byscore", () => {
     expect(res2![0]).toEqual(member1)
     expect(res2![1]).toEqual(member2)
     expect(res2![2]).toEqual(member3)
+
+    const res3 = await new ZRangeCommand(key, "-inf", "+inf", { byScore: true }).exec(client)
+    expect(res3).toEqual(res2)
   })
 })
 
@@ -97,15 +100,18 @@ describe("bylex", () => {
 
     // everything in between a and c, excluding "a" and including "c"
     const res = await new ZRangeCommand(key, "(a", "[c", { byLex: true }).exec(client)
-
     expect(res).toHaveLength(2)
     expect(res![0]).toEqual("b")
     expect(res![1]).toEqual("c")
 
+    //everything after "a", excluding a
+    const res2 = await new ZRangeCommand(key, "(a", "+", { byLex: true }).exec(client)
+    expect(res2).toEqual(res)
+
     // everything in between a and "bb", including "a" and excluding "bb"
-    const res2 = await new ZRangeCommand(key, "[a", "(bb", { byLex: true }).exec(client)
-    expect(res2).toHaveLength(2)
-    expect(res2![0]).toEqual("a")
-    expect(res2![1]).toEqual("b")
+    const res3 = await new ZRangeCommand(key, "[a", "(bb", { byLex: true }).exec(client)
+    expect(res3).toHaveLength(2)
+    expect(res3![0]).toEqual("a")
+    expect(res3![1]).toEqual("b")
   })
 })

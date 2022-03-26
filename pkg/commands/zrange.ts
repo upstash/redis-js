@@ -1,6 +1,8 @@
 import { Command } from "./command"
+
 export type ZRangeCommandOptions = {
   withScores?: boolean
+  byScore?: boolean
 }
 
 /**
@@ -14,6 +16,11 @@ export class ZRangeCommand<TData extends unknown[]> extends Command<TData, strin
     opts?: ZRangeCommandOptions,
   ) {
     const command: unknown[] = ["zrange", key, min, max]
+
+    // Either byScore or byLex is allowed
+    if (opts?.byScore) {
+      command.push("byscore")
+    }
     if (opts?.withScores) {
       command.push("withscores")
     }

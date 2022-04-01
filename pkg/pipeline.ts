@@ -112,6 +112,7 @@ import {
   ZInterStoreCommand,
   ZRemRangeByScoreCommand,
   ZUnionStoreCommand,
+  ZRangeCommandOptions,
 } from "./commands"
 import { HttpClient } from "./http"
 import { CommandArgs } from "./types"
@@ -765,8 +766,22 @@ export class Pipeline {
   /**
    * @see https://redis.io/commands/zrange
    */
-  zrange = <TData extends unknown[]>(...args: CommandArgs<typeof ZRangeCommand>) =>
-    this.chain(new ZRangeCommand<TData>(...args))
+  zrange = <TData extends unknown[]>(
+    ...args:
+      | [key: string, min: number, max: number, opts?: ZRangeCommandOptions]
+      | [
+          key: string,
+          min: `(${string}` | `[${string}` | "-" | "+",
+          max: `(${string}` | `[${string}` | "-" | "+",
+          opts: { byLex: true } & ZRangeCommandOptions,
+        ]
+      | [
+          key: string,
+          min: number | `(${number}` | "-inf" | "+inf",
+          max: number | `(${number}` | "-inf" | "+inf",
+          opts: { byScore: true } & ZRangeCommandOptions,
+        ]
+  ) => this.chain(new ZRangeCommand<TData>(args[0], args[1] as any, args[2] as any, args[3]))
 
   /**
    * @see https://redis.io/commands/zrank

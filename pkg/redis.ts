@@ -112,6 +112,7 @@ import {
   ZInterStoreCommand,
   ZRemRangeByScoreCommand,
   ZUnionStoreCommand,
+  ZRangeCommandOptions,
 } from "./commands"
 import { Pipeline } from "./pipeline"
 /**
@@ -730,8 +731,22 @@ export class Redis {
   /**
    * @see https://redis.io/commands/zrange
    */
-  zrange = <TData extends unknown[]>(...args: CommandArgs<typeof ZRangeCommand>) =>
-    new ZRangeCommand<TData>(...args).exec(this.client)
+  zrange = <TData extends unknown[]>(
+    ...args:
+      | [key: string, min: number, max: number, opts?: ZRangeCommandOptions]
+      | [
+          key: string,
+          min: `(${string}` | `[${string}` | "-" | "+",
+          max: `(${string}` | `[${string}` | "-" | "+",
+          opts: { byLex: true } & ZRangeCommandOptions,
+        ]
+      | [
+          key: string,
+          min: number | `(${number}` | "-inf" | "+inf",
+          max: number | `(${number}` | "-inf" | "+inf",
+          opts: { byScore: true } & ZRangeCommandOptions,
+        ]
+  ) => new ZRangeCommand<TData>(args[0], args[1] as any, args[2] as any, args[3]).exec(this.client)
 
   /**
    * @see https://redis.io/commands/zrank

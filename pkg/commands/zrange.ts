@@ -17,13 +17,13 @@ export class ZRangeCommand<TData extends unknown[]> extends Command<TData, strin
     key: string,
     min: `(${string}` | `[${string}` | "-" | "+",
     max: `(${string}` | `[${string}` | "-" | "+",
-    opts: { byLex: true } & ZRangeCommandOptions,
+    opts?: { byLex: true } & ZRangeCommandOptions,
   )
   constructor(
     key: string,
     min: number | `(${number}` | "-inf" | "+inf",
     max: number | `(${number}` | "-inf" | "+inf",
-    opts: { byScore: true } & ZRangeCommandOptions,
+    opts?: { byScore: true } & ZRangeCommandOptions,
   )
   constructor(
     key: string,

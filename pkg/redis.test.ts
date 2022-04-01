@@ -28,3 +28,15 @@ describe("zadd", () => {
     expect(res).toBe(1)
   })
 })
+
+describe("zrange", () => {
+  it("returns the range", async () => {
+    const key = newKey()
+    const score = 1
+    const member = randomUUID()
+    const redis = new Redis(client)
+    await redis.zadd(key, { score, member })
+    const res = await redis.zrange(key, 0, 2)
+    expect(res).toEqual([member])
+  })
+})

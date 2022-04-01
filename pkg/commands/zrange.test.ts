@@ -23,7 +23,7 @@ describe("without options", () => {
       { score: score2, member: member2 },
     ).exec(client)
 
-    const res = await new ZRangeCommand(key, "(a", "(b", { byLex: true }).exec(client)
+    const res = await new ZRangeCommand(key, 1, 3).exec(client)
     expect(res).toHaveLength(1)
     expect(res![0]).toEqual(member2)
   })

@@ -1,5 +1,3 @@
-import { NonEmptyArray } from "./types"
-import { Command } from "./commands/command"
 import {
   AppendCommand,
   BitCountCommand,
@@ -113,11 +111,15 @@ import {
   ZRemRangeByScoreCommand,
   ZUnionStoreCommand,
   ZRangeCommandOptions,
+  PublishCommand,
 } from "./commands"
-import { HttpClient } from "./http"
-import { CommandArgs } from "./types"
+import { Command } from "./commands/command"
 import { UpstashError } from "./error"
+import { HttpClient } from "./http"
 import { UpstashResponse } from "./http"
+import { NonEmptyArray } from "./types"
+import { CommandArgs } from "./types"
+
 /**
  * Upstash REST API supports command pipelining to send multiple commands in
  * batch, instead of sending each command one by one and waiting for a response.
@@ -522,6 +524,11 @@ export class Pipeline {
   pttl = (...args: CommandArgs<typeof PTtlCommand>) => this.chain(new PTtlCommand(...args))
 
   /**
+   * @see https://redis.io/commands/publish
+   */
+  publish = (...args: CommandArgs<typeof PublishCommand>) => this.chain(new PublishCommand(...args))
+
+  /**
    * @see https://redis.io/commands/randomkey
    */
   randomkey = () => this.chain(new RandomKeyCommand())
@@ -712,7 +719,7 @@ export class Pipeline {
       | [
           key: string,
           opts: ZAddCommandOptions | ZAddCommandOptionsWithIncr,
-          ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]]
+          ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]],
         ]
   ) => {
     if ("score" in args[1]) {

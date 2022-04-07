@@ -1,7 +1,8 @@
-import { keygen, newHttpClient } from "./test-utils"
-import { randomUUID } from "crypto"
-import { describe, it, expect, afterEach } from "@jest/globals"
 import { Redis } from "./redis"
+import { keygen, newHttpClient } from "./test-utils"
+import { describe, it, expect, afterEach } from "@jest/globals"
+import { randomUUID } from "crypto"
+
 const client = newHttpClient()
 
 const { newKey, cleanup } = keygen()

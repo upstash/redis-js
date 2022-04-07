@@ -13,11 +13,11 @@ describe("without options", () => {
   it("expires a key correctly", async () => {
     const key = newKey()
     const value = randomUUID()
-    await new SetCommand(key, value).exec(client)
-    const res = await new PExpireCommand(key, 1000).exec(client)
+    await new SetCommand([key, value]).exec(client)
+    const res = await new PExpireCommand([key, 1000]).exec(client)
     expect(res).toEqual(1)
     await new Promise((res) => setTimeout(res, 2000))
-    const res2 = await new GetCommand(key).exec(client)
+    const res2 = await new GetCommand([key]).exec(client)
 
     expect(res2).toBeNull()
   })

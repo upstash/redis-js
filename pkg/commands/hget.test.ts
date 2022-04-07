@@ -13,8 +13,8 @@ it("gets an exiting value", async () => {
   const key = newKey()
   const field = randomUUID()
   const value = randomUUID()
-  await new HSetCommand(key, { [field]: value }).exec(client)
-  const res = await new HGetCommand(key, field).exec(client)
+  await new HSetCommand([key, { [field]: value }]).exec(client)
+  const res = await new HGetCommand([key, field]).exec(client)
 
   expect(res).toEqual(value)
 })
@@ -22,7 +22,7 @@ it("gets an exiting value", async () => {
 it("gets a non-existing hash", async () => {
   const key = newKey()
   const field = randomUUID()
-  const res = await new HGetCommand(key, field).exec(client)
+  const res = await new HGetCommand([key, field]).exec(client)
 
   expect(res).toBeNull()
 })
@@ -30,8 +30,8 @@ it("gets a non-existing hash", async () => {
 it("gets a non-existing field", async () => {
   const key = newKey()
   const field = randomUUID()
-  await new HSetCommand(key, { [randomUUID()]: randomUUID() }).exec(client)
-  const res = await new HGetCommand(key, field).exec(client)
+  await new HSetCommand([key, { [randomUUID()]: randomUUID() }]).exec(client)
+  const res = await new HGetCommand([key, field]).exec(client)
 
   expect(res).toBeNull()
 })
@@ -40,8 +40,8 @@ it("gets an object", async () => {
   const key = newKey()
   const field = randomUUID()
   const value = { v: randomUUID() }
-  await new HSetCommand(key, { [field]: value }).exec(client)
-  const res = await new HGetCommand(key, field).exec(client)
+  await new HSetCommand([key, { [field]: value }]).exec(client)
+  const res = await new HGetCommand([key, field]).exec(client)
 
   expect(res).toEqual(value)
 })

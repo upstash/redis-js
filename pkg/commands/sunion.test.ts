@@ -15,8 +15,8 @@ it("returns the union", async () => {
   const member1 = randomUUID()
   const member2 = randomUUID()
 
-  await new SAddCommand(key1, member1).exec(client)
-  await new SAddCommand(key2, member2).exec(client)
-  const res = await new SUnionCommand(key1, key2).exec(client)
+  await new SAddCommand([key1, member1]).exec(client)
+  await new SAddCommand([key2, member2]).exec(client)
+  const res = await new SUnionCommand([key1, key2]).exec(client)
   expect(res?.sort()).toEqual([member1, member2].sort())
 })

@@ -16,12 +16,12 @@ it("returns the number of removed elements", async () => {
   const member2 = randomUUID()
   const score3 = 3
   const member3 = randomUUID()
-  await new ZAddCommand(
+  await new ZAddCommand([
     key,
     { score: score1, member: member1 },
     { score: score2, member: member2 },
     { score: score3, member: member3 },
-  ).exec(client)
-  const res = await new ZRemRangeByRankCommand(key, 1, 2).exec(client)
+  ]).exec(client)
+  const res = await new ZRemRangeByRankCommand([key, 1, 2]).exec(client)
   expect(res).toBe(2)
 })

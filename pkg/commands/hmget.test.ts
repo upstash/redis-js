@@ -20,10 +20,10 @@ it("gets exiting values", async () => {
     [field1]: value1,
     [field2]: value2,
   }
-  const res = await new HMSetCommand(key, kv).exec(client)
+  const res = await new HMSetCommand([key, kv]).exec(client)
 
   expect(res).toEqual("OK")
-  const res2 = await new HMGetCommand(key, field1, field2).exec(client)
+  const res2 = await new HMGetCommand([key, field1, field2]).exec(client)
 
   expect(res2).toEqual(kv)
 })
@@ -31,7 +31,7 @@ it("gets exiting values", async () => {
 describe("when the hash does not exist", () => {
   it("returns null", async () => {
     const key = newKey()
-    const res = await new HMGetCommand(key, randomUUID()).exec(client)
+    const res = await new HMGetCommand([key, randomUUID()]).exec(client)
 
     expect(res).toBeNull()
   })
@@ -41,8 +41,8 @@ it("gets an object", async () => {
   const key = newKey()
   const field = randomUUID()
   const value = { v: randomUUID() }
-  await new HSetCommand(key, { [field]: value }).exec(client)
-  const cmd = new HMGetCommand(key, field)
+  await new HSetCommand([key, { [field]: value }]).exec(client)
+  const cmd = new HMGetCommand([key, field])
   const res = await cmd.exec(client)
   expect(res).toEqual({ [field]: value })
 })

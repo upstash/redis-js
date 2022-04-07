@@ -11,7 +11,7 @@ afterAll(cleanup)
 it("returns the ttl on a key", async () => {
   const key = newKey()
   const ttl = 60
-  await new SetExCommand(key, ttl, "value").exec(client)
-  const res = await new TtlCommand(key).exec(client)
+  await new SetExCommand([key, ttl, "value"]).exec(client)
+  const res = await new TtlCommand([key]).exec(client)
   expect(res).toBeLessThanOrEqual(ttl)
 })

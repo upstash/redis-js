@@ -35,7 +35,7 @@
     "examples": "examples"
   },
   "devDependencies": {
-    "@jest/globals": "^27.4.6",
+    "@jest/globals": "^27.5.1",
     "@size-limit/preset-small-lib": "^7.0.8",
     "@trivago/prettier-plugin-sort-imports": "^3.2.0",
     "@types/jest": "^27.4.0",

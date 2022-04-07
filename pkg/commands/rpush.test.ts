@@ -9,9 +9,9 @@ afterAll(cleanup)
 
 it("returns the length after command", async () => {
   const key = newKey()
-  const res = await new RPushCommand(key, randomUUID()).exec(client)
+  const res = await new RPushCommand([key, randomUUID()]).exec(client)
   expect(res).toEqual(1)
-  const res2 = await new RPushCommand(key, randomUUID(), randomUUID()).exec(client)
+  const res2 = await new RPushCommand([key, randomUUID(), randomUUID()]).exec(client)
 
   expect(res2).toEqual(3)
 })

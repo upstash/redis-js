@@ -11,15 +11,15 @@ afterAll(cleanup)
 it("gets an exiting value", async () => {
   const key = newKey()
   const value = randomUUID()
-  await new SetCommand(key, value).exec(client)
-  const res = await new GetCommand(key).exec(client)
+  await new SetCommand([key, value]).exec(client)
+  const res = await new GetCommand([key]).exec(client)
 
   expect(res).toEqual(value)
 })
 
 it("gets a non-existing value", async () => {
   const key = newKey()
-  const res = await new GetCommand(key).exec(client)
+  const res = await new GetCommand([key]).exec(client)
 
   expect(res).toBeNull()
 })
@@ -27,8 +27,8 @@ it("gets a non-existing value", async () => {
 it("gets an object", async () => {
   const key = newKey()
   const value = { v: randomUUID() }
-  await new SetCommand(key, value).exec(client)
-  const res = await new GetCommand(key).exec(client)
+  await new SetCommand([key, value]).exec(client)
+  const res = await new GetCommand([key]).exec(client)
 
   expect(res).toEqual(value)
 })

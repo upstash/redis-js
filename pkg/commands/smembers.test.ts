@@ -13,8 +13,8 @@ it("returns all members of the set", async () => {
   const value1 = { v: randomUUID() }
   const value2 = { v: randomUUID() }
 
-  await new SAddCommand(key, value1, value2).exec(client)
-  const res = await new SMembersCommand<{ v: string }>(key).exec(client)
+  await new SAddCommand([key, value1, value2]).exec(client)
+  const res = await new SMembersCommand<{ v: string }>([key]).exec(client)
   expect(res).toBeDefined()
   expect(res!.length).toBe(2)
   expect(res!.map(({ v }) => v).includes(value1.v)).toBe(true)

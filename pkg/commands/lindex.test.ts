@@ -15,8 +15,8 @@ describe("when list exists", () => {
       const key = newKey()
 
       const value = randomUUID()
-      await new LPushCommand(key, value).exec(client)
-      const res = await new LIndexCommand(key, 0).exec(client)
+      await new LPushCommand([key, value]).exec(client)
+      const res = await new LIndexCommand([key, 0]).exec(client)
       expect(res).toEqual(value)
     })
     describe("when the index is out of bounds", () => {
@@ -24,8 +24,8 @@ describe("when list exists", () => {
         const key = newKey()
 
         const value = randomUUID()
-        await new LPushCommand(key, value).exec(client)
-        const res = await new LIndexCommand(key, 1).exec(client)
+        await new LPushCommand([key, value]).exec(client)
+        const res = await new LIndexCommand([key, 1]).exec(client)
         expect(res).toBeNull()
       })
     })

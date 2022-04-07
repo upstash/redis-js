@@ -16,9 +16,9 @@ it("gets exiting values", async () => {
     [key1]: randomUUID(),
     [key2]: randomUUID(),
   }
-  const res = await new MSetCommand(kv).exec(client)
+  const res = await new MSetCommand([kv]).exec(client)
 
   expect(res).toEqual("OK")
-  const res2 = await new MGetCommand(key1, key2).exec(client)
+  const res2 = await new MGetCommand([key1, key2]).exec(client)
   expect(res2).toEqual(Object.values(kv))
 })

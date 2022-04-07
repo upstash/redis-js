@@ -17,8 +17,8 @@ describe("with existing hash", () => {
     const kv: Record<string, string> = {}
     kv[field1] = randomUUID()
     kv[field2] = randomUUID()
-    await new HMSetCommand(key, kv).exec(client)
-    const res = await new HLenCommand(key).exec(client)
+    await new HMSetCommand([key, kv]).exec(client)
+    const res = await new HLenCommand([key]).exec(client)
     expect(res).toEqual(2)
   })
 })

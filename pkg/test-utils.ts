@@ -34,7 +34,7 @@ export function keygen(): { newKey: () => string; cleanup: () => Promise<void> }
     },
     cleanup: async () => {
       if (keys.length > 0) {
-        await new DelCommand(...(keys as NonEmptyArray<string>)).exec(newHttpClient())
+        await new DelCommand(keys as NonEmptyArray<string>).exec(newHttpClient())
       }
     },
   }

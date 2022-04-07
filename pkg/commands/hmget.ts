@@ -33,7 +33,7 @@ export class HMGetCommand<TData extends Record<string, unknown>> extends Command
   TData | null,
   (string | null)[]
 > {
-  constructor(key: string, ...fields: string[]) {
+  constructor([key, ...fields]: [key: string, ...fields: string[]]) {
     super(["hmget", key, ...fields], {
       deserialize: (result) => deserialize<TData>(fields, result),
     })

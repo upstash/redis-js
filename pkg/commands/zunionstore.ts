@@ -21,19 +21,16 @@ export type ZUnionStoreCommandOptions = {
  * @see https://redis.io/commands/zunionstore
  */
 export class ZUnionStoreCommand extends Command<number, number> {
-  constructor(destination: string, numKeys: 1, key: string, opts?: ZUnionStoreCommandOptions)
+  constructor(cmd: [destination: string, numKeys: 1, key: string, opts?: ZUnionStoreCommandOptions])
   constructor(
-    destination: string,
-    numKeys: number,
-    keys: string[],
-    opts?: ZUnionStoreCommandOptions,
+    cmd: [destination: string, numKeys: number, keys: string[], opts?: ZUnionStoreCommandOptions],
   )
-  constructor(
+  constructor([destination, numKeys, keyOrKeys, opts]: [
     destination: string,
     numKeys: number,
     keyOrKeys: string | string[],
     opts?: ZUnionStoreCommandOptions,
-  ) {
+  ]) {
     const command: unknown[] = ["zunionstore", destination, numKeys]
     if (Array.isArray(keyOrKeys)) {
       command.push(...keyOrKeys)

@@ -4,7 +4,7 @@ import { Command } from "./command"
  */
 
 export class ZRevRankCommand<TData> extends Command<number | null, number | null> {
-  constructor(key: string, member: TData) {
-    super(["zrevrank", key, member])
+  constructor(cmd: [key: string, member: TData]) {
+    super(["zrevrank", ...cmd])
   }
 }

@@ -17,13 +17,13 @@ describe("without options", () => {
     const member2 = randomUUID()
     const score3 = 3
     const member3 = randomUUID()
-    await new ZAddCommand(
+    await new ZAddCommand([
       key,
       { score: score1, member: member1 },
       { score: score2, member: member2 },
       { score: score3, member: member3 },
-    ).exec(client)
-    const res = await new ZPopMinCommand(key).exec(client)
+    ]).exec(client)
+    const res = await new ZPopMinCommand([key]).exec(client)
     expect(res).toEqual([member1, score1])
   })
 })
@@ -37,13 +37,13 @@ describe("with count", () => {
     const member2 = randomUUID()
     const score3 = 3
     const member3 = randomUUID()
-    await new ZAddCommand(
+    await new ZAddCommand([
       key,
       { score: score1, member: member1 },
       { score: score2, member: member2 },
       { score: score3, member: member3 },
-    ).exec(client)
-    const res = await new ZPopMinCommand(key, 2).exec(client)
+    ]).exec(client)
+    const res = await new ZPopMinCommand([key, 2]).exec(client)
     expect(res).toEqual([member1, score1, member2, score2])
   })
 })

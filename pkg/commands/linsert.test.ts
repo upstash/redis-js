@@ -13,7 +13,7 @@ it("adds the element", async () => {
   const value1 = randomUUID()
   const value2 = randomUUID()
 
-  await new LPushCommand(key, value1).exec(client)
-  const res = await new LInsertCommand(key, "before", value1, value2).exec(client)
+  await new LPushCommand([key, value1]).exec(client)
+  const res = await new LInsertCommand([key, "before", value1, value2]).exec(client)
   expect(res).toBe(2)
 })

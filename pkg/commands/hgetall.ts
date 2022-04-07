@@ -29,7 +29,7 @@ export class HGetAllCommand<TData extends Record<string, unknown>> extends Comma
   TData | null,
   unknown | null
 > {
-  constructor(key: string) {
-    super(["hgetall", key], { deserialize: (result) => deserialize<TData>(result as string[]) })
+  constructor(cmd: [key: string]) {
+    super(["hgetall", ...cmd], { deserialize: (result) => deserialize<TData>(result as string[]) })
   }
 }

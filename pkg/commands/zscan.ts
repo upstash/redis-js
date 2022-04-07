@@ -8,7 +8,7 @@ export class ZScanCommand extends Command<
   [number, (string | number)[]],
   [number, (string | number)[]]
 > {
-  constructor(key: string, cursor: number, opts?: ScanCommandOptions) {
+  constructor([key, cursor, opts]: [key: string, cursor: number, opts?: ScanCommandOptions]) {
     const command = ["zscan", key, cursor]
     if (opts?.match) {
       command.push("match", opts.match)

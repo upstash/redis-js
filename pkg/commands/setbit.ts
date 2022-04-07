@@ -4,7 +4,7 @@ import { Command } from "./command"
  */
 
 export class SetBitCommand extends Command<0 | 1, "0" | "1"> {
-  constructor(key: string, offset: number, value: 0 | 1) {
-    super(["setbit", key, offset, value])
+  constructor(cmd: [key: string, offset: number, value: 0 | 1]) {
+    super(["setbit", ...cmd])
   }
 }

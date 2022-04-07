@@ -15,7 +15,7 @@ it("unlinks the keys", async () => {
   const kv: Record<string, string> = {}
   kv[key1] = randomUUID()
   kv[key2] = randomUUID()
-  await new MSetCommand(kv).exec(client)
-  const res = await new UnlinkCommand(key1, key2, key3).exec(client)
+  await new MSetCommand([kv]).exec(client)
+  const res = await new UnlinkCommand([key1, key2, key3]).exec(client)
   expect(res).toEqual(2)
 })

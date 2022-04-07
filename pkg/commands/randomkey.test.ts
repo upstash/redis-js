@@ -10,7 +10,7 @@ afterAll(cleanup)
 
 it("returns a random key", async () => {
   const key = newKey()
-  await new SetCommand(key, randomUUID()).exec(client)
+  await new SetCommand([key, randomUUID()]).exec(client)
   const res = await new RandomKeyCommand().exec(client)
   expect(res).toBeDefined()
   expect(typeof res).toBe("string")

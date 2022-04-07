@@ -14,7 +14,7 @@ it("returns the number of touched keys", async () => {
   const kv: Record<string, string> = {}
   kv[key1] = randomUUID()
   kv[key2] = randomUUID()
-  await new MSetCommand(kv).exec(client)
-  const res = await new TouchCommand(key1, key2).exec(client)
+  await new MSetCommand([kv]).exec(client)
+  const res = await new TouchCommand([key1, key2]).exec(client)
   expect(res).toBe(2)
 })

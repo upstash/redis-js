@@ -15,8 +15,8 @@ describe("with existing hash", () => {
       [randomUUID()]: randomUUID(),
       [randomUUID()]: randomUUID(),
     }
-    await new HMSetCommand(key, kv).exec(client)
-    const res = await new HKeysCommand(key).exec(client)
+    await new HMSetCommand([key, kv]).exec(client)
+    const res = await new HKeysCommand([key]).exec(client)
     expect(res.sort()).toEqual(Object.keys(kv).sort())
   })
 })

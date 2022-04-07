@@ -16,11 +16,11 @@ describe("when list exists", () => {
 
       const value = randomUUID()
       const newValue = randomUUID()
-      await new LPushCommand(key, value).exec(client)
-      const res = await new LSetCommand(key, newValue, 0).exec(client)
+      await new LPushCommand([key, value]).exec(client)
+      const res = await new LSetCommand([key, 0, newValue]).exec(client)
       expect(res).toEqual("OK")
 
-      const res2 = await new LPopCommand(key).exec(client)
+      const res2 = await new LPopCommand([key]).exec(client)
 
       expect(res2).toEqual(newValue)
     })
@@ -30,9 +30,9 @@ describe("when list exists", () => {
 
         const value = randomUUID()
         const newValue = randomUUID()
-        await new LPushCommand(key, value).exec(client)
+        await new LPushCommand([key, value]).exec(client)
         expect(
-          async () => await new LSetCommand(key, newValue, 1).exec(client),
+          async () => await new LSetCommand([key, 1, newValue]).exec(client),
         ).rejects.toThrowErrorMatchingInlineSnapshot(`"ERR index out of range"`)
       })
     })

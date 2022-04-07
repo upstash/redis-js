@@ -9,7 +9,7 @@ afterAll(cleanup)
 
 it("returns the number of elements removed", async () => {
   const key = newKey()
-  await new ZAddCommand(
+  await new ZAddCommand([
     key,
     {
       score: 0,
@@ -19,8 +19,8 @@ it("returns the number of elements removed", async () => {
     { score: 0, member: "c" },
     { score: 0, member: "d" },
     { score: 0, member: "e" },
-  ).exec(client)
+  ]).exec(client)
 
-  const res = await new ZRemRangeByLexCommand(key, "[b", "[e").exec(client)
+  const res = await new ZRemRangeByLexCommand([key, "[b", "[e"]).exec(client)
   expect(res).toBe(4)
 })

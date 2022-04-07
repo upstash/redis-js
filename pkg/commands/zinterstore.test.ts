@@ -12,7 +12,7 @@ afterAll(cleanup)
 describe("command format", () => {
   describe("without options", () => {
     it("builds the correct command", () => {
-      expect(new ZInterStoreCommand("destination", 1, "key").command).toEqual([
+      expect(new ZInterStoreCommand(["destination", 1, "key"]).command).toEqual([
         "zinterstore",
         "destination",
         "1",
@@ -22,7 +22,7 @@ describe("command format", () => {
   })
   describe("with multiple keys", () => {
     it("builds the correct command", () => {
-      expect(new ZInterStoreCommand("destination", 2, ["key1", "key2"]).command).toEqual([
+      expect(new ZInterStoreCommand(["destination", 2, ["key1", "key2"]]).command).toEqual([
         "zinterstore",
         "destination",
         "2",
@@ -33,7 +33,7 @@ describe("command format", () => {
   })
   describe("with single weight", () => {
     it("builds the correct command", () => {
-      expect(new ZInterStoreCommand("destination", 1, "key", { weight: 4 }).command).toEqual([
+      expect(new ZInterStoreCommand(["destination", 1, "key", { weight: 4 }]).command).toEqual([
         "zinterstore",
         "destination",
         "1",
@@ -46,28 +46,28 @@ describe("command format", () => {
   describe("with multiple weights", () => {
     it("builds the correct command", () => {
       expect(
-        new ZInterStoreCommand("destination", 2, ["key1", "key2"], { weights: [2, 3] }).command,
+        new ZInterStoreCommand(["destination", 2, ["key1", "key2"], { weights: [2, 3] }]).command,
       ).toEqual(["zinterstore", "destination", "2", "key1", "key2", "weights", "2", "3"])
     })
     describe("with aggregate", () => {
       describe("sum", () => {
         it("builds the correct command", () => {
           expect(
-            new ZInterStoreCommand("destination", 1, "key", { aggregate: "sum" }).command,
+            new ZInterStoreCommand(["destination", 1, "key", { aggregate: "sum" }]).command,
           ).toEqual(["zinterstore", "destination", "1", "key", "aggregate", "sum"])
         })
       })
       describe("min", () => {
         it("builds the correct command", () => {
           expect(
-            new ZInterStoreCommand("destination", 1, "key", { aggregate: "min" }).command,
+            new ZInterStoreCommand(["destination", 1, "key", { aggregate: "min" }]).command,
           ).toEqual(["zinterstore", "destination", "1", "key", "aggregate", "min"])
         })
       })
       describe("max", () => {
         it("builds the correct command", () => {
           expect(
-            new ZInterStoreCommand("destination", 1, "key", { aggregate: "max" }).command,
+            new ZInterStoreCommand(["destination", 1, "key", { aggregate: "max" }]).command,
           ).toEqual(["zinterstore", "destination", "1", "key", "aggregate", "max"])
         })
       })
@@ -75,10 +75,15 @@ describe("command format", () => {
     describe("complex", () => {
       it("builds the correct command", () => {
         expect(
-          new ZInterStoreCommand("destination", 2, ["key1", "key2"], {
-            weights: [4, 2],
-            aggregate: "max",
-          }).command,
+          new ZInterStoreCommand([
+            "destination",
+            2,
+            ["key1", "key2"],
+            {
+              weights: [4, 2],
+              aggregate: "max",
+            },
+          ]).command,
         ).toEqual([
           "zinterstore",
           "destination",
@@ -106,14 +111,14 @@ describe("without options", () => {
     const score2 = 2
     const member2 = randomUUID()
 
-    await new ZAddCommand(key1, { score: score1, member: member1 }).exec(client)
-    await new ZAddCommand(
+    await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(client)
+    await new ZAddCommand([
       key2,
       { score: score1, member: member1 },
       { score: score2, member: member2 },
-    ).exec(client)
+    ]).exec(client)
 
-    const res = await new ZInterStoreCommand(destination, 2, [key1, key2]).exec(client)
+    const res = await new ZInterStoreCommand([destination, 2, [key1, key2]]).exec(client)
     expect(res).toBe(1)
   })
 })
@@ -129,16 +134,21 @@ describe("with weights", () => {
       const score2 = 2
       const member2 = randomUUID()
 
-      await new ZAddCommand(key1, { score: score1, member: member1 }).exec(client)
-      await new ZAddCommand(
+      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(client)
+      await new ZAddCommand([
         key2,
         { score: score1, member: member1 },
         { score: score2, member: member2 },
-      ).exec(client)
+      ]).exec(client)
 
-      const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
-        weights: [2, 3],
-      }).exec(client)
+      const res = await new ZInterStoreCommand([
+        destination,
+        2,
+        [key1, key2],
+        {
+          weights: [2, 3],
+        },
+      ]).exec(client)
       expect(res).toBe(1)
     })
   })
@@ -152,16 +162,21 @@ describe("with weights", () => {
       const score2 = 2
       const member2 = randomUUID()
 
-      await new ZAddCommand(key1, { score: score1, member: member1 }).exec(client)
-      await new ZAddCommand(
+      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(client)
+      await new ZAddCommand([
         key2,
         { score: score1, member: member1 },
         { score: score2, member: member2 },
-      ).exec(client)
+      ]).exec(client)
 
-      const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
-        weights: [1, 2],
-      }).exec(client)
+      const res = await new ZInterStoreCommand([
+        destination,
+        2,
+        [key1, key2],
+        {
+          weights: [1, 2],
+        },
+      ]).exec(client)
       expect(res).toBe(1)
     })
   })
@@ -177,16 +192,21 @@ describe("aggregate", () => {
       const score2 = 2
       const member2 = randomUUID()
 
-      await new ZAddCommand(key1, { score: score1, member: member1 }).exec(client)
-      await new ZAddCommand(
+      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(client)
+      await new ZAddCommand([
         key2,
         { score: score1, member: member1 },
         { score: score2, member: member2 },
-      ).exec(client)
+      ]).exec(client)
 
-      const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
-        aggregate: "sum",
-      }).exec(client)
+      const res = await new ZInterStoreCommand([
+        destination,
+        2,
+        [key1, key2],
+        {
+          aggregate: "sum",
+        },
+      ]).exec(client)
       expect(res).toBe(1)
     })
   })
@@ -200,16 +220,21 @@ describe("aggregate", () => {
       const score2 = 2
       const member2 = randomUUID()
 
-      await new ZAddCommand(key1, { score: score1, member: member1 }).exec(client)
-      await new ZAddCommand(
+      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(client)
+      await new ZAddCommand([
         key2,
         { score: score1, member: member1 },
         { score: score2, member: member2 },
-      ).exec(client)
+      ]).exec(client)
 
-      const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
-        aggregate: "min",
-      }).exec(client)
+      const res = await new ZInterStoreCommand([
+        destination,
+        2,
+        [key1, key2],
+        {
+          aggregate: "min",
+        },
+      ]).exec(client)
       expect(res).toBe(1)
     })
   })
@@ -223,16 +248,21 @@ describe("aggregate", () => {
       const score2 = 2
       const member2 = randomUUID()
 
-      await new ZAddCommand(key1, { score: score1, member: member1 }).exec(client)
-      await new ZAddCommand(
+      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(client)
+      await new ZAddCommand([
         key2,
         { score: score1, member: member1 },
         { score: score2, member: member2 },
-      ).exec(client)
+      ]).exec(client)
 
-      const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
-        aggregate: "max",
-      }).exec(client)
+      const res = await new ZInterStoreCommand([
+        destination,
+        2,
+        [key1, key2],
+        {
+          aggregate: "max",
+        },
+      ]).exec(client)
       expect(res).toBe(1)
     })
   })

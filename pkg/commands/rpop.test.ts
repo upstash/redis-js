@@ -12,8 +12,8 @@ describe("when list exists", () => {
   it("returns the first element", async () => {
     const key = newKey()
     const value = randomUUID()
-    await new LPushCommand(key, value).exec(client)
-    const res = await new RPopCommand(key).exec(client)
+    await new LPushCommand([key, value]).exec(client)
+    const res = await new RPopCommand([key]).exec(client)
     expect(res).toEqual(value)
   })
 })
@@ -21,7 +21,7 @@ describe("when list exists", () => {
 describe("when list does not exist", () => {
   it("returns null", async () => {
     const key = newKey()
-    const res = await new RPopCommand(key).exec(client)
+    const res = await new RPopCommand([key]).exec(client)
     expect(res).toBeNull()
   })
 })

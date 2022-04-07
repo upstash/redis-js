@@ -14,9 +14,9 @@ it("returns all fields", async () => {
   const field1 = randomUUID()
   const value1 = false
   const value2 = randomUUID()
-  await new HSetCommand(key, { [field1]: value1, [field2]: value2 }).exec(client)
+  await new HSetCommand([key, { [field1]: value1, [field2]: value2 }]).exec(client)
 
-  const res = await new HGetAllCommand(key).exec(client)
+  const res = await new HGetAllCommand([key]).exec(client)
 
   const obj = {
     [field1]: value1,
@@ -26,7 +26,7 @@ it("returns all fields", async () => {
 })
 describe("when hash does not exist", () => {
   it("it returns null", async () => {
-    const res = await new HGetAllCommand(randomUUID()).exec(client)
+    const res = await new HGetAllCommand([randomUUID()]).exec(client)
     expect(res).toBeNull()
   })
 })

@@ -13,9 +13,9 @@ describe("without options", () => {
     const key = newKey()
     const value = randomUUID()
 
-    const res = await new SetCommand(key, value).exec(client)
+    const res = await new SetCommand([key, value]).exec(client)
     expect(res).toEqual("OK")
-    const res2 = await new GetCommand(key).exec(client)
+    const res2 = await new GetCommand([key]).exec(client)
     expect(res2).toEqual(value)
   })
 })
@@ -24,13 +24,13 @@ describe("ex", () => {
     const key = newKey()
     const value = randomUUID()
 
-    const res = await new SetCommand(key, value, { ex: 1 }).exec(client)
+    const res = await new SetCommand([key, value, { ex: 1 }]).exec(client)
     expect(res).toEqual("OK")
-    const res2 = await new GetCommand(key).exec(client)
+    const res2 = await new GetCommand([key]).exec(client)
     expect(res2).toEqual(value)
     await new Promise((res) => setTimeout(res, 2000))
 
-    const res3 = await new GetCommand(key).exec(client)
+    const res3 = await new GetCommand([key]).exec(client)
     expect(res3).toEqual(null)
   })
 })
@@ -39,13 +39,13 @@ describe("px", () => {
     const key = newKey()
     const value = randomUUID()
 
-    const res = await new SetCommand(key, value, { px: 1000 }).exec(client)
+    const res = await new SetCommand([key, value, { px: 1000 }]).exec(client)
     expect(res).toEqual("OK")
-    const res2 = await new GetCommand(key).exec(client)
+    const res2 = await new GetCommand([key]).exec(client)
     expect(res2).toEqual(value)
     await new Promise((res) => setTimeout(res, 2000))
 
-    const res3 = await new GetCommand(key).exec(client)
+    const res3 = await new GetCommand([key]).exec(client)
 
     expect(res3).toBeNull()
   })
@@ -57,12 +57,16 @@ describe("nx", () => {
       const value = randomUUID()
       const newValue = randomUUID()
 
-      await new SetCommand(key, value).exec(client)
-      const res = await new SetCommand(key, newValue, {
-        nx: true,
-      }).exec(client)
+      await new SetCommand([key, value]).exec(client)
+      const res = await new SetCommand([
+        key,
+        newValue,
+        {
+          nx: true,
+        },
+      ]).exec(client)
       expect(res).toBeNull()
-      const res2 = await new GetCommand(key).exec(client)
+      const res2 = await new GetCommand([key]).exec(client)
       expect(res2).toEqual(value)
     })
   })
@@ -71,11 +75,15 @@ describe("nx", () => {
       const key = newKey()
       const value = randomUUID()
 
-      const res = await new SetCommand(key, value, {
-        nx: true,
-      }).exec(client)
+      const res = await new SetCommand([
+        key,
+        value,
+        {
+          nx: true,
+        },
+      ]).exec(client)
       expect(res).toEqual("OK")
-      const res2 = await new GetCommand(key).exec(client)
+      const res2 = await new GetCommand([key]).exec(client)
       expect(res2).toEqual(value)
     })
   })
@@ -87,12 +95,16 @@ describe("xx", () => {
       const value = randomUUID()
       const newValue = randomUUID()
 
-      await new SetCommand(key, value).exec(client)
-      const res = await new SetCommand(key, newValue, {
-        xx: true,
-      }).exec(client)
+      await new SetCommand([key, value]).exec(client)
+      const res = await new SetCommand([
+        key,
+        newValue,
+        {
+          xx: true,
+        },
+      ]).exec(client)
       expect(res).toEqual("OK")
-      const res2 = await new GetCommand(key).exec(client)
+      const res2 = await new GetCommand([key]).exec(client)
       expect(res2).toEqual(newValue)
     })
   })
@@ -101,11 +113,15 @@ describe("xx", () => {
       const key = newKey()
       const value = randomUUID()
 
-      const res = await new SetCommand(key, value, {
-        xx: true,
-      }).exec(client)
+      const res = await new SetCommand([
+        key,
+        value,
+        {
+          xx: true,
+        },
+      ]).exec(client)
       expect(res).toBeNull()
-      const res2 = await new GetCommand(key).exec(client)
+      const res2 = await new GetCommand([key]).exec(client)
       expect(res2).toBeNull()
     })
   })

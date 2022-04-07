@@ -8,7 +8,7 @@ export type ScanCommandOptions = {
  * @see https://redis.io/commands/scan
  */
 export class ScanCommand extends Command<[number, string[]], [number, string[]]> {
-  constructor(cursor: number, opts?: ScanCommandOptions) {
+  constructor([cursor, opts]: [cursor: number, opts?: ScanCommandOptions]) {
     const command = ["scan", cursor]
     if (opts?.match) {
       command.push("match", opts.match)

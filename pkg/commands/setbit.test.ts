@@ -8,9 +8,9 @@ afterAll(cleanup)
 
 it("returns the original bit", async () => {
   const key = newKey()
-  const res = await new SetBitCommand(key, 0, 1).exec(client)
+  const res = await new SetBitCommand([key, 0, 1]).exec(client)
   expect(res).toBe(0)
-  const res2 = await new SetBitCommand(key, 0, 1).exec(client)
+  const res2 = await new SetBitCommand([key, 0, 1]).exec(client)
 
   expect(res2).toBe(1)
 })

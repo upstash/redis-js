@@ -11,7 +11,7 @@ afterAll(cleanup)
 it("returns the db size", async () => {
   const key = newKey()
   const value = randomUUID()
-  await new SetCommand(key, value).exec(client)
+  await new SetCommand([key, value]).exec(client)
   const res = await new DBSizeCommand().exec(client)
   expect(res).toBeGreaterThan(0)
 })

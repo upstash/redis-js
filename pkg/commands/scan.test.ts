@@ -11,8 +11,8 @@ describe("without options", () => {
   it("returns cursor and keys", async () => {
     const key = newKey()
     const value = randomUUID()
-    await new SetCommand(key, value).exec(client)
-    const res = await new ScanCommand(0).exec(client)
+    await new SetCommand([key, value]).exec(client)
+    const res = await new ScanCommand([0]).exec(client)
 
     expect(res).toBeDefined()
     expect(res.length).toBe(2)
@@ -25,8 +25,8 @@ describe("with match", () => {
   it("returns cursor and keys", async () => {
     const key = newKey()
     const value = randomUUID()
-    await new SetCommand(key, value).exec(client)
-    const res = await new ScanCommand(0, { match: key }).exec(client)
+    await new SetCommand([key, value]).exec(client)
+    const res = await new ScanCommand([0, { match: key }]).exec(client)
 
     expect(res).toBeDefined()
     expect(res.length).toBe(2)
@@ -39,8 +39,8 @@ describe("with count", () => {
   it("returns cursor and keys", async () => {
     const key = newKey()
     const value = randomUUID()
-    await new SetCommand(key, value).exec(client)
-    const res = await new ScanCommand(0, { count: 1 }).exec(client)
+    await new SetCommand([key, value]).exec(client)
+    const res = await new ScanCommand([0, { count: 1 }]).exec(client)
 
     expect(res).toBeDefined()
     expect(res.length).toBe(2)

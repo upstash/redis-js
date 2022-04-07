@@ -16,8 +16,8 @@ describe("string", () => {
   it("returns the correct type", async () => {
     const key = newKey()
     const value = randomUUID()
-    await new SetCommand(key, value).exec(client)
-    const res = await new TypeCommand(key).exec(client)
+    await new SetCommand([key, value]).exec(client)
+    const res = await new TypeCommand([key]).exec(client)
     expect(res).toEqual("string")
   })
 })
@@ -26,8 +26,8 @@ describe("list", () => {
   it("returns the correct type", async () => {
     const key = newKey()
     const value = randomUUID()
-    await new LPushCommand(key, value).exec(client)
-    const res = await new TypeCommand(key).exec(client)
+    await new LPushCommand([key, value]).exec(client)
+    const res = await new TypeCommand([key]).exec(client)
     expect(res).toEqual("list")
   })
 })
@@ -36,8 +36,8 @@ describe("set", () => {
   it("returns the correct type", async () => {
     const key = newKey()
     const value = randomUUID()
-    await new SAddCommand(key, value).exec(client)
-    const res = await new TypeCommand(key).exec(client)
+    await new SAddCommand([key, value]).exec(client)
+    const res = await new TypeCommand([key]).exec(client)
     expect(res).toEqual("set")
   })
 })
@@ -47,8 +47,8 @@ describe("hash", () => {
     const key = newKey()
     const field = randomUUID()
     const value = randomUUID()
-    await new HSetCommand(key, { [field]: value }).exec(client)
-    const res = await new TypeCommand(key).exec(client)
+    await new HSetCommand([key, { [field]: value }]).exec(client)
+    const res = await new TypeCommand([key]).exec(client)
     expect(res).toEqual("hash")
   })
 })
@@ -57,8 +57,8 @@ describe("zset", () => {
   it("returns the correct type", async () => {
     const key = newKey()
     const member = randomUUID()
-    await new ZAddCommand(key, { score: 0, member }).exec(client)
-    const res = await new TypeCommand(key).exec(client)
+    await new ZAddCommand([key, { score: 0, member }]).exec(client)
+    const res = await new TypeCommand([key]).exec(client)
     expect(res).toEqual("zset")
   })
 })
@@ -66,7 +66,7 @@ describe("zset", () => {
 describe("none", () => {
   it("returns the correct type", async () => {
     const key = newKey()
-    const res = await new TypeCommand(key).exec(client)
+    const res = await new TypeCommand([key]).exec(client)
     expect(res).toEqual("none")
   })
 })

@@ -15,13 +15,13 @@ it("sets value", async () => {
   const value = randomUUID()
   const newValue = randomUUID()
 
-  const res = await new SetCommand(key, value).exec(client)
+  const res = await new SetCommand([key, value]).exec(client)
 
   expect(res).toEqual("OK")
-  const res2 = await new SetNxCommand(key, newValue).exec(client)
+  const res2 = await new SetNxCommand([key, newValue]).exec(client)
 
   expect(res2).toEqual(0)
-  const res3 = await new GetCommand(key).exec(client)
+  const res3 = await new GetCommand([key]).exec(client)
 
   expect(res3).toEqual(value)
 })

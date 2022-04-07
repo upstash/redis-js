@@ -12,9 +12,9 @@ it("returns the number of removed members", async () => {
   const key = newKey()
   const member1 = randomUUID()
   const member2 = randomUUID()
-  await new ZAddCommand(key, { score: 1, member: member1 }, { score: 2, member: member2 }).exec(
+  await new ZAddCommand([key, { score: 1, member: member1 }, { score: 2, member: member2 }]).exec(
     client,
   )
-  const res = await new ZRemCommand(key, member1, member2).exec(client)
+  const res = await new ZRemCommand([key, member1, member2]).exec(client)
   expect(res).toBe(2)
 })

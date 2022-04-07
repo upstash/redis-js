@@ -33,7 +33,7 @@ export type SetCommandOptions = (
  * @see https://redis.io/commands/set
  */
 export class SetCommand<TData, TResult = "OK"> extends Command<TData, TResult> {
-  constructor(key: string, value: TData, opts?: SetCommandOptions) {
+  constructor([key, value, opts]: [key: string, value: TData, opts?: SetCommandOptions]) {
     const command: unknown[] = ["set", key, value]
     if (opts) {
       if ("ex" in opts && typeof opts.ex === "number") {

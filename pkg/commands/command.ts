@@ -2,6 +2,15 @@ import { UpstashError } from "../error"
 import { HttpClient, UpstashResponse } from "../http"
 import { parseResponse } from "../util"
 
+type Serialize = (data: unknown) => string
+type Deserialize<TResult, TData> = (result: TResult) => TData
+
+const defaultSerializer: Serialize = (c: unknown) => (typeof c === "string" ? c : JSON.stringify(c))
+
+export type CommandOptions<TResult = unknown, TData = unknown> = {
+  serialize?: Serialize
+  deserialize?: Deserialize<TResult, TData>
+}
 /**
  * Command offers default (de)serialization and the exec method to all commands.
  *
@@ -10,15 +19,18 @@ import { parseResponse } from "../util"
  */
 export class Command<TData, TResult> {
   public readonly command: string[]
-  public deserialize: (result: TResult) => TData
+  public readonly serialize: Serialize
+  public readonly deserialize: Deserialize<TResult, TData>
   /**
    * Create a new command instance.
    *
    * You can define a custom `deserialize` function. By default we try to deserialize as json.
    */
-  constructor(command: (string | unknown)[], opts?: { deserialize?: (result: TResult) => TData }) {
-    this.command = command.map((c) => (typeof c === "string" ? c : JSON.stringify(c)))
+  constructor(command: (string | unknown)[], opts?: CommandOptions<TResult, TData>) {
+    this.serialize = opts?.serialize ?? defaultSerializer
     this.deserialize = opts?.deserialize ?? parseResponse
+
+    this.command = command.map(this.serialize)
   }
 
   /**

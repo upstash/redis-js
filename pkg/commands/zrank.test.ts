@@ -10,13 +10,13 @@ afterAll(cleanup)
 it("returns the rank", async () => {
   const key = newKey()
 
-  await new ZAddCommand(
+  await new ZAddCommand([
     key,
     { score: 1, member: "member1" },
     { score: 2, member: "member2" },
     { score: 3, member: "member3" },
-  ).exec(client)
+  ]).exec(client)
 
-  const res = await new ZRankCommand(key, "member2").exec(client)
+  const res = await new ZRankCommand([key, "member2"]).exec(client)
   expect(res).toBe(1)
 })

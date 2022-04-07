@@ -7,3 +7,6 @@ coverage
 .pnpm-debug.log
 dist/
 .idea/
+
+# stryker temp files
+.stryker-tmp

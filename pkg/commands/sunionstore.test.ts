@@ -17,12 +17,12 @@ it("writes the union to destination", async () => {
   const member1 = randomUUID()
   const member2 = randomUUID()
 
-  await new SAddCommand(key1, member1).exec(client)
-  await new SAddCommand(key2, member2).exec(client)
-  const res = await new SUnionStoreCommand(dest, key1, key2).exec(client)
+  await new SAddCommand([key1, member1]).exec(client)
+  await new SAddCommand([key2, member2]).exec(client)
+  const res = await new SUnionStoreCommand([dest, key1, key2]).exec(client)
   expect(res).toBe(2)
 
-  const res2 = await new SMembersCommand(dest).exec(client)
+  const res2 = await new SMembersCommand([dest]).exec(client)
 
   expect(res2).toBeDefined()
   expect(res2!.sort()).toEqual([member1, member2].sort())

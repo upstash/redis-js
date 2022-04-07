@@ -21,19 +21,16 @@ export type ZInterStoreCommandOptions = {
  * @see https://redis.io/commands/zInterstore
  */
 export class ZInterStoreCommand extends Command<number, number> {
-  constructor(destination: string, numKeys: 1, key: string, opts?: ZInterStoreCommandOptions)
+  constructor(cmd: [destination: string, numKeys: 1, key: string, opts?: ZInterStoreCommandOptions])
   constructor(
-    destination: string,
-    numKeys: number,
-    keys: string[],
-    opts?: ZInterStoreCommandOptions,
+    cmd: [destination: string, numKeys: number, keys: string[], opts?: ZInterStoreCommandOptions],
   )
-  constructor(
+  constructor([destination, numKeys, keyOrKeys, opts]: [
     destination: string,
     numKeys: number,
     keyOrKeys: string | string[],
     opts?: ZInterStoreCommandOptions,
-  ) {
+  ]) {
     const command: unknown[] = ["zinterstore", destination, numKeys]
     if (Array.isArray(keyOrKeys)) {
       command.push(...keyOrKeys)

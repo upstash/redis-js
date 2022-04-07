@@ -1,9 +1,10 @@
 import { keygen, newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { describe, it, expect, afterAll } from "@jest/globals"
-import { SetCommand } from "./set"
 import { GetCommand } from "./get"
 import { PExpireAtCommand } from "./pexpireat"
+import { SetCommand } from "./set"
+import { describe, it, expect, afterAll } from "@jest/globals"
+import { randomUUID } from "crypto"
+
 const client = newHttpClient()
 
 const { newKey, cleanup } = keygen()

@@ -1,8 +1,9 @@
 import { Pipeline } from "./pipeline"
 import { Redis } from "./redis"
 import { keygen, newHttpClient } from "./test-utils"
-import { randomUUID } from "crypto"
 import { describe, it, expect, afterEach } from "@jest/globals"
+import { randomUUID } from "crypto"
+
 const client = newHttpClient()
 
 const { newKey, cleanup } = keygen()
@@ -133,6 +134,7 @@ describe("use all the things", () => {
       .ping()
       .psetex(newKey(), 1, "value")
       .pttl(newKey())
+      .publish("test", "hello")
       .randomkey()
       .rename(persistentKey, persistentKey2)
       .renamenx(persistentKey2, newKey())
@@ -186,6 +188,6 @@ describe("use all the things", () => {
       .zunionstore(newKey(), 1, [newKey()])
 
     const res = await p.exec()
-    expect(res).toHaveLength(107)
+    expect(res).toHaveLength(108)
   })
 })

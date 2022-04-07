@@ -1,5 +1,3 @@
-import { HttpClient } from "./http"
-import type { CommandArgs, NonEmptyArray } from "./types"
 import {
   AppendCommand,
   BitCountCommand,
@@ -113,8 +111,12 @@ import {
   ZRemRangeByScoreCommand,
   ZUnionStoreCommand,
   ZRangeCommandOptions,
+  PublishCommand,
 } from "./commands"
+import { HttpClient } from "./http"
 import { Pipeline } from "./pipeline"
+import type { CommandArgs, NonEmptyArray } from "./types"
+
 /**
  * Serverless redis client for upstash.
  */
@@ -473,6 +475,12 @@ export class Redis {
    * @see https://redis.io/commands/pttl
    */
   pttl = (...args: CommandArgs<typeof PTtlCommand>) => new PTtlCommand(...args).exec(this.client)
+
+  /**
+   * @see https://redis.io/commands/publish
+   */
+  publish = (...args: CommandArgs<typeof PublishCommand>) =>
+    new PublishCommand(...args).exec(this.client)
 
   /**
    * @see https://redis.io/commands/randomkey

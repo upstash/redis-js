@@ -4,7 +4,7 @@ import { it, expect } from "@jest/globals"
 
 const client = newHttpClient()
 
-it("returns the ttl on a key", async () => {
+it("returns the number of clients that received the message", async () => {
   const res = await new PublishCommand("channel", "hello").exec(client)
 
   expect(res).toBeTruthy()

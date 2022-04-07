@@ -1,7 +1,8 @@
 import { newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { describe, it, expect } from "@jest/globals"
 import { PingCommand } from "./ping"
+import { describe, it, expect } from "@jest/globals"
+import { randomUUID } from "crypto"
+
 const client = newHttpClient()
 
 describe("with message", () => {

@@ -1,6 +1,6 @@
 name: Tests
 on:
-  pull_request:
+  pull_request_target:
   schedule:
     - cron: "0 0 * * *" # daily
 
@@ -15,6 +15,9 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
       - name: Setup node
         uses: actions/setup-node@v2
         with:
@@ -65,6 +68,9 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
       - name: Setup node
         uses: actions/setup-node@v2
         with:
@@ -123,6 +129,9 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
       - name: Setup node
         uses: actions/setup-node@v2
         with:
@@ -185,6 +194,9 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
       - name: Setup node
         uses: actions/setup-node@v2
         with:

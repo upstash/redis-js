@@ -1,8 +1,8 @@
 import { keygen, newHttpClient } from "../test-utils"
-
-import { it, expect, afterAll } from "@jest/globals"
-import { SetExCommand } from "./setex"
 import { PTtlCommand } from "./pttl"
+import { SetExCommand } from "./setex"
+import { it, expect, afterAll } from "@jest/globals"
+
 const client = newHttpClient()
 
 const { newKey, cleanup } = keygen()

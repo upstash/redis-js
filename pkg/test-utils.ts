@@ -1,9 +1,10 @@
-import { HttpClient } from "./http"
-import { config } from "dotenv"
-import { randomUUID } from "crypto"
 import { DelCommand } from "./commands/del"
+import { HttpClient } from "./http"
 import { NonEmptyArray } from "./types"
+import { randomUUID } from "crypto"
+import { config } from "dotenv"
 import "isomorphic-fetch"
+
 config()
 
 export const newHttpClient = () => {

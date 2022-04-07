@@ -7,6 +7,5 @@ const client = newHttpClient()
 it("returns the number of clients that received the message", async () => {
   const res = await new PublishCommand("channel", "hello").exec(client)
 
-  expect(res).toBeTruthy()
   expect(typeof res).toBe("number")
 })

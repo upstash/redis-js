@@ -77,11 +77,26 @@ const redis = new Redis({
   url: <UPSTASH_REDIS_REST_URL>,
   token: <UPSTASH_REDIS_REST_TOKEN>,
 })
-// or load directly from env
+
+
+// or load directly from global env
+
+// service worker
 const redis = Redis.fromEnv()
+
+
+// module worker
+export default {
+  async fetch(request: Request, env: Bindings) {
+    const redis = Redis.fromEnv(env)
+    // ...
+  }
+}
+
 ```
 
-- [Code example](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-workers)
+- [Code example service worker](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-workers)
+- [Code example module worker](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-workers-modules)
 - [Documentation](https://docs.upstash.com/redis/tutorials/cloudflare_workers_with_redis)
 
 #### Fastly

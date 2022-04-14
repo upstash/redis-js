@@ -215,8 +215,9 @@ jobs:
 
       - name: Install example
         run: |
-          npm install
-          npm install -g miniflare @cloudflare/wrangler
+          npm i -g pnpm
+          pnpm install
+          pnpm install -g miniflare @cloudflare/wrangler
 
         working-directory: ./examples/cf_modules_worker
 

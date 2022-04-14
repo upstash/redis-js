@@ -48,19 +48,28 @@ export class Redis extends core.Redis {
    *
    * This tries to load `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` from
    * the global namespace
+   *
+   * If you are using a module worker, please pass in the `env` object.
+   * ```ts
+   * const redis = Redis.fromEnv(env)
+   * ```
+   *
    */
-  static fromEnv(): Redis {
+  static fromEnv(env?: {
+    UPSTASH_REDIS_REST_URL: string
+    UPSTASH_REDIS_REST_TOKEN: string
+  }): Redis {
     /**
      * These should be injected by cloudflare.
      */
 
     // @ts-ignore
     // eslint-disable-next-line no-undef
-    const url = UPSTASH_REDIS_REST_URL
+    const url = env?.UPSTASH_REDIS_REST_URL ?? UPSTASH_REDIS_REST_URL
 
     // @ts-ignore
     // eslint-disable-next-line no-undef
-    const token = UPSTASH_REDIS_REST_TOKEN
+    const token = env?.UPSTASH_REDIS_REST_TOKEN ?? UPSTASH_REDIS_REST_TOKEN
 
     if (!url) {
       throw new Error(

@@ -87,6 +87,7 @@ describe("use all the things", () => {
       .decrby(newKey(), 1)
       .del(newKey())
       .echo("hello")
+      .eval("return ARGV[1]", 0, "Hello")
       .exists(newKey())
       .expire(newKey(), 5)
       .expireat(newKey(), Math.floor(new Date().getTime() / 1000) + 60)
@@ -188,6 +189,6 @@ describe("use all the things", () => {
       .zunionstore(newKey(), 1, [newKey()])
 
     const res = await p.exec()
-    expect(res).toHaveLength(108)
+    expect(res).toHaveLength(109)
   })
 })

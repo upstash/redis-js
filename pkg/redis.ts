@@ -8,6 +8,7 @@ import {
   DecrCommand,
   DelCommand,
   EchoCommand,
+  EvalCommand,
   ExistsCommand,
   ExpireAtCommand,
   ExpireCommand,
@@ -207,6 +208,11 @@ export class Redis {
    */
   echo = (...args: CommandArgs<typeof EchoCommand>) => new EchoCommand(...args).exec(this.client)
 
+  /**
+   *
+   * @see https://redis.io/commands/eval
+   */
+  eval = (...args: CommandArgs<typeof EvalCommand>) => new EvalCommand(...args).exec(this.client)
   /**
    * @see https://redis.io/commands/exists
    */

@@ -112,6 +112,7 @@ import {
   ZUnionStoreCommand,
   ZRangeCommandOptions,
   PublishCommand,
+  EvalCommand,
 } from "./commands"
 import { Command } from "./commands/command"
 import { UpstashError } from "./error"
@@ -265,6 +266,11 @@ export class Pipeline {
    * @see https://redis.io/commands/echo
    */
   echo = (...args: CommandArgs<typeof EchoCommand>) => this.chain(new EchoCommand(...args))
+
+  /**
+   * @see https://redis.io/commands/eval
+   */
+  eval = (...args: CommandArgs<typeof EvalCommand>) => this.chain(new EvalCommand(...args))
 
   /**
    * @see https://redis.io/commands/exists

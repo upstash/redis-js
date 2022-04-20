@@ -115,6 +115,10 @@ import {
   EvalCommand,
 } from "./commands"
 import { Command } from "./commands/command"
+import { EvalshaCommand } from "./commands/evalsha"
+import { ScriptExistsCommand } from "./commands/script_exists"
+import { ScriptFlushCommand } from "./commands/script_flush"
+import { ScriptLoadCommand } from "./commands/script_load"
 import { UpstashError } from "./error"
 import { HttpClient } from "./http"
 import { UpstashResponse } from "./http"
@@ -268,9 +272,20 @@ export class Pipeline {
   echo = (...args: CommandArgs<typeof EchoCommand>) => this.chain(new EchoCommand(...args))
 
   /**
+   *
    * @see https://redis.io/commands/eval
    */
-  eval = (...args: CommandArgs<typeof EvalCommand>) => this.chain(new EvalCommand(...args))
+  eval = <TArgs extends unknown[], TData = unknown>(
+    ...args: [script: string, keys: string[], args: TArgs]
+  ) => this.chain(new EvalCommand<TArgs, TData>(...args))
+
+  /**
+   *
+   * @see https://redis.io/commands/evalsha
+   */
+  evalsha = <TArgs extends unknown[], TData = unknown>(
+    ...args: [sha1: string, keys: string[], args: TArgs]
+  ) => this.chain(new EvalshaCommand<TArgs, TData>(...args))
 
   /**
    * @see https://redis.io/commands/exists
@@ -583,6 +598,24 @@ export class Pipeline {
    * @see https://redis.io/commands/scard
    */
   scard = (...args: CommandArgs<typeof SCardCommand>) => this.chain(new SCardCommand(...args))
+
+  /**
+   * @see https://redis.io/commands/script-exists
+   */
+  scriptExists = (...args: CommandArgs<typeof ScriptExistsCommand>) =>
+    this.chain(new ScriptExistsCommand(...args))
+
+  /**
+   * @see https://redis.io/commands/script-flush
+   */
+  scriptFlush = (...args: CommandArgs<typeof ScriptFlushCommand>) =>
+    this.chain(new ScriptFlushCommand(...args))
+
+  /**
+   * @see https://redis.io/commands/script-load
+   */
+  scriptLoad = (...args: CommandArgs<typeof ScriptLoadCommand>) =>
+    this.chain(new ScriptLoadCommand(...args))
 
   /**
    * @see https://redis.io/commands/sdiff

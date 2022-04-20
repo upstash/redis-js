@@ -8,6 +8,7 @@ import {
   DecrCommand,
   DelCommand,
   EchoCommand,
+  EvalCommand,
   ExistsCommand,
   ExpireAtCommand,
   ExpireCommand,
@@ -113,6 +114,10 @@ import {
   ZRangeCommandOptions,
   PublishCommand,
 } from "./commands"
+import { EvalshaCommand } from "./commands/evalsha"
+import { ScriptExistsCommand } from "./commands/script_exists"
+import { ScriptFlushCommand } from "./commands/script_flush"
+import { ScriptLoadCommand } from "./commands/script_load"
 import { HttpClient } from "./http"
 import { Pipeline } from "./pipeline"
 import type { CommandArgs, NonEmptyArray } from "./types"
@@ -206,6 +211,22 @@ export class Redis {
    * @see https://redis.io/commands/echo
    */
   echo = (...args: CommandArgs<typeof EchoCommand>) => new EchoCommand(...args).exec(this.client)
+
+  /**
+   *
+   * @see https://redis.io/commands/eval
+   */
+  eval = <TArgs extends unknown[], TData = unknown>(
+    ...args: [script: string, keys: string[], args: TArgs]
+  ) => new EvalCommand<TArgs, TData>(...args).exec(this.client)
+
+  /**
+   *
+   * @see https://redis.io/commands/evalsha
+   */
+  evalsha = <TArgs extends unknown[], TData = unknown>(
+    ...args: [sha1: string, keys: string[], args: TArgs]
+  ) => new EvalshaCommand<TArgs, TData>(...args).exec(this.client)
 
   /**
    * @see https://redis.io/commands/exists
@@ -533,6 +554,23 @@ export class Redis {
    */
   scard = (...args: CommandArgs<typeof SCardCommand>) => new SCardCommand(...args).exec(this.client)
 
+  /**
+   * @see https://redis.io/commands/script-exists
+   */
+  scriptExists = (...args: CommandArgs<typeof ScriptExistsCommand>) =>
+    new ScriptExistsCommand(...args).exec(this.client)
+
+  /**
+   * @see https://redis.io/commands/script-flush
+   */
+  scriptFlush = (...args: CommandArgs<typeof ScriptFlushCommand>) =>
+    new ScriptFlushCommand(...args).exec(this.client)
+
+  /**
+   * @see https://redis.io/commands/script-load
+   */
+  scriptLoad = (...args: CommandArgs<typeof ScriptLoadCommand>) =>
+    new ScriptLoadCommand(...args).exec(this.client)
   /**
    * @see https://redis.io/commands/sdiff
    */

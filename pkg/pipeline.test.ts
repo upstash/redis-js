@@ -3,6 +3,7 @@ import { Redis } from "./redis"
 import { keygen, newHttpClient } from "./test-utils"
 import { describe, it, expect, afterEach } from "@jest/globals"
 import { randomUUID } from "crypto"
+import { ScriptLoadCommand } from "./commands/script_load"
 
 const client = newHttpClient()
 
@@ -78,6 +79,8 @@ describe("use all the things", () => {
     const persistentKey = newKey()
     const persistentKey2 = newKey()
 
+    const scriptHash = await new ScriptLoadCommand("return 1").exec(client)
+
     p.append(newKey(), "hello")
       .bitcount(newKey(), 0, 1)
       .bitop("and", newKey(), newKey())
@@ -87,6 +90,8 @@ describe("use all the things", () => {
       .decrby(newKey(), 1)
       .del(newKey())
       .echo("hello")
+      .eval("return ARGV[1]", [], ["Hello"])
+      .evalsha(scriptHash, [], ["Hello"])
       .exists(newKey())
       .expire(newKey(), 5)
       .expireat(newKey(), Math.floor(new Date().getTime() / 1000) + 60)
@@ -170,6 +175,9 @@ describe("use all the things", () => {
       .unlink()
       .zadd(newKey(), { score: 0, member: "member" })
       .zcard(newKey())
+      .scriptExists(scriptHash)
+      .scriptFlush({ async: true })
+      .scriptLoad("return 1")
       .zcount(newKey(), 0, 1)
       .zincrby(newKey(), 1, "member")
       .zinterstore(newKey(), 1, [newKey()])
@@ -188,6 +196,6 @@ describe("use all the things", () => {
       .zunionstore(newKey(), 1, [newKey()])
 
     const res = await p.exec()
-    expect(res).toHaveLength(108)
+    expect(res).toHaveLength(113)
   })
 })

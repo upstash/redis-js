@@ -8,6 +8,6 @@ coverage
 dist/
 .idea/
 
-./examples/**/yarn.lock
-./examples/**/package-lock.json
-./examples/**/pnpm-lock.yaml
+examples/**/yarn.lock
+examples/**/package-lock.json
+examples/**/pnpm-lock.yaml

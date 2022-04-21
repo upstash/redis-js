@@ -112,18 +112,7 @@ jobs:
             echo "Expected count to be 2, got $count"
             exit 1
           fi
-      - name: Ping frontend
-        run: |
-          curl -s http://localhost:3000/from-frontend
-          sleep 5
-          curl -s http://localhost:3000/from-frontend -o response.html
-          if grep -q "Count: <!-- -->1" response.html; then
-            exit 0
-          else
-            echo "Expected response to contain 'Count: 1', got $(cat response.html)"
-            exit 1
-          fi
-
+      
   example-cloudflare:
     needs:
       - test

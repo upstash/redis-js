@@ -113,14 +113,14 @@ import {
 	ZRangeCommandOptions,
 	PublishCommand,
 	EvalCommand,
+	EvalshaCommand,
+	ScriptExistsCommand,
+	ScriptFlushCommand,
+	ScriptLoadCommand,
 } from "./commands";
 import { Command } from "./commands/command";
-import { EvalshaCommand } from "./commands/evalsha";
-import { ScriptExistsCommand } from "./commands/script_exists";
-import { ScriptFlushCommand } from "./commands/script_flush";
-import { ScriptLoadCommand } from "./commands/script_load";
 import { UpstashError } from "./error";
-import { HttpClient } from "./http";
+import { Requester } from "./http";
 import { UpstashResponse } from "./http";
 import { NonEmptyArray } from "./types";
 import { CommandArgs } from "./types";
@@ -165,10 +165,10 @@ import { CommandArgs } from "./types";
  * ```
  */
 export class Pipeline {
-	private client: HttpClient;
+	private client: Requester;
 	private commands: Command<unknown, unknown>[];
 
-	constructor(client: HttpClient) {
+	constructor(client: Requester) {
 		this.client = client;
 
 		this.commands = [];
@@ -191,10 +191,12 @@ export class Pipeline {
 			throw new Error("Pipeline is empty");
 		}
 
-		const res = await this.client.request<UpstashResponse<any>[]>({
-			path: ["pipeline"],
-			body: Object.values(this.commands).map((c) => c.command),
-		});
+		const res = (
+			await this.client.request({
+				path: ["pipeline"],
+				body: Object.values(this.commands).map((c) => c.command),
+			})
+		) as UpstashResponse<any>[];
 		return res.map(
 			({ error, result }, i) => {
 				if (error) {

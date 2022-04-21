@@ -1,8 +1,10 @@
 import * as core from "./redis";
-import { HttpClient } from "./http";
+import { HttpClient, Requester, UpstashRequest, UpstashResponse } from "./http";
 import https from "https";
 import http from "http";
 import "isomorphic-fetch";
+
+export type { UpstashRequest, Requester, UpstashResponse };
 
 /**
  * Connection credentials for upstash redis.
@@ -24,7 +26,7 @@ export type RedisConfigNodejs = {
  */
 export class Redis extends core.Redis {
 	/**
-   * Create a new redis client
+   * Create a new redis client by providing the url and token
    *
    * @example
    * ```typescript
@@ -34,20 +36,50 @@ export class Redis extends core.Redis {
    * });
    * ```
    */
-	constructor(config: RedisConfigNodejs) {
-		/**
-     * The use of an agent is only required in nodejs and depends on the protocol used.
-     */
-		let agent: http.Agent | https.Agent | undefined = undefined;
-		if (typeof window === "undefined") {
-			agent =
-				new URL(config.url).protocol === "https:" ? new https.Agent({
-					keepAlive: true,
-				}) : new http.Agent({ keepAlive: true });
+	constructor(config: RedisConfigNodejs);
+
+	/**
+   * Create a new redis client by providing a custom `Requester` implementation
+   *
+   * @example
+   * ```ts
+   *
+   * import { UpstashRequest, Requester, UpstashResponse, Redis } from "@upstash/redis"
+   *
+   *  const requester: Requester = {
+   *    request: <TResult>(req: UpstashRequest): Promise<UpstashResponse<TResult>> => {
+   *      // ...
+   *    }
+   *  }
+   *
+   * const redis = new Redis(requester)
+   * ```
+   */
+	constructor(requesters: Requester);
+	constructor(configOrRequester: RedisConfigNodejs | Requester) {
+		if ("request" in configOrRequester) {
+			super(configOrRequester);
+			return;
 		}
+
+		let agent: http.Agent | https.Agent | undefined = undefined;
+
+		if (typeof window === "undefined") {
+			const protocol = new URL(configOrRequester.url).protocol;
+			switch (protocol) {
+				case "https:":
+					agent = new https.Agent({ keepAlive: true });
+
+					break;
+				case "http:":
+					agent = new https.Agent({ keepAlive: true });
+					break;
+			}
+		}
+
 		const client = new HttpClient({
-			baseUrl: config.url,
-			headers: { authorization: `Bearer ${config.token}` },
+			baseUrl: configOrRequester.url,
+			headers: { authorization: `Bearer ${configOrRequester.token}` },
 			options: { agent },
 		});
 

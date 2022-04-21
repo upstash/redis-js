@@ -2,27 +2,30 @@ import https from "https";
 import http from "http";
 import { UpstashError } from "./error";
 
-export type HttpRequest = {
+export type UpstashRequest = {
 	path?: string[],
 	/**
    * Request body will be serialized to json
    */
 	body?: unknown,
 };
-
 export type UpstashResponse<TResult> = { result?: TResult, error?: string };
 
+export interface Requester {
+	request: <TResult = unknown>(req: UpstashRequest) => Promise<
+		UpstashResponse<TResult>
+	>,
+}
 export type HttpClientConfig = {
 	headers?: Record<string, string>,
 	baseUrl: string,
 	options?: { backend?: string, agent?: https.Agent | http.Agent },
 };
 
-export class HttpClient {
+export class HttpClient implements Requester {
 	public baseUrl: string;
 	public headers: Record<string, string>;
-
-	public readonly options?: { backend?: string, agent?: any };
+	public readonly options?: { backend?: string };
 
 	public constructor(config: HttpClientConfig) {
 		this.baseUrl = config.baseUrl.replace(/\/$/, "");
@@ -32,12 +35,14 @@ export class HttpClient {
 		this.options = config.options;
 	}
 
-	public async request<TResponse>(req: HttpRequest): Promise<TResponse> {
+	public async request<TResult>(req: UpstashRequest): Promise<
+		UpstashResponse<TResult>
+	> {
 		if (!req.path) {
 			req.path = [];
 		}
 
-		// fetch is defined by isomorphic fetch or by the runtime
+		// fetch is defined by isomorphic fetch
 		// eslint-disable-next-line no-undef
 		const res = await fetch(
 			[this.baseUrl, ...req.path].join("/"),
@@ -47,23 +52,13 @@ export class HttpClient {
 				body: JSON.stringify(req.body),
 				// @ts-expect-error
 				backend: this.options?.backend,
-
-				/**
-       * This option only works in the browser
-       */
-				keepalive: true,
-
-				/**
-       * Setting `keepAlive` using `agent` works in nodejs
-       */
-				agent: this.options?.agent,
 			},
 		);
-		const body = await res.json();
+		const body = (await res.json()) as UpstashResponse<TResult>;
 		if (!res.ok) {
-			throw new UpstashError(body.error);
+			throw new UpstashError(body.error!);
 		}
 
-		return body as TResponse;
+		return body;
 	}
 }

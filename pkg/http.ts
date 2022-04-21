@@ -1,61 +1,69 @@
-import { UpstashError } from "./error"
+import https from "https";
+import http from "http";
+import { UpstashError } from "./error";
 
 export type HttpRequest = {
-  path?: string[]
-  /**
+	path?: string[],
+	/**
    * Request body will be serialized to json
    */
-  body?: unknown
-}
+	body?: unknown,
+};
 
-export type UpstashResponse<TResult> = {
-  result?: TResult
-  error?: string
-}
+export type UpstashResponse<TResult> = { result?: TResult, error?: string };
 
 export type HttpClientConfig = {
-  headers?: Record<string, string>
-  baseUrl: string
-  options?: {
-    backend?: string
-  }
-}
+	headers?: Record<string, string>,
+	baseUrl: string,
+	options?: { backend?: string, agent?: https.Agent | http.Agent },
+};
 
 export class HttpClient {
-  public baseUrl: string
-  public headers: Record<string, string>
-  public readonly options?: { backend?: string }
+	public baseUrl: string;
+	public headers: Record<string, string>;
 
-  public constructor(config: HttpClientConfig) {
-    this.baseUrl = config.baseUrl.replace(/\/$/, "")
+	public readonly options?: { backend?: string, agent?: any };
 
-    this.headers = {
-      "Content-Type": "application/json",
-      ...config.headers,
-    }
+	public constructor(config: HttpClientConfig) {
+		this.baseUrl = config.baseUrl.replace(/\/$/, "");
 
-    this.options = config.options
-  }
+		this.headers = { "Content-Type": "application/json", ...config.headers };
 
-  public async request<TResponse>(req: HttpRequest): Promise<TResponse> {
-    if (!req.path) {
-      req.path = []
-    }
+		this.options = config.options;
+	}
 
-    // fetch is defined by isomorphic fetch
-    // eslint-disable-next-line no-undef
-    const res = await fetch([this.baseUrl, ...req.path].join("/"), {
-      method: "POST",
-      headers: this.headers,
-      body: JSON.stringify(req.body),
-      // @ts-expect-error
-      backend: this.options?.backend,
-    })
-    const body = await res.json()
-    if (!res.ok) {
-      throw new UpstashError(body.error)
-    }
+	public async request<TResponse>(req: HttpRequest): Promise<TResponse> {
+		if (!req.path) {
+			req.path = [];
+		}
 
-    return body as TResponse
-  }
+		// fetch is defined by isomorphic fetch or by the runtime
+		// eslint-disable-next-line no-undef
+		const res = await fetch(
+			[this.baseUrl, ...req.path].join("/"),
+			{
+				method: "POST",
+				headers: this.headers,
+				body: JSON.stringify(req.body),
+				// @ts-expect-error
+				backend: this.options?.backend,
+
+				/**
+       * This option only works in the browser
+       */
+				keepalive: true,
+
+				/**
+       * Setting `keepAlive` using `agent` works in nodejs
+       */
+				agent: this.options?.agent,
+			},
+		);
+		const body = await res.json();
+		if (!res.ok) {
+			throw new UpstashError(body.error);
+		}
+
+		return body as TResponse;
+	}
 }

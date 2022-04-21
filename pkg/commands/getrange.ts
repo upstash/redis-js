@@ -1,10 +1,10 @@
-import { Command } from "./command"
+import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/getrange
  */
 export class GetRangeCommand extends Command<string, string> {
-  constructor(key: string, start: number, end: number) {
-    super(["getrange", key, start, end])
-  }
+	constructor(key: string, start: number, end: number) {
+		super(["getrange", key, start, end]);
+	}
 }

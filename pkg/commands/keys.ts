@@ -1,10 +1,10 @@
-import { Command } from "./command"
+import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/keys
  */
 export class KeysCommand extends Command<string[], string[]> {
-  constructor(pattern: string) {
-    super(["keys", pattern])
-  }
+	constructor(pattern: string) {
+		super(["keys", pattern]);
+	}
 }

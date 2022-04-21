@@ -13,17 +13,17 @@ dependencies:
   '@upstash/redis': link:../../dist
 
 devDependencies:
-  '@cloudflare/workers-types': 3.4.0
+  '@cloudflare/workers-types': 3.5.1
   esbuild: 0.13.15
-  esbuild-darwin-arm64: 0.14.36
+  esbuild-darwin-arm64: 0.14.37
   miniflare: 2.4.0
   prettier: 2.6.2
   typescript: 4.6.3
 
 packages:
 
-  /@cloudflare/workers-types/3.4.0:
-    resolution: {integrity: sha512-i/3czUrt6YqbOWl44OtIqd0cSZvEVXp/1oD/DZylC4PHZL3q/BhbamdEVeVhc/HPk4iD/7MZ2HGaIMO4Z4b12A==}
+  /@cloudflare/workers-types/3.5.1:
+    resolution: {integrity: sha512-3InFTahEqziyJ2DSRL29TmrukGvxsijxwOP+Jb1gdihEuRLhwwtY49hgpExGm21HBu6E6Qr/RxlPUp2+o+qoUg==}
     dev: true
 
   /@iarna/toml/2.2.5:
@@ -234,8 +234,8 @@ packages:
     dev: true
     optional: true
 
-  /esbuild-darwin-arm64/0.14.36:
-    resolution: {integrity: sha512-q8fY4r2Sx6P0Pr3VUm//eFYKVk07C5MHcEinU1BjyFnuYz4IxR/03uBbDwluR6ILIHnZTE7AkTUWIdidRi1Jjw==}
+  /esbuild-darwin-arm64/0.14.37:
+    resolution: {integrity: sha512-eFwy5il5yvIHAVau97kWoNYfxuCd1X7hfgKc4Ns5ymlYXhyRzRywwJfknHax5rDyZxfDXtnFaT/nftUiYwsHIQ==}
     engines: {node: '>=12'}
     cpu: [arm64]
     os: [darwin]

@@ -1,0 +1,16 @@
+lockfileVersion: 5.3
+
+specifiers:
+  '@upstash/redis': ../../dist
+  dotenv: ^10.0.0
+
+dependencies:
+  '@upstash/redis': link:../../dist
+  dotenv: 10.0.0
+
+packages:
+
+  /dotenv/10.0.0:
+    resolution: {integrity: sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==}
+    engines: {node: '>=10'}
+    dev: false

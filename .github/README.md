@@ -235,6 +235,27 @@ const res = new CustomGetCommand("key").exec(client)
 
 ```
 
+### Additional information
+
+#### `keepalive`
+
+`@upstash/redis` is trying to reuse connections where possible to minimize latency. Connections can be reused if the client is
+stored in memory and not initialized with every new function invocation. The easiest way to achieve this is by creating the client
+outside of your handler:
+
+```ts
+// Nextjs api route
+import { Redis } from "@upstash/redis"
+
+const redis = Redis.fromEnv()
+
+export default async function (req, res) {
+  // use redis here
+}
+```
+
+Whenever your hot lambda receives a new request the client is already initialized and the previously established connection to upstash is reused.
+
 #### Javascript MAX_SAFE_INTEGER
 
 Javascript can not handle numbers larger than `2^53 -1` safely and would return wrong results when trying to deserialize them.

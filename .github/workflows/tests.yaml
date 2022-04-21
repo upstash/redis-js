@@ -115,8 +115,9 @@ jobs:
       - name: Ping frontend
         run: |
           curl -s http://localhost:3000/from-frontend
+          sleep 5
           curl -s http://localhost:3000/from-frontend -o response.html
-          if grep -q "Count: 1" response.html; then
+          if grep -q "Count: <!-- -->1" response.html; then
             exit 0
           else
             echo "Expected response to contain 'Count: 1', got $(cat response.html)"

@@ -1,5 +1,6 @@
 import * as core from "./redis"
 import { HttpClient } from "./http"
+import https from "https"
 import "isomorphic-fetch"
 
 /**
@@ -16,17 +17,6 @@ export type RedisConfigNodejs = {
    * UPSTASH_REDIS_REST_TOKEN
    */
   token: string
-
-  // requestOptions?: {
-  //   /**
-  //    * **fastly only**
-  //    *
-  //    * A Request can be forwarded to any backend defined on your service. Backends
-  //    * can be created via the Fastly CLI, API, or web interface, and are
-  //    * referenced by name.
-  //    */
-  //   backend?: string
-  // }
 }
 
 /**
@@ -49,6 +39,9 @@ export class Redis extends core.Redis {
       baseUrl: config.url,
       headers: {
         authorization: `Bearer ${config.token}`,
+      },
+      options: {
+        agent: typeof window === "undefined" ? new https.Agent({ keepAlive: true }) : undefined,
       },
     })
 

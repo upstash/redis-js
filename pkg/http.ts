@@ -1,3 +1,4 @@
+import https from "https"
 import { UpstashError } from "./error"
 
 export type HttpRequest = {
@@ -18,13 +19,15 @@ export type HttpClientConfig = {
   baseUrl: string
   options?: {
     backend?: string
+    agent?: https.Agent
   }
 }
 
 export class HttpClient {
   public baseUrl: string
   public headers: Record<string, string>
-  public readonly options?: { backend?: string }
+
+  public readonly options?: { backend?: string; agent?: any }
 
   public constructor(config: HttpClientConfig) {
     this.baseUrl = config.baseUrl.replace(/\/$/, "")
@@ -42,7 +45,7 @@ export class HttpClient {
       req.path = []
     }
 
-    // fetch is defined by isomorphic fetch
+    // fetch is defined by isomorphic fetch or by the runtime
     // eslint-disable-next-line no-undef
     const res = await fetch([this.baseUrl, ...req.path].join("/"), {
       method: "POST",
@@ -50,6 +53,16 @@ export class HttpClient {
       body: JSON.stringify(req.body),
       // @ts-expect-error
       backend: this.options?.backend,
+
+      /**
+       * This option only works in the browser
+       */
+      keepalive: true,
+
+      /**
+       * Setting `keepAlive` using `agent` works in nodejs
+       */
+      agent: this.options?.agent,
     })
     const body = await res.json()
     if (!res.ok) {

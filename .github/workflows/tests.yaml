@@ -32,8 +32,8 @@ jobs:
           version: 6
           run_install: true
 
-      - name: Verify formatting
-        run: pnpm rome format --ci .
+      # - name: Verify formatting
+      #   run: pnpm rome format --ci .
 
       - name: Build
         run: pnpm build

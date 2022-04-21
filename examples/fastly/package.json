@@ -4,9 +4,6 @@
   "main": "src/index.js",
   "author": "woverton@fastly.com",
   "license": "MIT",
-  "engines": {
-    "node": "^16"
-  },
   "devDependencies": {
     "core-js": "^3.19.1",
     "webpack": "^5.64.0",

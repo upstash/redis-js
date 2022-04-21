@@ -1,9 +1,6 @@
 {
   "name": "@upstash/redis",
   "version": "0.0.0",
-  "engines": {
-    "node": ">=10"
-  },
   "description": "An HTTP/REST based Redis client built on top of Upstash REST API.",
   "main": "./index.js",
   "module": "./index.mjs",

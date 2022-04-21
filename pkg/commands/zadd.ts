@@ -21,17 +21,17 @@ export class ZAddCommand<TData = string> extends Command<
 	constructor(
 		key: string,
 		scoreMember: ScoreMember<TData>,
-		...scoreMemberPairs: ScoreMember<TData>[],
+		...scoreMemberPairs: ScoreMember<TData>[]
 	);
 	constructor(
 		key: string,
 		opts: ZAddCommandOptions | ZAddCommandOptionsWithIncr,
-		...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]],
+		...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]]
 	);
 	constructor(
 		key: string,
 		arg1: ScoreMember<TData> | ZAddCommandOptions | ZAddCommandOptionsWithIncr,
-		...arg2: ScoreMember<TData>[],
+		...arg2: ScoreMember<TData>[]
 	) {
 		const command: unknown[] = ["zadd", key];
 

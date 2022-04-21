@@ -8,14 +8,14 @@ export class BitOpCommand extends Command<number, number> {
 		op: "and" | "or" | "xor",
 		destinationKey: string,
 		sourceKey: string,
-		...sourceKeys: string[],
+		...sourceKeys: string[]
 	);
 	constructor(op: "not", destinationKey: string, sourceKey: string);
 	constructor(
 		op: "and" | "or" | "xor" | "not",
 		destinationKey: string,
 		sourceKey: string,
-		...sourceKeys: string[],
+		...sourceKeys: string[]
 	) {
 		super(["bitop", op, destinationKey, sourceKey, ...sourceKeys]);
 	}

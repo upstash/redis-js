@@ -718,7 +718,7 @@ export class Redis {
       | [
           key: string,
           opts: ZAddCommandOptions | ZAddCommandOptionsWithIncr,
-          ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]]
+          ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]],
         ]
   ) => {
     if ("score" in args[1]) {

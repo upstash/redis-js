@@ -94,15 +94,15 @@ jobs:
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
-        run: npm install
+        run: pnpm install
         working-directory: ./examples/nextjs
 
       - name: Build example
-        run: npm run build
+        run: pnpm build
         working-directory: ./examples/nextjs
 
       - name: Start example
-        run: npm run start &
+        run: pnpm start &
         working-directory: ./examples/nextjs
 
       - name: Ping api
@@ -163,8 +163,8 @@ jobs:
 
       - name: Install example
         run: |
-          npm install
-          npm install -g miniflare @cloudflare/wrangler
+          pnpm install
+          pnpm install -g miniflare @cloudflare/wrangler
 
         working-directory: ./examples/cloudflare-workers
 
@@ -225,7 +225,6 @@ jobs:
 
       - name: Install example
         run: |
-          npm i -g pnpm
           pnpm install
           pnpm install -g miniflare @cloudflare/wrangler
 
@@ -289,7 +288,7 @@ jobs:
       - name: Install example
         working-directory: ./examples/fastly
         run: |
-          npm install
+          pnpm install
           curl -L https://github.com/fastly/cli/releases/download/v1.7.0/fastly_v1.7.0_linux-amd64.tar.gz > fastly.tar.gz
           tar -xf ./fastly.tar.gz
 

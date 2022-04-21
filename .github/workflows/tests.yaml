@@ -34,11 +34,8 @@ jobs:
       - name: Install
         run: pnpm install -r
 
-      - name: Verify formatting
-        run: pnpm prettier --check .
-
-      - name: Run linter
-        run: pnpm eslint --ext .ts .
+      # - name: Verify formatting
+      #   run: pnpm rome format --ci .
 
       - name: Build
         run: pnpm build
@@ -63,6 +60,9 @@ jobs:
     env:
       UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+      NEXT_PUBLIC_UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
@@ -70,7 +70,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 14
+          node-version: 16
       - name: Cache pnpm modules
         uses: actions/cache@v2
         with:
@@ -116,7 +116,7 @@ jobs:
             echo "Expected count to be 2, got $count"
             exit 1
           fi
-
+      
   example-cloudflare:
     needs:
       - test
@@ -288,6 +288,7 @@ jobs:
       - name: Install example
         working-directory: ./examples/fastly
         run: |
+          pnpm install
           curl -L https://github.com/fastly/cli/releases/download/v1.7.0/fastly_v1.7.0_linux-amd64.tar.gz > fastly.tar.gz
           tar -xf ./fastly.tar.gz
 

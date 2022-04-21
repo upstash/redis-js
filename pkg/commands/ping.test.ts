@@ -1,8 +1,7 @@
-import { newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { describe, it, expect } from "@jest/globals"
-import { PingCommand } from "./ping"
-const client = newHttpClient()
+import { newHttpClient } from "../test-utils";
+import { PingCommand } from "./ping";
+import { describe, it, expect } from "@jest/globals";
+import { randomUUID } from "crypto";
 
 describe("with message", () => {
   it("returns the message", async () => {

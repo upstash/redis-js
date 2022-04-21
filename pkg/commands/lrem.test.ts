@@ -1,12 +1,12 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { it, expect, afterAll } from "@jest/globals"
+import { keygen, newHttpClient } from "../test-utils";
+import { it, expect, afterAll } from "@jest/globals";
 
-import { LPushCommand } from "./lpush"
-import { LRemCommand } from "./lrem"
-const client = newHttpClient()
+import { LPushCommand } from "./lpush";
+import { LRemCommand } from "./lrem";
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
 it("returns the number of deleted elements", async () => {
   const key = newKey()

@@ -1,11 +1,11 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { it, expect, afterAll } from "@jest/globals"
-import { SetCommand } from "./set"
-import { StrLenCommand } from "./strlen"
-const client = newHttpClient()
+import { keygen, newHttpClient } from "../test-utils";
+import { it, expect, afterAll } from "@jest/globals";
+import { SetCommand } from "./set";
+import { StrLenCommand } from "./strlen";
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
 it("returns the correct length", async () => {
   const key = newKey()

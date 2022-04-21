@@ -1,11 +1,11 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { it, expect, afterAll } from "@jest/globals"
-import { ZAddCommand } from "./zadd"
-import { ZLexCountCommand } from "./zlexcount"
-const client = newHttpClient()
+import { keygen, newHttpClient } from "../test-utils";
+import { it, expect, afterAll } from "@jest/globals";
+import { ZAddCommand } from "./zadd";
+import { ZLexCountCommand } from "./zlexcount";
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
 it("returns the number of elements in the specified score range", async () => {
   const key = newKey()

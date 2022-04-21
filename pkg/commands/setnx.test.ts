@@ -1,19 +1,21 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { it, expect, afterAll } from "@jest/globals"
-import { SetCommand } from "./set"
-import { GetCommand } from "./get"
-import { SetNxCommand } from "./setnx"
+import { keygen, newHttpClient } from "../test-utils";
+import { randomUUID } from "crypto";
+import { it, expect, afterAll } from "@jest/globals";
+import { SetCommand } from "./set";
+import { GetCommand } from "./get";
+import { SetNxCommand } from "./setnx";
 
-const client = newHttpClient()
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
-it("sets value", async () => {
-  const key = newKey()
-  const value = randomUUID()
-  const newValue = randomUUID()
+it(
+	"sets value",
+	async () => {
+		const key = newKey();
+		const value = randomUUID();
+		const newValue = randomUUID();
 
   const res = await new SetCommand([key, value]).exec(client)
 
@@ -23,5 +25,6 @@ it("sets value", async () => {
   expect(res2).toEqual(0)
   const res3 = await new GetCommand([key]).exec(client)
 
-  expect(res3).toEqual(value)
-})
+		expect(res3).toEqual(value);
+	},
+);

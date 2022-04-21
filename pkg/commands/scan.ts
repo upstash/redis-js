@@ -1,9 +1,6 @@
-import { Command } from "./command"
+import { Command } from "./command";
 
-export type ScanCommandOptions = {
-  match?: string
-  count?: number
-}
+export type ScanCommandOptions = { match?: string, count?: number };
 /**
  * @see https://redis.io/commands/scan
  */

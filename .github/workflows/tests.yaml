@@ -30,13 +30,12 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: 6
-          run_install: true
 
-      - name: Verify formatting
-        run: pnpm prettier --check .
+      - name: Install
+        run: pnpm install -r
 
-      - name: Run linter
-        run: pnpm eslint --ext .ts .
+      # - name: Verify formatting
+      #   run: pnpm rome format --ci .
 
       - name: Build
         run: pnpm build
@@ -61,6 +60,9 @@ jobs:
     env:
       UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+      NEXT_PUBLIC_UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
@@ -68,7 +70,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 14
+          node-version: 16
       - name: Cache pnpm modules
         uses: actions/cache@v2
         with:
@@ -80,7 +82,9 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: 6
-          run_install: true
+
+      - name: Install
+        run: pnpm install -r
 
       - name: Build
         run: pnpm build
@@ -94,15 +98,15 @@ jobs:
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
-        run: npm install
+        run: pnpm install
         working-directory: ./examples/nextjs
 
       - name: Build example
-        run: npm run build
+        run: pnpm build
         working-directory: ./examples/nextjs
 
       - name: Start example
-        run: npm run start &
+        run: pnpm start &
         working-directory: ./examples/nextjs
 
       - name: Ping api
@@ -112,7 +116,7 @@ jobs:
             echo "Expected count to be 2, got $count"
             exit 1
           fi
-
+      
   example-cloudflare:
     needs:
       - test
@@ -138,7 +142,9 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: 6
-          run_install: true
+
+      - name: Install
+        run: pnpm install -r
 
       - name: Build
         run: pnpm build
@@ -153,14 +159,78 @@ jobs:
 
       - name: Install example
         run: |
-          npm install
-          npm install -g miniflare @cloudflare/wrangler
+          pnpm install
+          pnpm install -g miniflare @cloudflare/wrangler
 
         working-directory: ./examples/cloudflare-workers
 
       - name: Start example
         run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
         working-directory: ./examples/cloudflare-workers
+
+      - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
+        timeout-minutes: 2
+
+      - name: Ping api
+        run: |
+          curl -s http://localhost:8787/ -o response.html
+          if grep -q "Count: 2" response.html; then
+            exit 0
+          else
+            echo "Expected response to contain 'Count: 2', got $(cat response.html)"
+            exit 1
+          fi
+
+  example-cloudflare-modules:
+    needs:
+      - test
+    env:
+      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+      - name: Install
+        run: pnpm install -r
+
+      - name: Build
+        run: pnpm build
+
+      - name: Start redis server
+        uses: ./.github/actions/redis
+        with:
+          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
+          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
+
+      - name: Install example
+        run: |
+          pnpm install
+          pnpm install -g miniflare @cloudflare/wrangler
+
+        working-directory: ./examples/cf-modules-worker
+
+      - name: Start example
+        run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
+        working-directory: ./examples/cf-modules-worker
 
       - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
         timeout-minutes: 2
@@ -200,7 +270,9 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: 6
-          run_install: true
+
+      - name: Install
+        run: pnpm install -r
 
       - name: Build
         run: pnpm build
@@ -216,7 +288,7 @@ jobs:
       - name: Install example
         working-directory: ./examples/fastly
         run: |
-          npm install
+          pnpm install
           curl -L https://github.com/fastly/cli/releases/download/v1.7.0/fastly_v1.7.0_linux-amd64.tar.gz > fastly.tar.gz
           tar -xf ./fastly.tar.gz
 

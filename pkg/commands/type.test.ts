@@ -1,16 +1,16 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { describe, it, expect, afterAll } from "@jest/globals"
-import { SetCommand } from "./set"
-import { TypeCommand } from "./type"
-import { LPushCommand } from "./lpush"
-import { HSetCommand } from "./hset"
-import { SAddCommand } from "./sadd"
-import { ZAddCommand } from "./zadd"
-const client = newHttpClient()
+import { keygen, newHttpClient } from "../test-utils";
+import { randomUUID } from "crypto";
+import { describe, it, expect, afterAll } from "@jest/globals";
+import { SetCommand } from "./set";
+import { TypeCommand } from "./type";
+import { LPushCommand } from "./lpush";
+import { HSetCommand } from "./hset";
+import { SAddCommand } from "./sadd";
+import { ZAddCommand } from "./zadd";
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
 describe("string", () => {
   it("returns the correct type", async () => {

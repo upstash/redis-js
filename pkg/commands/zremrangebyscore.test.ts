@@ -1,12 +1,12 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { ZAddCommand } from "./zadd"
-import { it, expect, afterAll } from "@jest/globals"
-import { ZRemRangeByScoreCommand } from "./zremrangebyscore"
-const client = newHttpClient()
+import { keygen, newHttpClient } from "../test-utils";
+import { randomUUID } from "crypto";
+import { ZAddCommand } from "./zadd";
+import { it, expect, afterAll } from "@jest/globals";
+import { ZRemRangeByScoreCommand } from "./zremrangebyscore";
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
 it("returns the number of removed elements", async () => {
   const key = newKey()

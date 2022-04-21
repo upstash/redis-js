@@ -1,6 +1,6 @@
-import { Command } from "./command"
+import { Command } from "./command";
 
-export type Type = "string" | "list" | "set" | "zset" | "hash" | "none"
+export type Type = "string" | "list" | "set" | "zset" | "hash" | "none";
 /**
  * @see https://redis.io/commands/type
  */

@@ -1,12 +1,12 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { SAddCommand } from "./sadd"
-import { SIsMemberCommand } from "./sismember"
-import { describe, it, expect, afterAll } from "@jest/globals"
-const client = newHttpClient()
+import { keygen, newHttpClient } from "../test-utils";
+import { randomUUID } from "crypto";
+import { SAddCommand } from "./sadd";
+import { SIsMemberCommand } from "./sismember";
+import { describe, it, expect, afterAll } from "@jest/globals";
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
 describe("when member exists", () => {
   it("returns 1", async () => {

@@ -1,6 +1,6 @@
-import { UpstashError } from "../error"
-import { HttpClient, UpstashResponse } from "../http"
-import { parseResponse } from "../util"
+import { UpstashError } from "../error";
+import { Requester } from "../http";
+import { parseResponse } from "../util";
 
 type Serialize = (data: unknown) => string
 type Deserialize<TResult, TData> = (result: TResult) => TData
@@ -36,17 +36,17 @@ export class Command<TData, TResult> {
   /**
    * Execute the command using a client.
    */
-  public async exec(client: HttpClient): Promise<TData> {
-    const { result, error } = await client.request<UpstashResponse<TResult>>({
+  public async exec(client: Requester): Promise<TData> {
+    const { result, error } = await client.request<TResult>({
       body: this.command,
-    })
+    });
     if (error) {
-      throw new UpstashError(error)
+      throw new UpstashError(error);
     }
     if (typeof result === "undefined") {
-      throw new Error(`Request did not return a result`)
+      throw new Error(`Request did not return a result`);
     }
 
-    return this.deserialize(result)
+    return this.deserialize(result);
   }
 }

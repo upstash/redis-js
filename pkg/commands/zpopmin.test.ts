@@ -1,12 +1,12 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { describe, it, expect, afterAll } from "@jest/globals"
-import { ZAddCommand } from "./zadd"
-import { ZPopMinCommand } from "./zpopmin"
-const client = newHttpClient()
+import { keygen, newHttpClient } from "../test-utils";
+import { randomUUID } from "crypto";
+import { describe, it, expect, afterAll } from "@jest/globals";
+import { ZAddCommand } from "./zadd";
+import { ZPopMinCommand } from "./zpopmin";
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
 describe("without options", () => {
   it("returns the popped elements", async () => {

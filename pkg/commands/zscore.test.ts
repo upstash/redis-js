@@ -1,12 +1,12 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { randomInt, randomUUID } from "crypto"
-import { it, expect, afterAll } from "@jest/globals"
-import { ZAddCommand } from "./zadd"
-import { ZScoreCommand } from "./zscore"
-const client = newHttpClient()
+import { keygen, newHttpClient } from "../test-utils";
+import { randomInt, randomUUID } from "crypto";
+import { it, expect, afterAll } from "@jest/globals";
+import { ZAddCommand } from "./zadd";
+import { ZScoreCommand } from "./zscore";
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
 it("returns the score", async () => {
   const key = newKey()

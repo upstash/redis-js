@@ -77,11 +77,26 @@ const redis = new Redis({
   url: <UPSTASH_REDIS_REST_URL>,
   token: <UPSTASH_REDIS_REST_TOKEN>,
 })
-// or load directly from env
+
+
+// or load directly from global env
+
+// service worker
 const redis = Redis.fromEnv()
+
+
+// module worker
+export default {
+  async fetch(request: Request, env: Bindings) {
+    const redis = Redis.fromEnv(env)
+    // ...
+  }
+}
+
 ```
 
-- [Code example](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-workers)
+- [Code example service worker](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-workers)
+- [Code example module worker](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-workers-modules)
 - [Documentation](https://docs.upstash.com/redis/tutorials/cloudflare_workers_with_redis)
 
 #### Fastly
@@ -219,6 +234,27 @@ const client = new HttpClient({
 const res = new CustomGetCommand("key").exec(client)
 
 ```
+
+### Additional information
+
+#### `keepalive`
+
+`@upstash/redis` is trying to reuse connections where possible to minimize latency. Connections can be reused if the client is
+stored in memory and not initialized with every new function invocation. The easiest way to achieve this is by creating the client
+outside of your handler:
+
+```ts
+// Nextjs api route
+import { Redis } from "@upstash/redis"
+
+const redis = Redis.fromEnv()
+
+export default async function (req, res) {
+  // use redis here
+}
+```
+
+Whenever your hot lambda receives a new request the client is already initialized and the previously established connection to upstash is reused.
 
 #### Javascript MAX_SAFE_INTEGER
 

@@ -1,13 +1,13 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { describe, it, expect, afterAll } from "@jest/globals"
-import { SetCommand } from "./set"
-import { GetCommand } from "./get"
-import { ExpireAtCommand } from "./expireat"
-const client = newHttpClient()
+import { keygen, newHttpClient } from "../test-utils";
+import { randomUUID } from "crypto";
+import { describe, it, expect, afterAll } from "@jest/globals";
+import { SetCommand } from "./set";
+import { GetCommand } from "./get";
+import { ExpireAtCommand } from "./expireat";
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
 describe("without options", () => {
   it("expires the key", async () => {

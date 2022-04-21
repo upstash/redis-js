@@ -1,16 +1,20 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { ExistsCommand } from "./exists"
-import { describe, it, expect, afterAll } from "@jest/globals"
-import { SetCommand } from "./set"
+import { keygen, newHttpClient } from "../test-utils";
+import { ExistsCommand } from "./exists";
+import { describe, it, expect, afterAll } from "@jest/globals";
+import { SetCommand } from "./set";
 
-const client = newHttpClient()
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
-describe("when the key does not eist", () => {
-  it("it returns 1", async () => {
-    const key = newKey()
+describe(
+	"when the key does not eist",
+	() => {
+		it(
+			"it returns 1",
+			async () => {
+				const key = newKey();
 
     const res = await new ExistsCommand([key]).exec(client)
     expect(res).toEqual(0)

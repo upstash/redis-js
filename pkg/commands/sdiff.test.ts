@@ -1,12 +1,12 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { it, expect, afterAll } from "@jest/globals"
-import { SAddCommand } from "./sadd"
-import { SDiffCommand } from "./sdiff"
-const client = newHttpClient()
+import { keygen, newHttpClient } from "../test-utils";
+import { randomUUID } from "crypto";
+import { it, expect, afterAll } from "@jest/globals";
+import { SAddCommand } from "./sadd";
+import { SDiffCommand } from "./sdiff";
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
 it("returns the diff", async () => {
   const key1 = newKey()

@@ -8,5 +8,6 @@ coverage
 dist/
 .idea/
 
-# stryker temp files
-.stryker-tmp
+examples/**/yarn.lock
+examples/**/package-lock.json
+examples/**/pnpm-lock.yaml

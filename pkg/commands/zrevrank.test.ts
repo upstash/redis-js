@@ -1,14 +1,16 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { it, expect, afterAll } from "@jest/globals"
-import { ZAddCommand } from "./zadd"
-import { ZRevRankCommand } from "./zrevrank"
-const client = newHttpClient()
+import { keygen, newHttpClient } from "../test-utils";
+import { it, expect, afterAll } from "@jest/globals";
+import { ZAddCommand } from "./zadd";
+import { ZRevRankCommand } from "./zrevrank";
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
-it("returns the rank", async () => {
-  const key = newKey()
+it(
+	"returns the rank",
+	async () => {
+		const key = newKey();
 
   await new ZAddCommand([
     key,

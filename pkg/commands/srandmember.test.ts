@@ -1,12 +1,12 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { describe, it, expect, afterAll } from "@jest/globals"
-import { SAddCommand } from "./sadd"
-import { SRandMemberCommand } from "./srandmember"
-const client = newHttpClient()
+import { keygen, newHttpClient } from "../test-utils";
+import { randomUUID } from "crypto";
+import { describe, it, expect, afterAll } from "@jest/globals";
+import { SAddCommand } from "./sadd";
+import { SRandMemberCommand } from "./srandmember";
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
 describe("without opts", () => {
   it("returns a random key", async () => {

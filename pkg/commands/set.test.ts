@@ -1,17 +1,21 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { describe, it, expect, afterAll } from "@jest/globals"
-import { GetCommand } from "./get"
-import { SetCommand } from "./set"
+import { keygen, newHttpClient } from "../test-utils";
+import { randomUUID } from "crypto";
+import { describe, it, expect, afterAll } from "@jest/globals";
+import { GetCommand } from "./get";
+import { SetCommand } from "./set";
 
-const client = newHttpClient()
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
-describe("without options", () => {
-  it("sets value", async () => {
-    const key = newKey()
-    const value = randomUUID()
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
+describe(
+	"without options",
+	() => {
+		it(
+			"sets value",
+			async () => {
+				const key = newKey();
+				const value = randomUUID();
 
     const res = await new SetCommand([key, value]).exec(client)
     expect(res).toEqual("OK")
@@ -47,15 +51,23 @@ describe("px", () => {
 
     const res3 = await new GetCommand([key]).exec(client)
 
-    expect(res3).toBeNull()
-  })
-})
-describe("nx", () => {
-  describe("when key exists", () => {
-    it("does nothing", async () => {
-      const key = newKey()
-      const value = randomUUID()
-      const newValue = randomUUID()
+				expect(res3).toBeNull();
+			},
+		);
+	},
+);
+describe(
+	"nx",
+	() => {
+		describe(
+			"when key exists",
+			() => {
+				it(
+					"does nothing",
+					async () => {
+						const key = newKey();
+						const value = randomUUID();
+						const newValue = randomUUID();
 
       await new SetCommand([key, value]).exec(client)
       const res = await new SetCommand([

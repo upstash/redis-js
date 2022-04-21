@@ -1,13 +1,13 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { it, expect, afterAll } from "@jest/globals"
-import { HSetCommand } from "./hset"
-import { HExistsCommand } from "./hexists"
+import { keygen, newHttpClient } from "../test-utils";
+import { randomUUID } from "crypto";
+import { it, expect, afterAll } from "@jest/globals";
+import { HSetCommand } from "./hset";
+import { HExistsCommand } from "./hexists";
 
-const client = newHttpClient()
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
 it("returns 1 for an existing field", async () => {
   const key = newKey()

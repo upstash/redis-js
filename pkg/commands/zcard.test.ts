@@ -1,11 +1,11 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { it, expect, afterAll } from "@jest/globals"
-import { ZAddCommand } from "./zadd"
-import { ZCardCommand } from "./zcard"
-const client = newHttpClient()
+import { keygen, newHttpClient } from "../test-utils";
+import { it, expect, afterAll } from "@jest/globals";
+import { ZAddCommand } from "./zadd";
+import { ZCardCommand } from "./zcard";
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
 it("returns the cardinality", async () => {
   const key = newKey()

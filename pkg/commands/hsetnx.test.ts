@@ -1,13 +1,13 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { describe, it, expect, afterAll } from "@jest/globals"
-import { HSetCommand } from "./hset"
-import { HGetCommand } from "./hget"
-import { HSetNXCommand } from "./hsetnx"
-const client = newHttpClient()
+import { keygen, newHttpClient } from "../test-utils";
+import { randomUUID } from "crypto";
+import { describe, it, expect, afterAll } from "@jest/globals";
+import { HSetCommand } from "./hset";
+import { HGetCommand } from "./hget";
+import { HSetNXCommand } from "./hsetnx";
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
 describe("when hash exists already", () => {
   it("returns 0", async () => {
@@ -32,6 +32,8 @@ describe("when hash does not exist", () => {
     expect(res).toBe(1)
     const res2 = await new HGetCommand([key, field]).exec(client)
 
-    expect(res2).toEqual(value)
-  })
-})
+				expect(res2).toEqual(value);
+			},
+		);
+	},
+);

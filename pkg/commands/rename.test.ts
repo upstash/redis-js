@@ -1,12 +1,12 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { it, expect, afterAll } from "@jest/globals"
-import { SetCommand } from "./set"
-import { RenameCommand } from "./rename"
-const client = newHttpClient()
+import { keygen, newHttpClient } from "../test-utils";
+import { randomUUID } from "crypto";
+import { it, expect, afterAll } from "@jest/globals";
+import { SetCommand } from "./set";
+import { RenameCommand } from "./rename";
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
 it("renames the key", async () => {
   const source = newKey()

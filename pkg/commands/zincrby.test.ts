@@ -4,10 +4,10 @@ import { ZIncrByCommand } from "./zincrby"
 import { ZAddCommand } from "./zadd"
 import { randomUUID } from "crypto"
 
-const client = newHttpClient()
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
 it("increments and existing value", async () => {
   const key = newKey()
@@ -16,5 +16,6 @@ it("increments and existing value", async () => {
   await new ZAddCommand([key, { score, member }]).exec(client)
   const res = await new ZIncrByCommand([key, 2, member]).exec(client)
 
-  expect(res).toEqual(3)
-})
+		expect(res).toEqual(3);
+	},
+);

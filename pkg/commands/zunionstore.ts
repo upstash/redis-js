@@ -1,21 +1,12 @@
-import { Command } from "./command"
+import { Command } from "./command";
 
-export type ZUnionStoreCommandOptions = {
-  aggregate?: "sum" | "min" | "max"
-} & (
-  | {
-      weight: number
-      weights?: never
-    }
-  | {
-      weight?: never
-      weights: number[]
-    }
-  | {
-      weight?: never
-      weights?: never
-    }
-)
+export type ZUnionStoreCommandOptions =
+	& { aggregate?: "sum" | "min" | "max" }
+	& (
+			| { weight: number, weights?: never }
+			| { weight?: never, weights: number[] }
+			| { weight?: never, weights?: never }
+	);
 
 /**
  * @see https://redis.io/commands/zunionstore

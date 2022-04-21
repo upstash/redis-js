@@ -1,12 +1,12 @@
-import { keygen, newHttpClient } from "../test-utils"
+import { keygen, newHttpClient } from "../test-utils";
+import { PTtlCommand } from "./pttl";
+import { SetExCommand } from "./setex";
+import { it, expect, afterAll } from "@jest/globals";
 
-import { it, expect, afterAll } from "@jest/globals"
-import { SetExCommand } from "./setex"
-import { PTtlCommand } from "./pttl"
-const client = newHttpClient()
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
 it("returns the ttl on a key", async () => {
   const key = newKey()

@@ -1,12 +1,12 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { describe, it, expect, afterAll } from "@jest/globals"
-import { LPushXCommand } from "./lpushx"
-import { LPushCommand } from "./lpush"
-const client = newHttpClient()
+import { keygen, newHttpClient } from "../test-utils";
+import { randomUUID } from "crypto";
+import { describe, it, expect, afterAll } from "@jest/globals";
+import { LPushXCommand } from "./lpushx";
+import { LPushCommand } from "./lpush";
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
 describe("when list exists", () => {
   it("returns the length after command", async () => {
@@ -16,9 +16,11 @@ describe("when list exists", () => {
     expect(res).toEqual(2)
     const res2 = await new LPushXCommand([key, randomUUID(), randomUUID()]).exec(client)
 
-    expect(res2).toEqual(4)
-  })
-})
+				expect(res2).toEqual(4);
+			},
+		);
+	},
+);
 
 describe("when list does not exist", () => {
   it("does nothing", async () => {

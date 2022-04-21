@@ -1,17 +1,21 @@
-import { keygen, newHttpClient } from "../test-utils"
+import { keygen, newHttpClient } from "../test-utils";
 
-import { DelCommand } from "./del"
-import { SetCommand } from "./set"
-import { describe, it, expect, afterAll } from "@jest/globals"
+import { DelCommand } from "./del";
+import { SetCommand } from "./set";
+import { describe, it, expect, afterAll } from "@jest/globals";
 
-const client = newHttpClient()
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
-describe("when key does not exist", () => {
-  it("does nothing", async () => {
-    const key = newKey()
+describe(
+	"when key does not exist",
+	() => {
+		it(
+			"does nothing",
+			async () => {
+				const key = newKey();
 
     const res = await new DelCommand([key]).exec(client)
     expect(res).toEqual(0)

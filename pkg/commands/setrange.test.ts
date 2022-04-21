@@ -1,17 +1,19 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { it, expect, afterAll } from "@jest/globals"
-import { SetCommand } from "./set"
-import { SetRangeCommand } from "./setrange"
-import { GetCommand } from "./get"
+import { keygen, newHttpClient } from "../test-utils";
+import { it, expect, afterAll } from "@jest/globals";
+import { SetCommand } from "./set";
+import { SetRangeCommand } from "./setrange";
+import { GetCommand } from "./get";
 
-const client = newHttpClient()
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
 
-it("sets value", async () => {
-  const key = newKey()
-  const value = "originalValue"
+it(
+	"sets value",
+	async () => {
+		const key = newKey();
+		const value = "originalValue";
 
   const res = await new SetCommand([key, value]).exec(client)
 
@@ -21,5 +23,6 @@ it("sets value", async () => {
   expect(res2).toEqual(14)
   const res3 = await new GetCommand([key]).exec(client)
 
-  expect(res3).toEqual("orighelloWorld")
-})
+		expect(res3).toEqual("orighelloWorld");
+	},
+);

@@ -1,9 +1,9 @@
-import { Command } from "./command"
+import { Command } from "./command";
 /**
  * @see https://redis.io/commands/time
  */
 export class TimeCommand extends Command<[number, number], [number, number]> {
-  constructor() {
-    super(["time"])
-  }
+	constructor() {
+		super(["time"]);
+	}
 }

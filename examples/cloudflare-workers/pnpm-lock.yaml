@@ -1,0 +1,19 @@
+lockfileVersion: 5.3
+
+specifiers:
+  '@upstash/redis': ../../dist
+  prettier: ^1.18.2
+
+dependencies:
+  '@upstash/redis': link:../../dist
+
+devDependencies:
+  prettier: 1.19.1
+
+packages:
+
+  /prettier/1.19.1:
+    resolution: {integrity: sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==}
+    engines: {node: '>=4'}
+    hasBin: true
+    dev: true

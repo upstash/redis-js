@@ -1,4 +1,5 @@
 import https from "https"
+import http from "http"
 import { UpstashError } from "./error"
 
 export type HttpRequest = {
@@ -19,7 +20,7 @@ export type HttpClientConfig = {
   baseUrl: string
   options?: {
     backend?: string
-    agent?: https.Agent
+    agent?: https.Agent | http.Agent
   }
 }
 

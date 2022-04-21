@@ -1,6 +1,7 @@
 import * as core from "./redis"
 import { HttpClient } from "./http"
 import https from "https"
+import http from "http"
 import "isomorphic-fetch"
 
 /**
@@ -35,13 +36,23 @@ export class Redis extends core.Redis {
    * ```
    */
   constructor(config: RedisConfigNodejs) {
+    /**
+     * The use of an agent is only required in nodejs and depends on the protocol used.
+     */
+    let agent: http.Agent | https.Agent | undefined = undefined
+    if (typeof window === "undefined") {
+      agent =
+        new URL(config.url).protocol === "https:"
+          ? new https.Agent({ keepAlive: true })
+          : new http.Agent({ keepAlive: true })
+    }
     const client = new HttpClient({
       baseUrl: config.url,
       headers: {
         authorization: `Bearer ${config.token}`,
       },
       options: {
-        agent: typeof window === "undefined" ? new https.Agent({ keepAlive: true }) : undefined,
+        agent,
       },
     })
 

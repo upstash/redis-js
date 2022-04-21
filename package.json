@@ -58,6 +58,7 @@
   },
   "browser": {
     "isomorphic-fetch": false,
+    "http": false,
     "https": false
   },
   "size-limit": [

@@ -1,6 +1,0 @@
-node_modules/
-dist/
-.idea/
-coverage/
-pnpm-lock.yaml
-*.yml

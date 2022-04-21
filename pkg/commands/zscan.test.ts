@@ -1,50 +1,70 @@
-import { keygen, newHttpClient } from "../test-utils"
-import { randomUUID } from "crypto"
-import { it, describe, expect, afterAll } from "@jest/globals"
-import { ZAddCommand } from "./zadd"
-import { ZScanCommand } from "./zscan"
-const client = newHttpClient()
+import { keygen, newHttpClient } from "../test-utils";
+import { randomUUID } from "crypto";
+import { it, describe, expect, afterAll } from "@jest/globals";
+import { ZAddCommand } from "./zadd";
+import { ZScanCommand } from "./zscan";
+const client = newHttpClient();
 
-const { newKey, cleanup } = keygen()
-afterAll(cleanup)
-describe("without options", () => {
-  it("returns cursor and members", async () => {
-    const key = newKey()
-    const value = randomUUID()
-    await new ZAddCommand(key, { score: 0, member: value }).exec(client)
-    const res = await new ZScanCommand(key, 0).exec(client)
+const { newKey, cleanup } = keygen();
+afterAll(cleanup);
+describe(
+	"without options",
+	() => {
+		it(
+			"returns cursor and members",
+			async () => {
+				const key = newKey();
+				const value = randomUUID();
+				await new ZAddCommand(key, { score: 0, member: value }).exec(client);
+				const res = await new ZScanCommand(key, 0).exec(client);
 
-    expect(res).toBeDefined()
-    expect(res.length).toBe(2)
-    expect(typeof res[0]).toBe("number")
-    expect(res![1].length).toBeGreaterThan(0)
-  })
-})
+				expect(res).toBeDefined();
+				expect(res.length).toBe(2);
+				expect(typeof res[0]).toBe("number");
+				expect(res![1].length).toBeGreaterThan(0);
+			},
+		);
+	},
+);
 
-describe("with match", () => {
-  it("returns cursor and members", async () => {
-    const key = newKey()
-    const value = randomUUID()
-    await new ZAddCommand(key, { score: 0, member: value }).exec(client)
-    const res = await new ZScanCommand(key, 0, { match: value }).exec(client)
+describe(
+	"with match",
+	() => {
+		it(
+			"returns cursor and members",
+			async () => {
+				const key = newKey();
+				const value = randomUUID();
+				await new ZAddCommand(key, { score: 0, member: value }).exec(client);
+				const res = await new ZScanCommand(key, 0, { match: value }).exec(
+					client,
+				);
 
-    expect(res).toBeDefined()
-    expect(res.length).toBe(2)
-    expect(typeof res[0]).toBe("number")
-    expect(res![1].length).toBeGreaterThan(0)
-  })
-})
+				expect(res).toBeDefined();
+				expect(res.length).toBe(2);
+				expect(typeof res[0]).toBe("number");
+				expect(res![1].length).toBeGreaterThan(0);
+			},
+		);
+	},
+);
 
-describe("with count", () => {
-  it("returns cursor and members", async () => {
-    const key = newKey()
-    const value = randomUUID()
-    await new ZAddCommand(key, { score: 0, member: value }).exec(client)
-    const res = await new ZScanCommand(key, 0, { count: 1 }).exec(client)
+describe(
+	"with count",
+	() => {
+		it(
+			"returns cursor and members",
+			async () => {
+				const key = newKey();
+				const value = randomUUID();
+				await new ZAddCommand(key, { score: 0, member: value }).exec(client);
+				const res = await new ZScanCommand(key, 0, { count: 1 }).exec(client);
 
-    expect(res).toBeDefined()
-    expect(res.length).toBe(2)
-    expect(typeof res[0]).toBe("number")
-    expect(res![1].length).toBeGreaterThan(0)
-  })
-})
+				expect(res).toBeDefined();
+				expect(res.length).toBe(2);
+				expect(typeof res[0]).toBe("number");
+				expect(res![1].length).toBeGreaterThan(0);
+			},
+		);
+	},
+);

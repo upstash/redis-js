@@ -33,10 +33,7 @@ jobs:
           run_install: true
 
       - name: Verify formatting
-        run: pnpm prettier --check .
-
-      - name: Run linter
-        run: pnpm eslint --ext .ts .
+        run: pnpm rome format --ci .
 
       - name: Build
         run: pnpm build

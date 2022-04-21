@@ -1,8 +1,10 @@
 import * as core from "./redis";
-import { HttpClient, Requester } from "./http";
+import { HttpClient, Requester, UpstashRequest, UpstashResponse } from "./http";
 import https from "https";
 import http from "http";
 import "isomorphic-fetch";
+
+export type { UpstashRequest, Requester, UpstashResponse };
 
 /**
  * Connection credentials for upstash redis.
@@ -59,9 +61,26 @@ export class Redis extends core.Redis {
 			super(configOrRequester);
 			return;
 		}
+
+		let agent: http.Agent | https.Agent | undefined = undefined;
+
+		if (typeof window === "undefined") {
+			const protocol = new URL(configOrRequester.url).protocol;
+			switch (protocol) {
+				case "https:":
+					agent = new https.Agent({ keepAlive: true });
+
+					break;
+				case "http:":
+					agent = new https.Agent({ keepAlive: true });
+					break;
+			}
+		}
+
 		const client = new HttpClient({
 			baseUrl: configOrRequester.url,
 			headers: { authorization: `Bearer ${configOrRequester.token}` },
+			options: { agent },
 		});
 
 		super(client);

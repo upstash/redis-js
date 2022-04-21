@@ -30,7 +30,9 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: 6
-          run_install: true
+
+      - name: Install
+        run: pnpm install -r
 
       - name: Verify formatting
         run: pnpm prettier --check .
@@ -80,7 +82,9 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: 6
-          run_install: true
+
+      - name: Install
+        run: pnpm install -r
 
       - name: Build
         run: pnpm build
@@ -94,15 +98,15 @@ jobs:
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
-        run: npm install
+        run: pnpm install
         working-directory: ./examples/nextjs
 
       - name: Build example
-        run: npm run build
+        run: pnpm build
         working-directory: ./examples/nextjs
 
       - name: Start example
-        run: npm run start &
+        run: pnpm start &
         working-directory: ./examples/nextjs
 
       - name: Ping api
@@ -138,7 +142,9 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: 6
-          run_install: true
+
+      - name: Install
+        run: pnpm install -r
 
       - name: Build
         run: pnpm build
@@ -153,8 +159,8 @@ jobs:
 
       - name: Install example
         run: |
-          npm install
-          npm install -g miniflare @cloudflare/wrangler
+          pnpm install
+          pnpm install -g miniflare @cloudflare/wrangler
 
         working-directory: ./examples/cloudflare-workers
 
@@ -200,7 +206,9 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: 6
-          run_install: true
+
+      - name: Install
+        run: pnpm install -r
 
       - name: Build
         run: pnpm build
@@ -215,7 +223,6 @@ jobs:
 
       - name: Install example
         run: |
-          npm i -g pnpm
           pnpm install
           pnpm install -g miniflare @cloudflare/wrangler
 
@@ -263,7 +270,9 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: 6
-          run_install: true
+
+      - name: Install
+        run: pnpm install -r
 
       - name: Build
         run: pnpm build
@@ -279,7 +288,6 @@ jobs:
       - name: Install example
         working-directory: ./examples/fastly
         run: |
-          npm install
           curl -L https://github.com/fastly/cli/releases/download/v1.7.0/fastly_v1.7.0_linux-amd64.tar.gz > fastly.tar.gz
           tar -xf ./fastly.tar.gz
 

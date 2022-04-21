@@ -1,21 +1,21 @@
-import { Command } from "./command"
+import { Command } from "./command";
 
 function deserialize<TData extends Record<string, unknown>>(
-  fields: string[],
-  result: (string | null)[],
+	fields: string[],
+	result: (string | null)[],
 ): TData | null {
-  if (result.length === 0 || result.every((field) => field === null)) {
-    return null
-  }
-  const obj: Record<string, unknown> = {}
-  for (let i = 0; i < fields.length; i++) {
-    try {
-      obj[fields[i]] = JSON.parse(result[i]!)
-    } catch {
-      obj[fields[i]] = result[i]
-    }
-  }
-  return obj as TData
+	if (result.length === 0 || result.every((field) => field === null)) {
+		return null;
+	}
+	const obj: Record<string, unknown> = {};
+	for (let i = 0; i < fields.length; i++) {
+		try {
+			obj[fields[i]] = JSON.parse(result[i]!);
+		} catch {
+			obj[fields[i]] = result[i];
+		}
+	}
+	return obj as TData;
 }
 
 /**
@@ -30,12 +30,13 @@ function deserialize<TData extends Record<string, unknown>>(
  * @see https://redis.io/commands/hmget
  */
 export class HMGetCommand<TData extends Record<string, unknown>> extends Command<
-  TData | null,
-  (string | null)[]
+	TData | null,
+	(string | null)[]
 > {
-  constructor(key: string, ...fields: string[]) {
-    super(["hmget", key, ...fields], {
-      deserialize: (result) => deserialize<TData>(fields, result),
-    })
-  }
+	constructor(key: string, ...fields: string[]) {
+		super(
+			["hmget", key, ...fields],
+			{ deserialize: (result) => deserialize<TData>(fields, result) },
+		);
+	}
 }

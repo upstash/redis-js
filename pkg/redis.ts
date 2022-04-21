@@ -118,7 +118,7 @@ import { EvalshaCommand } from "./commands/evalsha"
 import { ScriptExistsCommand } from "./commands/script_exists"
 import { ScriptFlushCommand } from "./commands/script_flush"
 import { ScriptLoadCommand } from "./commands/script_load"
-import { HttpClient } from "./http"
+import { Requester } from "./http"
 import { Pipeline } from "./pipeline"
 import type { CommandArgs, NonEmptyArray } from "./types"
 
@@ -126,7 +126,7 @@ import type { CommandArgs, NonEmptyArray } from "./types"
  * Serverless redis client for upstash.
  */
 export class Redis {
-  private readonly client: HttpClient
+  private readonly client: Requester
 
   /**
    * Create a new redis client
@@ -139,7 +139,7 @@ export class Redis {
    * });
    * ```
    */
-  constructor(client: HttpClient) {
+  constructor(client: Requester) {
     this.client = client
   }
 

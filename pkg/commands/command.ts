@@ -1,5 +1,5 @@
 import { UpstashError } from "../error"
-import { HttpClient, UpstashResponse } from "../http"
+import { Requester } from "../http"
 import { parseResponse } from "../util"
 
 /**
@@ -24,8 +24,8 @@ export class Command<TData, TResult> {
   /**
    * Execute the command using a client.
    */
-  public async exec(client: HttpClient): Promise<TData> {
-    const { result, error } = await client.request<UpstashResponse<TResult>>({
+  public async exec(client: Requester): Promise<TData> {
+    const { result, error } = await client.request<TResult>({
       body: this.command,
     })
     if (error) {

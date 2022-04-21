@@ -1,6 +1,7 @@
 import * as core from "./redis"
-import { HttpClient } from "./http"
+import { HttpClient, Requester } from "./http"
 import "isomorphic-fetch"
+export type { Requester, UpstashRequest, UpstashResponse } from "./http"
 
 /**
  * Connection credentials for upstash redis.
@@ -34,7 +35,7 @@ export type RedisConfigNodejs = {
  */
 export class Redis extends core.Redis {
   /**
-   * Create a new redis client
+   * Create a new redis client by providing the url and token
    *
    * @example
    * ```typescript
@@ -44,11 +45,35 @@ export class Redis extends core.Redis {
    * });
    * ```
    */
-  constructor(config: RedisConfigNodejs) {
+  constructor(config: RedisConfigNodejs)
+
+  /**
+   * Create a new redis client by providing a custom `Requester` implementation
+   *
+   * @example
+   * ```ts
+   *
+   * import { UpstashRequest, Requester, UpstashResponse, Redis } from "@upstash/redis"
+   *
+   *  const requester: Requester = {
+   *    request: <TResult>(req: UpstashRequest): Promise<UpstashResponse<TResult>> => {
+   *      // ...
+   *    }
+   *  }
+   *
+   * const redis = new Redis(requester)
+   * ```
+   */
+  constructor(requesters: Requester)
+  constructor(configOrRequester: RedisConfigNodejs | Requester) {
+    if ("request" in configOrRequester) {
+      super(configOrRequester)
+      return
+    }
     const client = new HttpClient({
-      baseUrl: config.url,
+      baseUrl: configOrRequester.url,
       headers: {
-        authorization: `Bearer ${config.token}`,
+        authorization: `Bearer ${configOrRequester.token}`,
       },
     })
 

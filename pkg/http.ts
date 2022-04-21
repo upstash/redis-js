@@ -1,18 +1,20 @@
 import { UpstashError } from "./error"
 
-export type HttpRequest = {
+export type UpstashRequest = {
   path?: string[]
   /**
    * Request body will be serialized to json
    */
   body?: unknown
 }
-
 export type UpstashResponse<TResult> = {
   result?: TResult
   error?: string
 }
 
+export interface Requester {
+  request: <TResult = unknown>(req: UpstashRequest) => Promise<UpstashResponse<TResult>>
+}
 export type HttpClientConfig = {
   headers?: Record<string, string>
   baseUrl: string
@@ -21,7 +23,7 @@ export type HttpClientConfig = {
   }
 }
 
-export class HttpClient {
+export class HttpClient implements Requester {
   public baseUrl: string
   public headers: Record<string, string>
   public readonly options?: { backend?: string }
@@ -37,7 +39,7 @@ export class HttpClient {
     this.options = config.options
   }
 
-  public async request<TResponse>(req: HttpRequest): Promise<TResponse> {
+  public async request<TResult>(req: UpstashRequest): Promise<UpstashResponse<TResult>> {
     if (!req.path) {
       req.path = []
     }
@@ -51,11 +53,11 @@ export class HttpClient {
       // @ts-expect-error
       backend: this.options?.backend,
     })
-    const body = await res.json()
+    const body = (await res.json()) as UpstashResponse<TResult>
     if (!res.ok) {
-      throw new UpstashError(body.error)
+      throw new UpstashError(body.error!)
     }
 
-    return body as TResponse
+    return body
   }
 }

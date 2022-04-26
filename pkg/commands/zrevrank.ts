@@ -4,10 +4,10 @@ import { Command } from "./command";
  */
 
 export class ZRevRankCommand<TData> extends Command<
-	number | null,
-	number | null
+  number | null,
+  number | null
 > {
-	constructor(key: string, member: TData) {
-		super(["zrevrank", key, member]);
-	}
+  constructor(key: string, member: TData) {
+    super(["zrevrank", key, member]);
+  }
 }

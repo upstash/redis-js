@@ -4,7 +4,7 @@ import { Command } from "./command";
  * @see https://redis.io/commands/psetex
  */
 export class PSetEXCommand<TData = string> extends Command<string, string> {
-	constructor(key: string, ttl: number, value: TData) {
-		super(["psetex", key, ttl, value]);
-	}
+  constructor(key: string, ttl: number, value: TData) {
+    super(["psetex", key, ttl, value]);
+  }
 }

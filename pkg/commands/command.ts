@@ -18,7 +18,7 @@ export class Command<TData, TResult> {
    */
   constructor(
     command: (string | unknown)[],
-    opts?: { deserialize?: (result: TResult) => TData }
+    opts?: { deserialize?: (result: TResult) => TData },
   ) {
     this.command = command.map((c) =>
       typeof c === "string" ? c : JSON.stringify(c)

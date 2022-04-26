@@ -5,7 +5,7 @@ import * as core from "./redis";
  * Connection credentials for upstash redis.
  * Get them from https://console.upstash.com/redis/<uuid>
  */
-export type RedisConfigCloudflare = {
+export type RedisConfigDeno = {
   /**
    * UPSTASH_REDIS_REST_URL
    */
@@ -31,7 +31,7 @@ export class Redis extends core.Redis {
    * });
    * ```
    */
-  constructor(config: RedisConfigCloudflare) {
+  constructor(config: RedisConfigDeno) {
     const client = new HttpClient({
       baseUrl: config.url,
       headers: { authorization: `Bearer ${config.token}` },
@@ -41,40 +41,31 @@ export class Redis extends core.Redis {
   }
 
   /*
-   * Create a new Upstash Redis instance from environment variables on cloudflare.
-   *
-   * This tries to load `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` from
-   * the global namespace
-   *
-   * If you are using a module worker, please pass in the `env` object.
-   * ```ts
-   * const redis = Redis.fromEnv(env)
-   * ```
+   * Create a new Upstash Redis instance from environment variables on Deno.
+
    *
    */
-  static fromEnv(
-    env?: { UPSTASH_REDIS_REST_URL: string; UPSTASH_REDIS_REST_TOKEN: string },
-  ): Redis {
+  static fromEnv(): Redis {
     /**
-     * These should be injected by cloudflare.
+     * These should be injected by Deno.
      */
 
     // @ts-ignore
     // eslint-disable-next-line no-undef
-    const url = env?.UPSTASH_REDIS_REST_URL ?? UPSTASH_REDIS_REST_URL;
+    const url = Deno.env.get("UPSTASH_REDIS_REST_URL");
 
     // @ts-ignore
     // eslint-disable-next-line no-undef
-    const token = env?.UPSTASH_REDIS_REST_TOKEN ?? UPSTASH_REDIS_REST_TOKEN;
+    const token = DENO.env.get("UPSTASH_REDIS_REST_TOKEN");
 
     if (!url) {
       throw new Error(
-        "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_URL`",
+        "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`.",
       );
     }
     if (!token) {
       throw new Error(
-        "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_TOKEN`",
+        "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`.",
       );
     }
     return new Redis({ url, token });

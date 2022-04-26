@@ -11,6 +11,6 @@ const redis = new Redis({
   const res1 = await redis.set("node", "23");
   console.log(res1);
 
-  const res2 = await get("node");
+  const res2 = await redis.get("node");
   console.log(res2);
 })();

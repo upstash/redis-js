@@ -27,7 +27,6 @@ await build({
   ],
   outDir,
   shims: {
-    // deno: "dev",
     custom: [
       {
         package: { name: "isomorphic-fetch", version: "3.0.0" },
@@ -108,6 +107,7 @@ await build({
 // post build steps
 Deno.copyFileSync(".github/LICENSE", `${outDir}/LICENSE`);
 Deno.copyFileSync(".github/README.md", `${outDir}/README.md`);
+Deno.copyFileSync("./dist/types/platforms/nodejs.d.ts", "./dist/index.d.ts");
 
 /**
  * Workaround because currently deno can not typecheck the built modules without `@types/node` being installed as regular dependency

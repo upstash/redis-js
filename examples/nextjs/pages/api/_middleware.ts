@@ -1,6 +1,6 @@
 /* global Response */
 
-import { Redis } from "@upstash/redis/nodejs";
+import { Redis } from "@upstash/redis";
 import { NextResponse } from "next/server";
 
 const { incr } = Redis.fromEnv();

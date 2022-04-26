@@ -8,8 +8,10 @@ await emptyDir(outDir);
 await build({
   packageManager,
   entryPoints: [
-    // default
-    "./platforms/nodejs.ts",
+    {
+      name: ".",
+      path: "./platforms/nodejs.ts",
+    },
     {
       name: "./nodejs",
       path: "./platforms/nodejs.ts",

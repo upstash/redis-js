@@ -8,21 +8,18 @@ await emptyDir(outDir);
 await build({
   packageManager,
   entryPoints: [
-    {
-      name: ".",
-      path: "./platforms/nodejs.ts",
-    },
+    "pkg/nodejs.ts",
     {
       name: "./nodejs",
-      path: "./platforms/nodejs.ts",
+      path: "./pkg/nodejs.ts",
     },
     {
       name: "./cloudflare",
-      path: "./platforms/cloudflare.ts",
+      path: "./pkg/cloudflare.ts",
     },
     {
       name: "./fastly",
-      path: "./platforms/fastly.ts",
+      path: "./pkg/fastly.ts",
     },
   ],
   outDir,
@@ -47,9 +44,6 @@ await build({
     version: Deno.args[0],
     description:
       "An HTTP/REST based Redis client built on top of Upstash REST API.",
-    main: "./index.js",
-    module: "./index.mjs",
-    types: "./index.d.ts",
     repository: {
       type: "git",
       url: "git+https://github.com/upstash/upstash-redis.git",
@@ -107,7 +101,9 @@ await build({
 // post build steps
 Deno.copyFileSync(".github/LICENSE", `${outDir}/LICENSE`);
 Deno.copyFileSync(".github/README.md", `${outDir}/README.md`);
-Deno.copyFileSync("./dist/types/platforms/nodejs.d.ts", "./dist/index.d.ts");
+Deno.copyFileSync("./dist/esm/nodejs.js", "./dist/index.mjs");
+Deno.copyFileSync("./dist/script/nodejs.js", "./dist/index.js");
+Deno.copyFileSync("./dist/types/nodejs.d.ts", "./dist/index.d.ts");
 
 /**
  * Workaround because currently deno can not typecheck the built modules without `@types/node` being installed as regular dependency

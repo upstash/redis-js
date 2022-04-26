@@ -1,10 +1,6 @@
-import * as core from "../pkg/redis.ts";
-import type {
-  Requester,
-  UpstashRequest,
-  UpstashResponse,
-} from "../pkg/http.ts";
-import { UpstashError } from "../pkg/error.ts";
+import * as core from "./redis.ts";
+import type { Requester, UpstashRequest, UpstashResponse } from "./http.ts";
+import { UpstashError } from "./error.ts";
 
 export type { Requester, UpstashRequest, UpstashResponse };
 /**

@@ -7,11 +7,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        node: ["14", "16", "17"]
-    name: Tests (node v${{ matrix.node }})
+
+    name: Tests
     steps:
       - name: Setup repo
         uses: actions/checkout@v2

@@ -3,12 +3,10 @@
 import { Redis } from "@upstash/redis";
 import { NextResponse } from "next/server";
 
-const { incr } = new Redis({ url: "", token: "" });
+const { incr } = Redis.fromEnv();
 
 export default async function middleware(request: Request) {
-  // const value = await incr("middleware_cointer");
-
-  const value = 2;
+  const value = await incr("middleware_counter");
   console.log({ value });
   return NextResponse.next();
 }

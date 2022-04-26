@@ -4,8 +4,8 @@ import * as core from "../pkg/redis.ts";
 import { Requester, UpstashRequest, UpstashResponse } from "../pkg/http.ts";
 import { UpstashError } from "../pkg/error.ts";
 
-import https from "https";
-import http from "http";
+// import https from "https";
+// import http from "http";
 import "isomorphic-fetch";
 
 export type { Requester, UpstashRequest, UpstashResponse };
@@ -112,26 +112,26 @@ function defaultRequester(config: {
   headers?: Record<string, string>;
   baseUrl: string;
 }): Requester {
-  let agent: http.Agent | https.Agent | undefined = undefined;
+  // let agent: http.Agent | https.Agent | undefined = undefined;
 
-  if (
-    typeof window === "undefined" &&
-    // @ts-ignore process will be defined in node
-    typeof process !== "undefined" &&
-    // @ts-ignore process will be defined in node
-    process.release?.name === "node"
-  ) {
-    const protocol = new URL(config.baseUrl).protocol;
-    switch (protocol) {
-      case "https:":
-        agent = new https.Agent({ keepAlive: true });
+  // if (
+  //   typeof window === "undefined" &&
+  //   // @ts-ignore process will be defined in node
+  //   typeof process !== "undefined" &&
+  //   // @ts-ignore process will be defined in node
+  //   process.release?.name === "node"
+  // ) {
+  //   const protocol = new URL(config.baseUrl).protocol;
+  //   switch (protocol) {
+  //     case "https:":
+  //       agent = new https.Agent({ keepAlive: true });
 
-        break;
-      case "http:":
-        agent = new http.Agent({ keepAlive: true });
-        break;
-    }
-  }
+  //       break;
+  //     case "http:":
+  //       agent = new http.Agent({ keepAlive: true });
+  //       break;
+  //   }
+  // }
 
   return {
     request: async function <TResult>(
@@ -147,7 +147,7 @@ function defaultRequester(config: {
         body: JSON.stringify(req.body),
         keepalive: true,
         // @ts-ignore
-        agent,
+        // agent,
       });
       const body = (await res.json()) as UpstashResponse<TResult>;
       if (!res.ok) {

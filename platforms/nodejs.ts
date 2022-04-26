@@ -4,9 +4,7 @@ import * as core from "../pkg/redis.ts";
 import { Requester, UpstashRequest, UpstashResponse } from "../pkg/http.ts";
 import { UpstashError } from "../pkg/error.ts";
 
-// @ts-expect-error
 import https from "https";
-// @ts-expect-error
 import http from "http";
 import "isomorphic-fetch";
 

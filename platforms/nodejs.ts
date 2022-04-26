@@ -128,7 +128,7 @@ function defaultRequester(config: {
 
         break;
       case "http:":
-        agent = new https.Agent({ keepAlive: true });
+        agent = new http.Agent({ keepAlive: true });
         break;
     }
   }

@@ -21,15 +21,15 @@ describe(
       "returns the length after command",
       async () => {
         const key = newKey();
-        await new LPushCommand(key, Math.random().toString()).exec(client);
-        const res = await new RPushXCommand(key, Math.random().toString()).exec(
+        await new LPushCommand(key, crypto.randomUUID()).exec(client);
+        const res = await new RPushXCommand(key, crypto.randomUUID()).exec(
           client,
         );
         assertEquals(res, 2);
         const res2 = await new RPushXCommand(
           key,
-          Math.random().toString(),
-          Math.random().toString(),
+          crypto.randomUUID(),
+          crypto.randomUUID(),
         )
           .exec(
             client,
@@ -48,7 +48,7 @@ describe(
       "does nothing",
       async () => {
         const key = newKey();
-        const res = await new RPushXCommand(key, Math.random().toString()).exec(
+        const res = await new RPushXCommand(key, crypto.randomUUID()).exec(
           client,
         );
         assertEquals(res, 0);

@@ -11,14 +11,14 @@ it(
   "returns the length after command",
   async () => {
     const key = newKey();
-    const res = await new RPushCommand(key, Math.random().toString()).exec(
+    const res = await new RPushCommand(key, crypto.randomUUID()).exec(
       client,
     );
     assertEquals(res, 1);
     const res2 = await new RPushCommand(
       key,
-      Math.random().toString(),
-      Math.random().toString(),
+      crypto.randomUUID(),
+      crypto.randomUUID(),
     ).exec(
       client,
     );

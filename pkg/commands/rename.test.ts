@@ -12,7 +12,7 @@ afterAll(cleanup);
 it("renames the key", async () => {
   const source = newKey();
   const destination = newKey();
-  const value = Math.random().toString();
+  const value = crypto.randomUUID();
   await new SetCommand(source, value).exec(client);
   const res = await new RenameCommand(source, destination).exec(client);
   assertEquals(res, "OK");

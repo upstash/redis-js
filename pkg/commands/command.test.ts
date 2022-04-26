@@ -16,7 +16,7 @@ afterAll(cleanup);
 describe("deserialize large numbers", () => {
   it("returns the correct number", async () => {
     const key = newKey();
-    const field = Math.random().toString();
+    const field = crypto.randomUUID();
     const value = "101600000000150081467";
 
     await new Command(["hset", key, field, value]).exec(client);

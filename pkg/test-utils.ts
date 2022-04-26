@@ -25,7 +25,7 @@ export function keygen(): {
   const keys: string[] = [];
   return {
     newKey: () => {
-      const key = Math.random().toString();
+      const key = crypto.randomUUID();
       keys.push(key);
       return key;
     },

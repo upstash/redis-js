@@ -9,7 +9,7 @@ const client = newHttpClient();
 describe("with a single script", () => {
   describe("when the script exists", () => {
     it("returns 1", async () => {
-      const script = `return "${Math.random().toString()}"`;
+      const script = `return "${crypto.randomUUID()}"`;
       const hash = await new ScriptLoadCommand(script).exec(client);
       const res = await new ScriptExistsCommand(hash).exec(client);
       assertEquals(res, 1);
@@ -24,8 +24,8 @@ describe("with a single script", () => {
 });
 describe("with multiple scripts", () => {
   it("returns the found scripts", async () => {
-    const script1 = `return "${Math.random().toString()}"`;
-    const script2 = `return "${Math.random().toString()}"`;
+    const script1 = `return "${crypto.randomUUID()}"`;
+    const script2 = `return "${crypto.randomUUID()}"`;
     const hash1 = await new ScriptLoadCommand(script1).exec(client);
     const hash2 = await new ScriptLoadCommand(script2).exec(client);
     const res = await new ScriptExistsCommand(hash1, hash2).exec(client);

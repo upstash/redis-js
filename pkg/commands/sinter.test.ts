@@ -17,8 +17,8 @@ afterAll(cleanup);
 describe("with single set", () => {
   it("returns the members of the set", async () => {
     const key = newKey();
-    const value1 = { v: Math.random().toString() };
-    const value2 = { v: Math.random().toString() };
+    const value1 = { v: crypto.randomUUID() };
+    const value2 = { v: crypto.randomUUID() };
     await new SAddCommand(key, value1, value2).exec(client);
     const res = await new SInterCommand<{ v: string }>(key).exec(client);
     assertEquals(res.length, 2);
@@ -31,9 +31,9 @@ describe("with multiple sets", () => {
   it("returns the members of the set", async () => {
     const key1 = newKey();
     const key2 = newKey();
-    const value1 = { v: Math.random().toString() };
-    const value2 = { v: Math.random().toString() };
-    const value3 = { v: Math.random().toString() };
+    const value1 = { v: crypto.randomUUID() };
+    const value2 = { v: crypto.randomUUID() };
+    const value3 = { v: crypto.randomUUID() };
     await new SAddCommand(key1, value1, value2).exec(client);
     await new SAddCommand(key2, value2, value3).exec(client);
     const res = await new SInterCommand(key1, key2).exec(client);

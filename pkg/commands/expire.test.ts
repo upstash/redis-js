@@ -12,7 +12,7 @@ afterAll(cleanup);
 
 it("expires a key correctly", async () => {
   const key = newKey();
-  const value = Math.random().toString();
+  const value = crypto.randomUUID();
   await new SetCommand(key, value).exec(client);
   const res = await new ExpireCommand(key, 1).exec(client);
   assertEquals(res, 1);

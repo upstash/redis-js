@@ -24,7 +24,7 @@ describe(
       "returns the correct type",
       async () => {
         const key = newKey();
-        const value = Math.random().toString();
+        const value = crypto.randomUUID();
         await new SetCommand(key, value).exec(client);
         const res = await new TypeCommand(key).exec(client);
         assertEquals(res, "string");
@@ -40,7 +40,7 @@ describe(
       "returns the correct type",
       async () => {
         const key = newKey();
-        const value = Math.random().toString();
+        const value = crypto.randomUUID();
         await new LPushCommand(key, value).exec(client);
         const res = await new TypeCommand(key).exec(client);
         assertEquals(res, "list");
@@ -56,7 +56,7 @@ describe(
       "returns the correct type",
       async () => {
         const key = newKey();
-        const value = Math.random().toString();
+        const value = crypto.randomUUID();
         await new SAddCommand(key, value).exec(client);
         const res = await new TypeCommand(key).exec(client);
         assertEquals(res, "set");
@@ -72,8 +72,8 @@ describe(
       "returns the correct type",
       async () => {
         const key = newKey();
-        const field = Math.random().toString();
-        const value = Math.random().toString();
+        const field = crypto.randomUUID();
+        const value = crypto.randomUUID();
         await new HSetCommand(key, { [field]: value }).exec(client);
         const res = await new TypeCommand(key).exec(client);
         assertEquals(res, "hash");
@@ -89,7 +89,7 @@ describe(
       "returns the correct type",
       async () => {
         const key = newKey();
-        const member = Math.random().toString();
+        const member = crypto.randomUUID();
         await new ZAddCommand(key, { score: 0, member }).exec(client);
         const res = await new TypeCommand(key).exec(client);
         assertEquals(res, "zset");

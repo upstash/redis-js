@@ -21,7 +21,7 @@ describe(
       "returns the length of the list",
       async () => {
         const key = newKey();
-        await new LPushCommand(key, Math.random().toString()).exec(client);
+        await new LPushCommand(key, crypto.randomUUID()).exec(client);
         const res = await new LLenCommand(key).exec(client);
         assertEquals(res, 1);
       },

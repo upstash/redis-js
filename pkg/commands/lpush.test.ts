@@ -11,14 +11,14 @@ afterAll(cleanup);
 
 it("returns the length after command", async () => {
   const key = newKey();
-  const res = await new LPushCommand(key, Math.random().toString()).exec(
+  const res = await new LPushCommand(key, crypto.randomUUID()).exec(
     client,
   );
   assertEquals(res, 1);
   const res2 = await new LPushCommand(
     key,
-    Math.random().toString(),
-    Math.random().toString(),
+    crypto.randomUUID(),
+    crypto.randomUUID(),
   ).exec(client);
 
   assertEquals(res2, 3);

@@ -12,8 +12,8 @@ afterAll(cleanup);
 
 it("returns 1 for an existing field", async () => {
   const key = newKey();
-  const field = Math.random().toString();
-  await new HSetCommand(key, { [field]: Math.random().toString() }).exec(
+  const field = crypto.randomUUID();
+  await new HSetCommand(key, { [field]: crypto.randomUUID() }).exec(
     client,
   );
   const res = await new HExistsCommand(key, field).exec(client);
@@ -22,7 +22,7 @@ it("returns 1 for an existing field", async () => {
 it("returns 0 if field does not exist", async () => {
   const key = newKey();
   await new HSetCommand(key, {
-    [Math.random().toString()]: Math.random().toString(),
+    [crypto.randomUUID()]: crypto.randomUUID(),
   }).exec(client);
 
   const res = await new HExistsCommand(key, "not-existing-field").exec(client);
@@ -30,7 +30,7 @@ it("returns 0 if field does not exist", async () => {
 });
 it("returns 0 if hash does not exist", async () => {
   const key = newKey();
-  const field = Math.random().toString();
+  const field = crypto.randomUUID();
   const res = await new HExistsCommand(key, field).exec(client);
   assertEquals(res, 0);
 });

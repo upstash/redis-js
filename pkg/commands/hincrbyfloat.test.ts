@@ -10,7 +10,7 @@ const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 it("increments a non-existing value", async () => {
   const key = newKey();
-  const field = Math.random().toString();
+  const field = crypto.randomUUID();
   const res = await new HIncrByFloatCommand(key, field, 2.5).exec(client);
 
   assertEquals(res, 2.5);
@@ -18,7 +18,7 @@ it("increments a non-existing value", async () => {
 
 it("increments and existing value", async () => {
   const key = newKey();
-  const field = Math.random().toString();
+  const field = crypto.randomUUID();
   await new HSetCommand(key, { [field]: 5 }).exec(client);
   const res = await new HIncrByFloatCommand(key, field, 2.5).exec(client);
 

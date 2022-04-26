@@ -13,8 +13,8 @@ it(
   "returns correct length",
   async () => {
     const key = newKey();
-    const field = Math.random().toString();
-    const value = Math.random().toString();
+    const field = crypto.randomUUID();
+    const value = crypto.randomUUID();
 
     const res = await new HValsCommand(key).exec(client);
     assertEquals(res, []);

@@ -9,18 +9,18 @@ await build({
   packageManager,
   entryPoints: [
     // default
-    "./pkg/nodejs.ts",
+    "./platforms/nodejs.ts",
     {
       name: "./nodejs",
-      path: "./pkg/nodejs.ts",
+      path: "./platforms/nodejs.ts",
     },
     {
       name: "./cloudflare",
-      path: "./pkg/cloudflare.ts",
+      path: "./platforms/cloudflare.ts",
     },
     {
       name: "./fastly",
-      path: "./pkg/fastly.ts",
+      path: "./platforms/fastly.ts",
     },
   ],
   outDir,

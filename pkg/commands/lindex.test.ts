@@ -19,7 +19,7 @@ describe("when list exists", () => {
     it("returns the element at index", async () => {
       const key = newKey();
 
-      const value = Math.random().toString();
+      const value = crypto.randomUUID();
       await new LPushCommand(key, value).exec(client);
       const res = await new LIndexCommand(key, 0).exec(client);
       assertEquals(res, value);
@@ -28,7 +28,7 @@ describe("when list exists", () => {
       it("returns null", async () => {
         const key = newKey();
 
-        const value = Math.random().toString();
+        const value = crypto.randomUUID();
         await new LPushCommand(key, value).exec(client);
         const res = await new LIndexCommand(key, 1).exec(client);
         assertEquals(res, null);

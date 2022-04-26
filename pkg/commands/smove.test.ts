@@ -14,7 +14,7 @@ it(
   async () => {
     const source = newKey();
     const destination = newKey();
-    const member = Math.random().toString();
+    const member = crypto.randomUUID();
     await new SAddCommand(source, member).exec(client);
     const res = await new SMoveCommand(source, destination, member).exec(
       client,

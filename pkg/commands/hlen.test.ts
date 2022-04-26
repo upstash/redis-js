@@ -17,12 +17,12 @@ afterAll(cleanup);
 describe("with existing hash", () => {
   it("returns correct number of keys", async () => {
     const key = newKey();
-    const field1 = Math.random().toString();
-    const field2 = Math.random().toString();
+    const field1 = crypto.randomUUID();
+    const field2 = crypto.randomUUID();
 
     const kv: Record<string, string> = {};
-    kv[field1] = Math.random().toString();
-    kv[field2] = Math.random().toString();
+    kv[field1] = crypto.randomUUID();
+    kv[field2] = crypto.randomUUID();
     await new HMSetCommand(key, kv).exec(client);
     const res = await new HLenCommand(key).exec(client);
     assertEquals(res, 2);

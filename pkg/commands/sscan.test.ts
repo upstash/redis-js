@@ -19,7 +19,7 @@ describe(
       "returns cursor and members",
       async () => {
         const key = newKey();
-        const member = Math.random().toString();
+        const member = crypto.randomUUID();
         await new SAddCommand(key, member).exec(client);
         const res = await new SScanCommand(key, 0).exec(client);
 
@@ -38,7 +38,7 @@ describe(
       "returns cursor and members",
       async () => {
         const key = newKey();
-        const member = Math.random().toString();
+        const member = crypto.randomUUID();
         await new SAddCommand(key, member).exec(client);
         const res = await new SScanCommand(key, 0, { match: member }).exec(
           client,
@@ -59,7 +59,7 @@ describe(
       "returns cursor and members",
       async () => {
         const key = newKey();
-        const member = Math.random().toString();
+        const member = crypto.randomUUID();
         await new SAddCommand(key, member).exec(client);
         const res = await new SScanCommand(key, 0, { count: 1 }).exec(client);
 

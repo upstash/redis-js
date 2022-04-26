@@ -122,9 +122,9 @@ describe("without options", () => {
     const key1 = newKey();
     const key2 = newKey();
     const score1 = 1;
-    const member1 = Math.random().toString();
+    const member1 = crypto.randomUUID();
     const score2 = 2;
-    const member2 = Math.random().toString();
+    const member2 = crypto.randomUUID();
 
     await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
       client,
@@ -149,9 +149,9 @@ describe("with weights", () => {
       const key1 = newKey();
       const key2 = newKey();
       const score1 = 1;
-      const member1 = Math.random().toString();
+      const member1 = crypto.randomUUID();
       const score2 = 2;
-      const member2 = Math.random().toString();
+      const member2 = crypto.randomUUID();
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
         client,
@@ -174,9 +174,9 @@ describe("with weights", () => {
       const key1 = newKey();
       const key2 = newKey();
       const score1 = 1;
-      const member1 = Math.random().toString();
+      const member1 = crypto.randomUUID();
       const score2 = 2;
-      const member2 = Math.random().toString();
+      const member2 = crypto.randomUUID();
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
         client,
@@ -201,9 +201,9 @@ describe("aggregate", () => {
       const key1 = newKey();
       const key2 = newKey();
       const score1 = 1;
-      const member1 = Math.random().toString();
+      const member1 = crypto.randomUUID();
       const score2 = 2;
-      const member2 = Math.random().toString();
+      const member2 = crypto.randomUUID();
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
         client,
@@ -226,9 +226,9 @@ describe("aggregate", () => {
       const key1 = newKey();
       const key2 = newKey();
       const score1 = 1;
-      const member1 = Math.random().toString();
+      const member1 = crypto.randomUUID();
       const score2 = 2;
-      const member2 = Math.random().toString();
+      const member2 = crypto.randomUUID();
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
         client,
@@ -251,9 +251,9 @@ describe("aggregate", () => {
       const key1 = newKey();
       const key2 = newKey();
       const score1 = 1;
-      const member1 = Math.random().toString();
+      const member1 = crypto.randomUUID();
       const score2 = 2;
-      const member2 = Math.random().toString();
+      const member2 = crypto.randomUUID();
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
         client,

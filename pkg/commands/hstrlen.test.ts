@@ -14,8 +14,8 @@ it(
   "returns correct length",
   async () => {
     const key = newKey();
-    const field = Math.random().toString();
-    const value = Math.random().toString();
+    const field = crypto.randomUUID();
+    const value = crypto.randomUUID();
 
     const res = await new HStrLenCommand(key, field).exec(client);
     assertEquals(res, 0);

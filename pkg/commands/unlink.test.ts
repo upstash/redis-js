@@ -17,8 +17,8 @@ it(
     const key2 = newKey();
     const key3 = newKey();
     const kv: Record<string, string> = {};
-    kv[key1] = Math.random().toString();
-    kv[key2] = Math.random().toString();
+    kv[key1] = crypto.randomUUID();
+    kv[key2] = crypto.randomUUID();
     await new MSetCommand(kv).exec(client);
     const res = await new UnlinkCommand(key1, key2, key3).exec(client);
     assertEquals(res, 2);

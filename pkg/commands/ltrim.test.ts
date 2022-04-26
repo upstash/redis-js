@@ -17,9 +17,9 @@ afterAll(cleanup);
 describe("when the list exists", () => {
   it("returns ok", async () => {
     const key = newKey();
-    await new LPushCommand(key, Math.random().toString()).exec(client);
-    await new LPushCommand(key, Math.random().toString()).exec(client);
-    await new LPushCommand(key, Math.random().toString()).exec(client);
+    await new LPushCommand(key, crypto.randomUUID()).exec(client);
+    await new LPushCommand(key, crypto.randomUUID()).exec(client);
+    await new LPushCommand(key, crypto.randomUUID()).exec(client);
     const res = await new LTrimCommand(key, 1, 2).exec(client);
     assertEquals(res, "OK");
   });

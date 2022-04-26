@@ -15,9 +15,9 @@ it(
   "sets values",
   async () => {
     const key1 = newKey();
-    const value1 = Math.random().toString();
+    const value1 = crypto.randomUUID();
     const key2 = newKey();
-    const value2 = Math.random().toString();
+    const value2 = crypto.randomUUID();
 
     const kv: Record<string, string> = {};
     kv[key1] = value1;
@@ -37,9 +37,9 @@ it(
   "does not set values if one key already exists",
   async () => {
     const key1 = newKey();
-    const value1 = Math.random().toString();
+    const value1 = crypto.randomUUID();
     const key2 = newKey();
-    const value2 = Math.random().toString();
+    const value2 = crypto.randomUUID();
     await new SetCommand(key1, value1).exec(client);
     const kv: Record<string, string> = {};
     kv[key1] = value1;

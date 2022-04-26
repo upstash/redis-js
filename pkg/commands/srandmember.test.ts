@@ -17,7 +17,7 @@ afterAll(cleanup);
 describe("without opts", () => {
   it("returns a random key", async () => {
     const key = newKey();
-    const member = Math.random().toString();
+    const member = crypto.randomUUID();
     await new SAddCommand(key, member).exec(client);
     const res = await new SRandMemberCommand(key).exec(client);
     assertEquals(res, member);
@@ -27,8 +27,8 @@ describe("without opts", () => {
 describe("with count", () => {
   it("returns a random key", async () => {
     const key = newKey();
-    const member1 = Math.random().toString();
-    const member2 = Math.random().toString();
+    const member1 = crypto.randomUUID();
+    const member2 = crypto.randomUUID();
     await new SAddCommand(key, member1, member2).exec(client);
     const res = await new SRandMemberCommand<unknown[]>(key, 2).exec(client);
     assertEquals(res?.length, 2);

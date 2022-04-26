@@ -12,8 +12,8 @@ it(
   "returns the number of added members",
   async () => {
     const key = newKey();
-    const value1 = Math.random().toString();
-    const value2 = Math.random().toString();
+    const value1 = crypto.randomUUID();
+    const value2 = crypto.randomUUID();
     const res = await new SAddCommand(key, value1, value2).exec(client);
     assertEquals(res, 2);
   },

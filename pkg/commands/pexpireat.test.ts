@@ -18,7 +18,7 @@ afterAll(cleanup);
 describe("without options", () => {
   it("expires the key", async () => {
     const key = newKey();
-    const value = Math.random().toString();
+    const value = crypto.randomUUID();
     await new SetCommand(key, value).exec(client);
 
     const res = await new PExpireAtCommand(key, 1000).exec(client);

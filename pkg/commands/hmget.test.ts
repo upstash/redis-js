@@ -17,10 +17,10 @@ it(
   "gets exiting values",
   async () => {
     const key = newKey();
-    const field1 = Math.random().toString();
-    const value1 = Math.random().toString();
-    const field2 = Math.random().toString();
-    const value2 = Math.random().toString();
+    const field1 = crypto.randomUUID();
+    const value1 = crypto.randomUUID();
+    const field2 = crypto.randomUUID();
+    const value2 = crypto.randomUUID();
     const kv: Record<string, string> = { [field1]: value1, [field2]: value2 };
     const res = await new HMSetCommand(key, kv).exec(client);
 
@@ -38,7 +38,7 @@ describe(
       "returns null",
       async () => {
         const key = newKey();
-        const res = await new HMGetCommand(key, Math.random().toString()).exec(
+        const res = await new HMGetCommand(key, crypto.randomUUID()).exec(
           client,
         );
 
@@ -52,8 +52,8 @@ it(
   "gets an object",
   async () => {
     const key = newKey();
-    const field = Math.random().toString();
-    const value = { v: Math.random().toString() };
+    const field = crypto.randomUUID();
+    const value = { v: crypto.randomUUID() };
     await new HSetCommand(key, { [field]: value }).exec(client);
     const cmd = new HMGetCommand(key, field);
     const res = await cmd.exec(client);

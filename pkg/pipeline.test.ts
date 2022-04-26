@@ -35,7 +35,7 @@ describe("with destructuring", () => {
 describe("with single command", () => {
   it("works with multiple commands", async () => {
     const p = new Pipeline(client);
-    p.set(newKey(), Math.random().toString());
+    p.set(newKey(), crypto.randomUUID());
     const res = await p.exec();
     assertEquals(res.length, 1);
     assertEquals(res[0], "OK");
@@ -46,7 +46,7 @@ describe("when chaining in a for loop", () => {
   it("works", async () => {
     const key = newKey();
     const res = await new Pipeline(client)
-      .set(key, Math.random().toString())
+      .set(key, crypto.randomUUID())
       .get(key)
       .exec();
 
@@ -59,7 +59,7 @@ describe("when chaining inline", () => {
     const key = newKey();
     const p = new Pipeline(client);
     for (let i = 0; i < 10; i++) {
-      p.set(key, Math.random().toString());
+      p.set(key, crypto.randomUUID());
     }
 
     const res = await p.exec();

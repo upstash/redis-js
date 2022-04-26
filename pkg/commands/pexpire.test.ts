@@ -20,7 +20,7 @@ describe(
       "expires a key correctly",
       async () => {
         const key = newKey();
-        const value = Math.random().toString();
+        const value = crypto.randomUUID();
         await new SetCommand(key, value).exec(client);
         const res = await new PExpireCommand(key, 1000).exec(client);
         assertEquals(res, 1);

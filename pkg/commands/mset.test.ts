@@ -16,8 +16,8 @@ it(
     const key1 = newKey();
     const key2 = newKey();
     const kv = {
-      [key1]: Math.random().toString(),
-      [key2]: Math.random().toString(),
+      [key1]: crypto.randomUUID(),
+      [key2]: crypto.randomUUID(),
     };
     const res = await new MSetCommand(kv).exec(client);
 

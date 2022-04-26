@@ -12,9 +12,9 @@ afterAll(cleanup);
 
 it("returns the diff", async () => {
   const key1 = newKey();
-  const member1 = Math.random().toString();
+  const member1 = crypto.randomUUID();
   const key2 = newKey();
-  const member2 = Math.random().toString();
+  const member2 = crypto.randomUUID();
   const destination = newKey();
   await new SAddCommand(key1, member1).exec(client);
   await new SAddCommand(key2, member2).exec(client);

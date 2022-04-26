@@ -12,8 +12,8 @@ afterAll(cleanup);
 
 it("adds the element", async () => {
   const key = newKey();
-  const value1 = Math.random().toString();
-  const value2 = Math.random().toString();
+  const value1 = crypto.randomUUID();
+  const value2 = crypto.randomUUID();
 
   await new LPushCommand(key, value1).exec(client);
   const res = await new LInsertCommand(key, "before", value1, value2).exec(

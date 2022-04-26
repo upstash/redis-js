@@ -14,9 +14,9 @@ it(
   "gets exiting values",
   async () => {
     const key1 = newKey();
-    const value1 = Math.random().toString();
+    const value1 = crypto.randomUUID();
     const key2 = newKey();
-    const value2 = Math.random().toString();
+    const value2 = crypto.randomUUID();
 
     const kv: Record<string, string> = {};
     kv[key1] = value1;
@@ -46,7 +46,7 @@ it(
   "gets an object",
   async () => {
     const key = newKey();
-    const value = { v: Math.random().toString() };
+    const value = { v: crypto.randomUUID() };
     await new SetCommand(key, value).exec(client);
     const res = await new MGetCommand<[{ v: string }]>(key).exec(client);
 

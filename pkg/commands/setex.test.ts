@@ -12,7 +12,7 @@ it(
   "sets value",
   async () => {
     const key = newKey();
-    const value = Math.random().toString();
+    const value = crypto.randomUUID();
 
     const res = await new SetExCommand(key, 1, value).exec(client);
 

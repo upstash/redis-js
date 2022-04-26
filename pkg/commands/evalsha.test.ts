@@ -20,7 +20,7 @@ describe(
     it(
       "returns something",
       async () => {
-        const value = Math.random().toString();
+        const value = crypto.randomUUID();
         const sha1 = await new ScriptLoadCommand(`return {ARGV[1], "${value}"}`)
           .exec(
             client,

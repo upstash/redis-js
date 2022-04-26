@@ -14,7 +14,7 @@ it(
   "stores the intersection",
   async () => {
     const key1 = newKey();
-    const member1 = Math.random().toString();
+    const member1 = crypto.randomUUID();
     const key2 = newKey();
     const member2 = member1;
     const destination = newKey();

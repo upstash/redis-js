@@ -15,7 +15,7 @@ afterAll(cleanup);
 describe("without options", () => {
   it("returns cursor and keys", async () => {
     const key = newKey();
-    const value = Math.random().toString();
+    const value = crypto.randomUUID();
     await new SetCommand(key, value).exec(client);
     const res = await new ScanCommand(0).exec(client);
 
@@ -28,7 +28,7 @@ describe("without options", () => {
 describe("with match", () => {
   it("returns cursor and keys", async () => {
     const key = newKey();
-    const value = Math.random().toString();
+    const value = crypto.randomUUID();
     await new SetCommand(key, value).exec(client);
     const res = await new ScanCommand(0, { match: key }).exec(client);
 
@@ -41,7 +41,7 @@ describe("with match", () => {
 describe("with count", () => {
   it("returns cursor and keys", async () => {
     const key = newKey();
-    const value = Math.random().toString();
+    const value = crypto.randomUUID();
     await new SetCommand(key, value).exec(client);
     const res = await new ScanCommand(0, { count: 1 }).exec(client);
 

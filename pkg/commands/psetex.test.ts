@@ -12,7 +12,7 @@ afterAll(cleanup);
 
 it("sets value", async () => {
   const key = newKey();
-  const value = Math.random().toString();
+  const value = crypto.randomUUID();
 
   const res = await new PSetEXCommand(key, 1000, value).exec(client);
 

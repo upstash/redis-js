@@ -18,9 +18,9 @@ describe("without options", () => {
   it("returns the max", async () => {
     const key = newKey();
     const score1 = 1;
-    const member1 = Math.random().toString();
+    const member1 = crypto.randomUUID();
     const score2 = 2;
-    const member2 = Math.random().toString();
+    const member2 = crypto.randomUUID();
     await new ZAddCommand(
       key,
       { score: score1, member: member1 },
@@ -37,9 +37,9 @@ describe("with count", () => {
   it("returns the n max members", async () => {
     const key = newKey();
     const score1 = 1;
-    const member1 = Math.random().toString();
+    const member1 = crypto.randomUUID();
     const score2 = 2;
-    const member2 = Math.random().toString();
+    const member2 = crypto.randomUUID();
     await new ZAddCommand(
       key,
       { score: score1, member: member1 },

@@ -25,7 +25,7 @@ await build({
   ],
   outDir,
   shims: {
-    deno: "dev",
+    // deno: "dev",
     custom: [
       {
         package: { name: "isomorphic-fetch", version: "3.0.0" },

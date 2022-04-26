@@ -17,7 +17,7 @@ afterAll(cleanup);
 describe("when list exists", () => {
   it("returns the first element", async () => {
     const key = newKey();
-    const value = crypto.randomUUID();
+    const value = Math.random().toString();
     await new LPushCommand(key, value).exec(client);
     const res = await new RPopCommand(key).exec(client);
     assertEquals(res, value);

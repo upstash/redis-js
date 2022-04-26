@@ -14,8 +14,8 @@ it(
   "gets an exiting value",
   async () => {
     const key = newKey();
-    const field = crypto.randomUUID();
-    const value = crypto.randomUUID();
+    const field = Math.random().toString();
+    const value = Math.random().toString();
     await new HSetCommand(key, { [field]: value }).exec(client);
     const res = await new HGetCommand(key, field).exec(client);
 
@@ -27,7 +27,7 @@ it(
   "gets a non-existing hash",
   async () => {
     const key = newKey();
-    const field = crypto.randomUUID();
+    const field = Math.random().toString();
     const res = await new HGetCommand(key, field).exec(client);
 
     assertEquals(res, null);
@@ -38,8 +38,10 @@ it(
   "gets a non-existing field",
   async () => {
     const key = newKey();
-    const field = crypto.randomUUID();
-    await new HSetCommand(key, { [crypto.randomUUID()]: crypto.randomUUID() })
+    const field = Math.random().toString();
+    await new HSetCommand(key, {
+      [Math.random().toString()]: Math.random().toString(),
+    })
       .exec(
         client,
       );
@@ -53,8 +55,8 @@ it(
   "gets an object",
   async () => {
     const key = newKey();
-    const field = crypto.randomUUID();
-    const value = { v: crypto.randomUUID() };
+    const field = Math.random().toString();
+    const value = { v: Math.random().toString() };
     await new HSetCommand(key, { [field]: value }).exec(client);
     const res = await new HGetCommand(key, field).exec(client);
 

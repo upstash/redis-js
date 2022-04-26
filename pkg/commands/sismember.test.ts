@@ -17,7 +17,7 @@ afterAll(cleanup);
 describe("when member exists", () => {
   it("returns 1", async () => {
     const key = newKey();
-    const value = crypto.randomUUID();
+    const value = Math.random().toString();
     await new SAddCommand(key, value).exec(client);
     const res = await new SIsMemberCommand(key, value).exec(client);
     assertEquals(res, 1);
@@ -27,8 +27,8 @@ describe("when member exists", () => {
 describe("when member exists", () => {
   it("returns 1", async () => {
     const key = newKey();
-    const value1 = crypto.randomUUID();
-    const value2 = crypto.randomUUID();
+    const value1 = Math.random().toString();
+    const value2 = Math.random().toString();
     await new SAddCommand(key, value1).exec(client);
     const res = await new SIsMemberCommand(key, value2).exec(client);
     assertEquals(res, 0);

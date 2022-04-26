@@ -13,7 +13,7 @@ it(
   "gets an exiting value",
   async () => {
     const key = newKey();
-    const value = crypto.randomUUID();
+    const value = Math.random().toString();
     await new SetCommand(key, value).exec(client);
     const res = await new GetCommand(key).exec(client);
 
@@ -35,7 +35,7 @@ it(
   "gets an object",
   async () => {
     const key = newKey();
-    const value = { v: crypto.randomUUID() };
+    const value = { v: Math.random().toString() };
     await new SetCommand(key, value).exec(client);
     const res = await new GetCommand(key).exec(client);
 

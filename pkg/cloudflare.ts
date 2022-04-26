@@ -1,6 +1,8 @@
-import { HttpClient } from "./http";
-import * as core from "./redis";
+import * as core from "./redis.ts";
+import type { Requester, UpstashRequest, UpstashResponse } from "./http.ts";
+import { UpstashError } from "./error.ts";
 
+export type { Requester, UpstashRequest, UpstashResponse };
 /**
  * Connection credentials for upstash redis.
  * Get them from https://console.upstash.com/redis/<uuid>
@@ -32,7 +34,7 @@ export class Redis extends core.Redis {
    * ```
    */
   constructor(config: RedisConfigCloudflare) {
-    const client = new HttpClient({
+    const client = defaultRequester({
       baseUrl: config.url,
       headers: { authorization: `Bearer ${config.token}` },
     });
@@ -52,19 +54,14 @@ export class Redis extends core.Redis {
    * ```
    *
    */
-  static fromEnv(
-    env?: { UPSTASH_REDIS_REST_URL: string; UPSTASH_REDIS_REST_TOKEN: string },
-  ): Redis {
-    /**
-     * These should be injected by cloudflare.
-     */
-
-    // @ts-ignore
-    // eslint-disable-next-line no-undef
+  static fromEnv(env?: {
+    UPSTASH_REDIS_REST_URL: string;
+    UPSTASH_REDIS_REST_TOKEN: string;
+  }): Redis {
+    // @ts-ignore These will be defined by cloudflare
     const url = env?.UPSTASH_REDIS_REST_URL ?? UPSTASH_REDIS_REST_URL;
 
-    // @ts-ignore
-    // eslint-disable-next-line no-undef
+    // @ts-ignore These will be defined by cloudflare
     const token = env?.UPSTASH_REDIS_REST_TOKEN ?? UPSTASH_REDIS_REST_TOKEN;
 
     if (!url) {
@@ -79,4 +76,32 @@ export class Redis extends core.Redis {
     }
     return new Redis({ url, token });
   }
+}
+
+function defaultRequester(config: {
+  headers?: Record<string, string>;
+  baseUrl: string;
+}): Requester {
+  return {
+    request: async function <TResult>(
+      req: UpstashRequest,
+    ): Promise<UpstashResponse<TResult>> {
+      if (!req.path) {
+        req.path = [];
+      }
+
+      const res = await fetch([config.baseUrl, ...req.path].join("/"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...config.headers },
+        body: JSON.stringify(req.body),
+        keepalive: true,
+      });
+      const body = (await res.json()) as UpstashResponse<TResult>;
+      if (!res.ok) {
+        throw new UpstashError(body.error!);
+      }
+
+      return body;
+    },
+  };
 }

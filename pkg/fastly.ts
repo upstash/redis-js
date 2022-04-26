@@ -1,5 +1,8 @@
-import { HttpClient } from "./http";
-import * as core from "./redis";
+import * as core from "./redis.ts";
+import type { Requester, UpstashRequest, UpstashResponse } from "./http.ts";
+import { UpstashError } from "./error.ts";
+
+export type { Requester, UpstashRequest, UpstashResponse };
 
 /**
  * Connection credentials for upstash redis.
@@ -39,12 +42,43 @@ export class Redis extends core.Redis {
    * ```
    */
   constructor(config: RedisConfigFastly) {
-    const client = new HttpClient({
+    const client = defaultRequester({
       baseUrl: config.url,
       headers: { authorization: `Bearer ${config.token}` },
-      options: { backend: config.backend },
+      backend: config.backend,
     });
 
     super(client);
   }
+}
+
+function defaultRequester(config: {
+  headers?: Record<string, string>;
+  baseUrl: string;
+  backend: string;
+}): Requester {
+  return {
+    request: async function <TResult>(
+      req: UpstashRequest,
+    ): Promise<UpstashResponse<TResult>> {
+      if (!req.path) {
+        req.path = [];
+      }
+
+      const res = await fetch([config.baseUrl, ...req.path].join("/"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...config.headers },
+        body: JSON.stringify(req.body),
+        keepalive: true,
+        // @ts-expect-error fastly requires `backend`
+        backend: config.backend,
+      });
+      const body = (await res.json()) as UpstashResponse<TResult>;
+      if (!res.ok) {
+        throw new UpstashError(body.error!);
+      }
+
+      return body;
+    },
+  };
 }

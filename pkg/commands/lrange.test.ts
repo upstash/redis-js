@@ -13,9 +13,9 @@ it(
   "returns the correct range",
   async () => {
     const key = newKey();
-    const value1 = crypto.randomUUID();
-    const value2 = crypto.randomUUID();
-    const value3 = crypto.randomUUID();
+    const value1 = Math.random().toString();
+    const value2 = Math.random().toString();
+    const value3 = Math.random().toString();
     await new RPushCommand(key, value1, value2, value3).exec(client);
     const res = await new LRangeCommand(key, 1, 2).exec(client);
     assertEquals(res!.length, 2);

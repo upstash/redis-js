@@ -15,7 +15,10 @@ it(
   async () => {
     const key1 = newKey();
     const key2 = newKey();
-    const kv = { [key1]: crypto.randomUUID(), [key2]: crypto.randomUUID() };
+    const kv = {
+      [key1]: Math.random().toString(),
+      [key2]: Math.random().toString(),
+    };
     const res = await new MSetCommand(kv).exec(client);
 
     assertEquals(res, "OK");

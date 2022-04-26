@@ -13,7 +13,7 @@ describe(
     it(
       "flushes all scripts",
       async () => {
-        const script = `return "${crypto.randomUUID()}"`;
+        const script = `return "${Math.random().toString()}"`;
         const sha1 = await new ScriptLoadCommand(script).exec(client);
         assertEquals(await new ScriptExistsCommand(sha1).exec(client), 1);
 
@@ -31,7 +31,7 @@ describe(
     it(
       "flushes all scripts",
       async () => {
-        const script = `return "${crypto.randomUUID()}"`;
+        const script = `return "${Math.random().toString()}"`;
         const sha1 = await new ScriptLoadCommand(script).exec(client);
         assertEquals(await new ScriptExistsCommand(sha1).exec(client), 1);
 

@@ -11,7 +11,7 @@ describe(
     it(
       "returns the message",
       async () => {
-        const message = crypto.randomUUID();
+        const message = Math.random().toString();
         const res = await new PingCommand(message).exec(client);
         assertEquals(res, message);
       },

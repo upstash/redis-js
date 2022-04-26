@@ -50,13 +50,9 @@ export class Redis extends core.Redis {
      * These should be injected by Deno.
      */
 
-    // @ts-ignore
-    // eslint-disable-next-line no-undef
     const url = Deno.env.get("UPSTASH_REDIS_REST_URL");
 
-    // @ts-ignore
-    // eslint-disable-next-line no-undef
-    const token = DENO.env.get("UPSTASH_REDIS_REST_TOKEN");
+    const token = Deno.env.get("UPSTASH_REDIS_REST_TOKEN");
 
     if (!url) {
       throw new Error(

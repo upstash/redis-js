@@ -16,10 +16,10 @@ it(
   "returns all fields",
   async () => {
     const key = newKey();
-    const field2 = crypto.randomUUID();
-    const field1 = crypto.randomUUID();
+    const field2 = Math.random().toString();
+    const field1 = Math.random().toString();
     const value1 = false;
-    const value2 = crypto.randomUUID();
+    const value2 = Math.random().toString();
     await new HSetCommand(key, { [field1]: value1, [field2]: value2 }).exec(
       client,
     );
@@ -36,7 +36,9 @@ describe(
     it(
       "it returns null",
       async () => {
-        const res = await new HGetAllCommand(crypto.randomUUID()).exec(client);
+        const res = await new HGetAllCommand(Math.random().toString()).exec(
+          client,
+        );
         assertEquals(res, null);
       },
     );

@@ -1,11 +1,12 @@
+// deno-lint-ignore-file
+
 import * as core from "./redis.ts";
-import {
-  HttpClient,
-  Requester,
-  UpstashRequest,
-  UpstashResponse,
-} from "./http.ts";
-// import "isomorphic-fetch";
+import { Requester, UpstashRequest, UpstashResponse } from "./http.ts";
+import { UpstashError } from "./error.ts";
+
+import https from "https";
+import http from "http";
+import "isomorphic-fetch";
 
 export type { Requester, UpstashRequest, UpstashResponse };
 
@@ -65,29 +66,9 @@ export class Redis extends core.Redis {
       return;
     }
 
-    // let agent: http.Agent | https.Agent | undefined = undefined;
-
-    // if (
-    //   typeof window === "undefined" &&
-    //   typeof process !== "undefined" &&
-    //   process.release?.name === "node"
-    // ) {
-    //   const protocol = new URL(configOrRequester.url).protocol;
-    //   switch (protocol) {
-    //     case "https:":
-    //       agent = new https.Agent({ keepAlive: true });
-
-    //       break;
-    //     case "http:":
-    //       agent = new https.Agent({ keepAlive: true });
-    //       break;
-    //   }
-    // }
-
-    const client = new HttpClient({
+    const client = defaultRequester({
       baseUrl: configOrRequester.url,
       headers: { authorization: `Bearer ${configOrRequester.token}` },
-      // options: { agent },
     });
 
     super(client);
@@ -103,18 +84,21 @@ export class Redis extends core.Redis {
    * your environment using `process.env`.
    */
   static fromEnv(): Redis {
+    // @ts-ignore process will be defined in node
     if (typeof process?.env === "undefined") {
       throw new Error(
-        "Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please use `Redis.onCloudflare()` instead",
+        'Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please import from "@upstash/redis/cloudflare" instead',
       );
     }
-    const url = process.env["UPSTASH_REDIS_REST_URL"];
+    // @ts-ignore process will be defined in node
+    const url = process?.env["UPSTASH_REDIS_REST_URL"];
     if (!url) {
       throw new Error(
         "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`",
       );
     }
-    const token = process.env["UPSTASH_REDIS_REST_TOKEN"];
+    // @ts-ignore process will be defined in node
+    const token = process?.env["UPSTASH_REDIS_REST_TOKEN"];
     if (!token) {
       throw new Error(
         "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`",
@@ -122,4 +106,55 @@ export class Redis extends core.Redis {
     }
     return new Redis({ url, token });
   }
+}
+
+function defaultRequester(config: {
+  headers?: Record<string, string>;
+  baseUrl: string;
+}): Requester {
+  let agent: http.Agent | https.Agent | undefined = undefined;
+
+  if (
+    typeof window === "undefined" &&
+    // @ts-ignore process will be defined in node
+    typeof process !== "undefined" &&
+    // @ts-ignore process will be defined in node
+    process.release?.name === "node"
+  ) {
+    const protocol = new URL(config.baseUrl).protocol;
+    switch (protocol) {
+      case "https:":
+        agent = new https.Agent({ keepAlive: true });
+
+        break;
+      case "http:":
+        agent = new https.Agent({ keepAlive: true });
+        break;
+    }
+  }
+
+  return {
+    request: async function <TResult>(
+      req: UpstashRequest,
+    ): Promise<UpstashResponse<TResult>> {
+      if (!req.path) {
+        req.path = [];
+      }
+
+      const res = await fetch([config.baseUrl, ...req.path].join("/"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...config.headers },
+        body: JSON.stringify(req.body),
+        keepalive: true,
+        // @ts-ignore
+        agent,
+      });
+      const body = (await res.json()) as UpstashResponse<TResult>;
+      if (!res.ok) {
+        throw new UpstashError(body.error!);
+      }
+
+      return body;
+    },
+  };
 }

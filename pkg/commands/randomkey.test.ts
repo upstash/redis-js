@@ -11,7 +11,7 @@ afterAll(cleanup);
 
 it("returns a random key", async () => {
   const key = newKey();
-  await new SetCommand(key, crypto.randomUUID()).exec(client);
+  await new SetCommand(key, Math.random().toString()).exec(client);
   const res = await new RandomKeyCommand().exec(client);
   assertEquals(typeof res, "string");
 });

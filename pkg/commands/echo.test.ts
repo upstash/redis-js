@@ -6,7 +6,7 @@ import { EchoCommand } from "./echo.ts";
 const client = newHttpClient();
 
 it("returns the message", async () => {
-  const message = crypto.randomUUID();
+  const message = Math.random().toString();
   const res = await new EchoCommand(message).exec(client);
   assertEquals(res, message);
 });

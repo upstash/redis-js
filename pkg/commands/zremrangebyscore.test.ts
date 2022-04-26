@@ -14,9 +14,9 @@ it(
   "returns the number of removed elements",
   async () => {
     const key = newKey();
-    const member1 = crypto.randomUUID();
-    const member2 = crypto.randomUUID();
-    const member3 = crypto.randomUUID();
+    const member1 = Math.random().toString();
+    const member2 = Math.random().toString();
+    const member3 = Math.random().toString();
     await new ZAddCommand(
       key,
       { score: 1, member: member1 },

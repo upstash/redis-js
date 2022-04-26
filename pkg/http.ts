@@ -40,15 +40,24 @@ export class HttpClient implements Requester {
       req.path = [];
     }
 
-    // fetch is defined by isomorphic fetch
-    // eslint-disable-next-line no-undef
-    const res = await fetch([this.baseUrl, ...req.path].join("/"), {
+    const requestOptions: RequestInit & { backend?: string } = {
       method: "POST",
       headers: this.headers,
       body: JSON.stringify(req.body),
-      // @ts-assertEquals-error
-      // backend: this.options?.backend,
-    });
+      keepalive: true,
+
+      /**
+       * Fastly specific
+       */
+      backend: this.options?.backend,
+    };
+
+    // fetch is defined by isomorphic fetch
+    // eslint-disable-next-line no-undef
+    const res = await fetch(
+      [this.baseUrl, ...req.path].join("/"),
+      requestOptions,
+    );
     const body = (await res.json()) as UpstashResponse<TResult>;
     if (!res.ok) {
       throw new UpstashError(body.error!);

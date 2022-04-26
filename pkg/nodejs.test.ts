@@ -28,7 +28,7 @@ describe("with custom requester implementation", () => {
     };
 
     const key = newKey();
-    const value = crypto.randomUUID();
+    const value = Math.random().toString();
 
     const redis = new Redis(requester);
     const res = await redis.set(key, value);

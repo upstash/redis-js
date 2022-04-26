@@ -13,11 +13,11 @@ it(
   async () => {
     const key = newKey();
     const score1 = 1;
-    const member1 = crypto.randomUUID();
+    const member1 = Math.random().toString();
     const score2 = 2;
-    const member2 = crypto.randomUUID();
+    const member2 = Math.random().toString();
     const score3 = 3;
-    const member3 = crypto.randomUUID();
+    const member3 = Math.random().toString();
     await new ZAddCommand(
       key,
       { score: score1, member: member1 },

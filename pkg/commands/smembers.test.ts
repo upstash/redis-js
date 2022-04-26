@@ -12,8 +12,8 @@ it(
   "returns all members of the set",
   async () => {
     const key = newKey();
-    const value1 = { v: crypto.randomUUID() };
-    const value2 = { v: crypto.randomUUID() };
+    const value1 = { v: Math.random().toString() };
+    const value2 = { v: Math.random().toString() };
 
     await new SAddCommand(key, value1, value2).exec(client);
     const res = await new SMembersCommand<{ v: string }>(key).exec(client);

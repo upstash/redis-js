@@ -14,7 +14,7 @@ it(
   "returns the db size",
   async () => {
     const key = newKey();
-    const value = crypto.randomUUID();
+    const value = Math.random().toString();
     await new SetCommand(key, value).exec(client);
     const res = await new DBSizeCommand().exec(client);
     assertEquals(res > 0, true);

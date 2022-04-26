@@ -15,8 +15,8 @@ it(
   "sets value",
   async () => {
     const key = newKey();
-    const value = crypto.randomUUID();
-    const newValue = crypto.randomUUID();
+    const value = Math.random().toString();
+    const newValue = Math.random().toString();
 
     const res = await new SetCommand(key, value).exec(client);
 

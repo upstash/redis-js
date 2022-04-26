@@ -18,8 +18,8 @@ describe("when the key exists", () => {
   it("does nothing", async () => {
     const source = newKey();
     const destination = newKey();
-    const sourceValue = crypto.randomUUID();
-    const destinationValue = crypto.randomUUID();
+    const sourceValue = Math.random().toString();
+    const destinationValue = Math.random().toString();
     await new SetCommand(source, sourceValue).exec(client);
     await new SetCommand(destination, destinationValue).exec(client);
     const res = await new RenameNXCommand(source, destination).exec(client);
@@ -30,7 +30,7 @@ describe("when the key does not exist", () => {
   it("renames the key", async () => {
     const source = newKey();
     const destination = newKey();
-    const value = crypto.randomUUID();
+    const value = Math.random().toString();
     await new SetCommand(source, value).exec(client);
     const res = await new RenameNXCommand(source, destination).exec(client);
     assertEquals(res, 1);

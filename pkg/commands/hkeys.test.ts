@@ -22,8 +22,8 @@ describe(
       async () => {
         const key = newKey();
         const kv = {
-          [crypto.randomUUID()]: crypto.randomUUID(),
-          [crypto.randomUUID()]: crypto.randomUUID(),
+          [Math.random().toString()]: Math.random().toString(),
+          [Math.random().toString()]: Math.random().toString(),
         };
         await new HMSetCommand(key, kv).exec(client);
         const res = await new HKeysCommand(key).exec(client);

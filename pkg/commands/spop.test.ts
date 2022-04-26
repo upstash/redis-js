@@ -17,7 +17,7 @@ afterAll(cleanup);
 describe("without count", () => {
   it("returns the first element", async () => {
     const key = newKey();
-    const member = crypto.randomUUID();
+    const member = Math.random().toString();
     await new SAddCommand(key, member).exec(client);
     const res = await new SPopCommand(key).exec(client);
     assertEquals(res, member);
@@ -27,10 +27,10 @@ describe("without count", () => {
 describe("with count", () => {
   it("returns the first n elements", async () => {
     const key = newKey();
-    const member1 = crypto.randomUUID();
-    const member2 = crypto.randomUUID();
-    const member3 = crypto.randomUUID();
-    const member4 = crypto.randomUUID();
+    const member1 = Math.random().toString();
+    const member2 = Math.random().toString();
+    const member3 = Math.random().toString();
+    const member4 = Math.random().toString();
     await new SAddCommand(key, member1, member2, member3, member4).exec(client);
     const res = await new SPopCommand<string[]>(key, 2).exec(client);
 

@@ -13,7 +13,7 @@ it(
   "deletes a hash that does not exist",
   async () => {
     const key = newKey();
-    const field = crypto.randomUUID();
+    const field = Math.random().toString();
     const res = await new HDelCommand(key, field).exec(client);
 
     assertEquals(res, 0);
@@ -24,8 +24,10 @@ it(
   "deletes a field that exists",
   async () => {
     const key = newKey();
-    const field = crypto.randomUUID();
-    await new HSetCommand(key, { [field]: crypto.randomUUID() }).exec(client);
+    const field = Math.random().toString();
+    await new HSetCommand(key, { [field]: Math.random().toString() }).exec(
+      client,
+    );
     const res = await new HDelCommand(key, field).exec(client);
 
     assertEquals(res, 1);

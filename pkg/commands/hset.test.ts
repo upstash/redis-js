@@ -11,8 +11,8 @@ it(
   "sets value",
   async () => {
     const key = newKey();
-    const field = crypto.randomUUID();
-    const value = crypto.randomUUID();
+    const field = Math.random().toString();
+    const value = Math.random().toString();
 
     const res = await new HSetCommand(key, { [field]: value }).exec(client);
 

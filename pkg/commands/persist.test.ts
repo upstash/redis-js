@@ -15,7 +15,7 @@ it(
   "persists the key",
   async () => {
     const key = newKey();
-    const value = crypto.randomUUID();
+    const value = Math.random().toString();
     await new SetCommand(key, value, { ex: 2 }).exec(client);
     const res = await new PersistCommand(key).exec(client);
     assertEquals(res, 1);

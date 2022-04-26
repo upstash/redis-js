@@ -19,7 +19,7 @@ describe(
       "sets value",
       async () => {
         const key = newKey();
-        const value = crypto.randomUUID();
+        const value = Math.random().toString();
 
         const res = await new SetCommand(key, value).exec(client);
         assertEquals(res, "OK");
@@ -36,7 +36,7 @@ describe(
       "sets value",
       async () => {
         const key = newKey();
-        const value = crypto.randomUUID();
+        const value = Math.random().toString();
 
         const res = await new SetCommand(key, value, { ex: 1 }).exec(client);
         assertEquals(res, "OK");
@@ -57,7 +57,7 @@ describe(
       "sets value",
       async () => {
         const key = newKey();
-        const value = crypto.randomUUID();
+        const value = Math.random().toString();
 
         const res = await new SetCommand(key, value, { px: 1000 }).exec(client);
         assertEquals(res, "OK");
@@ -82,8 +82,8 @@ describe(
           "does nothing",
           async () => {
             const key = newKey();
-            const value = crypto.randomUUID();
-            const newValue = crypto.randomUUID();
+            const value = Math.random().toString();
+            const newValue = Math.random().toString();
 
             await new SetCommand(key, value).exec(client);
             const res = await new SetCommand(key, newValue, { nx: true }).exec(
@@ -103,7 +103,7 @@ describe(
           "overwrites key",
           async () => {
             const key = newKey();
-            const value = crypto.randomUUID();
+            const value = Math.random().toString();
 
             const res = await new SetCommand(key, value, { nx: true }).exec(
               client,
@@ -127,8 +127,8 @@ describe(
           "overwrites key",
           async () => {
             const key = newKey();
-            const value = crypto.randomUUID();
-            const newValue = crypto.randomUUID();
+            const value = Math.random().toString();
+            const newValue = Math.random().toString();
 
             await new SetCommand(key, value).exec(client);
             const res = await new SetCommand(key, newValue, { xx: true }).exec(
@@ -148,7 +148,7 @@ describe(
           "does nothing",
           async () => {
             const key = newKey();
-            const value = crypto.randomUUID();
+            const value = Math.random().toString();
 
             const res = await new SetCommand(key, value, { xx: true }).exec(
               client,

@@ -17,13 +17,15 @@ afterAll(cleanup);
 describe("when list exists", () => {
   it("returns the length after command", async () => {
     const key = newKey();
-    await new LPushCommand(key, crypto.randomUUID()).exec(client);
-    const res = await new LPushXCommand(key, crypto.randomUUID()).exec(client);
+    await new LPushCommand(key, Math.random().toString()).exec(client);
+    const res = await new LPushXCommand(key, Math.random().toString()).exec(
+      client,
+    );
     assertEquals(res, 2);
     const res2 = await new LPushXCommand(
       key,
-      crypto.randomUUID(),
-      crypto.randomUUID(),
+      Math.random().toString(),
+      Math.random().toString(),
     ).exec(client);
 
     assertEquals(res2, 4);
@@ -33,7 +35,9 @@ describe("when list exists", () => {
 describe("when list does not exist", () => {
   it("does nothing", async () => {
     const key = newKey();
-    const res = await new LPushXCommand(key, crypto.randomUUID()).exec(client);
+    const res = await new LPushXCommand(key, Math.random().toString()).exec(
+      client,
+    );
     assertEquals(res, 0);
   });
 });

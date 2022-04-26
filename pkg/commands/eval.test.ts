@@ -20,7 +20,7 @@ describe(
     it(
       "returns something",
       async () => {
-        const value = crypto.randomUUID();
+        const value = Math.random().toString();
         const res = await new EvalCommand("return ARGV[1]", [], [value]).exec(
           client,
         );
@@ -36,7 +36,7 @@ describe(
     it(
       "returns something",
       async () => {
-        const value = crypto.randomUUID();
+        const value = Math.random().toString();
         const key = newKey();
         await new SetCommand(key, value).exec(client);
         const res = await new EvalCommand(

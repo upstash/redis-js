@@ -15,7 +15,7 @@ afterAll(cleanup);
 describe("when key is not set", () => {
   it("appends to empty value", async () => {
     const key = newKey();
-    const value = crypto.randomUUID();
+    const value = Math.random().toString();
     const res = await new AppendCommand(key, value).exec(client);
     assertEquals(res, value.length);
   });
@@ -24,7 +24,7 @@ describe("when key is not set", () => {
 describe("when key is set", () => {
   it("appends to existing value", async () => {
     const key = newKey();
-    const value = crypto.randomUUID();
+    const value = Math.random().toString();
     const res = await new AppendCommand(key, value).exec(client);
     assertEquals(res, value.length);
     const res2 = await new AppendCommand(key, "_").exec(client);

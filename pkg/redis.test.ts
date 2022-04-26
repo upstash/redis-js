@@ -15,7 +15,7 @@ describe("when destructuring the redis class", () => {
   it("correctly binds this", async () => {
     const { get, set } = new Redis(client);
     const key = newKey();
-    const value = crypto.randomUUID();
+    const value = Math.random().toString();
     await set(key, value);
     const res = await get(key);
     assertEquals(res, value);
@@ -26,7 +26,7 @@ describe("zadd", () => {
   it("adds the set", async () => {
     const key = newKey();
     const score = 1;
-    const member = crypto.randomUUID();
+    const member = Math.random().toString();
 
     const res = await new Redis(client).zadd(key, { score, member });
     assertEquals(res, 1);
@@ -37,7 +37,7 @@ describe("zrange", () => {
   it("returns the range", async () => {
     const key = newKey();
     const score = 1;
-    const member = crypto.randomUUID();
+    const member = Math.random().toString();
     const redis = new Redis(client);
     await redis.zadd(key, { score, member });
     const res = await redis.zrange(key, 0, 2);

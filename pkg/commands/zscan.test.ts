@@ -14,7 +14,7 @@ afterAll(cleanup);
 describe("without options", () => {
   it("returns cursor and members", async () => {
     const key = newKey();
-    const value = crypto.randomUUID();
+    const value = Math.random().toString();
     await new ZAddCommand(key, { score: 0, member: value }).exec(client);
     const res = await new ZScanCommand(key, 0).exec(client);
 
@@ -27,7 +27,7 @@ describe("without options", () => {
 describe("with match", () => {
   it("returns cursor and members", async () => {
     const key = newKey();
-    const value = crypto.randomUUID();
+    const value = Math.random().toString();
     await new ZAddCommand(key, { score: 0, member: value }).exec(client);
     const res = await new ZScanCommand(key, 0, { match: value }).exec(client);
 
@@ -40,7 +40,7 @@ describe("with match", () => {
 describe("with count", () => {
   it("returns cursor and members", async () => {
     const key = newKey();
-    const value = crypto.randomUUID();
+    const value = Math.random().toString();
     await new ZAddCommand(key, { score: 0, member: value }).exec(client);
     const res = await new ZScanCommand(key, 0, { count: 1 }).exec(client);
 

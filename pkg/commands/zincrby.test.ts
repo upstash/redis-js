@@ -13,7 +13,7 @@ afterAll(cleanup);
 it("increments and existing value", async () => {
   const key = newKey();
   const score = 1;
-  const member = crypto.randomUUID();
+  const member = Math.random().toString();
   await new ZAddCommand(key, { score, member }).exec(client);
   const res = await new ZIncrByComand(key, 2, member).exec(client);
 

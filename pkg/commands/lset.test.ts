@@ -23,8 +23,8 @@ describe("when list exists", () => {
     it("replaces the element at index", async () => {
       const key = newKey();
 
-      const value = crypto.randomUUID();
-      const newValue = crypto.randomUUID();
+      const value = Math.random().toString();
+      const newValue = Math.random().toString();
       await new LPushCommand(key, value).exec(client);
       const res = await new LSetCommand(key, newValue, 0).exec(client);
       assertEquals(res, "OK");
@@ -37,8 +37,8 @@ describe("when list exists", () => {
       it("returns null", async () => {
         const key = newKey();
 
-        const value = crypto.randomUUID();
-        const newValue = crypto.randomUUID();
+        const value = Math.random().toString();
+        const newValue = Math.random().toString();
         await new LPushCommand(key, value).exec(client);
         await assertRejects(() =>
           new LSetCommand(key, newValue, 1).exec(client)

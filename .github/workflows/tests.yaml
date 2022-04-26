@@ -15,30 +15,15 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
-      - name: Setup node
-        uses: actions/setup-node@v2
+      - uses: denoland/setup-deno@v1
         with:
-          node-version: ${{ matrix.node }}
-      - name: Cache pnpm modules
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
+          deno-version: v1.x
 
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 6
+      
+      - name: Verify formatting
+        run: deno fmt --check
 
-      - name: Install
-        run: pnpm install -r
-
-      # - name: Verify formatting
-      #   run: pnpm rome format --ci .
-
-      - name: Build
-        run: pnpm build
+      
 
       - name: Start redis server
         uses: ./.github/actions/redis
@@ -48,8 +33,12 @@ jobs:
           UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
+
+      - name: Build
+        run: deno run -A ./cmd/build.ts
+
       - name: Run tests
-        run: pnpm test ./pkg
+        run: deno test -A --fail-fast
         env:
           UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
@@ -71,6 +60,10 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
       - name: Cache pnpm modules
         uses: actions/cache@v2
         with:
@@ -83,11 +76,9 @@ jobs:
         with:
           version: 6
 
-      - name: Install
-        run: pnpm install -r
-
+  
       - name: Build
-        run: pnpm build
+        run: deno run -A ./cmd/build.ts
 
       - name: Start redis server
         uses: ./.github/actions/redis
@@ -131,6 +122,9 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
       - name: Cache pnpm modules
         uses: actions/cache@v2
         with:
@@ -143,11 +137,9 @@ jobs:
         with:
           version: 6
 
-      - name: Install
-        run: pnpm install -r
-
+  
       - name: Build
-        run: pnpm build
+        run: deno run -A ./cmd/build.ts
 
       - name: Start redis server
         uses: ./.github/actions/redis
@@ -191,10 +183,9 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
-      - name: Setup node
-        uses: actions/setup-node@v2
+      - uses: denoland/setup-deno@v1
         with:
-          node-version: 16
+          deno-version: v1.x
       - name: Cache pnpm modules
         uses: actions/cache@v2
         with:
@@ -207,11 +198,9 @@ jobs:
         with:
           version: 6
 
-      - name: Install
-        run: pnpm install -r
-
+  
       - name: Build
-        run: pnpm build
+        run: deno run -A ./cmd/build.ts
 
       - name: Start redis server
         uses: ./.github/actions/redis
@@ -255,10 +244,9 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
-      - name: Setup node
-        uses: actions/setup-node@v2
+      - uses: denoland/setup-deno@v1
         with:
-          node-version: 16
+          deno-version: v1.x
       - name: Cache pnpm modules
         uses: actions/cache@v2
         with:
@@ -271,11 +259,9 @@ jobs:
         with:
           version: 6
 
-      - name: Install
-        run: pnpm install -r
-
+  
       - name: Build
-        run: pnpm build
+        run: deno run -A ./cmd/build.ts
 
       - name: Start redis server
         uses: ./.github/actions/redis

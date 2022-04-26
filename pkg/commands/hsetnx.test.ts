@@ -21,9 +21,9 @@ describe(
       "returns 0",
       async () => {
         const key = newKey();
-        const field = crypto.randomUUID();
-        const value = crypto.randomUUID();
-        const newValue = crypto.randomUUID();
+        const field = Math.random().toString();
+        const value = Math.random().toString();
+        const newValue = Math.random().toString();
         await new HSetCommand(key, { [field]: value }).exec(client);
         const res = await new HSetNXCommand(key, field, newValue).exec(client);
         assertEquals(res, 0);
@@ -41,8 +41,8 @@ describe(
       "returns 1",
       async () => {
         const key = newKey();
-        const field = crypto.randomUUID();
-        const value = crypto.randomUUID();
+        const field = Math.random().toString();
+        const value = Math.random().toString();
         const res = await new HSetNXCommand(key, field, value).exec(client);
         assertEquals(res, 1);
         const res2 = await new HGetCommand(key, field).exec(client);

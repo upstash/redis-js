@@ -101,7 +101,7 @@ describe("command format", () => {
 describe("without options", () => {
   it("adds the member", async () => {
     const key = newKey();
-    const member = crypto.randomUUID();
+    const member = Math.random().toString();
     const score = Math.floor(Math.random() * 10);
     const res = await new ZAddCommand(key, { score, member }).exec(client);
     assertEquals(res, 1);
@@ -112,7 +112,7 @@ describe("xx", () => {
   describe("when the element exists", () => {
     it("updates the element", async () => {
       const key = newKey();
-      const member = crypto.randomUUID();
+      const member = Math.random().toString();
       const score = Math.floor(Math.random() * 10);
       await new ZAddCommand(key, { score, member }).exec(client);
       const newScore = score + 1;
@@ -130,7 +130,7 @@ describe("xx", () => {
   describe("when the element does not exist", () => {
     it("does nothing", async () => {
       const key = newKey();
-      const member = crypto.randomUUID();
+      const member = Math.random().toString();
       const score = Math.floor(Math.random() * 10);
       await new ZAddCommand(key, { score, member }).exec(client);
       const newScore = score + 1;
@@ -148,7 +148,7 @@ describe("nx", () => {
   describe("when the element exists", () => {
     it("does nothing", async () => {
       const key = newKey();
-      const member = crypto.randomUUID();
+      const member = Math.random().toString();
       const score = Math.floor(Math.random() * 10);
       await new ZAddCommand(key, { score, member }).exec(client);
       const newScore = score + 1;
@@ -166,7 +166,7 @@ describe("nx", () => {
   describe("when the element does not exist", () => {
     it("creates element", async () => {
       const key = newKey();
-      const member = crypto.randomUUID();
+      const member = Math.random().toString();
       const score = Math.floor(Math.random() * 10);
       const res = await new ZAddCommand(
         key,
@@ -181,7 +181,7 @@ describe("nx", () => {
 describe("ch", () => {
   it("returns the number of changed elements", async () => {
     const key = newKey();
-    const member = crypto.randomUUID();
+    const member = Math.random().toString();
     const score = Math.floor(Math.random() * 10);
     await new ZAddCommand(key, { score, member }).exec(client);
     const newScore = score + 1;
@@ -197,7 +197,7 @@ describe("ch", () => {
 describe("incr", () => {
   it("returns the number of changed elements", async () => {
     const key = newKey();
-    const member = crypto.randomUUID();
+    const member = Math.random().toString();
     const score = Math.floor(Math.random() * 10);
     await new ZAddCommand(key, { score, member }).exec(client);
     const newScore = score + 1;

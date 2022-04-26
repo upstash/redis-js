@@ -13,8 +13,8 @@ it(
   "overwrites the original value",
   async () => {
     const key = newKey();
-    const value = crypto.randomUUID();
-    const newValue = crypto.randomUUID();
+    const value = Math.random().toString();
+    const newValue = Math.random().toString();
     await new SetCommand(key, value).exec(client);
     const res = await new GetSetCommand(key, newValue).exec(client);
 
@@ -28,7 +28,7 @@ it(
   "sets a new value if empty",
   async () => {
     const key = newKey();
-    const newValue = crypto.randomUUID();
+    const newValue = Math.random().toString();
     const res = await new GetSetCommand(key, newValue).exec(client);
 
     assertEquals(res, null);

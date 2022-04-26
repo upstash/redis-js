@@ -161,7 +161,7 @@ jobs:
         working-directory: ./examples/cloudflare-workers
 
       - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
-        timeout-minutes: 2
+        timeout-minutes: 5
 
       - name: Ping api
         run: |

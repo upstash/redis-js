@@ -463,7 +463,7 @@ packages:
     dependencies:
       '@jest/environment': 27.5.1
       '@jest/types': 27.5.1
-      expect: 27.5.1
+      assertEquals: 27.5.1
     dev: true
 
   /@jest/reporters/27.5.1:
@@ -1541,7 +1541,7 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: true
 
-  /expect/27.5.1:
+  /assertEquals/27.5.1:
     resolution: {integrity: sha512-E1q5hSUG2AmYQwQJ041nvgpkODHQvB+RKlB4IYdru6uJsyFTRyZAP463M+1lINorwbqAmUggi6+WwkD8lCS/Dw==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     dependencies:
@@ -1919,7 +1919,7 @@ packages:
       chalk: 4.1.2
       co: 4.6.0
       dedent: 0.7.0
-      expect: 27.5.1
+      assertEquals: 27.5.1
       is-generator-fn: 2.1.0
       jest-each: 27.5.1
       jest-matcher-utils: 27.5.1
@@ -2099,7 +2099,7 @@ packages:
       '@types/node': 17.0.21
       chalk: 4.1.2
       co: 4.6.0
-      expect: 27.5.1
+      assertEquals: 27.5.1
       is-generator-fn: 2.1.0
       jest-each: 27.5.1
       jest-matcher-utils: 27.5.1
@@ -2283,7 +2283,7 @@ packages:
       '@types/prettier': 2.4.4
       babel-preset-current-node-syntax: 1.0.1_@babel+core@7.17.5
       chalk: 4.1.2
-      expect: 27.5.1
+      assertEquals: 27.5.1
       graceful-fs: 4.2.9
       jest-diff: 27.5.1
       jest-get-type: 27.5.1

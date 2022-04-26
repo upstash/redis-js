@@ -1,8 +1,13 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { afterAll, describe, expect, it } from "@jest/globals";
-import { SAddCommand } from "./sadd";
-import { SScanCommand } from "./sscan";
+import { keygen, newHttpClient } from "../test-utils.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+
+import {
+  afterAll,
+  describe,
+  it,
+} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { SAddCommand } from "./sadd.ts";
+import { SScanCommand } from "./sscan.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -14,14 +19,13 @@ describe(
       "returns cursor and members",
       async () => {
         const key = newKey();
-        const member = randomUUID();
+        const member = crypto.randomUUID();
         await new SAddCommand(key, member).exec(client);
         const res = await new SScanCommand(key, 0).exec(client);
 
-        expect(res).toBeDefined();
-        expect(res.length).toBe(2);
-        expect(typeof res[0]).toBe("number");
-        expect(res![1].length).toBeGreaterThan(0);
+        assertEquals(res.length, 2);
+        assertEquals(typeof res[0], "number");
+        assertEquals(res![1].length > 0, true);
       },
     );
   },
@@ -34,16 +38,15 @@ describe(
       "returns cursor and members",
       async () => {
         const key = newKey();
-        const member = randomUUID();
+        const member = crypto.randomUUID();
         await new SAddCommand(key, member).exec(client);
         const res = await new SScanCommand(key, 0, { match: member }).exec(
           client,
         );
 
-        expect(res).toBeDefined();
-        expect(res.length).toBe(2);
-        expect(typeof res[0]).toBe("number");
-        expect(res![1].length).toBeGreaterThan(0);
+        assertEquals(res.length, 2);
+        assertEquals(typeof res[0], "number");
+        assertEquals(res![1].length > 0, true);
       },
     );
   },
@@ -56,14 +59,13 @@ describe(
       "returns cursor and members",
       async () => {
         const key = newKey();
-        const member = randomUUID();
+        const member = crypto.randomUUID();
         await new SAddCommand(key, member).exec(client);
         const res = await new SScanCommand(key, 0, { count: 1 }).exec(client);
 
-        expect(res).toBeDefined();
-        expect(res.length).toBe(2);
-        expect(typeof res[0]).toBe("number");
-        expect(res![1].length).toBeGreaterThan(0);
+        assertEquals(res.length, 2);
+        assertEquals(typeof res[0], "number");
+        assertEquals(res![1].length > 0, true);
       },
     );
   },

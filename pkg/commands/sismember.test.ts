@@ -1,42 +1,36 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { SAddCommand } from "./sadd";
-import { SIsMemberCommand } from "./sismember";
-import { afterAll, describe, expect, it } from "@jest/globals";
+import { keygen, newHttpClient } from "../test-utils.ts";
+
+import { SAddCommand } from "./sadd.ts";
+import { SIsMemberCommand } from "./sismember.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+
+import {
+  afterAll,
+  describe,
+  it,
+} from "https://deno.land/std@0.136.0/testing/bdd.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-describe(
-  "when member exists",
-  () => {
-    it(
-      "returns 1",
-      async () => {
-        const key = newKey();
-        const value = randomUUID();
-        await new SAddCommand(key, value).exec(client);
-        const res = await new SIsMemberCommand(key, value).exec(client);
-        expect(res).toBe(1);
-      },
-    );
-  },
-);
+describe("when member exists", () => {
+  it("returns 1", async () => {
+    const key = newKey();
+    const value = crypto.randomUUID();
+    await new SAddCommand(key, value).exec(client);
+    const res = await new SIsMemberCommand(key, value).exec(client);
+    assertEquals(res, 1);
+  });
+});
 
-describe(
-  "when member exists",
-  () => {
-    it(
-      "returns 1",
-      async () => {
-        const key = newKey();
-        const value1 = randomUUID();
-        const value2 = randomUUID();
-        await new SAddCommand(key, value1).exec(client);
-        const res = await new SIsMemberCommand(key, value2).exec(client);
-        expect(res).toBe(0);
-      },
-    );
-  },
-);
+describe("when member exists", () => {
+  it("returns 1", async () => {
+    const key = newKey();
+    const value1 = crypto.randomUUID();
+    const value2 = crypto.randomUUID();
+    await new SAddCommand(key, value1).exec(client);
+    const res = await new SIsMemberCommand(key, value2).exec(client);
+    assertEquals(res, 0);
+  });
+});

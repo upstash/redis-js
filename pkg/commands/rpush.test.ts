@@ -1,7 +1,7 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { afterAll, expect, it } from "@jest/globals";
-import { RPushCommand } from "./rpush";
+import { keygen, newHttpClient } from "../test-utils.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { RPushCommand } from "./rpush.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -11,12 +11,16 @@ it(
   "returns the length after command",
   async () => {
     const key = newKey();
-    const res = await new RPushCommand(key, randomUUID()).exec(client);
-    expect(res).toEqual(1);
-    const res2 = await new RPushCommand(key, randomUUID(), randomUUID()).exec(
+    const res = await new RPushCommand(key, crypto.randomUUID()).exec(client);
+    assertEquals(res, 1);
+    const res2 = await new RPushCommand(
+      key,
+      crypto.randomUUID(),
+      crypto.randomUUID(),
+    ).exec(
       client,
     );
 
-    expect(res2).toEqual(3);
+    assertEquals(res2, 3);
   },
 );

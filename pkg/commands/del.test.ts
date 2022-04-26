@@ -1,8 +1,12 @@
-import { keygen, newHttpClient } from "../test-utils";
-
-import { DelCommand } from "./del";
-import { SetCommand } from "./set";
-import { afterAll, describe, expect, it } from "@jest/globals";
+import { keygen, newHttpClient } from "../test-utils.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+import { DelCommand } from "./del.ts";
+import { SetCommand } from "./set.ts";
+import {
+  afterAll,
+  describe,
+  it,
+} from "https://deno.land/std@0.136.0/testing/bdd.ts";
 
 const client = newHttpClient();
 
@@ -18,7 +22,7 @@ describe(
         const key = newKey();
 
         const res = await new DelCommand(key).exec(client);
-        expect(res).toEqual(0);
+        assertEquals(res, 0);
       },
     );
   },
@@ -32,7 +36,7 @@ describe(
         const key = newKey();
         await new SetCommand(key, "value").exec(client);
         const res = await new DelCommand(key).exec(client);
-        expect(res).toEqual(1);
+        assertEquals(res, 1);
       },
     );
   },
@@ -50,7 +54,7 @@ describe(
             const key2 = newKey();
             await new SetCommand(key1, "value").exec(client);
             const res = await new DelCommand(key1, key2).exec(client);
-            expect(res).toEqual(1);
+            assertEquals(res, 1);
           },
         );
       },

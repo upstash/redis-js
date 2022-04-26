@@ -1,8 +1,9 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { afterAll, expect, it } from "@jest/globals";
-import { SetCommand } from "./set";
-import { GetCommand } from "./get";
+import { keygen, newHttpClient } from "../test-utils.ts";
+
+import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { SetCommand } from "./set.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+import { GetCommand } from "./get.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -12,11 +13,11 @@ it(
   "gets an exiting value",
   async () => {
     const key = newKey();
-    const value = randomUUID();
+    const value = crypto.randomUUID();
     await new SetCommand(key, value).exec(client);
     const res = await new GetCommand(key).exec(client);
 
-    expect(res).toEqual(value);
+    assertEquals(res, value);
   },
 );
 
@@ -26,7 +27,7 @@ it(
     const key = newKey();
     const res = await new GetCommand(key).exec(client);
 
-    expect(res).toBeNull();
+    assertEquals(res, null);
   },
 );
 
@@ -34,10 +35,10 @@ it(
   "gets an object",
   async () => {
     const key = newKey();
-    const value = { v: randomUUID() };
+    const value = { v: crypto.randomUUID() };
     await new SetCommand(key, value).exec(client);
     const res = await new GetCommand(key).exec(client);
 
-    expect(res).toEqual(value);
+    assertEquals(res, value);
   },
 );

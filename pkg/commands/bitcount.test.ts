@@ -1,7 +1,12 @@
-import { BitCountCommand } from "./bitcount";
-import { keygen, newHttpClient } from "../test-utils";
-import { afterAll, describe, expect, it } from "@jest/globals";
-import { SetCommand } from "./set";
+import { BitCountCommand } from "./bitcount.ts";
+import { keygen, newHttpClient } from "../test-utils.ts";
+import {
+  afterAll,
+  describe,
+  it,
+} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+import { SetCommand } from "./set.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -15,7 +20,7 @@ describe(
       async () => {
         const key = newKey();
         const res = await new BitCountCommand(key).exec(client);
-        expect(res).toEqual(0);
+        assertEquals(res, 0);
       },
     );
   },
@@ -31,7 +36,7 @@ describe(
         const value = "Hello World";
         await new SetCommand(key, value).exec(client);
         const res = await new BitCountCommand(key).exec(client);
-        expect(res).toEqual(43);
+        assertEquals(res, 43);
       },
     );
 
@@ -45,7 +50,7 @@ describe(
             const value = "Hello World";
             await new SetCommand(key, value).exec(client);
             const res = await new BitCountCommand(key, 4, 8).exec(client);
-            expect(res).toEqual(22);
+            assertEquals(res, 22);
           },
         );
       },

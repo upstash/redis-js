@@ -117,13 +117,13 @@ import {
   ZScanCommand,
   ZScoreCommand,
   ZUnionStoreCommand,
-} from "./commands";
-import { Command } from "./commands/command";
-import { UpstashError } from "./error";
-import { Requester } from "./http";
-import { UpstashResponse } from "./http";
-import { NonEmptyArray } from "./types";
-import { CommandArgs } from "./types";
+} from "./commands/mod.ts";
+import { Command } from "./commands/command.ts";
+import { UpstashError } from "./error.ts";
+import { Requester } from "./http.ts";
+import { UpstashResponse } from "./http.ts";
+import { NonEmptyArray } from "./types.ts";
+import { CommandArgs } from "./types.ts";
 
 /**
  * Upstash REST API supports command pipelining to send multiple commands in
@@ -183,31 +183,27 @@ export class Pipeline {
    * redis.pipeline().get("key").exec<[{ greeting: string }]>()
    * ```
    */
-  exec = async <TCommandResults extends unknown[] = unknown[]>(): Promise<
-    TCommandResults
-  > => {
+  exec = async <
+    TCommandResults extends unknown[] = unknown[],
+  >(): Promise<TCommandResults> => {
     if (this.commands.length === 0) {
       throw new Error("Pipeline is empty");
     }
 
-    const res = (
-      await this.client.request({
-        path: ["pipeline"],
-        body: Object.values(this.commands).map((c) => c.command),
-      })
-    ) as UpstashResponse<any>[];
-    return res.map(
-      ({ error, result }, i) => {
-        if (error) {
-          throw new UpstashError(
-            `Command ${i + 1} [ ${
-              this.commands[i].command[0]
-            } ] failed: ${error}`,
-          );
-        }
-        return this.commands[i].deserialize(result);
-      },
-    ) as TCommandResults;
+    const res = (await this.client.request({
+      path: ["pipeline"],
+      body: Object.values(this.commands).map((c) => c.command),
+    })) as UpstashResponse<any>[];
+    return res.map(({ error, result }, i) => {
+      if (error) {
+        throw new UpstashError(
+          `Command ${i + 1} [ ${
+            this.commands[i].command[0]
+          } ] failed: ${error}`,
+        );
+      }
+      return this.commands[i].deserialize(result);
+    }) as TCommandResults;
   };
 
   /**

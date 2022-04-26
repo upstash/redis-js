@@ -1,6 +1,4 @@
-import https from "https";
-import http from "http";
-import { UpstashError } from "./error";
+import { UpstashError } from "./error.ts";
 
 export type UpstashRequest = {
   path?: string[];
@@ -12,14 +10,14 @@ export type UpstashRequest = {
 export type UpstashResponse<TResult> = { result?: TResult; error?: string };
 
 export interface Requester {
-  request: <TResult = unknown>(req: UpstashRequest) => Promise<
-    UpstashResponse<TResult>
-  >;
+  request: <TResult = unknown>(
+    req: UpstashRequest,
+  ) => Promise<UpstashResponse<TResult>>;
 }
 export type HttpClientConfig = {
   headers?: Record<string, string>;
   baseUrl: string;
-  options?: { backend?: string; agent?: https.Agent | http.Agent };
+  options?: { backend?: string };
 };
 
 export class HttpClient implements Requester {
@@ -35,25 +33,22 @@ export class HttpClient implements Requester {
     this.options = config.options;
   }
 
-  public async request<TResult>(req: UpstashRequest): Promise<
-    UpstashResponse<TResult>
-  > {
+  public async request<TResult>(
+    req: UpstashRequest,
+  ): Promise<UpstashResponse<TResult>> {
     if (!req.path) {
       req.path = [];
     }
 
     // fetch is defined by isomorphic fetch
     // eslint-disable-next-line no-undef
-    const res = await fetch(
-      [this.baseUrl, ...req.path].join("/"),
-      {
-        method: "POST",
-        headers: this.headers,
-        body: JSON.stringify(req.body),
-        // @ts-expect-error
-        backend: this.options?.backend,
-      },
-    );
+    const res = await fetch([this.baseUrl, ...req.path].join("/"), {
+      method: "POST",
+      headers: this.headers,
+      body: JSON.stringify(req.body),
+      // @ts-assertEquals-error
+      // backend: this.options?.backend,
+    });
     const body = (await res.json()) as UpstashResponse<TResult>;
     if (!res.ok) {
       throw new UpstashError(body.error!);

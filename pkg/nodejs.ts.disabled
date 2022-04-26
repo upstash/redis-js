@@ -1,8 +1,11 @@
-import * as core from "./redis";
-import { HttpClient, Requester, UpstashRequest, UpstashResponse } from "./http";
-import https from "https";
-import http from "http";
-import "isomorphic-fetch";
+import * as core from "./redis.ts";
+import {
+  HttpClient,
+  Requester,
+  UpstashRequest,
+  UpstashResponse,
+} from "./http.ts";
+// import "isomorphic-fetch";
 
 export type { Requester, UpstashRequest, UpstashResponse };
 
@@ -62,29 +65,29 @@ export class Redis extends core.Redis {
       return;
     }
 
-    let agent: http.Agent | https.Agent | undefined = undefined;
+    // let agent: http.Agent | https.Agent | undefined = undefined;
 
-    if (
-      typeof window === "undefined" &&
-      typeof process !== "undefined" &&
-      process.release?.name === "node"
-    ) {
-      const protocol = new URL(configOrRequester.url).protocol;
-      switch (protocol) {
-        case "https:":
-          agent = new https.Agent({ keepAlive: true });
+    // if (
+    //   typeof window === "undefined" &&
+    //   typeof process !== "undefined" &&
+    //   process.release?.name === "node"
+    // ) {
+    //   const protocol = new URL(configOrRequester.url).protocol;
+    //   switch (protocol) {
+    //     case "https:":
+    //       agent = new https.Agent({ keepAlive: true });
 
-          break;
-        case "http:":
-          agent = new https.Agent({ keepAlive: true });
-          break;
-      }
-    }
+    //       break;
+    //     case "http:":
+    //       agent = new https.Agent({ keepAlive: true });
+    //       break;
+    //   }
+    // }
 
     const client = new HttpClient({
       baseUrl: configOrRequester.url,
       headers: { authorization: `Bearer ${configOrRequester.token}` },
-      options: { agent },
+      // options: { agent },
     });
 
     super(client);

@@ -1,7 +1,9 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { afterAll, expect, it } from "@jest/globals";
-import { ZAddCommand } from "./zadd";
-import { ZRemRangeByLexCommand } from "./zremrangebylex";
+import { keygen, newHttpClient } from "../test-utils.ts";
+import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { ZAddCommand } from "./zadd.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+
+import { ZRemRangeByLexCommand } from "./zremrangebylex.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -21,6 +23,6 @@ it(
     ).exec(client);
 
     const res = await new ZRemRangeByLexCommand(key, "[b", "[e").exec(client);
-    expect(res).toBe(4);
+    assertEquals(res, 4);
   },
 );

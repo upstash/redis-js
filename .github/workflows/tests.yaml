@@ -113,7 +113,7 @@ jobs:
         run: |
           count=$(curl -s http://localhost:3000/api/incr | jq -r '.count')
           if [ $count -ne 2 ]; then
-            echo "Expected count to be 2, got $count"
+            echo "assertEqualsed count to be 2, got $count"
             exit 1
           fi
       
@@ -177,7 +177,7 @@ jobs:
           if grep -q "Count: 2" response.html; then
             exit 0
           else
-            echo "Expected response to contain 'Count: 2', got $(cat response.html)"
+            echo "assertEqualsed response to contain 'Count: 2', got $(cat response.html)"
             exit 1
           fi
 
@@ -241,7 +241,7 @@ jobs:
           if grep -q "Count: 2" response.html; then
             exit 0
           else
-            echo "Expected response to contain 'Count: 2', got $(cat response.html)"
+            echo "assertEqualsed response to contain 'Count: 2', got $(cat response.html)"
             exit 1
           fi
 
@@ -312,6 +312,6 @@ jobs:
           if grep -q "Counter: 2" response.html; then
             exit 0
           else
-            echo "Expected response to contain 'Counter: 2', got $(cat response.html)"
+            echo "assertEqualsed response to contain 'Counter: 2', got $(cat response.html)"
             exit 1
           fi

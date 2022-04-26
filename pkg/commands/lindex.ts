@@ -1,4 +1,4 @@
-import { Command } from "./command";
+import { Command } from "./command.ts";
 
 export class LIndexCommand<TData = string> extends Command<
   TData | null,

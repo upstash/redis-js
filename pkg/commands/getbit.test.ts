@@ -1,19 +1,18 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { afterAll, expect, it } from "@jest/globals";
-import { SetBitCommand } from "./setbit";
-import { GetBitCommand } from "./getbit";
+import { keygen, newHttpClient } from "../test-utils.ts";
+import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { SetBitCommand } from "./setbit.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+
+import { GetBitCommand } from "./getbit.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-it(
-  "returns the bit at offset",
-  async () => {
-    const key = newKey();
+it("returns the bit at offset", async () => {
+  const key = newKey();
 
-    await new SetBitCommand(key, 0, 1).exec(client);
-    const res = await new GetBitCommand(key, 0).exec(client);
-    expect(res).toBe(1);
-  },
-);
+  await new SetBitCommand(key, 0, 1).exec(client);
+  const res = await new GetBitCommand(key, 0).exec(client);
+  assertEquals(res, 1);
+});

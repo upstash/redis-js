@@ -1,8 +1,14 @@
-import { EvalCommand } from "./eval";
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { afterAll, describe, expect, it } from "@jest/globals";
-import { SetCommand } from "./set";
+import { EvalCommand } from "./eval.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+
+import { keygen, newHttpClient } from "../test-utils.ts";
+
+import {
+  afterAll,
+  describe,
+  it,
+} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { SetCommand } from "./set.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -14,11 +20,11 @@ describe(
     it(
       "returns something",
       async () => {
-        const value = randomUUID();
+        const value = crypto.randomUUID();
         const res = await new EvalCommand("return ARGV[1]", [], [value]).exec(
           client,
         );
-        expect(res).toEqual(value);
+        assertEquals(res, value);
       },
     );
   },
@@ -30,7 +36,7 @@ describe(
     it(
       "returns something",
       async () => {
-        const value = randomUUID();
+        const value = crypto.randomUUID();
         const key = newKey();
         await new SetCommand(key, value).exec(client);
         const res = await new EvalCommand(
@@ -38,7 +44,7 @@ describe(
           [key],
           [],
         ).exec(client);
-        expect(res).toEqual(value);
+        assertEquals(res, value);
       },
     );
   },

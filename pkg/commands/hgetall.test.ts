@@ -1,8 +1,12 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { afterAll, describe, expect, it } from "@jest/globals";
-import { HSetCommand } from "./hset";
-import { HGetAllCommand } from "./hgetall";
+import { keygen, newHttpClient } from "../test-utils.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+import {
+  afterAll,
+  describe,
+  it,
+} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { HSetCommand } from "./hset.ts";
+import { HGetAllCommand } from "./hgetall.ts";
 
 const client = newHttpClient();
 
@@ -12,10 +16,10 @@ it(
   "returns all fields",
   async () => {
     const key = newKey();
-    const field2 = randomUUID();
-    const field1 = randomUUID();
+    const field2 = crypto.randomUUID();
+    const field1 = crypto.randomUUID();
     const value1 = false;
-    const value2 = randomUUID();
+    const value2 = crypto.randomUUID();
     await new HSetCommand(key, { [field1]: value1, [field2]: value2 }).exec(
       client,
     );
@@ -23,7 +27,7 @@ it(
     const res = await new HGetAllCommand(key).exec(client);
 
     const obj = { [field1]: value1, [field2]: value2 };
-    expect(res).toEqual(obj);
+    assertEquals(res, obj);
   },
 );
 describe(
@@ -32,8 +36,8 @@ describe(
     it(
       "it returns null",
       async () => {
-        const res = await new HGetAllCommand(randomUUID()).exec(client);
-        expect(res).toBeNull();
+        const res = await new HGetAllCommand(crypto.randomUUID()).exec(client);
+        assertEquals(res, null);
       },
     );
   },

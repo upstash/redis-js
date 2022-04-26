@@ -1,8 +1,8 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { afterAll, expect, it } from "@jest/globals";
-import { ZAddCommand } from "./zadd";
-import { ZRemRangeByRankCommand } from "./zremrangebyrank";
+import { keygen, newHttpClient } from "../test-utils.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { ZAddCommand } from "./zadd.ts";
+import { ZRemRangeByRankCommand } from "./zremrangebyrank.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -13,11 +13,11 @@ it(
   async () => {
     const key = newKey();
     const score1 = 1;
-    const member1 = randomUUID();
+    const member1 = crypto.randomUUID();
     const score2 = 2;
-    const member2 = randomUUID();
+    const member2 = crypto.randomUUID();
     const score3 = 3;
-    const member3 = randomUUID();
+    const member3 = crypto.randomUUID();
     await new ZAddCommand(
       key,
       { score: score1, member: member1 },
@@ -25,6 +25,6 @@ it(
       { score: score3, member: member3 },
     ).exec(client);
     const res = await new ZRemRangeByRankCommand(key, 1, 2).exec(client);
-    expect(res).toBe(2);
+    assertEquals(res, 2);
   },
 );

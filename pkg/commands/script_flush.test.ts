@@ -1,9 +1,10 @@
-import { newHttpClient } from "../test-utils";
-import { describe, expect, it } from "@jest/globals";
-import { ScriptLoadCommand } from "./script_load";
-import { randomUUID } from "crypto";
-import { ScriptExistsCommand } from "./script_exists";
-import { ScriptFlushCommand } from "./script_flush";
+import { newHttpClient } from "../test-utils.ts";
+import { describe, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { ScriptLoadCommand } from "./script_load.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+
+import { ScriptExistsCommand } from "./script_exists.ts";
+import { ScriptFlushCommand } from "./script_flush.ts";
 const client = newHttpClient();
 
 describe(
@@ -12,13 +13,13 @@ describe(
     it(
       "flushes all scripts",
       async () => {
-        const script = `return "${randomUUID()}"`;
+        const script = `return "${crypto.randomUUID()}"`;
         const sha1 = await new ScriptLoadCommand(script).exec(client);
-        expect(await new ScriptExistsCommand(sha1).exec(client)).toEqual(1);
+        assertEquals(await new ScriptExistsCommand(sha1).exec(client), 1);
 
         const res = await new ScriptFlushCommand({ sync: true }).exec(client);
-        expect(res).toEqual("OK");
-        expect(await new ScriptExistsCommand(sha1).exec(client)).toEqual(0);
+        assertEquals(res, "OK");
+        assertEquals(await new ScriptExistsCommand(sha1).exec(client), 0);
       },
     );
   },
@@ -30,16 +31,16 @@ describe(
     it(
       "flushes all scripts",
       async () => {
-        const script = `return "${randomUUID()}"`;
+        const script = `return "${crypto.randomUUID()}"`;
         const sha1 = await new ScriptLoadCommand(script).exec(client);
-        expect(await new ScriptExistsCommand(sha1).exec(client)).toEqual(1);
+        assertEquals(await new ScriptExistsCommand(sha1).exec(client), 1);
 
         const res = await new ScriptFlushCommand({ sync: true }).exec(client);
 
-        expect(res).toEqual("OK");
+        assertEquals(res, "OK");
 
         await new Promise((res) => setTimeout(res, 5000));
-        expect(await new ScriptExistsCommand(sha1).exec(client)).toEqual(0);
+        assertEquals(await new ScriptExistsCommand(sha1).exec(client), 0);
       },
     );
   },

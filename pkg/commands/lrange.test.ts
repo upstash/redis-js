@@ -1,8 +1,9 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { afterAll, expect, it } from "@jest/globals";
-import { RPushCommand } from "./rpush";
-import { LRangeCommand } from "./lrange";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+import { keygen, newHttpClient } from "../test-utils.ts";
+
+import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { RPushCommand } from "./rpush.ts";
+import { LRangeCommand } from "./lrange.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -12,14 +13,13 @@ it(
   "returns the correct range",
   async () => {
     const key = newKey();
-    const value1 = randomUUID();
-    const value2 = randomUUID();
-    const value3 = randomUUID();
+    const value1 = crypto.randomUUID();
+    const value2 = crypto.randomUUID();
+    const value3 = crypto.randomUUID();
     await new RPushCommand(key, value1, value2, value3).exec(client);
     const res = await new LRangeCommand(key, 1, 2).exec(client);
-    expect(res).toBeDefined();
-    expect(res!.length).toEqual(2);
-    expect(res![0]).toEqual(value2);
-    expect(res![1]).toEqual(value3);
+    assertEquals(res!.length, 2);
+    assertEquals(res![0], value2);
+    assertEquals(res![1], value3);
   },
 );

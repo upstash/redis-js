@@ -1,8 +1,10 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { afterAll, expect, it } from "@jest/globals";
-import { MSetCommand } from "./mset";
-import { UnlinkCommand } from "./unlink";
+import { keygen, newHttpClient } from "../test-utils.ts";
+
+import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { MSetCommand } from "./mset.ts";
+import { UnlinkCommand } from "./unlink.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -15,10 +17,10 @@ it(
     const key2 = newKey();
     const key3 = newKey();
     const kv: Record<string, string> = {};
-    kv[key1] = randomUUID();
-    kv[key2] = randomUUID();
+    kv[key1] = crypto.randomUUID();
+    kv[key2] = crypto.randomUUID();
     await new MSetCommand(kv).exec(client);
     const res = await new UnlinkCommand(key1, key2, key3).exec(client);
-    expect(res).toEqual(2);
+    assertEquals(res, 2);
   },
 );

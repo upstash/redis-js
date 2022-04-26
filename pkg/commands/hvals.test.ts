@@ -1,8 +1,9 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { afterAll, expect, it } from "@jest/globals";
-import { HValsCommand } from "./hvals";
-import { HSetCommand } from "./hset";
+import { keygen, newHttpClient } from "../test-utils.ts";
+
+import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+import { HValsCommand } from "./hvals.ts";
+import { HSetCommand } from "./hset.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -12,15 +13,15 @@ it(
   "returns correct length",
   async () => {
     const key = newKey();
-    const field = randomUUID();
-    const value = randomUUID();
+    const field = crypto.randomUUID();
+    const value = crypto.randomUUID();
 
     const res = await new HValsCommand(key).exec(client);
-    expect(res).toEqual([]);
+    assertEquals(res, []);
     await new HSetCommand(key, { [field]: value }).exec(client);
 
     const res2 = await new HValsCommand(key).exec(client);
 
-    expect(res2).toEqual([value]);
+    assertEquals(res2, [value]);
   },
 );

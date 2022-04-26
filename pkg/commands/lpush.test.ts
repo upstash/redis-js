@@ -1,22 +1,23 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { afterAll, expect, it } from "@jest/globals";
-import { LPushCommand } from "./lpush";
+import { keygen, newHttpClient } from "../test-utils.ts";
+
+import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { LPushCommand } from "./lpush.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-it(
-  "returns the length after command",
-  async () => {
-    const key = newKey();
-    const res = await new LPushCommand(key, randomUUID()).exec(client);
-    expect(res).toEqual(1);
-    const res2 = await new LPushCommand(key, randomUUID(), randomUUID()).exec(
-      client,
-    );
+it("returns the length after command", async () => {
+  const key = newKey();
+  const res = await new LPushCommand(key, crypto.randomUUID()).exec(client);
+  assertEquals(res, 1);
+  const res2 = await new LPushCommand(
+    key,
+    crypto.randomUUID(),
+    crypto.randomUUID(),
+  ).exec(client);
 
-    expect(res2).toEqual(3);
-  },
-);
+  assertEquals(res2, 3);
+});

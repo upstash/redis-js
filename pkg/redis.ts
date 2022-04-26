@@ -117,10 +117,10 @@ import {
   ZScanCommand,
   ZScoreCommand,
   ZUnionStoreCommand,
-} from "./commands";
-import { Requester } from "./http";
-import { Pipeline } from "./pipeline";
-import type { CommandArgs, NonEmptyArray } from "./types";
+} from "./commands/mod.ts";
+import { Requester } from "./http.ts";
+import { Pipeline } from "./pipeline.ts";
+import type { CommandArgs, NonEmptyArray } from "./types.ts";
 
 /**
  * Serverless redis client for upstash.

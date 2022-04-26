@@ -1,8 +1,9 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { afterAll, expect, it } from "@jest/globals";
-import { HSetCommand } from "./hset";
-import { HGetCommand } from "./hget";
+import { keygen, newHttpClient } from "../test-utils.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+
+import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { HSetCommand } from "./hset.ts";
+import { HGetCommand } from "./hget.ts";
 
 const client = newHttpClient();
 
@@ -13,12 +14,12 @@ it(
   "gets an exiting value",
   async () => {
     const key = newKey();
-    const field = randomUUID();
-    const value = randomUUID();
+    const field = crypto.randomUUID();
+    const value = crypto.randomUUID();
     await new HSetCommand(key, { [field]: value }).exec(client);
     const res = await new HGetCommand(key, field).exec(client);
 
-    expect(res).toEqual(value);
+    assertEquals(res, value);
   },
 );
 
@@ -26,10 +27,10 @@ it(
   "gets a non-existing hash",
   async () => {
     const key = newKey();
-    const field = randomUUID();
+    const field = crypto.randomUUID();
     const res = await new HGetCommand(key, field).exec(client);
 
-    expect(res).toBeNull();
+    assertEquals(res, null);
   },
 );
 
@@ -37,11 +38,14 @@ it(
   "gets a non-existing field",
   async () => {
     const key = newKey();
-    const field = randomUUID();
-    await new HSetCommand(key, { [randomUUID()]: randomUUID() }).exec(client);
+    const field = crypto.randomUUID();
+    await new HSetCommand(key, { [crypto.randomUUID()]: crypto.randomUUID() })
+      .exec(
+        client,
+      );
     const res = await new HGetCommand(key, field).exec(client);
 
-    expect(res).toBeNull();
+    assertEquals(res, null);
   },
 );
 
@@ -49,11 +53,11 @@ it(
   "gets an object",
   async () => {
     const key = newKey();
-    const field = randomUUID();
-    const value = { v: randomUUID() };
+    const field = crypto.randomUUID();
+    const value = { v: crypto.randomUUID() };
     await new HSetCommand(key, { [field]: value }).exec(client);
     const res = await new HGetCommand(key, field).exec(client);
 
-    expect(res).toEqual(value);
+    assertEquals(res, value);
   },
 );

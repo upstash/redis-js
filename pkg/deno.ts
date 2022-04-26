@@ -1,5 +1,5 @@
-import { HttpClient } from "./http";
-import * as core from "./redis";
+import { HttpClient } from "./http.ts";
+import * as core from "./redis.ts";
 
 /**
  * Connection credentials for upstash redis.

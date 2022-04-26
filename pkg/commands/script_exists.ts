@@ -1,4 +1,4 @@
-import { Command } from "./command";
+import { Command } from "./command.ts";
 
 type TupleOfLength<T, L extends number, R extends T[] = []> =
   R["length"] extends L ? R : TupleOfLength<

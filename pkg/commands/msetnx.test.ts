@@ -1,10 +1,11 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { afterAll, expect, it } from "@jest/globals";
-import { MGetCommand } from "./mget";
-import { SetCommand } from "./set";
-import { GetCommand } from "./get";
-import { MSetNXCommand } from "./msetnx";
+import { keygen, newHttpClient } from "../test-utils.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+
+import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { MGetCommand } from "./mget.ts";
+import { SetCommand } from "./set.ts";
+import { GetCommand } from "./get.ts";
+import { MSetNXCommand } from "./msetnx.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -14,21 +15,21 @@ it(
   "sets values",
   async () => {
     const key1 = newKey();
-    const value1 = randomUUID();
+    const value1 = crypto.randomUUID();
     const key2 = newKey();
-    const value2 = randomUUID();
+    const value2 = crypto.randomUUID();
 
     const kv: Record<string, string> = {};
     kv[key1] = value1;
     kv[key2] = value2;
     const res = await new MSetNXCommand(kv).exec(client);
 
-    expect(res).toEqual(1);
+    assertEquals(res, 1);
     const res2 = await new MGetCommand<[string, string]>(key1, key2).exec(
       client,
     );
 
-    expect(res2).toEqual([value1, value2]);
+    assertEquals(res2, [value1, value2]);
   },
 );
 
@@ -36,19 +37,19 @@ it(
   "does not set values if one key already exists",
   async () => {
     const key1 = newKey();
-    const value1 = randomUUID();
+    const value1 = crypto.randomUUID();
     const key2 = newKey();
-    const value2 = randomUUID();
+    const value2 = crypto.randomUUID();
     await new SetCommand(key1, value1).exec(client);
     const kv: Record<string, string> = {};
     kv[key1] = value1;
     kv[key2] = value2;
     const res = await new MSetNXCommand(kv).exec(client);
 
-    expect(res).toEqual(0);
+    assertEquals(res, 0);
 
     const res2 = await new GetCommand(key2).exec(client);
 
-    expect(res2).toBeNull();
+    assertEquals(res2, null);
   },
 );

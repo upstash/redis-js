@@ -1,5 +1,5 @@
-import { ScanCommandOptions } from "./scan";
-import { Command } from "./command";
+import { ScanCommandOptions } from "./scan.ts";
+import { Command } from "./command.ts";
 
 /**
  * @see https://redis.io/commands/hscan

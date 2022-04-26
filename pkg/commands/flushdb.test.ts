@@ -1,6 +1,7 @@
-import { newHttpClient } from "../test-utils";
-import { describe, expect, it } from "@jest/globals";
-import { FlushDBCommand } from "./flushdb";
+import { newHttpClient } from "../test-utils.ts";
+import { describe, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+import { FlushDBCommand } from "./flushdb.ts";
 const client = newHttpClient();
 
 describe(
@@ -10,7 +11,7 @@ describe(
       "flushes the db",
       async () => {
         const res = await new FlushDBCommand().exec(client);
-        expect(res).toBe("OK");
+        assertEquals(res, "OK");
       },
     );
   },
@@ -22,7 +23,7 @@ describe(
       "flushes the db",
       async () => {
         const res = await new FlushDBCommand({ async: true }).exec(client);
-        expect(res).toBe("OK");
+        assertEquals(res, "OK");
       },
     );
   },

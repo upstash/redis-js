@@ -1,9 +1,14 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { afterAll, describe, expect, it } from "@jest/globals";
-import { HSetCommand } from "./hset";
-import { HGetCommand } from "./hget";
-import { HSetNXCommand } from "./hsetnx";
+import { keygen, newHttpClient } from "../test-utils.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+
+import {
+  afterAll,
+  describe,
+  it,
+} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { HSetCommand } from "./hset.ts";
+import { HGetCommand } from "./hget.ts";
+import { HSetNXCommand } from "./hsetnx.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -16,15 +21,15 @@ describe(
       "returns 0",
       async () => {
         const key = newKey();
-        const field = randomUUID();
-        const value = randomUUID();
-        const newValue = randomUUID();
+        const field = crypto.randomUUID();
+        const value = crypto.randomUUID();
+        const newValue = crypto.randomUUID();
         await new HSetCommand(key, { [field]: value }).exec(client);
         const res = await new HSetNXCommand(key, field, newValue).exec(client);
-        expect(res).toBe(0);
+        assertEquals(res, 0);
         const res2 = await new HGetCommand(key, field).exec(client);
 
-        expect(res2).toEqual(value);
+        assertEquals(res2, value);
       },
     );
   },
@@ -36,13 +41,13 @@ describe(
       "returns 1",
       async () => {
         const key = newKey();
-        const field = randomUUID();
-        const value = randomUUID();
+        const field = crypto.randomUUID();
+        const value = crypto.randomUUID();
         const res = await new HSetNXCommand(key, field, value).exec(client);
-        expect(res).toBe(1);
+        assertEquals(res, 1);
         const res2 = await new HGetCommand(key, field).exec(client);
 
-        expect(res2).toEqual(value);
+        assertEquals(res2, value);
       },
     );
   },

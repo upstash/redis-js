@@ -1,4 +1,4 @@
-import { Command } from "./command";
+import { Command } from "./command.ts";
 export class LInsertCommand<TData = string> extends Command<number, number> {
   constructor(
     key: string,

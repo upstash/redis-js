@@ -1,7 +1,7 @@
-import { newHttpClient } from "../test-utils";
-import { PingCommand } from "./ping";
-import { describe, expect, it } from "@jest/globals";
-import { randomUUID } from "crypto";
+import { newHttpClient } from "../test-utils.ts";
+import { PingCommand } from "./ping.ts";
+import { describe, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
 const client = newHttpClient();
 
@@ -11,9 +11,9 @@ describe(
     it(
       "returns the message",
       async () => {
-        const message = randomUUID();
+        const message = crypto.randomUUID();
         const res = await new PingCommand(message).exec(client);
-        expect(res).toBe(message);
+        assertEquals(res, message);
       },
     );
   },
@@ -25,7 +25,7 @@ describe(
       "returns pong",
       async () => {
         const res = await new PingCommand().exec(client);
-        expect(res).toBe("PONG");
+        assertEquals(res, "PONG");
       },
     );
   },

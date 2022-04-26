@@ -1,8 +1,12 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { afterAll, describe, expect, it } from "@jest/globals";
-import { GetCommand } from "./get";
-import { SetCommand } from "./set";
+import { keygen, newHttpClient } from "../test-utils.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+import {
+  afterAll,
+  describe,
+  it,
+} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { GetCommand } from "./get.ts";
+import { SetCommand } from "./set.ts";
 
 const client = newHttpClient();
 
@@ -15,12 +19,12 @@ describe(
       "sets value",
       async () => {
         const key = newKey();
-        const value = randomUUID();
+        const value = crypto.randomUUID();
 
         const res = await new SetCommand(key, value).exec(client);
-        expect(res).toEqual("OK");
+        assertEquals(res, "OK");
         const res2 = await new GetCommand(key).exec(client);
-        expect(res2).toEqual(value);
+        assertEquals(res2, value);
       },
     );
   },
@@ -32,16 +36,16 @@ describe(
       "sets value",
       async () => {
         const key = newKey();
-        const value = randomUUID();
+        const value = crypto.randomUUID();
 
         const res = await new SetCommand(key, value, { ex: 1 }).exec(client);
-        expect(res).toEqual("OK");
+        assertEquals(res, "OK");
         const res2 = await new GetCommand(key).exec(client);
-        expect(res2).toEqual(value);
+        assertEquals(res2, value);
         await new Promise((res) => setTimeout(res, 2000));
 
         const res3 = await new GetCommand(key).exec(client);
-        expect(res3).toEqual(null);
+        assertEquals(res3, null);
       },
     );
   },
@@ -53,17 +57,17 @@ describe(
       "sets value",
       async () => {
         const key = newKey();
-        const value = randomUUID();
+        const value = crypto.randomUUID();
 
         const res = await new SetCommand(key, value, { px: 1000 }).exec(client);
-        expect(res).toEqual("OK");
+        assertEquals(res, "OK");
         const res2 = await new GetCommand(key).exec(client);
-        expect(res2).toEqual(value);
+        assertEquals(res2, value);
         await new Promise((res) => setTimeout(res, 2000));
 
         const res3 = await new GetCommand(key).exec(client);
 
-        expect(res3).toBeNull();
+        assertEquals(res3, null);
       },
     );
   },
@@ -78,16 +82,16 @@ describe(
           "does nothing",
           async () => {
             const key = newKey();
-            const value = randomUUID();
-            const newValue = randomUUID();
+            const value = crypto.randomUUID();
+            const newValue = crypto.randomUUID();
 
             await new SetCommand(key, value).exec(client);
             const res = await new SetCommand(key, newValue, { nx: true }).exec(
               client,
             );
-            expect(res).toBeNull();
+            assertEquals(res, null);
             const res2 = await new GetCommand(key).exec(client);
-            expect(res2).toEqual(value);
+            assertEquals(res2, value);
           },
         );
       },
@@ -99,14 +103,14 @@ describe(
           "overwrites key",
           async () => {
             const key = newKey();
-            const value = randomUUID();
+            const value = crypto.randomUUID();
 
             const res = await new SetCommand(key, value, { nx: true }).exec(
               client,
             );
-            expect(res).toEqual("OK");
+            assertEquals(res, "OK");
             const res2 = await new GetCommand(key).exec(client);
-            expect(res2).toEqual(value);
+            assertEquals(res2, value);
           },
         );
       },
@@ -123,16 +127,16 @@ describe(
           "overwrites key",
           async () => {
             const key = newKey();
-            const value = randomUUID();
-            const newValue = randomUUID();
+            const value = crypto.randomUUID();
+            const newValue = crypto.randomUUID();
 
             await new SetCommand(key, value).exec(client);
             const res = await new SetCommand(key, newValue, { xx: true }).exec(
               client,
             );
-            expect(res).toEqual("OK");
+            assertEquals(res, "OK");
             const res2 = await new GetCommand(key).exec(client);
-            expect(res2).toEqual(newValue);
+            assertEquals(res2, newValue);
           },
         );
       },
@@ -144,14 +148,14 @@ describe(
           "does nothing",
           async () => {
             const key = newKey();
-            const value = randomUUID();
+            const value = crypto.randomUUID();
 
             const res = await new SetCommand(key, value, { xx: true }).exec(
               client,
             );
-            expect(res).toBeNull();
+            assertEquals(res, null);
             const res2 = await new GetCommand(key).exec(client);
-            expect(res2).toBeNull();
+            assertEquals(res2, null);
           },
         );
       },

@@ -1,8 +1,9 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { afterAll, expect, it } from "@jest/globals";
+import { keygen, newHttpClient } from "../test-utils.ts";
+import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
-import { LPushCommand } from "./lpush";
-import { LRemCommand } from "./lrem";
+import { LPushCommand } from "./lpush.ts";
+import { LRemCommand } from "./lrem.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -17,6 +18,6 @@ it(
     await new LPushCommand(key, "something else").exec(client);
 
     const res = await new LRemCommand(key, 2, "element").exec(client);
-    expect(res).toBe(2);
+    assertEquals(res, 2);
   },
 );

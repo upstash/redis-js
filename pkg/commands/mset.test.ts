@@ -1,8 +1,9 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { afterAll, expect, it } from "@jest/globals";
-import { MSetCommand } from "./mset";
-import { MGetCommand } from "./mget";
+import { keygen, newHttpClient } from "../test-utils.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+
+import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { MSetCommand } from "./mset.ts";
+import { MGetCommand } from "./mget.ts";
 
 const client = newHttpClient();
 
@@ -14,11 +15,11 @@ it(
   async () => {
     const key1 = newKey();
     const key2 = newKey();
-    const kv = { [key1]: randomUUID(), [key2]: randomUUID() };
+    const kv = { [key1]: crypto.randomUUID(), [key2]: crypto.randomUUID() };
     const res = await new MSetCommand(kv).exec(client);
 
-    expect(res).toEqual("OK");
+    assertEquals(res, "OK");
     const res2 = await new MGetCommand(key1, key2).exec(client);
-    expect(res2).toEqual(Object.values(kv));
+    assertEquals(res2, Object.values(kv));
   },
 );

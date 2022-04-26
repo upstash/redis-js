@@ -1,6 +1,6 @@
-import { UpstashError } from "../error";
-import { Requester } from "../http";
-import { parseResponse } from "../util";
+import { UpstashError } from "../error.ts";
+import { Requester } from "../http.ts";
+import { parseResponse } from "../util.ts";
 
 /**
  * Command offers default (de)serialization and the exec method to all commands.

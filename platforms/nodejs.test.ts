@@ -1,4 +1,4 @@
-import { keygen } from "./test-utils.ts";
+import { keygen } from "../pkg/test-utils.ts";
 import {
   afterEach,
   describe,

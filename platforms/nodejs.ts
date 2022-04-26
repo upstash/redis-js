@@ -1,8 +1,8 @@
 // deno-lint-ignore-file
 
-import * as core from "./redis.ts";
-import { Requester, UpstashRequest, UpstashResponse } from "./http.ts";
-import { UpstashError } from "./error.ts";
+import * as core from "../pkg/redis.ts";
+import { Requester, UpstashRequest, UpstashResponse } from "../pkg/http.ts";
+import { UpstashError } from "../pkg/error.ts";
 
 // @ts-expect-error
 import https from "https";

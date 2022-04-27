@@ -183,7 +183,7 @@ jobs:
       - name: Install example
         run: |
           npm install
-          npm install -g @cloudflare/wrangler
+          npm install -g miniflare @cloudflare/wrangler
         working-directory: ./examples/cf
 
       - name: Start example

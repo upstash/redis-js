@@ -184,22 +184,22 @@ jobs:
       #     UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
       #     REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
       - run: ls -al
-        working-directory: ./examples/cf
+        working-directory: ./examples/cloudflare-service-worker
 
       - name: Install example
         run: |
           npm install
           npm install miniflare -g @cloudflare/wrangler
-        working-directory: ./examples/cf
+        working-directory: ./examples/cloudflare-service-worker
 
       - name: Build example
         run: |
           npm run build
-        working-directory: ./examples/cf
+        working-directory: ./examples/cloudflare-service-worker
 
       - name: Start example
         run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} dist/worker.js
-        working-directory: ./examples/cf
+        working-directory: ./examples/cloudflare-service-worker
         timeout-minutes: 1
 
       - run: |
@@ -260,11 +260,11 @@ jobs:
           pnpm install
           pnpm install -g miniflare @cloudflare/wrangler
 
-        working-directory: ./examples/cf-modules-worker
+        working-directory: ./examples/cloudflare-service-worker-modules-worker
 
       - name: Start example
         run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
-        working-directory: ./examples/cf-modules-worker
+        working-directory: ./examples/cloudflare-service-worker-modules-worker
 
       - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
         timeout-minutes: 2

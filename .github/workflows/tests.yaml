@@ -152,20 +152,24 @@ jobs:
       - name: Install example
         run: |
           pnpm install
-          pnpm install -g miniflare @cloudflare/wrangler
-
         working-directory: ./examples/cloudflare-workers
 
-      - name: Start example
-        run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
-        working-directory: ./examples/cloudflare-workers
 
-      - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
+      - name: Publish
+        uses: cloudflare/wrangler-action@1.3.0
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+
+      # - name: Start example
+      #   run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
+      #   working-directory: ./examples/cloudflare-workers
+
+      - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://upstash-redis-worker.upstash.workers.dev)" != "200" ]]; do sleep 1; done
         timeout-minutes: 5
 
       - name: Ping api
         run: |
-          curl -s http://localhost:8787/ -o response.html
+          curl -s https://upstash-redis-worker.upstash.workers.dev/ -o response.html
           if grep -q "Count: 2" response.html; then
             exit 0
           else

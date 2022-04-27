@@ -1,4 +1,4 @@
-name = "workers-with-redis"
+name = "upstash-redis-worker"
 type = "webpack"
 compatibility_date = "2022-03-11"
 workers_dev = true

@@ -16,7 +16,7 @@ async function handleRequest(request) {
     return new Response();
   }
 
-  const count = await redis.incr("workers-count");
+  const count = await redis.incr("cloudflare-workers-count");
 
   return new Response(
     html(count),

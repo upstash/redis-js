@@ -1,4 +1,4 @@
-import { Redis } from "@upstash/redis";
+// import { Redis } from "@upstash/redis";
 
 addEventListener("fetch", (event) => {
   event.respondWith(handleRequest(event.request));

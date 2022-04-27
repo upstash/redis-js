@@ -260,7 +260,6 @@ jobs:
         run: |
           pnpm install
           pnpm install -g miniflare @cloudflare/wrangler
-
         working-directory: ./examples/cloudflare-modules-worker
 
       - name: Start example

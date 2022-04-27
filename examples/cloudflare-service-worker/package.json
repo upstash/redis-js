@@ -8,5 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Andreas Thomas <dev@chronark.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@upstash/redis": "../../dist"
+  }
 }

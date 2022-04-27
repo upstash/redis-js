@@ -183,6 +183,7 @@ jobs:
       #     UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
       #     UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
       #     REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
+      - run: ls -al ./examples
 
       - name: Install example
         run: |
@@ -195,7 +196,6 @@ jobs:
           npm run build
         working-directory: ./examples/cf
 
-      - run: ls -al ./examples
       - name: Start example
         run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} dist/worker.js
         working-directory: ./examples/cf

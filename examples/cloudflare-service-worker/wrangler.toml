@@ -1,5 +1,5 @@
 name = "cloudflare-service-worker"
-type = "webpack"
+type = "javascript"
 
 account_id = ""
 workers_dev = true

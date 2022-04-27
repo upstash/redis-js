@@ -111,72 +111,48 @@ jobs:
   example-cloudflare:
     needs:
       - test
-    # env:
-    #   UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-    #   UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    env:
+      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
-      - name: Setup node
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-      - name: Cache pnpm modules
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 6
-
-  
+       
       - name: Build
         run: deno run -A ./cmd/build.ts
-
-      # - name: Start redis server
-      #   uses: ./.github/actions/redis
-      #   with:
-      #     UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      #     UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-      #     UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
-      #     REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
+      
+      - name: Start redis server
+        uses: ./.github/actions/redis
+        with:
+          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
+          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
         run: |
-          pnpm install
-          npm i @cloudflare/wrangler -g
+          npm install
+          npm install -g miniflare @cloudflare/wrangler
         working-directory: ./examples/cloudflare-workers
 
-
-      - name: Publish
-        run: wrangler publish
-        env:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      - name: Start example
+        run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
         working-directory: ./examples/cloudflare-workers
-        
 
-      # - name: Start example
-      #   run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
-      #   working-directory: ./examples/cloudflare-workers
-
-      - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://upstash-redis-worker.upstash.workers.dev)" != "200" ]]; do sleep 1; done
-        timeout-minutes: 5
+      - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
+        timeout-minutes: 2
 
       - name: Ping api
         run: |
-          curl -s https://upstash-redis-worker.upstash.workers.dev/ -o response.html
+          curl -s http://localhost:8787/ -o response.html
           if grep -q "Count: 2" response.html; then
             exit 0
           else
-            echo "assertEqualsed response to contain 'Count: 2', got $(cat response.html)"
+            echo "Expected response to contain 'Count: 2', got $(cat response.html)"
             exit 1
           fi
 

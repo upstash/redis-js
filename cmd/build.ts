@@ -1,6 +1,6 @@
 import { build, emptyDir } from "https://deno.land/x/dnt/mod.ts";
 
-const packageManager = "pnpm";
+const packageManager = "npm";
 const outDir = "./dist";
 
 await emptyDir(outDir);
@@ -111,6 +111,6 @@ Deno.copyFileSync(".github/README.md", `${outDir}/README.md`);
  */
 await Deno.run({
   cwd: outDir,
-  cmd: [packageManager, "remove", "@types/node"],
+  cmd: [packageManager, "uninstall", "@types/node"],
   stdout: "piped",
 }).output();

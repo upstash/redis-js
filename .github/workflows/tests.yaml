@@ -214,11 +214,9 @@ jobs:
 
       - name: Ping api
         run: |
-          curl -s http://localhost:8787/ -o response.html
-          if grep -q "Count: 2" response.html; then
-            exit 0
-          else
-            echo "Expected response to contain 'Count: 2', got $(cat response.html)"
+           count=$(curl -s http://localhost:8787/ | jq -r '.count')
+          if [ $count -ne 2 ]; then
+            echo "assertEqualsed count to be 2, got $count"
             exit 1
           fi
 

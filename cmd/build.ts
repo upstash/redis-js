@@ -60,7 +60,9 @@ await build({
       http: false,
       https: false,
     },
-
+    dependencies: {
+      "isomorphic-fetch": "^3.0.0",
+    },
     "size-limit": [
       {
         path: "dist/index.js",

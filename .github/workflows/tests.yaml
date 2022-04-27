@@ -214,7 +214,7 @@ jobs:
 
       - name: Ping api
         run: |
-           count=$(curl -s http://localhost:8787/ | jq -r '.count')
+          count=$(curl -s http://localhost:8787/ | jq -r '.count')
           if [ $count -ne 2 ]; then
             echo "assertEqualsed count to be 2, got $count"
             exit 1

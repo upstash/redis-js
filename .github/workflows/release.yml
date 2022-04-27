@@ -20,42 +20,24 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
-      - name: Cache pnpm modules
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
 
-      - uses: pnpm/action-setup@v2
+      - uses: denoland/setup-deno@v1
         with:
-          version: 6
-          run_install: true
+          deno-version: v1.x
 
-      - name: Set version
-        run: echo $(jq --arg v "$VERSION" '(.version) = $v' package.json) > package.json
-      
       - name: Build
-        run: pnpm build
+        run: deno run -A ./cmd/build.ts $VERSION
 
-      - name: Copy artifacts
-        run: |
-          cp .github/README.md ./dist/
-          cp package.json ./dist/
-          
       # - name: Publish
       #   if: "!github.event.release.prerelease"
       #   working-directory: ./dist
       #   run: |
       #     echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
       #     npm publish --access public
-      
+
       - name: Publish release candidate
         if: "github.event.release.prerelease"
         working-directory: ./dist
         run: |
           echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
           npm publish --access public --tag=next
-      
-    

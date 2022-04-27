@@ -1,5 +1,3 @@
-/* global Response */
-
 import { Redis } from "@upstash/redis";
 import { NextResponse } from "next/server";
 

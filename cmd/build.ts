@@ -63,38 +63,34 @@ await build({
     dependencies: {
       "isomorphic-fetch": "^3.0.0",
     },
+    devDependencies: {
+      "size-limit": "latest",
+      "@size-limit/preset-small-lib": "latest",
+    },
     "size-limit": [
       {
-        path: "dist/index.js",
-        limit: "6 KB",
+        path: "esm/platforms/nodejs.js",
+        limit: "5 KB",
       },
       {
-        path: "dist/index.mjs",
-        limit: "6 KB",
+        path: "esm/platforms/fastly.js",
+        limit: "5 KB",
       },
       {
-        path: "dist/cloudflare.js",
-        limit: "6 KB",
+        path: "esm/platforms/cloudflare.js",
+        limit: "5 KB",
       },
       {
-        path: "dist/cloudflare.mjs",
-        limit: "6 KB",
+        path: "script/platforms/nodejs.js",
+        limit: "10 KB",
       },
       {
-        path: "dist/nodejs.js",
-        limit: "6 KB",
+        path: "script/platforms/fastly.js",
+        limit: "10 KB",
       },
       {
-        path: "dist/nodejs.mjs",
-        limit: "6 KB",
-      },
-      {
-        path: "dist/fastly.js",
-        limit: "6 KB",
-      },
-      {
-        path: "dist/fastly.mjs",
-        limit: "6 KB",
+        path: "script/platforms/cloudflare.js",
+        limit: "10 KB",
       },
     ],
   },

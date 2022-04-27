@@ -4,8 +4,10 @@ import * as core from "../pkg/redis.ts";
 import { Requester, UpstashRequest, UpstashResponse } from "../pkg/http.ts";
 import { UpstashError } from "../pkg/error.ts";
 
-// import https from "https";
-// import http from "http";
+// @ts-ignore Deno can't compile
+import https from "https";
+// @ts-ignore Deno can't compile
+import http from "http";
 import "isomorphic-fetch";
 
 export type { Requester, UpstashRequest, UpstashResponse };
@@ -23,6 +25,23 @@ export type RedisConfigNodejs = {
    * UPSTASH_REDIS_REST_TOKEN
    */
   token: string;
+
+  /**
+   * An agent allows you to reuse connections to reduce latency for multiple sequential requests.
+   *
+   * This is a node specific implementation and is not supported in various runtimes like Vercel
+   * edge functions.
+   *
+   * @example
+   * ```ts
+   * import https from "https"
+   *
+   * const options: RedisConfigNodejs = {
+   *  agent: new https.Agent({ keepAlive: true })
+   * }
+   * ```
+   */
+  agent?: http.Agent | https.Agent;
 };
 
 /**
@@ -69,6 +88,7 @@ export class Redis extends core.Redis {
     const client = defaultRequester({
       baseUrl: configOrRequester.url,
       headers: { authorization: `Bearer ${configOrRequester.token}` },
+      agent: configOrRequester.agent,
     });
 
     super(client);
@@ -83,7 +103,7 @@ export class Redis extends core.Redis {
    * This tries to load `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` from
    * your environment using `process.env`.
    */
-  static fromEnv(): Redis {
+  static fromEnv(config?: Omit<RedisConfigNodejs, "url" | "token">): Redis {
     // @ts-ignore process will be defined in node
     if (typeof process?.env === "undefined") {
       throw new Error(
@@ -104,34 +124,17 @@ export class Redis extends core.Redis {
         "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`",
       );
     }
-    return new Redis({ url, token });
+    return new Redis({ url, token, ...config });
   }
 }
 
 function defaultRequester(config: {
   headers?: Record<string, string>;
   baseUrl: string;
+  agent?: http.Agent | https.Agent;
 }): Requester {
-  // let agent: http.Agent | https.Agent | undefined = undefined;
-
-  // if (
-  //   typeof window === "undefined" &&
-  //   // @ts-ignore process will be defined in node
-  //   typeof process !== "undefined" &&
-  //   // @ts-ignore process will be defined in node
-  //   process.release?.name === "node"
-  // ) {
-  //   const protocol = new URL(config.baseUrl).protocol;
-  //   switch (protocol) {
-  //     case "https:":
-  //       agent = new https.Agent({ keepAlive: true });
-
-  //       break;
-  //     case "http:":
-  //       agent = new http.Agent({ keepAlive: true });
-  //       break;
-  //   }
-  // }
+  // @ts-ignore
+  console.log("process", process.release, { config });
 
   return {
     request: async function <TResult>(
@@ -147,7 +150,7 @@ function defaultRequester(config: {
         body: JSON.stringify(req.body),
         keepalive: true,
         // @ts-ignore
-        // agent,
+        agent: config.agent,
       });
       const body = (await res.json()) as UpstashResponse<TResult>;
       if (!res.ok) {

@@ -198,9 +198,8 @@ jobs:
         working-directory: ./examples/cloudflare-service-worker
 
       - name: Start example
-        run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} dist/worker.js
+        run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} dist/worker.js &
         working-directory: ./examples/cloudflare-service-worker
-        timeout-minutes: 1
 
       - run: |
           sleep 5

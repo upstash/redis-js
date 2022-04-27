@@ -155,7 +155,7 @@ jobs:
   #           exit 1
   #         fi
 
-  example-cloudflare-service-worker:
+  example-cloudflare-service-worker2:
     # needs:
     #   - test
     env:
@@ -193,17 +193,17 @@ jobs:
         run: |
           npm install
           npm install -g @cloudflare/wrangler miniflare
-        working-directory: ./examples/cloudflare-service-worker
+        working-directory: ./examples/cloudflare-service-worker2
 
       # - name: Build example
       #   run: |
       #     npm run build
-      #   working-directory: ./examples/cloudflare-service-worker
+      #   working-directory: ./examples/cloudflare-service-worker2
 
       - name: Start example
         # run: wrangler dev
         run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} & 
-        working-directory: ./examples/cloudflare-service-worker
+        working-directory: ./examples/cloudflare-service-worker2
 
       - run: |
           sleep 5
@@ -220,7 +220,7 @@ jobs:
             exit 1
           fi
 
-  example-cloudflare-modules:
+  example-cloudflare-modules-worker:
     needs:
       - test
     env:
@@ -261,11 +261,11 @@ jobs:
           pnpm install
           pnpm install -g miniflare @cloudflare/wrangler
 
-        working-directory: ./examples/cloudflare-service-worker-modules-worker
+        working-directory: ./examples/cloudflare-modules-worker
 
       - name: Start example
         run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
-        working-directory: ./examples/cloudflare-service-worker-modules-worker
+        working-directory: ./examples/cloudflare-modules-worker
 
       - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
         timeout-minutes: 2

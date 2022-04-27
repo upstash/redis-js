@@ -255,16 +255,19 @@ const res = new CustomGetCommand("key").exec(client)
 
 #### `keepalive`
 
-`@upstash/redis` is trying to reuse connections where possible to minimize
+`@upstash/redis` is capable of reusing connections where possible to minimize
 latency. Connections can be reused if the client is stored in memory and not
 initialized with every new function invocation. The easiest way to achieve this
-is by creating the client outside of your handler:
+is by creating the client outside of your handler and adding an https agent:
 
 ```ts
 // Nextjs api route
 import { Redis } from "@upstash/redis";
+import https from "https";
 
-const redis = Redis.fromEnv();
+const redis = Redis.fromEnv({
+  agent: new https.Agent({ keepAlive: true }),
+});
 
 export default async function (req, res) {
   // use redis here

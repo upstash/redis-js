@@ -17,6 +17,9 @@
       "prettier"
     ]
   },
+  "dependencies": {
+    "@upstash/redis": "../../dist"
+  },
   "devDependencies": {
     "@cloudflare/workers-types": "^3.7.1",
     "@types/service-worker-mock": "^2.0.1",

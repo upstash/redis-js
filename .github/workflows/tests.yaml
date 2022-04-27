@@ -187,7 +187,7 @@ jobs:
       - name: Install example
         run: |
           npm install
-          npm install -g @cloudflare/wrangler
+          npm install miniflare -g @cloudflare/wrangler
         working-directory: ./examples/cf
 
       # - name: Build example
@@ -196,7 +196,7 @@ jobs:
       #   working-directory: ./examples/cf
 
       - name: Start example
-        run: ./node_modules/.bin/miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }}
+        run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }}
         working-directory: ./examples/cf
         timeout-minutes: 1
 

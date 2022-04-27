@@ -165,6 +165,10 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
       # - uses: denoland/setup-deno@v1
       #   with:
       #     deno-version: v1.x

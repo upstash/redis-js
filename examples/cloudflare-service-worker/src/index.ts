@@ -1,17 +1,16 @@
 // import { Redis } from "@upstash/redis/cloudflare";
 
-
 addEventListener("fetch", (event) => {
   event.respondWith(handleRequest(event.request));
 });
 
 async function handleRequest(request: Request) {
   const url = new URL(request.url);
-  
+
   if (url.pathname !== "/") {
     return new Response();
   }
-  
+
   // const redis = Redis.fromEnv();
   const count = 111; //await redis.incr("cloudflare-workers-count");
 

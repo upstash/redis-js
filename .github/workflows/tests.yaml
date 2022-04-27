@@ -209,15 +209,16 @@ jobs:
           UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
+      - run: ls -al && ls -al examples 
       - name: Install example
         run: |
           pnpm install
           pnpm install -g miniflare @cloudflare/wrangler
-        working-directory: ./examples/cloudflare-modules-worker
+        working-directory: examples/cloudflare-modules-worker
 
       - name: Start example
         run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
-        working-directory: ./examples/cloudflare-modules-worker
+        working-directory: examples/cloudflare-modules-worker
 
       - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
         timeout-minutes: 2

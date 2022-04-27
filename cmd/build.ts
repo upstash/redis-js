@@ -101,9 +101,6 @@ await build({
 // post build steps
 Deno.copyFileSync(".github/LICENSE", `${outDir}/LICENSE`);
 Deno.copyFileSync(".github/README.md", `${outDir}/README.md`);
-Deno.copyFileSync("./dist/esm/nodejs.js", "./dist/index.mjs");
-Deno.copyFileSync("./dist/script/nodejs.js", "./dist/index.js");
-Deno.copyFileSync("./dist/types/nodejs.d.ts", "./dist/index.d.ts");
 
 /**
  * Workaround because currently deno can not typecheck the built modules without `@types/node` being installed as regular dependency

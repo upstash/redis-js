@@ -160,7 +160,7 @@ jobs:
         run: wrangler publish
         env:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-        working-irectory: ./examples/cloudflare-workers
+        working-directory: ./examples/cloudflare-workers
         
 
       # - name: Start example

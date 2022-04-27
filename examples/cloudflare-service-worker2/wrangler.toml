@@ -10,3 +10,7 @@ compatibility_date = "2022-04-27"
 command = "npm install && npm run build"
 [build.upload]
 format = "service-worker"
+
+[vars]
+UPSTASH_REDIS_REST_URL = "REPLACE_THIS"
+UPSTASH_REDIS_REST_TOKEN = "REPLACE_THIS"

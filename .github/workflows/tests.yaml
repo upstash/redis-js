@@ -186,6 +186,11 @@ jobs:
           npm install -g miniflare @cloudflare/wrangler
         working-directory: ./examples/cf
 
+      - name: Build example
+        run: |
+          npm run build
+        working-directory: ./examples/cf
+
       - name: Start example
         run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} dist/worker.js
         working-directory: ./examples/cf

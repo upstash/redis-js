@@ -201,8 +201,8 @@ jobs:
       #   working-directory: ./examples/cloudflare-service-worker
 
       - name: Start example
-        run: wrangler dev
-        # run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} & 
+        # run: wrangler dev
+        run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} & 
         working-directory: ./examples/cloudflare-service-worker
 
       - run: |

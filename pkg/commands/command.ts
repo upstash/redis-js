@@ -1,6 +1,6 @@
-import { UpstashError } from "../error";
-import { Requester } from "../http";
-import { parseResponse } from "../util";
+import { UpstashError } from "../error.ts";
+import { Requester } from "../http.ts";
+import { parseResponse } from "../util.ts";
 
 /**
  * Command offers default (de)serialization and the exec method to all commands.
@@ -18,7 +18,7 @@ export class Command<TData, TResult> {
    */
   constructor(
     command: (string | unknown)[],
-    opts?: { deserialize?: (result: TResult) => TData }
+    opts?: { deserialize?: (result: TResult) => TData },
   ) {
     this.command = command.map((c) =>
       typeof c === "string" ? c : JSON.stringify(c)

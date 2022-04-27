@@ -1,14 +1,14 @@
-import { Command } from "./command";
+import { Command } from "./command.ts";
 
 /**
  * @see https://redis.io/commands/hmset
  */
 export class HMSetCommand<TData> extends Command<number, number> {
-	constructor(key: string, kv: { [field: string]: TData }) {
-		super([
-			"hmset",
-			key,
-			...Object.entries(kv).flatMap(([field, value]) => [field, value]),
-		]);
-	}
+  constructor(key: string, kv: { [field: string]: TData }) {
+    super([
+      "hmset",
+      key,
+      ...Object.entries(kv).flatMap(([field, value]) => [field, value]),
+    ]);
+  }
 }

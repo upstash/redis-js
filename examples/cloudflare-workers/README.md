@@ -60,34 +60,34 @@ Edit `index.js`
 
 ```js
 // index.js
-import { Redis } from "@upstash/redis"
+import { Redis } from "@upstash/redis";
 
-const redis = Redis.fromCloudflareEnv()
+const redis = Redis.fromCloudflareEnv();
 
 addEventListener("fetch", (event) => {
-  event.respondWith(handleRequest(event.request))
-})
+  event.respondWith(handleRequest(event.request));
+});
 
 async function handleRequest(request) {
-  const url = new URL(request.url)
+  const url = new URL(request.url);
 
   if (url.pathname !== "/") {
-    return new Response()
+    return new Response();
   }
 
-  const count = await redis.incr("workers-count")
+  const count = await redis.incr("workers-count");
 
   return new Response(html(count), {
     headers: {
       "content-type": "text/html;charset=UTF-8",
     },
-  })
+  });
 }
 
 const html = (count) => `
   <h1>Cloudflare Workers with Upstash Redis</h1>
   <h2>Count: ${count}</h2>
-`
+`;
 ```
 
 ## 4. Configure

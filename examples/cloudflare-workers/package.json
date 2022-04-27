@@ -11,6 +11,7 @@
   "author": "enesakar <enesakar@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "miniflare": "^2.4.0",
     "prettier": "^1.18.2"
   },
   "dependencies": {

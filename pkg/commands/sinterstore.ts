@@ -1,12 +1,12 @@
-import { Command } from "./command";
+import { Command } from "./command.ts";
 /**
  * @see https://redis.io/commands/sinterstore
  */
 export class SInterStoreCommand<TData = string> extends Command<
-	TData[],
-	unknown[]
+  TData[],
+  unknown[]
 > {
-	constructor(destination: string, key: string, ...keys: string[]) {
-		super(["sinterstore", destination, key, ...keys]);
-	}
+  constructor(destination: string, key: string, ...keys: string[]) {
+    super(["sinterstore", destination, key, ...keys]);
+  }
 }

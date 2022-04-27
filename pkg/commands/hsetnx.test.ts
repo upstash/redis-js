@@ -1,49 +1,54 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { describe, it, expect, afterAll } from "@jest/globals";
-import { HSetCommand } from "./hset";
-import { HGetCommand } from "./hget";
-import { HSetNXCommand } from "./hsetnx";
+import { keygen, newHttpClient } from "../test-utils.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+
+import {
+  afterAll,
+  describe,
+  it,
+} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { HSetCommand } from "./hset.ts";
+import { HGetCommand } from "./hget.ts";
+import { HSetNXCommand } from "./hsetnx.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
 describe(
-	"when hash exists already",
-	() => {
-		it(
-			"returns 0",
-			async () => {
-				const key = newKey();
-				const field = randomUUID();
-				const value = randomUUID();
-				const newValue = randomUUID();
-				await new HSetCommand(key, { [field]: value }).exec(client);
-				const res = await new HSetNXCommand(key, field, newValue).exec(client);
-				expect(res).toBe(0);
-				const res2 = await new HGetCommand(key, field).exec(client);
+  "when hash exists already",
+  () => {
+    it(
+      "returns 0",
+      async () => {
+        const key = newKey();
+        const field = crypto.randomUUID();
+        const value = crypto.randomUUID();
+        const newValue = crypto.randomUUID();
+        await new HSetCommand(key, { [field]: value }).exec(client);
+        const res = await new HSetNXCommand(key, field, newValue).exec(client);
+        assertEquals(res, 0);
+        const res2 = await new HGetCommand(key, field).exec(client);
 
-				expect(res2).toEqual(value);
-			},
-		);
-	},
+        assertEquals(res2, value);
+      },
+    );
+  },
 );
 describe(
-	"when hash does not exist",
-	() => {
-		it(
-			"returns 1",
-			async () => {
-				const key = newKey();
-				const field = randomUUID();
-				const value = randomUUID();
-				const res = await new HSetNXCommand(key, field, value).exec(client);
-				expect(res).toBe(1);
-				const res2 = await new HGetCommand(key, field).exec(client);
+  "when hash does not exist",
+  () => {
+    it(
+      "returns 1",
+      async () => {
+        const key = newKey();
+        const field = crypto.randomUUID();
+        const value = crypto.randomUUID();
+        const res = await new HSetNXCommand(key, field, value).exec(client);
+        assertEquals(res, 1);
+        const res2 = await new HGetCommand(key, field).exec(client);
 
-				expect(res2).toEqual(value);
-			},
-		);
-	},
+        assertEquals(res2, value);
+      },
+    );
+  },
 );

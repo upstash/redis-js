@@ -1,10 +1,10 @@
-import { Command } from "./command";
+import { Command } from "./command.ts";
 
 /**
  * @see https://redis.io/commands/renamenx
  */
 export class RenameNXCommand extends Command<0 | 1, "0" | "1"> {
-	constructor(source: string, destination: string) {
-		super(["renamenx", source, destination]);
-	}
+  constructor(source: string, destination: string) {
+    super(["renamenx", source, destination]);
+  }
 }

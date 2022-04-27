@@ -1,14 +1,14 @@
-import { Command } from "./command";
+import { Command } from "./command.ts";
 
 /**
  * @see https://redis.io/commands/hset
  */
 export class HSetCommand<TData> extends Command<number, number> {
-	constructor(key: string, kv: { [field: string]: TData }) {
-		super([
-			"hset",
-			key,
-			...Object.entries(kv).flatMap(([field, value]) => [field, value]),
-		]);
-	}
+  constructor(key: string, kv: { [field: string]: TData }) {
+    super([
+      "hset",
+      key,
+      ...Object.entries(kv).flatMap(([field, value]) => [field, value]),
+    ]);
+  }
 }

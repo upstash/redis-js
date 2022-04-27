@@ -1,39 +1,33 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { describe, it, expect, afterAll } from "@jest/globals";
-import { LPopCommand } from "./lpop";
-import { LPushCommand } from "./lpush";
+import { keygen, newHttpClient } from "../test-utils.ts";
+
+import {
+  afterAll,
+  describe,
+  it,
+} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { LPopCommand } from "./lpop.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+
+import { LPushCommand } from "./lpush.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-describe(
-	"when list exists",
-	() => {
-		it(
-			"returns the first element",
-			async () => {
-				const key = newKey();
-				const value = randomUUID();
-				await new LPushCommand(key, value).exec(client);
-				const res = await new LPopCommand(key).exec(client);
-				expect(res).toEqual(value);
-			},
-		);
-	},
-);
+describe("when list exists", () => {
+  it("returns the first element", async () => {
+    const key = newKey();
+    const value = crypto.randomUUID();
+    await new LPushCommand(key, value).exec(client);
+    const res = await new LPopCommand(key).exec(client);
+    assertEquals(res, value);
+  });
+});
 
-describe(
-	"when list does not exist",
-	() => {
-		it(
-			"returns null",
-			async () => {
-				const key = newKey();
-				const res = await new LPopCommand(key).exec(client);
-				expect(res).toBeNull();
-			},
-		);
-	},
-);
+describe("when list does not exist", () => {
+  it("returns null", async () => {
+    const key = newKey();
+    const res = await new LPopCommand(key).exec(client);
+    assertEquals(res, null);
+  });
+});

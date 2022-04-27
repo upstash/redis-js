@@ -1,41 +1,35 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { describe, it, expect, afterAll } from "@jest/globals";
-import { LPushCommand } from "./lpush";
-import { LTrimCommand } from "./ltrim";
+import { keygen, newHttpClient } from "../test-utils.ts";
+
+import {
+  afterAll,
+  describe,
+  it,
+} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { LPushCommand } from "./lpush.ts";
+import { LTrimCommand } from "./ltrim.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-describe(
-	"when the list exists",
-	() => {
-		it(
-			"returns ok",
-			async () => {
-				const key = newKey();
-				await new LPushCommand(key, randomUUID()).exec(client);
-				await new LPushCommand(key, randomUUID()).exec(client);
-				await new LPushCommand(key, randomUUID()).exec(client);
-				const res = await new LTrimCommand(key, 1, 2).exec(client);
-				expect(res).toEqual("OK");
-			},
-		);
-	},
-);
+describe("when the list exists", () => {
+  it("returns ok", async () => {
+    const key = newKey();
+    await new LPushCommand(key, crypto.randomUUID()).exec(client);
+    await new LPushCommand(key, crypto.randomUUID()).exec(client);
+    await new LPushCommand(key, crypto.randomUUID()).exec(client);
+    const res = await new LTrimCommand(key, 1, 2).exec(client);
+    assertEquals(res, "OK");
+  });
+});
 
-describe(
-	"when the list does not exist",
-	() => {
-		it(
-			"returns ok",
-			async () => {
-				const key = newKey();
+describe("when the list does not exist", () => {
+  it("returns ok", async () => {
+    const key = newKey();
 
-				const res = await new LTrimCommand(key, 1, 2).exec(client);
-				expect(res).toEqual("OK");
-			},
-		);
-	},
-);
+    const res = await new LTrimCommand(key, 1, 2).exec(client);
+    assertEquals(res, "OK");
+  });
+});

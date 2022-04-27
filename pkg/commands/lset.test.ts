@@ -1,58 +1,49 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { describe, it, expect, afterAll } from "@jest/globals";
-import { LPushCommand } from "./lpush";
-import { LSetCommand } from "./lset";
-import { LPopCommand } from "./lpop";
+import { keygen, newHttpClient } from "../test-utils.ts";
+
+import {
+  afterAll,
+  describe,
+  it,
+} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { LPushCommand } from "./lpush.ts";
+import { LSetCommand } from "./lset.ts";
+import { LPopCommand } from "./lpop.ts";
+import {
+  assertEquals,
+  assertRejects,
+} from "https://deno.land/std@0.136.0/testing/asserts.ts";
+
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-describe(
-	"when list exists",
-	() => {
-		describe(
-			"when the index is in range",
-			() => {
-				it(
-					"replaces the element at index",
-					async () => {
-						const key = newKey();
+describe("when list exists", () => {
+  describe("when the index is in range", () => {
+    it("replaces the element at index", async () => {
+      const key = newKey();
 
-						const value = randomUUID();
-						const newValue = randomUUID();
-						await new LPushCommand(key, value).exec(client);
-						const res = await new LSetCommand(key, newValue, 0).exec(client);
-						expect(res).toEqual("OK");
+      const value = crypto.randomUUID();
+      const newValue = crypto.randomUUID();
+      await new LPushCommand(key, value).exec(client);
+      const res = await new LSetCommand(key, newValue, 0).exec(client);
+      assertEquals(res, "OK");
 
-						const res2 = await new LPopCommand(key).exec(client);
+      const res2 = await new LPopCommand(key).exec(client);
 
-						expect(res2).toEqual(newValue);
-					},
-				);
-				describe(
-					"when the index is out of bounds",
-					() => {
-						it(
-							"returns null",
-							async () => {
-								const key = newKey();
+      assertEquals(res2, newValue);
+    });
+    describe("when the index is out of bounds", () => {
+      it("returns null", async () => {
+        const key = newKey();
 
-								const value = randomUUID();
-								const newValue = randomUUID();
-								await new LPushCommand(key, value).exec(client);
-								expect(
-									async () =>
-										await new LSetCommand(key, newValue, 1).exec(client),
-								).rejects.toThrowErrorMatchingInlineSnapshot(
-									`"ERR index out of range"`,
-								);
-							},
-						);
-					},
-				);
-			},
-		);
-	},
-);
+        const value = crypto.randomUUID();
+        const newValue = crypto.randomUUID();
+        await new LPushCommand(key, value).exec(client);
+        await assertRejects(() =>
+          new LSetCommand(key, newValue, 1).exec(client)
+        );
+      });
+    });
+  });
+});

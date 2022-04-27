@@ -1,6 +1,12 @@
-import * as core from "./redis";
-import { HttpClient, Requester, UpstashRequest, UpstashResponse } from "./http";
+// deno-lint-ignore-file
+
+import * as core from "../pkg/redis.ts";
+import { Requester, UpstashRequest, UpstashResponse } from "../pkg/http.ts";
+import { UpstashError } from "../pkg/error.ts";
+
+// @ts-ignore Deno can't compile
 import https from "https";
+// @ts-ignore Deno can't compile
 import http from "http";
 import "isomorphic-fetch";
 
@@ -19,6 +25,23 @@ export type RedisConfigNodejs = {
    * UPSTASH_REDIS_REST_TOKEN
    */
   token: string;
+
+  /**
+   * An agent allows you to reuse connections to reduce latency for multiple sequential requests.
+   *
+   * This is a node specific implementation and is not supported in various runtimes like Vercel
+   * edge functions.
+   *
+   * @example
+   * ```ts
+   * import https from "https"
+   *
+   * const options: RedisConfigNodejs = {
+   *  agent: new https.Agent({ keepAlive: true })
+   * }
+   * ```
+   */
+  agent?: http.Agent | https.Agent;
 };
 
 /**
@@ -62,29 +85,10 @@ export class Redis extends core.Redis {
       return;
     }
 
-    let agent: http.Agent | https.Agent | undefined = undefined;
-
-    if (
-      typeof window === "undefined" &&
-      typeof process !== "undefined" &&
-      process.release?.name === "node"
-    ) {
-      const protocol = new URL(configOrRequester.url).protocol;
-      switch (protocol) {
-        case "https:":
-          agent = new https.Agent({ keepAlive: true });
-
-          break;
-        case "http:":
-          agent = new https.Agent({ keepAlive: true });
-          break;
-      }
-    }
-
-    const client = new HttpClient({
+    const client = defaultRequester({
       baseUrl: configOrRequester.url,
       headers: { authorization: `Bearer ${configOrRequester.token}` },
-      options: { agent },
+      agent: configOrRequester.agent,
     });
 
     super(client);
@@ -99,24 +103,61 @@ export class Redis extends core.Redis {
    * This tries to load `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` from
    * your environment using `process.env`.
    */
-  static fromEnv(): Redis {
+  static fromEnv(config?: Omit<RedisConfigNodejs, "url" | "token">): Redis {
+    // @ts-ignore process will be defined in node
     if (typeof process?.env === "undefined") {
       throw new Error(
-        "Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please use `Redis.onCloudflare()` instead",
+        'Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please import from "@upstash/redis/cloudflare" instead',
       );
     }
-    const url = process.env["UPSTASH_REDIS_REST_URL"];
+    // @ts-ignore process will be defined in node
+    const url = process?.env["UPSTASH_REDIS_REST_URL"];
     if (!url) {
       throw new Error(
         "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`",
       );
     }
-    const token = process.env["UPSTASH_REDIS_REST_TOKEN"];
+    // @ts-ignore process will be defined in node
+    const token = process?.env["UPSTASH_REDIS_REST_TOKEN"];
     if (!token) {
       throw new Error(
         "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`",
       );
     }
-    return new Redis({ url, token });
+    return new Redis({ url, token, ...config });
   }
+}
+
+function defaultRequester(config: {
+  headers?: Record<string, string>;
+  baseUrl: string;
+  agent?: http.Agent | https.Agent;
+}): Requester {
+  // @ts-ignore
+  console.log("process", process.release, { config });
+
+  return {
+    request: async function <TResult>(
+      req: UpstashRequest,
+    ): Promise<UpstashResponse<TResult>> {
+      if (!req.path) {
+        req.path = [];
+      }
+
+      const res = await fetch([config.baseUrl, ...req.path].join("/"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...config.headers },
+        body: JSON.stringify(req.body),
+        keepalive: true,
+        // @ts-ignore
+        agent: config.agent,
+      });
+      const body = (await res.json()) as UpstashResponse<TResult>;
+      if (!res.ok) {
+        throw new UpstashError(body.error!);
+      }
+
+      return body;
+    },
+  };
 }

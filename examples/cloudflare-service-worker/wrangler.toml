@@ -1,0 +1,12 @@
+name = "cloudflare-service-worker"
+type = "javascript"
+
+account_id = ""
+workers_dev = true
+route = ""
+zone_id = ""
+compatibility_date = "2022-04-27"
+
+[vars]
+UPSTASH_REDIS_REST_URL = "REPLACE_THIS"
+UPSTASH_REDIS_REST_TOKEN = "REPLACE_THIS"

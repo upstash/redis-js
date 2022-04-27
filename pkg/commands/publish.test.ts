@@ -1,14 +1,12 @@
-import { newHttpClient } from "../test-utils";
-import { PublishCommand } from "./publish";
-import { it, expect } from "@jest/globals";
+import { newHttpClient } from "../test-utils.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+import { PublishCommand } from "./publish.ts";
+import { it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 
 const client = newHttpClient();
 
-it(
-	"returns the number of clients that received the message",
-	async () => {
-		const res = await new PublishCommand("channel", "hello").exec(client);
+it("returns the number of clients that received the message", async () => {
+  const res = await new PublishCommand("channel", "hello").exec(client);
 
-		expect(typeof res).toBe("number");
-	},
-);
+  assertEquals(typeof res, "number");
+});

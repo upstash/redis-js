@@ -1,25 +1,26 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { it, expect, afterAll } from "@jest/globals";
-import { SAddCommand } from "./sadd";
-import { SUnionCommand } from "./sunion";
+import { keygen, newHttpClient } from "../test-utils.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+
+import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { SAddCommand } from "./sadd.ts";
+import { SUnionCommand } from "./sunion.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
 it(
-	"returns the union",
-	async () => {
-		const key1 = newKey();
-		const key2 = newKey();
+  "returns the union",
+  async () => {
+    const key1 = newKey();
+    const key2 = newKey();
 
-		const member1 = randomUUID();
-		const member2 = randomUUID();
+    const member1 = crypto.randomUUID();
+    const member2 = crypto.randomUUID();
 
-		await new SAddCommand(key1, member1).exec(client);
-		await new SAddCommand(key2, member2).exec(client);
-		const res = await new SUnionCommand(key1, key2).exec(client);
-		expect(res?.sort()).toEqual([member1, member2].sort());
-	},
+    await new SAddCommand(key1, member1).exec(client);
+    await new SAddCommand(key2, member2).exec(client);
+    const res = await new SUnionCommand(key1, key2).exec(client);
+    assertEquals(res?.sort(), [member1, member2].sort());
+  },
 );

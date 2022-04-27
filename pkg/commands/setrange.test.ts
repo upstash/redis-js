@@ -1,28 +1,27 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { it, expect, afterAll } from "@jest/globals";
-import { SetCommand } from "./set";
-import { SetRangeCommand } from "./setrange";
-import { GetCommand } from "./get";
+import { keygen, newHttpClient } from "../test-utils.ts";
+import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { SetCommand } from "./set.ts";
+import { SetRangeCommand } from "./setrange.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+
+import { GetCommand } from "./get.ts";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-it(
-	"sets value",
-	async () => {
-		const key = newKey();
-		const value = "originalValue";
+it("sets value", async () => {
+  const key = newKey();
+  const value = "originalValue";
 
-		const res = await new SetCommand(key, value).exec(client);
+  const res = await new SetCommand(key, value).exec(client);
 
-		expect(res).toEqual("OK");
-		const res2 = await new SetRangeCommand(key, 4, "helloWorld").exec(client);
+  assertEquals(res, "OK");
+  const res2 = await new SetRangeCommand(key, 4, "helloWorld").exec(client);
 
-		expect(res2).toEqual(14);
-		const res3 = await new GetCommand(key).exec(client);
+  assertEquals(res2, 14);
+  const res3 = await new GetCommand(key).exec(client);
 
-		expect(res3).toEqual("orighelloWorld");
-	},
-);
+  assertEquals(res3, "orighelloWorld");
+});

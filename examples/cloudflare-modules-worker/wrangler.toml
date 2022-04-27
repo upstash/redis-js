@@ -1,4 +1,4 @@
-name = "durabledb"
+name = "upstash-modules-worker"
 type = "javascript"
 
 workers_dev = true

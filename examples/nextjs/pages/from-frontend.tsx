@@ -8,12 +8,9 @@ function HomePage({ count }: { count: number }) {
   });
   const [cacheCount, setCacheCount] = useState(count);
 
-  useEffect(
-    () => {
-      redis.incr("mykeything").then((c) => setCacheCount(c));
-    },
-    [],
-  );
+  useEffect(() => {
+    redis.incr("mykeything").then((c: number) => setCacheCount(c));
+  }, []);
 
   return (
     <div>

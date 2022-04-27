@@ -1,39 +1,39 @@
-import { keygen, newHttpClient } from "../test-utils";
-import { randomUUID } from "crypto";
-import { it, expect, afterAll } from "@jest/globals";
-import { GetSetCommand } from "./getset";
-import { SetCommand } from "./set";
-import { GetCommand } from "./get";
+import { keygen, newHttpClient } from "../test-utils.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { GetSetCommand } from "./getset.ts";
+import { SetCommand } from "./set.ts";
+import { GetCommand } from "./get.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
 it(
-	"overwrites the original value",
-	async () => {
-		const key = newKey();
-		const value = randomUUID();
-		const newValue = randomUUID();
-		await new SetCommand(key, value).exec(client);
-		const res = await new GetSetCommand(key, newValue).exec(client);
+  "overwrites the original value",
+  async () => {
+    const key = newKey();
+    const value = crypto.randomUUID();
+    const newValue = crypto.randomUUID();
+    await new SetCommand(key, value).exec(client);
+    const res = await new GetSetCommand(key, newValue).exec(client);
 
-		expect(res).toEqual(value);
-		const res2 = await new GetCommand(key).exec(client);
+    assertEquals(res, value);
+    const res2 = await new GetCommand(key).exec(client);
 
-		expect(res2).toEqual(newValue);
-	},
+    assertEquals(res2, newValue);
+  },
 );
 it(
-	"sets a new value if empty",
-	async () => {
-		const key = newKey();
-		const newValue = randomUUID();
-		const res = await new GetSetCommand(key, newValue).exec(client);
+  "sets a new value if empty",
+  async () => {
+    const key = newKey();
+    const newValue = crypto.randomUUID();
+    const res = await new GetSetCommand(key, newValue).exec(client);
 
-		expect(res).toBeNull();
-		const res2 = await new GetCommand(key).exec(client);
+    assertEquals(res, null);
+    const res2 = await new GetCommand(key).exec(client);
 
-		expect(res2).toEqual(newValue);
-	},
+    assertEquals(res2, newValue);
+  },
 );

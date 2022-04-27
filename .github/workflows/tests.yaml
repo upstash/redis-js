@@ -143,6 +143,10 @@ jobs:
         run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
         working-directory: ./examples/cloudflare-workers
 
+      - run: |
+          sleep 5
+          curl -v localhost:8787
+
       - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
         timeout-minutes: 2
 

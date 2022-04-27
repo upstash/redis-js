@@ -44,9 +44,18 @@ jobs:
           cp .github/README.md ./dist/
           cp package.json ./dist/
           
-      - name: Publish
+      # - name: Publish
+      #   if: "!github.event.release.prerelease"
+      #   working-directory: ./dist
+      #   run: |
+      #     echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
+      #     npm publish --access public
+      
+      - name: Publish release candidate
+        if: "github.event.release.prerelease"
         working-directory: ./dist
         run: |
           echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
-          npm publish --access public
+          npm publish --access public --tag=next
       
+    

@@ -183,7 +183,8 @@ jobs:
       #     UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
       #     UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
       #     REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
-      - run: ls -al ./examples
+      - run: ls -al
+        working-directory: ./examples
 
       - name: Install example
         run: |

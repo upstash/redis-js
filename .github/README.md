@@ -34,8 +34,16 @@ further explanation we wrote a
 
 ### Install
 
+#### npm
+
 ```bash
 npm install @upstash/redis
+```
+
+#### Deno
+
+```ts
+import { Redis } from "https://deno.land/x/upstash_redis/mod.ts";
 ```
 
 ### Create database
@@ -126,6 +134,23 @@ const redis = new Redis({
 
 - [Code example](https://github.com/upstash/upstash-redis/tree/main/examples/fastly)
 - [Documentation](https://blog.upstash.com/fastly-compute-edge-with-redi)
+
+#### Deno
+
+Examples: [Deno Deploy](https://deno.com/deploy),
+[Netlify Edge](https://www.netlify.com/products/edge/)
+
+```ts
+import { Redis } from "https://deno.land/x/upstash_redis/mod.ts"
+
+const redis = new Redis({
+  url: <UPSTASH_REDIS_REST_URL>,
+  token: <UPSTASH_REDIS_REST_TOKEN>,
+})
+
+// or
+const redis = Redis.fromEnv();
+```
 
 ### Working with types
 

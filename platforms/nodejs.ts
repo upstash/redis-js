@@ -133,9 +133,6 @@ function defaultRequester(config: {
   baseUrl: string;
   agent?: http.Agent | https.Agent;
 }): Requester {
-  // @ts-ignore
-  console.log("process", process.release, { config });
-
   return {
     request: async function <TResult>(
       req: UpstashRequest,

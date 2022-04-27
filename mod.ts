@@ -51,14 +51,13 @@ export class Redis extends core.Redis {
      */
 
     const url = Deno.env.get("UPSTASH_REDIS_REST_URL");
-
-    const token = Deno.env.get("UPSTASH_REDIS_REST_TOKEN");
-
     if (!url) {
       throw new Error(
         "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`.",
       );
     }
+
+    const token = Deno.env.get("UPSTASH_REDIS_REST_TOKEN");
     if (!token) {
       throw new Error(
         "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`.",

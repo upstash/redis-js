@@ -19,11 +19,8 @@ jobs:
         with:
           deno-version: v1.x
 
-      
       - name: Verify formatting
         run: deno fmt --check
-
-      
 
       - name: Start redis server
         uses: ./.github/actions/redis
@@ -38,7 +35,6 @@ jobs:
         env:
           UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -76,7 +72,6 @@ jobs:
         with:
           version: 6
 
-  
       - name: Build
         run: deno run -A ./cmd/build.ts
 
@@ -107,7 +102,7 @@ jobs:
             echo "assertEqualsed count to be 2, got $count"
             exit 1
           fi
-      
+
   # example-cloudflare:
   #   needs:
   #     - test
@@ -121,10 +116,10 @@ jobs:
   #     - uses: denoland/setup-deno@v1
   #       with:
   #         deno-version: v1.x
-       
+
   #     - name: Build
   #       run: deno run -A ./cmd/build.ts
-      
+
   #     - name: Start redis server
   #       uses: ./.github/actions/redis
   #       with:
@@ -160,6 +155,58 @@ jobs:
   #           exit 1
   #         fi
 
+  example-cf:
+    needs:
+      - test
+    env:
+      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Build
+        run: deno run -A ./cmd/build.ts
+
+      - name: Start redis server
+        uses: ./.github/actions/redis
+        with:
+          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
+          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
+
+      - name: Install example
+        run: |
+          npm install
+          npm install -g @cloudflare/wrangler
+        working-directory: ./examples/cf
+
+      - name: Start example
+        run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
+        working-directory: ./examples/cf
+
+      - run: |
+          sleep 5
+          curl -v localhost:8787
+
+      - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
+        timeout-minutes: 2
+
+      - name: Ping api
+        run: |
+          curl -s http://localhost:8787/ -o response.html
+          if grep -q "Count: 2" response.html; then
+            exit 0
+          else
+            echo "Expected response to contain 'Count: 2', got $(cat response.html)"
+            exit 1
+          fi
+
   example-cloudflare-modules:
     needs:
       - test
@@ -185,7 +232,6 @@ jobs:
         with:
           version: 6
 
-  
       - name: Build
         run: deno run -A ./cmd/build.ts
 
@@ -246,7 +292,6 @@ jobs:
         with:
           version: 6
 
-  
       - name: Build
         run: deno run -A ./cmd/build.ts
 

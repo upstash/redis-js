@@ -67,7 +67,7 @@ await build({
       https: false,
     },
     dependencies: {
-      // "isomorphic-fetch": "^3.0.0",
+      "isomorphic-fetch": "^3.0.0",
       encoding: "latest",
     },
     devDependencies: {

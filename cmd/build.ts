@@ -38,7 +38,7 @@ await build({
     ],
   },
   typeCheck: true,
-  test: false,
+  test: true,
   package: {
     // package.json properties
     name: "@upstash/redis",

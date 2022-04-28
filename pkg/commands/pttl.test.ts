@@ -1,9 +1,6 @@
 import { keygen, newHttpClient } from "../test-utils.ts";
 import { PTtlCommand } from "./pttl.ts";
-import {
-  assert,
-  assertEquals,
-} from "https://deno.land/std@0.136.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
 import { SetExCommand } from "./setex.ts";
 import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";

@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { ScriptLoadCommand } from "./script_load.ts";
@@ -16,7 +16,7 @@ Deno.test(
     await t.step(
       "returns something",
       async () => {
-        const value = crypto.randomUUID();
+        const value = randomID();
         const sha1 = await new ScriptLoadCommand(`return {ARGV[1], "${value}"}`)
           .exec(
             client,

@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
@@ -12,7 +12,7 @@ afterAll(cleanup);
 
 Deno.test("sets value", async () => {
   const key = newKey();
-  const value = crypto.randomUUID();
+  const value = randomID();
 
   const res = await new PSetEXCommand(key, 1000, value).exec(client);
 

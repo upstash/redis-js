@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { HDelCommand } from "./hdel.ts";
@@ -13,7 +13,7 @@ Deno.test(
   "deletes a hash that does not exist",
   async () => {
     const key = newKey();
-    const field = crypto.randomUUID();
+    const field = randomID();
     const res = await new HDelCommand(key, field).exec(client);
 
     assertEquals(res, 0);
@@ -24,8 +24,8 @@ Deno.test(
   "deletes a field that exists",
   async () => {
     const key = newKey();
-    const field = crypto.randomUUID();
-    await new HSetCommand(key, { [field]: crypto.randomUUID() }).exec(
+    const field = randomID();
+    await new HSetCommand(key, { [field]: randomID() }).exec(
       client,
     );
     const res = await new HDelCommand(key, field).exec(client);

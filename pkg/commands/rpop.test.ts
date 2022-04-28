@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { RPopCommand } from "./rpop.ts";
@@ -13,7 +13,7 @@ afterAll(cleanup);
 Deno.test("when list exists", async (t) => {
   await t.step("returns the first element", async () => {
     const key = newKey();
-    const value = crypto.randomUUID();
+    const value = randomID();
     await new LPushCommand(key, value).exec(client);
     const res = await new RPopCommand(key).exec(client);
     assertEquals(res, value);

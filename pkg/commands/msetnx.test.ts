@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
@@ -15,9 +15,9 @@ Deno.test(
   "sets values",
   async () => {
     const key1 = newKey();
-    const value1 = crypto.randomUUID();
+    const value1 = randomID();
     const key2 = newKey();
-    const value2 = crypto.randomUUID();
+    const value2 = randomID();
 
     const kv: Record<string, string> = {};
     kv[key1] = value1;
@@ -37,9 +37,9 @@ Deno.test(
   "does not set values if one key already exists",
   async () => {
     const key1 = newKey();
-    const value1 = crypto.randomUUID();
+    const value1 = randomID();
     const key2 = newKey();
-    const value2 = crypto.randomUUID();
+    const value2 = randomID();
     await new SetCommand(key1, value1).exec(client);
     const kv: Record<string, string> = {};
     kv[key1] = value1;

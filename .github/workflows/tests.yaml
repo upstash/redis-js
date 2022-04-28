@@ -12,6 +12,10 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
       - uses: pnpm/action-setup@v2
         with:
           version: 6
@@ -45,6 +49,7 @@ jobs:
         env:
           UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          TEST: true
 
       - name: Size limit
         run: node_modules/.bin/size-limit

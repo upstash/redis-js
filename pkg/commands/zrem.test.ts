@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { ZAddCommand } from "./zadd.ts";
@@ -12,8 +12,8 @@ afterAll(cleanup);
 
 Deno.test("returns the number of removed members", async () => {
   const key = newKey();
-  const member1 = crypto.randomUUID();
-  const member2 = crypto.randomUUID();
+  const member1 = randomID();
+  const member2 = randomID();
   await new ZAddCommand(
     key,
     { score: 1, member: member1 },

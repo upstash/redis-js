@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { HSetCommand } from "./hset.ts";
@@ -9,8 +9,8 @@ const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 Deno.test("sets value", async () => {
   const key = newKey();
-  const field = crypto.randomUUID();
-  const value = crypto.randomUUID();
+  const field = randomID();
+  const value = randomID();
 
   const res = await new HSetCommand(key, { [field]: value }).exec(client);
 

@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
@@ -118,9 +118,9 @@ Deno.test("without options", async (t) => {
     const key1 = newKey();
     const key2 = newKey();
     const score1 = 1;
-    const member1 = crypto.randomUUID();
+    const member1 = randomID();
     const score2 = 2;
-    const member2 = crypto.randomUUID();
+    const member2 = randomID();
 
     await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
       client,
@@ -143,9 +143,9 @@ Deno.test("with weights", async (t) => {
       const key1 = newKey();
       const key2 = newKey();
       const score1 = 1;
-      const member1 = crypto.randomUUID();
+      const member1 = randomID();
       const score2 = 2;
-      const member2 = crypto.randomUUID();
+      const member2 = randomID();
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
         client,
@@ -166,9 +166,9 @@ Deno.test("with weights", async (t) => {
       const key1 = newKey();
       const key2 = newKey();
       const score1 = 1;
-      const member1 = crypto.randomUUID();
+      const member1 = randomID();
       const score2 = 2;
-      const member2 = crypto.randomUUID();
+      const member2 = randomID();
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
         client,
@@ -191,9 +191,9 @@ Deno.test("aggregate", async (t) => {
       const key1 = newKey();
       const key2 = newKey();
       const score1 = 1;
-      const member1 = crypto.randomUUID();
+      const member1 = randomID();
       const score2 = 2;
-      const member2 = crypto.randomUUID();
+      const member2 = randomID();
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
         client,
@@ -214,9 +214,9 @@ Deno.test("aggregate", async (t) => {
       const key1 = newKey();
       const key2 = newKey();
       const score1 = 1;
-      const member1 = crypto.randomUUID();
+      const member1 = randomID();
       const score2 = 2;
-      const member2 = crypto.randomUUID();
+      const member2 = randomID();
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
         client,
@@ -237,9 +237,9 @@ Deno.test("aggregate", async (t) => {
       const key1 = newKey();
       const key2 = newKey();
       const score1 = 1;
-      const member1 = crypto.randomUUID();
+      const member1 = randomID();
       const score2 = 2;
-      const member2 = crypto.randomUUID();
+      const member2 = randomID();
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
         client,

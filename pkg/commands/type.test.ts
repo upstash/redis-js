@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
@@ -20,7 +20,7 @@ Deno.test(
       "returns the correct type",
       async () => {
         const key = newKey();
-        const value = crypto.randomUUID();
+        const value = randomID();
         await new SetCommand(key, value).exec(client);
         const res = await new TypeCommand(key).exec(client);
         assertEquals(res, "string");
@@ -36,7 +36,7 @@ Deno.test(
       "returns the correct type",
       async () => {
         const key = newKey();
-        const value = crypto.randomUUID();
+        const value = randomID();
         await new LPushCommand(key, value).exec(client);
         const res = await new TypeCommand(key).exec(client);
         assertEquals(res, "list");
@@ -52,7 +52,7 @@ Deno.test(
       "returns the correct type",
       async () => {
         const key = newKey();
-        const value = crypto.randomUUID();
+        const value = randomID();
         await new SAddCommand(key, value).exec(client);
         const res = await new TypeCommand(key).exec(client);
         assertEquals(res, "set");
@@ -68,8 +68,8 @@ Deno.test(
       "returns the correct type",
       async () => {
         const key = newKey();
-        const field = crypto.randomUUID();
-        const value = crypto.randomUUID();
+        const field = randomID();
+        const value = randomID();
         await new HSetCommand(key, { [field]: value }).exec(client);
         const res = await new TypeCommand(key).exec(client);
         assertEquals(res, "hash");
@@ -85,7 +85,7 @@ Deno.test(
       "returns the correct type",
       async () => {
         const key = newKey();
-        const member = crypto.randomUUID();
+        const member = randomID();
         await new ZAddCommand(key, { score: 0, member }).exec(client);
         const res = await new TypeCommand(key).exec(client);
         assertEquals(res, "zset");

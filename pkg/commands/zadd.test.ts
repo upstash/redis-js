@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { ZAddCommand } from "./zadd.ts";
@@ -97,7 +97,7 @@ Deno.test("command format", async (t) => {
 Deno.test("without options", async (t) => {
   await t.step("adds the member", async () => {
     const key = newKey();
-    const member = crypto.randomUUID();
+    const member = randomID();
     const score = Math.floor(Math.random() * 10);
     const res = await new ZAddCommand(key, { score, member }).exec(client);
     assertEquals(res, 1);
@@ -108,7 +108,7 @@ Deno.test("xx", async (t) => {
   await t.step("when the element exists", async (t) => {
     await t.step("updates the element", async () => {
       const key = newKey();
-      const member = crypto.randomUUID();
+      const member = randomID();
       const score = Math.floor(Math.random() * 10);
       await new ZAddCommand(key, { score, member }).exec(client);
       const newScore = score + 1;
@@ -126,7 +126,7 @@ Deno.test("xx", async (t) => {
   await t.step("when the element does not exist", async (t) => {
     await t.step("does nothing", async () => {
       const key = newKey();
-      const member = crypto.randomUUID();
+      const member = randomID();
       const score = Math.floor(Math.random() * 10);
       await new ZAddCommand(key, { score, member }).exec(client);
       const newScore = score + 1;
@@ -144,7 +144,7 @@ Deno.test("nx", async (t) => {
   await t.step("when the element exists", async (t) => {
     await t.step("does nothing", async () => {
       const key = newKey();
-      const member = crypto.randomUUID();
+      const member = randomID();
       const score = Math.floor(Math.random() * 10);
       await new ZAddCommand(key, { score, member }).exec(client);
       const newScore = score + 1;
@@ -162,7 +162,7 @@ Deno.test("nx", async (t) => {
   await t.step("when the element does not exist", async (t) => {
     await t.step("creates element", async () => {
       const key = newKey();
-      const member = crypto.randomUUID();
+      const member = randomID();
       const score = Math.floor(Math.random() * 10);
       const res = await new ZAddCommand(
         key,
@@ -177,7 +177,7 @@ Deno.test("nx", async (t) => {
 Deno.test("ch", async (t) => {
   await t.step("returns the number of changed elements", async () => {
     const key = newKey();
-    const member = crypto.randomUUID();
+    const member = randomID();
     const score = Math.floor(Math.random() * 10);
     await new ZAddCommand(key, { score, member }).exec(client);
     const newScore = score + 1;
@@ -193,7 +193,7 @@ Deno.test("ch", async (t) => {
 Deno.test("incr", async (t) => {
   await t.step("returns the number of changed elements", async () => {
     const key = newKey();
-    const member = crypto.randomUUID();
+    const member = randomID();
     const score = Math.floor(Math.random() * 10);
     await new ZAddCommand(key, { score, member }).exec(client);
     const newScore = score + 1;

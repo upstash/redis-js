@@ -1,6 +1,6 @@
 import { Pipeline } from "./pipeline.ts";
 import { Redis } from "./redis.ts";
-import { keygen, newHttpClient } from "./test-utils.ts";
+import { keygen, newHttpClient, randomID } from "./test-utils.ts";
 import {
   assertEquals,
   assertRejects,
@@ -31,7 +31,7 @@ Deno.test("with destructuring", async (t) => {
 Deno.test("with single command", async (t) => {
   await t.step("works with multiple commands", async () => {
     const p = new Pipeline(client);
-    p.set(newKey(), crypto.randomUUID());
+    p.set(newKey(), randomID());
     const res = await p.exec();
     assertEquals(res.length, 1);
     assertEquals(res[0], "OK");
@@ -42,7 +42,7 @@ Deno.test("when chaining in a for loop", async (t) => {
   await t.step("works", async () => {
     const key = newKey();
     const res = await new Pipeline(client)
-      .set(key, crypto.randomUUID())
+      .set(key, randomID())
       .get(key)
       .exec();
 
@@ -55,7 +55,7 @@ Deno.test("when chaining inline", async (t) => {
     const key = newKey();
     const p = new Pipeline(client);
     for (let i = 0; i < 10; i++) {
-      p.set(key, crypto.randomUUID());
+      p.set(key, randomID());
     }
 
     const res = await p.exec();

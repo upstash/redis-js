@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { SAddCommand } from "./sadd.ts";
@@ -12,7 +12,7 @@ afterAll(cleanup);
 
 Deno.test("stores the intersection", async () => {
   const key1 = newKey();
-  const member1 = crypto.randomUUID();
+  const member1 = randomID();
   const key2 = newKey();
   const member2 = member1;
   const destination = newKey();

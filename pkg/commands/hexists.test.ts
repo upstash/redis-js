@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { HSetCommand } from "./hset.ts";
@@ -12,8 +12,8 @@ afterAll(cleanup);
 
 Deno.test("returns 1 for an existing field", async () => {
   const key = newKey();
-  const field = crypto.randomUUID();
-  await new HSetCommand(key, { [field]: crypto.randomUUID() }).exec(
+  const field = randomID();
+  await new HSetCommand(key, { [field]: randomID() }).exec(
     client,
   );
   const res = await new HExistsCommand(key, field).exec(client);
@@ -22,7 +22,7 @@ Deno.test("returns 1 for an existing field", async () => {
 Deno.test("returns 0 if field does not exist", async () => {
   const key = newKey();
   await new HSetCommand(key, {
-    [crypto.randomUUID()]: crypto.randomUUID(),
+    [randomID()]: randomID(),
   }).exec(client);
 
   const res = await new HExistsCommand(key, "not-existing-field").exec(client);
@@ -30,7 +30,7 @@ Deno.test("returns 0 if field does not exist", async () => {
 });
 Deno.test("returns 0 if hash does not exist", async () => {
   const key = newKey();
-  const field = crypto.randomUUID();
+  const field = randomID();
   const res = await new HExistsCommand(key, field).exec(client);
   assertEquals(res, 0);
 });

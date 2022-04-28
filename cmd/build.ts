@@ -26,11 +26,15 @@ await build({
   outDir,
   shims: {
     deno: "dev",
+    crypto: "dev",
     custom: [
       {
         package: { name: "isomorphic-fetch", version: "3.0.0" },
         globalNames: [],
       },
+      /**
+       * Workaround for testing the build in nodejs
+       */
       {
         package: { name: "@types/node", version: "latest" },
         typesPackage: { name: "@types/node", version: "latest" },
@@ -39,7 +43,7 @@ await build({
     ],
   },
   typeCheck: true,
-  test: typeof Deno.env.get("CI") !== "undefined",
+  test: typeof Deno.env.get("TEST") !== "undefined",
   package: {
     // package.json properties
     name: "@upstash/redis",
@@ -63,7 +67,7 @@ await build({
       https: false,
     },
     dependencies: {
-      "isomorphic-fetch": "^3.0.0",
+      // "isomorphic-fetch": "^3.0.0",
       encoding: "latest",
     },
     devDependencies: {

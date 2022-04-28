@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
@@ -11,8 +11,8 @@ afterAll(cleanup);
 
 Deno.test("returns correct length", async () => {
   const key = newKey();
-  const field = crypto.randomUUID();
-  const value = crypto.randomUUID();
+  const field = randomID();
+  const value = randomID();
 
   const res = await new HValsCommand(key).exec(client);
   assertEquals(res, []);

@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { SetCommand } from "./set.ts";
@@ -13,7 +13,7 @@ Deno.test(
   "gets an exiting value",
   async () => {
     const key = newKey();
-    const value = crypto.randomUUID();
+    const value = randomID();
     await new SetCommand(key, value).exec(client);
     const res = await new GetCommand(key).exec(client);
 
@@ -35,7 +35,7 @@ Deno.test(
   "gets an object",
   async () => {
     const key = newKey();
-    const value = { v: crypto.randomUUID() };
+    const value = { v: randomID() };
     await new SetCommand(key, value).exec(client);
     const res = await new GetCommand(key).exec(client);
 

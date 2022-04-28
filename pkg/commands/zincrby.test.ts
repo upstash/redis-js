@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { ZIncrByComand } from "./zincrby.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
@@ -12,7 +12,7 @@ afterAll(cleanup);
 Deno.test("increments and existing value", async () => {
   const key = newKey();
   const score = 1;
-  const member = crypto.randomUUID();
+  const member = randomID();
   await new ZAddCommand(key, { score, member }).exec(client);
   const res = await new ZIncrByComand(key, 2, member).exec(client);
 

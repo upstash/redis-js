@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { HMSetCommand } from "./hmset.ts";
@@ -18,8 +18,8 @@ Deno.test(
       async () => {
         const key = newKey();
         const kv = {
-          [crypto.randomUUID()]: crypto.randomUUID(),
-          [crypto.randomUUID()]: crypto.randomUUID(),
+          [randomID()]: randomID(),
+          [randomID()]: randomID(),
         };
         await new HMSetCommand(key, kv).exec(client);
         const res = await new HKeysCommand(key).exec(client);

@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { LLenCommand } from "./llen.ts";
@@ -17,7 +17,7 @@ Deno.test(
       "returns the length of the list",
       async () => {
         const key = newKey();
-        await new LPushCommand(key, crypto.randomUUID()).exec(client);
+        await new LPushCommand(key, randomID()).exec(client);
         const res = await new LLenCommand(key).exec(client);
         assertEquals(res, 1);
       },

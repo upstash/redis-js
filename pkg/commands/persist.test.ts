@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
 import { SetCommand } from "./set.ts";
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
@@ -14,7 +14,7 @@ Deno.test(
   "persists the key",
   async () => {
     const key = newKey();
-    const value = crypto.randomUUID();
+    const value = randomID();
     await new SetCommand(key, value, { ex: 2 }).exec(client);
     const res = await new PersistCommand(key).exec(client);
     assertEquals(res, 1);

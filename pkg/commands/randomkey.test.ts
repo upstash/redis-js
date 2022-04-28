@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
@@ -11,7 +11,7 @@ afterAll(cleanup);
 
 Deno.test("returns a random key", async () => {
   const key = newKey();
-  await new SetCommand(key, crypto.randomUUID()).exec(client);
+  await new SetCommand(key, randomID()).exec(client);
   const res = await new RandomKeyCommand().exec(client);
   assertEquals(typeof res, "string");
 });

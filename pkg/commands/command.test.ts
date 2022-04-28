@@ -1,5 +1,5 @@
 import { Command } from "./command.ts";
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
@@ -12,7 +12,7 @@ afterAll(cleanup);
 Deno.test("deserialize large numbers", async (t) => {
   await t.step("returns the correct number", async () => {
     const key = newKey();
-    const field = crypto.randomUUID();
+    const field = randomID();
     const value = "101600000000150081467";
 
     await new Command(["hset", key, field, value]).exec(client);

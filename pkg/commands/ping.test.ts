@@ -1,4 +1,4 @@
-import { newHttpClient } from "../test-utils.ts";
+import { newHttpClient, randomID } from "../test-utils.ts";
 import { PingCommand } from "./ping.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
@@ -10,7 +10,7 @@ Deno.test(
     await t.step(
       "returns the message",
       async () => {
-        const message = crypto.randomUUID();
+        const message = randomID();
         const res = await new PingCommand(message).exec(client);
         assertEquals(res, message);
       },

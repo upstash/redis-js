@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { HSetCommand } from "./hset.ts";
@@ -10,10 +10,10 @@ const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 Deno.test("returns all fields", async () => {
   const key = newKey();
-  const field2 = crypto.randomUUID();
-  const field1 = crypto.randomUUID();
+  const field2 = randomID();
+  const field1 = randomID();
   const value1 = false;
-  const value2 = crypto.randomUUID();
+  const value2 = randomID();
   await new HSetCommand(key, { [field1]: value1, [field2]: value2 }).exec(
     client,
   );
@@ -25,7 +25,7 @@ Deno.test("returns all fields", async () => {
 });
 Deno.test("when hash does not exist", async (t) => {
   await t.step("it returns null", async () => {
-    const res = await new HGetAllCommand(crypto.randomUUID()).exec(client);
+    const res = await new HGetAllCommand(randomID()).exec(client);
     assertEquals(res, null);
   });
 });

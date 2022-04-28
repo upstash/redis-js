@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { LPushCommand } from "./lpush.ts";
@@ -19,8 +19,8 @@ Deno.test("when list exists", async (t) => {
     await t.step("replaces the element at index", async () => {
       const key = newKey();
 
-      const value = crypto.randomUUID();
-      const newValue = crypto.randomUUID();
+      const value = randomID();
+      const newValue = randomID();
       await new LPushCommand(key, value).exec(client);
       const res = await new LSetCommand(key, newValue, 0).exec(client);
       assertEquals(res, "OK");
@@ -33,8 +33,8 @@ Deno.test("when list exists", async (t) => {
       await t.step("returns null", async () => {
         const key = newKey();
 
-        const value = crypto.randomUUID();
-        const newValue = crypto.randomUUID();
+        const value = randomID();
+        const newValue = randomID();
         await new LPushCommand(key, value).exec(client);
         await assertRejects(() =>
           new LSetCommand(key, newValue, 1).exec(client)

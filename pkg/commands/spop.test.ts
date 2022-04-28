@@ -1,4 +1,4 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
 import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { SAddCommand } from "./sadd.ts";
@@ -13,7 +13,7 @@ afterAll(cleanup);
 Deno.test("without count", async (t) => {
   await t.step("returns the first element", async () => {
     const key = newKey();
-    const member = crypto.randomUUID();
+    const member = randomID();
     await new SAddCommand(key, member).exec(client);
     const res = await new SPopCommand(key).exec(client);
     assertEquals(res, member);
@@ -23,10 +23,10 @@ Deno.test("without count", async (t) => {
 Deno.test("with count", async (t) => {
   await t.step("returns the first n elements", async () => {
     const key = newKey();
-    const member1 = crypto.randomUUID();
-    const member2 = crypto.randomUUID();
-    const member3 = crypto.randomUUID();
-    const member4 = crypto.randomUUID();
+    const member1 = randomID();
+    const member2 = randomID();
+    const member3 = randomID();
+    const member4 = randomID();
     await new SAddCommand(key, member1, member2, member3, member4).exec(client);
     const res = await new SPopCommand<string[]>(key, 2).exec(client);
 

@@ -1,4 +1,4 @@
-import { Redis } from "@upstash/redis";
+import { Redis } from "@upstash/redis/vercel";
 import { useState } from "react";
 
 function HomePage({ count }: { count: number }) {

@@ -1,10 +1,6 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
-import {
-  afterAll,
-  describe,
-  it,
-} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 import { ZUnionStoreCommand } from "./zunionstore.ts";
 import { ZAddCommand } from "./zadd.ts";
@@ -14,9 +10,9 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-describe("command format", () => {
-  describe("without options", () => {
-    it("builds the correct command", () => {
+Deno.test("command format", async (t) => {
+  await t.step("without options", async (t) => {
+    await t.step("builds the correct command", () => {
       assertEquals(new ZUnionStoreCommand("destination", 1, "key").command, [
         "zunionstore",
         "destination",
@@ -25,24 +21,24 @@ describe("command format", () => {
       ]);
     });
   });
-  describe("with multiple keys", () => {
-    it("builds the correct command", () => {
+  await t.step("with multiple keys", async (t) => {
+    await t.step("builds the correct command", () => {
       assertEquals(
         new ZUnionStoreCommand("destination", 2, ["key1", "key2"]).command,
         ["zunionstore", "destination", "2", "key1", "key2"],
       );
     });
   });
-  describe("with single weight", () => {
-    it("builds the correct command", () => {
+  await t.step("with single weight", async (t) => {
+    await t.step("builds the correct command", () => {
       assertEquals(
         new ZUnionStoreCommand("destination", 1, "key", { weight: 4 }).command,
         ["zunionstore", "destination", "1", "key", "weights", "4"],
       );
     });
   });
-  describe("with multiple weights", () => {
-    it("builds the correct command", () => {
+  await t.step("with multiple weights", async (t) => {
+    await t.step("builds the correct command", () => {
       assertEquals(
         new ZUnionStoreCommand("destination", 2, ["key1", "key2"], {
           weights: [2, 3],
@@ -59,9 +55,9 @@ describe("command format", () => {
         ],
       );
     });
-    describe("with aggregate", () => {
-      describe("sum", () => {
-        it("builds the correct command", () => {
+    await t.step("with aggregate", async (t) => {
+      await t.step("sum", async (t) => {
+        await t.step("builds the correct command", () => {
           assertEquals(
             new ZUnionStoreCommand("destination", 1, "key", {
               aggregate: "sum",
@@ -70,8 +66,8 @@ describe("command format", () => {
           );
         });
       });
-      describe("min", () => {
-        it("builds the correct command", () => {
+      await t.step("min", async (t) => {
+        await t.step("builds the correct command", () => {
           assertEquals(
             new ZUnionStoreCommand("destination", 1, "key", {
               aggregate: "min",
@@ -80,8 +76,8 @@ describe("command format", () => {
           );
         });
       });
-      describe("max", () => {
-        it("builds the correct command", () => {
+      await t.step("max", async (t) => {
+        await t.step("builds the correct command", () => {
           assertEquals(
             new ZUnionStoreCommand("destination", 1, "key", {
               aggregate: "max",
@@ -91,8 +87,8 @@ describe("command format", () => {
         });
       });
     });
-    describe("complex", () => {
-      it("builds the correct command", () => {
+    await t.step("complex", async (t) => {
+      await t.step("builds the correct command", () => {
         assertEquals(
           new ZUnionStoreCommand("destination", 2, ["key1", "key2"], {
             weights: [4, 2],
@@ -116,15 +112,15 @@ describe("command format", () => {
   });
 });
 
-describe("without options", () => {
-  it("returns the number of elements in the new set ", async () => {
+Deno.test("without options", async (t) => {
+  await t.step("returns the number of elements in the new set ", async () => {
     const destination = newKey();
     const key1 = newKey();
     const key2 = newKey();
     const score1 = 1;
-    const member1 = crypto.randomUUID();
+    const member1 = randomID();
     const score2 = 2;
-    const member2 = crypto.randomUUID();
+    const member2 = randomID();
 
     await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
       client,
@@ -140,16 +136,16 @@ describe("without options", () => {
   });
 });
 
-describe("with weights", () => {
-  describe("single weight", () => {
-    it("returns the number of elements in the new set ", async () => {
+Deno.test("with weights", async (t) => {
+  await t.step("single weight", async (t) => {
+    await t.step("returns the number of elements in the new set ", async () => {
       const destination = newKey();
       const key1 = newKey();
       const key2 = newKey();
       const score1 = 1;
-      const member1 = crypto.randomUUID();
+      const member1 = randomID();
       const score2 = 2;
-      const member2 = crypto.randomUUID();
+      const member2 = randomID();
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
         client,
@@ -164,15 +160,15 @@ describe("with weights", () => {
       assertEquals(res, 2);
     });
   });
-  describe("multiple weight", () => {
-    it("returns the number of elements in the new set ", async () => {
+  await t.step("multiple weight", async (t) => {
+    await t.step("returns the number of elements in the new set ", async () => {
       const destination = newKey();
       const key1 = newKey();
       const key2 = newKey();
       const score1 = 1;
-      const member1 = crypto.randomUUID();
+      const member1 = randomID();
       const score2 = 2;
-      const member2 = crypto.randomUUID();
+      const member2 = randomID();
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
         client,
@@ -188,16 +184,16 @@ describe("with weights", () => {
     });
   });
 });
-describe("aggregate", () => {
-  describe("sum", () => {
-    it("returns the number of elements in the new set ", async () => {
+Deno.test("aggregate", async (t) => {
+  await t.step("sum", async (t) => {
+    await t.step("returns the number of elements in the new set ", async () => {
       const destination = newKey();
       const key1 = newKey();
       const key2 = newKey();
       const score1 = 1;
-      const member1 = crypto.randomUUID();
+      const member1 = randomID();
       const score2 = 2;
-      const member2 = crypto.randomUUID();
+      const member2 = randomID();
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
         client,
@@ -212,15 +208,15 @@ describe("aggregate", () => {
       assertEquals(res, 2);
     });
   });
-  describe("min", () => {
-    it("returns the number of elements in the new set ", async () => {
+  await t.step("min", async (t) => {
+    await t.step("returns the number of elements in the new set ", async () => {
       const destination = newKey();
       const key1 = newKey();
       const key2 = newKey();
       const score1 = 1;
-      const member1 = crypto.randomUUID();
+      const member1 = randomID();
       const score2 = 2;
-      const member2 = crypto.randomUUID();
+      const member2 = randomID();
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
         client,
@@ -235,15 +231,15 @@ describe("aggregate", () => {
       assertEquals(res, 2);
     });
   });
-  describe("max", () => {
-    it("returns the number of elements in the new set ", async () => {
+  await t.step("max", async (t) => {
+    await t.step("returns the number of elements in the new set ", async () => {
       const destination = newKey();
       const key1 = newKey();
       const key2 = newKey();
       const score1 = 1;
-      const member1 = crypto.randomUUID();
+      const member1 = randomID();
       const score2 = 2;
-      const member2 = crypto.randomUUID();
+      const member2 = randomID();
 
       await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
         client,

@@ -1,14 +1,13 @@
 import { newHttpClient } from "../test-utils.ts";
-import { describe, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { FlushAllCommand } from "./flushall.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
 const client = newHttpClient();
 
-describe(
+Deno.test(
   "without options",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "flushes the db",
       async () => {
         const res = await new FlushAllCommand().exec(client);
@@ -17,10 +16,10 @@ describe(
     );
   },
 );
-describe(
+Deno.test(
   "async",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "flushes the db",
       async () => {
         const res = await new FlushAllCommand({ async: true }).exec(client);

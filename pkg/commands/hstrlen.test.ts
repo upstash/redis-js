@@ -1,6 +1,6 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
-import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
 import { HStrLenCommand } from "./hstrlen.ts";
@@ -10,12 +10,12 @@ const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
-it(
+Deno.test(
   "returns correct length",
   async () => {
     const key = newKey();
-    const field = crypto.randomUUID();
-    const value = crypto.randomUUID();
+    const field = randomID();
+    const value = randomID();
 
     const res = await new HStrLenCommand(key, field).exec(client);
     assertEquals(res, 0);
@@ -23,6 +23,6 @@ it(
 
     const res2 = await new HStrLenCommand(key, field).exec(client);
 
-    assertEquals(res2, 36);
+    assertEquals(res2, value.length);
   },
 );

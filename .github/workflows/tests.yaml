@@ -12,6 +12,10 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
       - uses: pnpm/action-setup@v2
         with:
           version: 6
@@ -22,6 +26,9 @@ jobs:
       - name: Verify formatting
         run: deno fmt --check
 
+      - name: Lint
+        run: deno lint
+
       - name: Start redis server
         uses: ./.github/actions/redis
         with:
@@ -31,7 +38,7 @@ jobs:
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Run tests
-        run: deno test -A --fail-fast ./pkg
+        run: deno test -A --fail-fast --shuffle ./pkg
         env:
           UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
@@ -125,7 +132,7 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-        
+
       - uses: pnpm/action-setup@v2
         with:
           version: 6
@@ -140,7 +147,6 @@ jobs:
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
           UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
-      
 
       - name: Install example
         run: |
@@ -155,7 +161,7 @@ jobs:
 
       - name: Start example
         # run: wrangler dev
-        run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} & 
+        run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
         working-directory: ./examples/cloudflare-service-worker
 
       - run: |

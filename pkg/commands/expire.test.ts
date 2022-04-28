@@ -1,7 +1,7 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
-import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { SetCommand } from "./set.ts";
 import { ExpireCommand } from "./expire.ts";
 import { GetCommand } from "./get.ts";
@@ -10,9 +10,9 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-it("expires a key correctly", async () => {
+Deno.test("expires a key correctly", async () => {
   const key = newKey();
-  const value = crypto.randomUUID();
+  const value = randomID();
   await new SetCommand(key, value).exec(client);
   const res = await new ExpireCommand(key, 1).exec(client);
   assertEquals(res, 1);

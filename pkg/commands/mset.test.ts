@@ -1,7 +1,7 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
-import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { MSetCommand } from "./mset.ts";
 import { MGetCommand } from "./mget.ts";
 
@@ -10,14 +10,14 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-it(
+Deno.test(
   "gets exiting values",
   async () => {
     const key1 = newKey();
     const key2 = newKey();
     const kv = {
-      [key1]: crypto.randomUUID(),
-      [key2]: crypto.randomUUID(),
+      [key1]: randomID(),
+      [key2]: randomID(),
     };
     const res = await new MSetCommand(kv).exec(client);
 

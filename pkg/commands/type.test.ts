@@ -1,11 +1,7 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
-import {
-  afterAll,
-  describe,
-  it,
-} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { SetCommand } from "./set.ts";
 import { TypeCommand } from "./type.ts";
 import { LPushCommand } from "./lpush.ts";
@@ -17,14 +13,14 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-describe(
+Deno.test(
   "string",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "returns the correct type",
       async () => {
         const key = newKey();
-        const value = crypto.randomUUID();
+        const value = randomID();
         await new SetCommand(key, value).exec(client);
         const res = await new TypeCommand(key).exec(client);
         assertEquals(res, "string");
@@ -33,14 +29,14 @@ describe(
   },
 );
 
-describe(
+Deno.test(
   "list",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "returns the correct type",
       async () => {
         const key = newKey();
-        const value = crypto.randomUUID();
+        const value = randomID();
         await new LPushCommand(key, value).exec(client);
         const res = await new TypeCommand(key).exec(client);
         assertEquals(res, "list");
@@ -49,14 +45,14 @@ describe(
   },
 );
 
-describe(
+Deno.test(
   "set",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "returns the correct type",
       async () => {
         const key = newKey();
-        const value = crypto.randomUUID();
+        const value = randomID();
         await new SAddCommand(key, value).exec(client);
         const res = await new TypeCommand(key).exec(client);
         assertEquals(res, "set");
@@ -65,15 +61,15 @@ describe(
   },
 );
 
-describe(
+Deno.test(
   "hash",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "returns the correct type",
       async () => {
         const key = newKey();
-        const field = crypto.randomUUID();
-        const value = crypto.randomUUID();
+        const field = randomID();
+        const value = randomID();
         await new HSetCommand(key, { [field]: value }).exec(client);
         const res = await new TypeCommand(key).exec(client);
         assertEquals(res, "hash");
@@ -82,14 +78,14 @@ describe(
   },
 );
 
-describe(
+Deno.test(
   "zset",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "returns the correct type",
       async () => {
         const key = newKey();
-        const member = crypto.randomUUID();
+        const member = randomID();
         await new ZAddCommand(key, { score: 0, member }).exec(client);
         const res = await new TypeCommand(key).exec(client);
         assertEquals(res, "zset");
@@ -98,10 +94,10 @@ describe(
   },
 );
 
-describe(
+Deno.test(
   "none",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "returns the correct type",
       async () => {
         const key = newKey();

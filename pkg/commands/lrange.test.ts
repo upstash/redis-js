@@ -1,7 +1,7 @@
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
-import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { RPushCommand } from "./rpush.ts";
 import { LRangeCommand } from "./lrange.ts";
 const client = newHttpClient();
@@ -9,13 +9,13 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-it(
+Deno.test(
   "returns the correct range",
   async () => {
     const key = newKey();
-    const value1 = crypto.randomUUID();
-    const value2 = crypto.randomUUID();
-    const value3 = crypto.randomUUID();
+    const value1 = randomID();
+    const value2 = randomID();
+    const value3 = randomID();
     await new RPushCommand(key, value1, value2, value3).exec(client);
     const res = await new LRangeCommand(key, 1, 2).exec(client);
     assertEquals(res!.length, 2);

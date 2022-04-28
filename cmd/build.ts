@@ -13,10 +13,7 @@ await build({
       name: "./nodejs",
       path: "./platforms/nodejs.ts",
     },
-    {
-      name: "./vercel",
-      path: "./platforms/vercel.ts",
-    },
+
     {
       name: "./cloudflare",
       path: "./platforms/cloudflare.ts",
@@ -28,11 +25,16 @@ await build({
   ],
   outDir,
   shims: {
+    deno: "dev",
+    crypto: "dev",
     custom: [
       {
         package: { name: "isomorphic-fetch", version: "3.0.0" },
         globalNames: [],
       },
+      /**
+       * Workaround for testing the build in nodejs
+       */
       {
         package: { name: "@types/node", version: "latest" },
         typesPackage: { name: "@types/node", version: "latest" },
@@ -41,7 +43,7 @@ await build({
     ],
   },
   typeCheck: true,
-  test: false,
+  test: typeof Deno.env.get("TEST") !== "undefined",
   package: {
     // package.json properties
     name: "@upstash/redis",
@@ -66,6 +68,7 @@ await build({
     },
     dependencies: {
       "isomorphic-fetch": "^3.0.0",
+      encoding: "latest",
     },
     devDependencies: {
       "size-limit": "latest",
@@ -84,6 +87,7 @@ await build({
         path: "esm/platforms/cloudflare.js",
         limit: "5 KB",
       },
+
       {
         path: "script/platforms/nodejs.js",
         limit: "10 KB",

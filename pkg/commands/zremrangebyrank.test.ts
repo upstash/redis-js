@@ -1,6 +1,6 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
-import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { ZAddCommand } from "./zadd.ts";
 import { ZRemRangeByRankCommand } from "./zremrangebyrank.ts";
 const client = newHttpClient();
@@ -8,16 +8,16 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-it(
+Deno.test(
   "returns the number of removed elements",
   async () => {
     const key = newKey();
     const score1 = 1;
-    const member1 = crypto.randomUUID();
+    const member1 = randomID();
     const score2 = 2;
-    const member2 = crypto.randomUUID();
+    const member2 = randomID();
     const score3 = 3;
-    const member3 = crypto.randomUUID();
+    const member3 = randomID();
     await new ZAddCommand(
       key,
       { score: score1, member: member1 },

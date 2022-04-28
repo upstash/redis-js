@@ -1,9 +1,5 @@
 import { keygen, newHttpClient } from "../test-utils.ts";
-import {
-  afterAll,
-  describe,
-  it,
-} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 import { HSetCommand } from "./hset.ts";
 import { HScanCommand } from "./hscan.ts";
@@ -11,10 +7,10 @@ const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
-describe(
+Deno.test(
   "without options",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "returns cursor and members",
       async () => {
         const key = newKey();
@@ -29,10 +25,10 @@ describe(
   },
 );
 
-describe(
+Deno.test(
   "with match",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "returns cursor and members",
       async () => {
         const key = newKey();
@@ -49,10 +45,10 @@ describe(
   },
 );
 
-describe(
+Deno.test(
   "with count",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "returns cursor and members",
       async () => {
         const key = newKey();

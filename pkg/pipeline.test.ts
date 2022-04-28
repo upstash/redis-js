@@ -1,16 +1,12 @@
 import { Pipeline } from "./pipeline.ts";
 import { Redis } from "./redis.ts";
-import { keygen, newHttpClient } from "./test-utils.ts";
+import { keygen, newHttpClient, randomID } from "./test-utils.ts";
 import {
   assertEquals,
   assertRejects,
 } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
-import {
-  afterEach,
-  describe,
-  it,
-} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterEach } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 
 import { ScriptLoadCommand } from "./commands/script_load.ts";
 
@@ -19,8 +15,8 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterEach(cleanup);
 
-describe("with destructuring", () => {
-  it("correctly binds this", async () => {
+Deno.test("with destructuring", async (t) => {
+  await t.step("correctly binds this", async () => {
     const { pipeline } = new Redis(client);
     const p = pipeline();
 
@@ -32,21 +28,21 @@ describe("with destructuring", () => {
   });
 });
 
-describe("with single command", () => {
-  it("works with multiple commands", async () => {
+Deno.test("with single command", async (t) => {
+  await t.step("works with multiple commands", async () => {
     const p = new Pipeline(client);
-    p.set(newKey(), crypto.randomUUID());
+    p.set(newKey(), randomID());
     const res = await p.exec();
     assertEquals(res.length, 1);
     assertEquals(res[0], "OK");
   });
 });
 
-describe("when chaining in a for loop", () => {
-  it("works", async () => {
+Deno.test("when chaining in a for loop", async (t) => {
+  await t.step("works", async () => {
     const key = newKey();
     const res = await new Pipeline(client)
-      .set(key, crypto.randomUUID())
+      .set(key, randomID())
       .get(key)
       .exec();
 
@@ -54,12 +50,12 @@ describe("when chaining in a for loop", () => {
   });
 });
 
-describe("when chaining inline", () => {
-  it("works", async () => {
+Deno.test("when chaining inline", async (t) => {
+  await t.step("works", async () => {
     const key = newKey();
     const p = new Pipeline(client);
     for (let i = 0; i < 10; i++) {
-      p.set(key, crypto.randomUUID());
+      p.set(key, randomID());
     }
 
     const res = await p.exec();
@@ -67,21 +63,21 @@ describe("when chaining inline", () => {
   });
 });
 
-describe("when no commands were added", () => {
-  it("throws", () => {
-    assertRejects(() => new Pipeline(client).exec());
+Deno.test("when no commands were added", async (t) => {
+  await t.step("throws", async () => {
+    await assertRejects(() => new Pipeline(client).exec());
   });
 });
 
-describe("when one command throws an error", () => {
-  it("throws", () => {
+Deno.test("when one command throws an error", async (t) => {
+  await t.step("throws", async () => {
     const p = new Pipeline(client).set("key", "value").hget("key", "field");
-    assertRejects(() => p.exec());
+    await assertRejects(() => p.exec());
   });
 });
 
-describe("use all the things", () => {
-  it("works", async () => {
+Deno.test("use all the things", async (t) => {
+  await t.step("works", async () => {
     const p = new Pipeline(client);
 
     const persistentKey = newKey();

@@ -2,19 +2,15 @@ import { BitOpCommand } from "./bitop.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
 import { keygen, newHttpClient } from "../test-utils.ts";
-import {
-  afterAll,
-  describe,
-  it,
-} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { SetCommand } from "./set.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-describe("when key is not set", () => {
-  it("returns 0", async () => {
+Deno.test("when key is not set", async (t) => {
+  await t.step("returns 0", async () => {
     const source = newKey();
     const dest = newKey();
     const res = await new BitOpCommand("and", dest, source).exec(client);
@@ -22,9 +18,9 @@ describe("when key is not set", () => {
   });
 });
 
-describe("when key is set", () => {
-  describe("not", () => {
-    it("inverts all bits", async () => {
+Deno.test("when key is set", async (t) => {
+  await t.step("not", async (t) => {
+    await t.step("inverts all bits", async () => {
       const source = newKey();
       const sourcevalue = "Hello World";
       const dest = newKey();
@@ -35,8 +31,8 @@ describe("when key is set", () => {
       assertEquals(res, 11);
     });
   });
-  describe("and", () => {
-    it("works", async () => {
+  await t.step("and", async (t) => {
+    await t.step("works", async () => {
       const source = newKey();
       const sourcevalue = "Hello World";
       const dest = newKey();

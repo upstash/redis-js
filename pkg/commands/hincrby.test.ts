@@ -1,6 +1,6 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
-import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 
 import { HSetCommand } from "./hset.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
@@ -11,17 +11,17 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-it("increments a non-existing value", async () => {
+Deno.test("increments a non-existing value", async () => {
   const key = newKey();
-  const field = crypto.randomUUID();
+  const field = randomID();
   const res = await new HIncrByCommand(key, field, 2).exec(client);
 
   assertEquals(res, 2);
 });
 
-it("increments and existing value", async () => {
+Deno.test("increments and existing value", async () => {
   const key = newKey();
-  const field = crypto.randomUUID();
+  const field = randomID();
   await new HSetCommand(key, { [field]: 5 }).exec(client);
   const res = await new HIncrByCommand(key, field, 2).exec(client);
 

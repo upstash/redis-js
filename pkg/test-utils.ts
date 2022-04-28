@@ -2,6 +2,19 @@ import { DelCommand } from "./commands/del.ts";
 import { HttpClient } from "./http.ts";
 import { NonEmptyArray } from "./types.ts";
 
+/**
+ * crypto.randomUUID() is not available in dnt crypto shim
+ */
+export function randomID(): string {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+
+  const s: string[] = [];
+  for (let i = 0; i < bytes.byteLength; i++) {
+    s.push(String.fromCharCode(bytes[i]));
+  }
+  return btoa(s.join(""));
+}
 export const newHttpClient = () => {
   const url = Deno.env.get("UPSTASH_REDIS_REST_URL");
   if (!url) {
@@ -25,7 +38,7 @@ export function keygen(): {
   const keys: string[] = [];
   return {
     newKey: () => {
-      const key = crypto.randomUUID();
+      const key = randomID();
       keys.push(key);
       return key;
     },

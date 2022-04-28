@@ -14,6 +14,10 @@ await build({
       path: "./platforms/nodejs.ts",
     },
     {
+      name: "./vercel",
+      path: "./platforms/vercel.ts",
+    },
+    {
       name: "./cloudflare",
       path: "./platforms/cloudflare.ts",
     },

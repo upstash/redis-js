@@ -13,10 +13,7 @@ await build({
       name: "./nodejs",
       path: "./platforms/nodejs.ts",
     },
-    {
-      name: "./vercel",
-      path: "./platforms/vercel.ts",
-    },
+
     {
       name: "./cloudflare",
       path: "./platforms/cloudflare.ts",
@@ -66,6 +63,7 @@ await build({
     },
     dependencies: {
       "isomorphic-fetch": "^3.0.0",
+      encoding: "latest",
     },
     devDependencies: {
       "size-limit": "latest",
@@ -84,6 +82,7 @@ await build({
         path: "esm/platforms/cloudflare.js",
         limit: "5 KB",
       },
+
       {
         path: "script/platforms/nodejs.js",
         limit: "10 KB",

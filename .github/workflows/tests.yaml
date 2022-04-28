@@ -21,6 +21,9 @@ jobs:
 
       - name: Verify formatting
         run: deno fmt --check
+        
+      - name: Lint
+        run: deno lint
 
       - name: Start redis server
         uses: ./.github/actions/redis

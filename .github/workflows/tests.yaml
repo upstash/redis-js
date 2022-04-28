@@ -43,13 +43,8 @@ jobs:
           UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
 
-
       - name: Build
         run: deno run -A ./cmd/build.ts
-        env:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-          TEST: true
 
       - name: Size limit
         run: node_modules/.bin/size-limit
@@ -137,7 +132,7 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-        
+
       - uses: pnpm/action-setup@v2
         with:
           version: 6
@@ -152,7 +147,6 @@ jobs:
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
           UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
-      
 
       - name: Install example
         run: |
@@ -167,7 +161,7 @@ jobs:
 
       - name: Start example
         # run: wrangler dev
-        run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} & 
+        run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
         working-directory: ./examples/cloudflare-service-worker
 
       - run: |

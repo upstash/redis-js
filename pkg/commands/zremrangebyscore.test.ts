@@ -1,7 +1,7 @@
 import { keygen, newHttpClient } from "../test-utils.ts";
 
 import { ZAddCommand } from "./zadd.ts";
-import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { ZRemRangeByScoreCommand } from "./zremrangebyscore.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
@@ -9,8 +9,7 @@ const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
-
-it(
+Deno.test(
   "returns the number of removed elements",
   async () => {
     const key = newKey();

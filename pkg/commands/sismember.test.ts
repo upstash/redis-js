@@ -4,18 +4,14 @@ import { SAddCommand } from "./sadd.ts";
 import { SIsMemberCommand } from "./sismember.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
-import {
-  afterAll,
-  describe,
-  it,
-} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-describe("when member exists", () => {
-  it("returns 1", async () => {
+Deno.test("when member exists", async (t) => {
+  await t.step("returns 1", async () => {
     const key = newKey();
     const value = crypto.randomUUID();
     await new SAddCommand(key, value).exec(client);
@@ -24,8 +20,8 @@ describe("when member exists", () => {
   });
 });
 
-describe("when member exists", () => {
-  it("returns 1", async () => {
+Deno.test("when member exists", async (t) => {
+  await t.step("returns 1", async () => {
     const key = newKey();
     const value1 = crypto.randomUUID();
     const value2 = crypto.randomUUID();

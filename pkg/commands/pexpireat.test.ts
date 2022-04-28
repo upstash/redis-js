@@ -4,19 +4,15 @@ import { PExpireAtCommand } from "./pexpireat.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
 import { SetCommand } from "./set.ts";
-import {
-  afterAll,
-  describe,
-  it,
-} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-describe("without options", () => {
-  it("expires the key", async () => {
+Deno.test("without options", async (t) => {
+  await t.step("expires the key", async () => {
     const key = newKey();
     const value = crypto.randomUUID();
     await new SetCommand(key, value).exec(client);

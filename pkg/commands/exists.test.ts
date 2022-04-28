@@ -2,11 +2,7 @@ import { keygen, newHttpClient } from "../test-utils.ts";
 import { ExistsCommand } from "./exists.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
-import {
-  afterAll,
-  describe,
-  it,
-} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { SetCommand } from "./set.ts";
 
 const client = newHttpClient();
@@ -14,24 +10,24 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-describe("when the key does not eist", () => {
-  it("it returns 1", async () => {
+Deno.test("when the key does not eist", async (t) => {
+  await t.step("it returns 1", async () => {
     const key = newKey();
 
     const res = await new ExistsCommand(key).exec(client);
     assertEquals(res, 0);
   });
 });
-describe("when the key exists", () => {
-  it("it returns 1", async () => {
+Deno.test("when the key exists", async (t) => {
+  await t.step("it returns 1", async () => {
     const key = newKey();
     await new SetCommand(key, "value").exec(client);
     const res = await new ExistsCommand(key).exec(client);
     assertEquals(res, 1);
   });
 });
-describe("with multiple keys", () => {
-  it("it returns the number of found keys", async () => {
+Deno.test("with multiple keys", async (t) => {
+  await t.step("it returns the number of found keys", async () => {
     const key1 = newKey();
     const key2 = newKey();
     const key3 = newKey();

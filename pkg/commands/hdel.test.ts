@@ -1,6 +1,6 @@
 import { keygen, newHttpClient } from "../test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
-import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { HDelCommand } from "./hdel.ts";
 import { HSetCommand } from "./hset.ts";
 import { HGetCommand } from "./hget.ts";
@@ -9,7 +9,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-it(
+Deno.test(
   "deletes a hash that does not exist",
   async () => {
     const key = newKey();
@@ -20,7 +20,7 @@ it(
   },
 );
 
-it(
+Deno.test(
   "deletes a field that exists",
   async () => {
     const key = newKey();

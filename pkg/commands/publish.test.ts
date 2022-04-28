@@ -1,11 +1,10 @@
 import { newHttpClient } from "../test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 import { PublishCommand } from "./publish.ts";
-import { it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 
 const client = newHttpClient();
 
-it("returns the number of clients that received the message", async () => {
+Deno.test("returns the number of clients that received the message", async () => {
   const res = await new PublishCommand("channel", "hello").exec(client);
 
   assertEquals(typeof res, "number");

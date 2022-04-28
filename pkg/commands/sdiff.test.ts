@@ -1,7 +1,7 @@
 import { keygen, newHttpClient } from "../test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
-import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { SAddCommand } from "./sadd.ts";
 import { SDiffCommand } from "./sdiff.ts";
 const client = newHttpClient();
@@ -9,7 +9,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-it(
+Deno.test(
   "returns the diff",
   async () => {
     const key1 = newKey();

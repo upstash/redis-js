@@ -1,11 +1,7 @@
 import { keygen, newHttpClient } from "../test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
-import {
-  afterAll,
-  describe,
-  it,
-} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { ZAddCommand } from "./zadd.ts";
 import { ZRangeCommand } from "./zrange.ts";
 const client = newHttpClient();
@@ -13,8 +9,8 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-describe("without options", () => {
-  it("returns the set", async () => {
+Deno.test("without options", async (t) => {
+  await t.step("returns the set", async () => {
     const key = newKey();
     const score1 = 2;
     const member1 = crypto.randomUUID();
@@ -34,8 +30,8 @@ describe("without options", () => {
   });
 });
 
-describe("withscores", () => {
-  it("returns the set", async () => {
+Deno.test("withscores", async (t) => {
+  await t.step("returns the set", async () => {
     const key = newKey();
     const score1 = 2;
     const member1 = crypto.randomUUID();
@@ -58,8 +54,8 @@ describe("withscores", () => {
   });
 });
 
-describe("byscore", () => {
-  it("returns the set", async () => {
+Deno.test("byscore", async (t) => {
+  await t.step("returns the set", async () => {
     const key = newKey();
     const score1 = 1;
     const member1 = crypto.randomUUID();
@@ -100,8 +96,8 @@ describe("byscore", () => {
   });
 });
 
-describe("bylex", () => {
-  it("returns the set", async () => {
+Deno.test("bylex", async (t) => {
+  await t.step("returns the set", async () => {
     const key = newKey();
 
     await new ZAddCommand(

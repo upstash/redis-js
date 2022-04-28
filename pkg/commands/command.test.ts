@@ -2,19 +2,15 @@ import { Command } from "./command.ts";
 import { keygen, newHttpClient } from "../test-utils.ts";
 
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
-import {
-  afterAll,
-  describe,
-  it,
-} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-describe("deserialize large numbers", () => {
-  it("returns the correct number", async () => {
+Deno.test("deserialize large numbers", async (t) => {
+  await t.step("returns the correct number", async () => {
     const key = newKey();
     const field = crypto.randomUUID();
     const value = "101600000000150081467";

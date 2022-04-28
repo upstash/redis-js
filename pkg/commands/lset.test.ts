@@ -1,10 +1,6 @@
 import { keygen, newHttpClient } from "../test-utils.ts";
 
-import {
-  afterAll,
-  describe,
-  it,
-} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { LPushCommand } from "./lpush.ts";
 import { LSetCommand } from "./lset.ts";
 import { LPopCommand } from "./lpop.ts";
@@ -18,9 +14,9 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-describe("when list exists", () => {
-  describe("when the index is in range", () => {
-    it("replaces the element at index", async () => {
+Deno.test("when list exists", async (t) => {
+  await t.step("when the index is in range", async (t) => {
+    await t.step("replaces the element at index", async () => {
       const key = newKey();
 
       const value = crypto.randomUUID();
@@ -33,8 +29,8 @@ describe("when list exists", () => {
 
       assertEquals(res2, newValue);
     });
-    describe("when the index is out of bounds", () => {
-      it("returns null", async () => {
+    await t.step("when the index is out of bounds", async (t) => {
+      await t.step("returns null", async () => {
         const key = newKey();
 
         const value = crypto.randomUUID();

@@ -1,7 +1,7 @@
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 import { keygen, newHttpClient } from "../test-utils.ts";
 
-import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { RPushCommand } from "./rpush.ts";
 import { LRangeCommand } from "./lrange.ts";
 const client = newHttpClient();
@@ -9,7 +9,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-it(
+Deno.test(
   "returns the correct range",
   async () => {
     const key = newKey();

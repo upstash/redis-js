@@ -1,5 +1,5 @@
 import { keygen, newHttpClient } from "../test-utils.ts";
-import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { SetCommand } from "./set.ts";
 import { SetRangeCommand } from "./setrange.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
@@ -10,8 +10,7 @@ const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
-
-it("sets value", async () => {
+Deno.test("sets value", async () => {
   const key = newKey();
   const value = "originalValue";
 

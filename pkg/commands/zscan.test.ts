@@ -1,18 +1,14 @@
 import { keygen, newHttpClient } from "../test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
-import {
-  afterAll,
-  describe,
-  it,
-} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { ZAddCommand } from "./zadd.ts";
 import { ZScanCommand } from "./zscan.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
-describe("without options", () => {
-  it("returns cursor and members", async () => {
+Deno.test("without options", async (t) => {
+  await t.step("returns cursor and members", async () => {
     const key = newKey();
     const value = crypto.randomUUID();
     await new ZAddCommand(key, { score: 0, member: value }).exec(client);
@@ -24,8 +20,8 @@ describe("without options", () => {
   });
 });
 
-describe("with match", () => {
-  it("returns cursor and members", async () => {
+Deno.test("with match", async (t) => {
+  await t.step("returns cursor and members", async () => {
     const key = newKey();
     const value = crypto.randomUUID();
     await new ZAddCommand(key, { score: 0, member: value }).exec(client);
@@ -37,8 +33,8 @@ describe("with match", () => {
   });
 });
 
-describe("with count", () => {
-  it("returns cursor and members", async () => {
+Deno.test("with count", async (t) => {
+  await t.step("returns cursor and members", async () => {
     const key = newKey();
     const value = crypto.randomUUID();
     await new ZAddCommand(key, { score: 0, member: value }).exec(client);

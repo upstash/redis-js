@@ -1,11 +1,7 @@
 import { keygen, newHttpClient } from "../test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
-import {
-  afterAll,
-  describe,
-  it,
-} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { SetCommand } from "./set.ts";
 import { TypeCommand } from "./type.ts";
 import { LPushCommand } from "./lpush.ts";
@@ -17,10 +13,10 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-describe(
+Deno.test(
   "string",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "returns the correct type",
       async () => {
         const key = newKey();
@@ -33,10 +29,10 @@ describe(
   },
 );
 
-describe(
+Deno.test(
   "list",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "returns the correct type",
       async () => {
         const key = newKey();
@@ -49,10 +45,10 @@ describe(
   },
 );
 
-describe(
+Deno.test(
   "set",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "returns the correct type",
       async () => {
         const key = newKey();
@@ -65,10 +61,10 @@ describe(
   },
 );
 
-describe(
+Deno.test(
   "hash",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "returns the correct type",
       async () => {
         const key = newKey();
@@ -82,10 +78,10 @@ describe(
   },
 );
 
-describe(
+Deno.test(
   "zset",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "returns the correct type",
       async () => {
         const key = newKey();
@@ -98,10 +94,10 @@ describe(
   },
 );
 
-describe(
+Deno.test(
   "none",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "returns the correct type",
       async () => {
         const key = newKey();

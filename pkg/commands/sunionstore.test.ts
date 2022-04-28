@@ -1,6 +1,6 @@
 import { keygen, newHttpClient } from "../test-utils.ts";
 
-import { afterAll, it } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { SAddCommand } from "./sadd.ts";
 import {
   assertEquals,
@@ -14,7 +14,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-it("writes the union to destination", async () => {
+Deno.test("writes the union to destination", async () => {
   const key1 = newKey();
   const key2 = newKey();
   const dest = newKey();

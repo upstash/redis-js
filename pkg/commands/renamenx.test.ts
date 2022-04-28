@@ -1,10 +1,6 @@
 import { keygen, newHttpClient } from "../test-utils.ts";
 
-import {
-  afterAll,
-  describe,
-  it,
-} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { SetCommand } from "./set.ts";
 import { RenameNXCommand } from "./renamenx.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
@@ -14,8 +10,8 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-describe("when the key exists", () => {
-  it("does nothing", async () => {
+Deno.test("when the key exists", async (t) => {
+  await t.step("does nothing", async () => {
     const source = newKey();
     const destination = newKey();
     const sourceValue = crypto.randomUUID();
@@ -26,8 +22,8 @@ describe("when the key exists", () => {
     assertEquals(res, 0);
   });
 });
-describe("when the key does not exist", () => {
-  it("renames the key", async () => {
+Deno.test("when the key does not exist", async (t) => {
+  await t.step("renames the key", async () => {
     const source = newKey();
     const destination = newKey();
     const value = crypto.randomUUID();

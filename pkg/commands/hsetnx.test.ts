@@ -1,11 +1,7 @@
 import { keygen, newHttpClient } from "../test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
-import {
-  afterAll,
-  describe,
-  it,
-} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { HSetCommand } from "./hset.ts";
 import { HGetCommand } from "./hget.ts";
 import { HSetNXCommand } from "./hsetnx.ts";
@@ -14,10 +10,10 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-describe(
+Deno.test(
   "when hash exists already",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "returns 0",
       async () => {
         const key = newKey();
@@ -34,10 +30,10 @@ describe(
     );
   },
 );
-describe(
+Deno.test(
   "when hash does not exist",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "returns 1",
       async () => {
         const key = newKey();

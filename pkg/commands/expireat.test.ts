@@ -1,10 +1,6 @@
 import { keygen, newHttpClient } from "../test-utils.ts";
 
-import {
-  afterAll,
-  describe,
-  it,
-} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { SetCommand } from "./set.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 import { GetCommand } from "./get.ts";
@@ -14,10 +10,10 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-describe(
+Deno.test(
   "without options",
-  () => {
-    it(
+  async (t) => {
+    await t.step(
       "expires the key",
       async () => {
         const key = newKey();

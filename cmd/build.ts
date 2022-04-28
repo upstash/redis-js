@@ -25,6 +25,7 @@ await build({
   ],
   outDir,
   shims: {
+    deno: "dev",
     custom: [
       {
         package: { name: "isomorphic-fetch", version: "3.0.0" },
@@ -38,7 +39,7 @@ await build({
     ],
   },
   typeCheck: true,
-  test: true,
+  test: typeof Deno.env.get("CI") !== "undefined",
   package: {
     // package.json properties
     name: "@upstash/redis",

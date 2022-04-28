@@ -21,7 +21,7 @@ jobs:
 
       - name: Verify formatting
         run: deno fmt --check
-        
+
       - name: Lint
         run: deno lint
 
@@ -34,13 +34,17 @@ jobs:
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Run tests
-        run: deno test -A --fail-fast ./pkg
+        run: deno test -A --fail-fast --shuffle ./pkg
         env:
           UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
 
+
       - name: Build
         run: deno run -A ./cmd/build.ts
+        env:
+          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
 
       - name: Size limit
         run: node_modules/.bin/size-limit

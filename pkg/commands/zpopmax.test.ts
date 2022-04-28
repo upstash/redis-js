@@ -1,11 +1,7 @@
 import { keygen, newHttpClient } from "../test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
 
-import {
-  afterAll,
-  describe,
-  it,
-} from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
 import { ZAddCommand } from "./zadd.ts";
 import { ZPopMaxCommand } from "./zpopmax.ts";
 
@@ -14,8 +10,8 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-describe("without options", () => {
-  it("returns the max", async () => {
+Deno.test("without options", async (t) => {
+  await t.step("returns the max", async () => {
     const key = newKey();
     const score1 = 1;
     const member1 = crypto.randomUUID();
@@ -33,8 +29,8 @@ describe("without options", () => {
   });
 });
 
-describe("with count", () => {
-  it("returns the n max members", async () => {
+Deno.test("with count", async (t) => {
+  await t.step("returns the n max members", async () => {
     const key = newKey();
     const score1 = 1;
     const member1 = crypto.randomUUID();

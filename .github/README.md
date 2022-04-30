@@ -76,7 +76,7 @@ const redis = new Redis({
 const redis = Redis.fromEnv()
 ```
 
-- [Code example](https://github.com/upstash/upstash-redis/tree/main/examples/node)
+- [Code example](https://github.com/upstash/upstash-redis/blob/main/examples/nodejs)
 
 #### Cloudflare Workers
 

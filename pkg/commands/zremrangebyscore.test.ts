@@ -16,13 +16,13 @@ Deno.test(
     const member1 = randomID();
     const member2 = randomID();
     const member3 = randomID();
-    await new ZAddCommand(
+    await new ZAddCommand([
       key,
       { score: 1, member: member1 },
       { score: 2, member: member2 },
       { score: 3, member: member3 },
-    ).exec(client);
-    const res = await new ZRemRangeByScoreCommand(key, 1, 2).exec(client);
+    ]).exec(client);
+    const res = await new ZRemRangeByScoreCommand([key, 1, 2]).exec(client);
     assertEquals(res, 2);
   },
 );

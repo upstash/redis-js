@@ -10,15 +10,15 @@ const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 Deno.test("decrements a non-existing value", async () => {
   const key = newKey();
-  const res = await new DecrCommand(key).exec(client);
+  const res = await new DecrCommand([key]).exec(client);
 
   assertEquals(res, -1);
 });
 
 Deno.test("decrements and existing value", async () => {
   const key = newKey();
-  await new SetCommand(key, 4).exec(client);
-  const res = await new DecrCommand(key).exec(client);
+  await new SetCommand([key, 4]).exec(client);
+  const res = await new DecrCommand([key]).exec(client);
 
   assertEquals(res, 3);
 });

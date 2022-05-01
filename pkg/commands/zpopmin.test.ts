@@ -19,13 +19,13 @@ Deno.test("without options", async (t) => {
     const member2 = randomID();
     const score3 = 3;
     const member3 = randomID();
-    await new ZAddCommand(
+    await new ZAddCommand([
       key,
       { score: score1, member: member1 },
       { score: score2, member: member2 },
       { score: score3, member: member3 },
-    ).exec(client);
-    const res = await new ZPopMinCommand(key).exec(client);
+    ]).exec(client);
+    const res = await new ZPopMinCommand([key]).exec(client);
     assertEquals(res, [member1, score1]);
   });
 });
@@ -39,13 +39,13 @@ Deno.test("with count", async (t) => {
     const member2 = randomID();
     const score3 = 3;
     const member3 = randomID();
-    await new ZAddCommand(
+    await new ZAddCommand([
       key,
       { score: score1, member: member1 },
       { score: score2, member: member2 },
       { score: score3, member: member3 },
-    ).exec(client);
-    const res = await new ZPopMinCommand(key, 2).exec(client);
+    ]).exec(client);
+    const res = await new ZPopMinCommand([key, 2]).exec(client);
     assertEquals(res, [member1, score1, member2, score2]);
   });
 });

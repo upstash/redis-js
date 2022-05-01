@@ -21,8 +21,8 @@ Deno.test(
           [randomID()]: randomID(),
           [randomID()]: randomID(),
         };
-        await new HMSetCommand(key, kv).exec(client);
-        const res = await new HKeysCommand(key).exec(client);
+        await new HMSetCommand([key, kv]).exec(client);
+        const res = await new HKeysCommand([key]).exec(client);
         assertEquals(res.sort(), Object.keys(kv).sort());
       },
     );

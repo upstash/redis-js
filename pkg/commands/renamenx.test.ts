@@ -16,9 +16,9 @@ Deno.test("when the key exists", async (t) => {
     const destination = newKey();
     const sourceValue = randomID();
     const destinationValue = randomID();
-    await new SetCommand(source, sourceValue).exec(client);
-    await new SetCommand(destination, destinationValue).exec(client);
-    const res = await new RenameNXCommand(source, destination).exec(client);
+    await new SetCommand([source, sourceValue]).exec(client);
+    await new SetCommand([destination, destinationValue]).exec(client);
+    const res = await new RenameNXCommand([source, destination]).exec(client);
     assertEquals(res, 0);
   });
 });
@@ -27,8 +27,8 @@ Deno.test("when the key does not exist", async (t) => {
     const source = newKey();
     const destination = newKey();
     const value = randomID();
-    await new SetCommand(source, value).exec(client);
-    const res = await new RenameNXCommand(source, destination).exec(client);
+    await new SetCommand([source, value]).exec(client);
+    const res = await new RenameNXCommand([source, destination]).exec(client);
     assertEquals(res, 1);
   });
 });

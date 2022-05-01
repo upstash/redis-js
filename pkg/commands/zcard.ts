@@ -1,10 +1,10 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 /**
  * @see https://redis.io/commands/zcard
  */
 export class ZCardCommand extends Command<number, number> {
-  constructor(key: string) {
-    super(["zcard", key]);
+  constructor(cmd: [key: string], opts?: CommandOptions<number, number>) {
+    super(["zcard", ...cmd], opts);
   }
 }

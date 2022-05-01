@@ -12,7 +12,7 @@ Deno.test("when key is not set", async (t) => {
   await await t.step("appends to empty value", async () => {
     const key = newKey();
     const value = randomID();
-    const res = await new AppendCommand(key, value).exec(client);
+    const res = await new AppendCommand([key, value]).exec(client);
     assertEquals(res, value.length);
   });
 });
@@ -21,9 +21,9 @@ Deno.test("when key is set", async (t) => {
   await await t.step("appends to existing value", async () => {
     const key = newKey();
     const value = randomID();
-    const res = await new AppendCommand(key, value).exec(client);
+    const res = await new AppendCommand([key, value]).exec(client);
     assertEquals(res, value.length);
-    const res2 = await new AppendCommand(key, "_").exec(client);
+    const res2 = await new AppendCommand([key, "_"]).exec(client);
     assertEquals(res2, value.length + 1);
   });
 });

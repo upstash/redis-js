@@ -12,15 +12,15 @@ afterAll(cleanup);
 
 Deno.test("increments a non-existing value", async () => {
   const key = newKey();
-  const res = await new IncrByFloatCommand(key, 2.5).exec(client);
+  const res = await new IncrByFloatCommand([key, 2.5]).exec(client);
 
   assertEquals(res, 2.5);
 });
 
 Deno.test("increments and existing value", async () => {
   const key = newKey();
-  await new SetCommand(key, 5).exec(client);
-  const res = await new IncrByFloatCommand(key, 2.5).exec(client);
+  await new SetCommand([key, 5]).exec(client);
+  const res = await new IncrByFloatCommand([key, 2.5]).exec(client);
 
   assertEquals(res, 7.5);
 });

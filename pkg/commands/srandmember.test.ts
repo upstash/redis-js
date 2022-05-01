@@ -14,8 +14,8 @@ Deno.test("without opts", async (t) => {
   await t.step("returns a random key", async () => {
     const key = newKey();
     const member = randomID();
-    await new SAddCommand(key, member).exec(client);
-    const res = await new SRandMemberCommand(key).exec(client);
+    await new SAddCommand([key, member]).exec(client);
+    const res = await new SRandMemberCommand([key]).exec(client);
     assertEquals(res, member);
   });
 });
@@ -25,8 +25,8 @@ Deno.test("with count", async (t) => {
     const key = newKey();
     const member1 = randomID();
     const member2 = randomID();
-    await new SAddCommand(key, member1, member2).exec(client);
-    const res = await new SRandMemberCommand<unknown[]>(key, 2).exec(client);
+    await new SAddCommand([key, member1, member2]).exec(client);
+    const res = await new SRandMemberCommand<unknown[]>([key, 2]).exec(client);
     assertEquals(res?.length, 2);
   });
 });

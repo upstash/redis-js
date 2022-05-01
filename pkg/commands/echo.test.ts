@@ -6,6 +6,6 @@ const client = newHttpClient();
 
 Deno.test("returns the message", async () => {
   const message = randomID();
-  const res = await new EchoCommand(message).exec(client);
+  const res = await new EchoCommand([message]).exec(client);
   assertEquals(res, message);
 });

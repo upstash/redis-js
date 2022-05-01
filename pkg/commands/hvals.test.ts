@@ -14,11 +14,11 @@ Deno.test("returns correct length", async () => {
   const field = randomID();
   const value = randomID();
 
-  const res = await new HValsCommand(key).exec(client);
+  const res = await new HValsCommand([key]).exec(client);
   assertEquals(res, []);
-  await new HSetCommand(key, { [field]: value }).exec(client);
+  await new HSetCommand([key, { [field]: value }]).exec(client);
 
-  const res2 = await new HValsCommand(key).exec(client);
+  const res2 = await new HValsCommand([key]).exec(client);
 
   assertEquals(res2, [value]);
 });

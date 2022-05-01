@@ -15,11 +15,11 @@ Deno.test(
   async () => {
     const key = newKey();
     const value = randomID();
-    await new SetCommand(key, value, { ex: 2 }).exec(client);
-    const res = await new PersistCommand(key).exec(client);
+    await new SetCommand([key, value, { ex: 2 }]).exec(client);
+    const res = await new PersistCommand([key]).exec(client);
     assertEquals(res, 1);
     await new Promise((resolve) => setTimeout(resolve, 2000));
-    const res2 = await new GetCommand(key).exec(client);
+    const res2 = await new GetCommand([key]).exec(client);
 
     assertEquals(res2, value);
   },

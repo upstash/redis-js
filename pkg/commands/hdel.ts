@@ -1,10 +1,13 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 /**
  * @see https://redis.io/commands/hdel
  */
-export class HDelCommand extends Command<0 | 1, "0" | "1"> {
-  constructor(key: string, field: string) {
-    super(["hdel", key, field]);
+export class HDelCommand extends Command<"0" | "1", 0 | 1> {
+  constructor(
+    cmd: [key: string, field: string],
+    opts?: CommandOptions<"0" | "1", 0 | 1>,
+  ) {
+    super(["hdel", ...cmd], opts);
   }
 }

@@ -11,7 +11,7 @@ Deno.test(
       "returns the message",
       async () => {
         const message = randomID();
-        const res = await new PingCommand(message).exec(client);
+        const res = await new PingCommand([message]).exec(client);
         assertEquals(res, message);
       },
     );
@@ -23,7 +23,7 @@ Deno.test(
     await t.step(
       "returns pong",
       async () => {
-        const res = await new PingCommand().exec(client);
+        const res = await new PingCommand([]).exec(client);
         assertEquals(res, "PONG");
       },
     );

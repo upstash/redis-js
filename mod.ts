@@ -14,7 +14,7 @@ export type RedisConfigDeno = {
    * UPSTASH_REDIS_REST_TOKEN
    */
   token: string;
-};
+} & core.RedisOptions;
 
 /**
  * Serverless redis client for upstash.
@@ -37,7 +37,9 @@ export class Redis extends core.Redis {
       headers: { authorization: `Bearer ${config.token}` },
     });
 
-    super(client);
+    super(client, {
+      automaticDeserialization: config.automaticDeserialization,
+    });
   }
 
   /*
@@ -45,7 +47,7 @@ export class Redis extends core.Redis {
 
    *
    */
-  static fromEnv(): Redis {
+  static fromEnv(opts?: core.RedisOptions): Redis {
     /**
      * These should be injected by Deno.
      */
@@ -63,6 +65,6 @@ export class Redis extends core.Redis {
         "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`.",
       );
     }
-    return new Redis({ url, token });
+    return new Redis({ url, token, ...opts });
   }
 }

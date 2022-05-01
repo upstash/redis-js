@@ -1,10 +1,13 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 /**
  * @see https://redis.io/commands/hstrlen
  */
 export class HStrLenCommand extends Command<number, number> {
-  constructor(key: string, field: string) {
-    super(["hstrlen", key, field]);
+  constructor(
+    cmd: [key: string, field: string],
+    opts?: CommandOptions<number, number>,
+  ) {
+    super(["hstrlen", ...cmd], opts);
   }
 }

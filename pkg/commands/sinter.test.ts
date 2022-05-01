@@ -15,8 +15,8 @@ Deno.test("with single set", async (t) => {
     const key = newKey();
     const value1 = { v: randomID() };
     const value2 = { v: randomID() };
-    await new SAddCommand(key, value1, value2).exec(client);
-    const res = await new SInterCommand<{ v: string }>(key).exec(client);
+    await new SAddCommand([key, value1, value2]).exec(client);
+    const res = await new SInterCommand<{ v: string }>([key]).exec(client);
     assertEquals(res.length, 2);
     assertEquals(res.map(({ v }) => v).includes(value1.v), true);
     assertEquals(res.map(({ v }) => v).includes(value2.v), true);
@@ -30,9 +30,9 @@ Deno.test("with multiple sets", async (t) => {
     const value1 = { v: randomID() };
     const value2 = { v: randomID() };
     const value3 = { v: randomID() };
-    await new SAddCommand(key1, value1, value2).exec(client);
-    await new SAddCommand(key2, value2, value3).exec(client);
-    const res = await new SInterCommand(key1, key2).exec(client);
+    await new SAddCommand([key1, value1, value2]).exec(client);
+    await new SAddCommand([key2, value2, value3]).exec(client);
+    const res = await new SInterCommand([key1, key2]).exec(client);
     assertEquals(res, [value2]);
   });
 });

@@ -1,11 +1,14 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 export class LInsertCommand<TData = string> extends Command<number, number> {
   constructor(
-    key: string,
-    direction: "before" | "after",
-    pivot: TData,
-    value: TData,
+    cmd: [
+      key: string,
+      direction: "before" | "after",
+      pivot: TData,
+      value: TData,
+    ],
+    opts?: CommandOptions<number, number>,
   ) {
-    super(["linsert", key, direction, pivot, value]);
+    super(["linsert", ...cmd], opts);
   }
 }

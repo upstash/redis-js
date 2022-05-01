@@ -3,6 +3,7 @@ import {
   BitCountCommand,
   BitOpCommand,
   BitPosCommand,
+  CommandOptions,
   DBSizeCommand,
   DecrByCommand,
   DecrCommand,
@@ -101,7 +102,7 @@ import {
   ZAddCommandOptionsWithIncr,
   ZCardCommand,
   ZCountCommand,
-  ZIncrByComand,
+  ZIncrByCommand,
   ZInterStoreCommand,
   ZLexCountCommand,
   ZPopMaxCommand,
@@ -120,19 +121,15 @@ import {
 } from "./commands/mod.ts";
 import { Requester } from "./http.ts";
 import { Pipeline } from "./pipeline.ts";
-import type { CommandArgs, NonEmptyArray } from "./types.ts";
+import type { CommandArgs } from "./types.ts";
 
-export type RedisConfig = {
+export type RedisOptions = {
   /**
-   * If you want to handle (de)serialization yourself and disable the automatic `JSON.stringify`
-   * and `JSON.parse` serialization.
+   * Automatically try to deserialize the returned data from upstash using `JSON.deserialize`
    *
-   * @experimental This flag is subject to change!!!
-   *
-   * Disabling automatic deserialization can cause type errors.
-   * Please report them here: https://github.com/upstash/upstash-redis/issues/new
+   * @default true
    */
-  disableJsonSerialization?: true;
+  automaticDeserialization?: boolean;
 };
 
 /**
@@ -140,7 +137,7 @@ export type RedisConfig = {
  */
 export class Redis {
   private readonly client: Requester;
-  private opts?: RedisConfig;
+  private opts?: CommandOptions<any, any>;
 
   /**
    * Create a new redis client
@@ -153,7 +150,7 @@ export class Redis {
    * });
    * ```
    */
-  constructor(client: Requester, opts?: RedisConfig) {
+  constructor(client: Requester, opts?: RedisOptions) {
     this.client = client;
     this.opts = opts;
   }
@@ -163,7 +160,7 @@ export class Redis {
    *
    * @see {@link Pipeline}
    */
-  pipeline = () => new Pipeline(this.client, opts);
+  pipeline = () => new Pipeline(this.client, this.opts);
 
   /**
    * @see https://redis.io/commands/append
@@ -194,9 +191,10 @@ export class Redis {
     sourceKey: string,
     ...sourceKeys: string[]
   ) =>
-    new BitOpCommand(op as any, destinationKey, sourceKey, ...sourceKeys).exec(
-      this.client
-    );
+    new BitOpCommand(
+      [op as any, destinationKey, sourceKey, ...sourceKeys],
+      this.opts,
+    ).exec(this.client);
 
   /**
    * @see https://redis.io/commands/bitpos
@@ -207,7 +205,7 @@ export class Redis {
   /**
    * @see https://redis.io/commands/dbsize
    */
-  dbsize = () => new DBSizeCommand().exec(this.client);
+  dbsize = () => new DBSizeCommand(this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/decr
@@ -238,14 +236,14 @@ export class Redis {
    */
   eval = <TArgs extends unknown[], TData = unknown>(
     ...args: [script: string, keys: string[], args: TArgs]
-  ) => new EvalCommand<TArgs, TData>(...args).exec(this.client);
+  ) => new EvalCommand<TArgs, TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/evalsha
    */
   evalsha = <TArgs extends unknown[], TData = unknown>(
     ...args: [sha1: string, keys: string[], args: TArgs]
-  ) => new EvalshaCommand<TArgs, TData>(...args).exec(this.client);
+  ) => new EvalshaCommand<TArgs, TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/exists
@@ -268,7 +266,7 @@ export class Redis {
   /**
    * @see https://redis.io/commands/flushall
    */
-  flushall = (...args: CommandArgs<typeof FlushAllCommand>) =>
+  flushall = (args?: CommandArgs<typeof FlushAllCommand>) =>
     new FlushAllCommand(args, this.opts).exec(this.client);
 
   /**
@@ -281,7 +279,7 @@ export class Redis {
    * @see https://redis.io/commands/get
    */
   get = <TData>(...args: CommandArgs<typeof GetCommand>) =>
-    new GetCommand<TData>(...args).exec(this.client);
+    new GetCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/getbit
@@ -299,7 +297,7 @@ export class Redis {
    * @see https://redis.io/commands/getset
    */
   getset = <TData>(key: string, value: TData) =>
-    new GetSetCommand<TData>(key, value).exec(this.client);
+    new GetSetCommand<TData>([key, value], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hdel
@@ -317,14 +315,14 @@ export class Redis {
    * @see https://redis.io/commands/hget
    */
   hget = <TData>(...args: CommandArgs<typeof HGetCommand>) =>
-    new HGetCommand<TData>(...args).exec(this.client);
+    new HGetCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hgetall
    */
   hgetall = <TData extends Record<string, unknown>>(
     ...args: CommandArgs<typeof HGetAllCommand>
-  ) => new HGetAllCommand<TData>(...args).exec(this.client);
+  ) => new HGetAllCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hincrby
@@ -355,13 +353,13 @@ export class Redis {
    */
   hmget = <TData extends Record<string, unknown>>(
     ...args: CommandArgs<typeof HMGetCommand>
-  ) => new HMGetCommand<TData>(...args).exec(this.client);
+  ) => new HMGetCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hmset
    */
   hmset = <TData>(key: string, kv: { [field: string]: TData }) =>
-    new HMSetCommand(key, kv).exec(this.client);
+    new HMSetCommand([key, kv], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hscan
@@ -373,13 +371,13 @@ export class Redis {
    * @see https://redis.io/commands/hset
    */
   hset = <TData>(key: string, kv: { [field: string]: TData }) =>
-    new HSetCommand<TData>(key, kv).exec(this.client);
+    new HSetCommand<TData>([key, kv], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hsetnx
    */
   hsetnx = <TData>(key: string, field: string, value: TData) =>
-    new HSetNXCommand<TData>(key, field, value).exec(this.client);
+    new HSetNXCommand<TData>([key, field, value], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hstrlen
@@ -430,9 +428,11 @@ export class Redis {
     key: string,
     direction: "before" | "after",
     pivot: TData,
-    value: TData
+    value: TData,
   ) =>
-    new LInsertCommand<TData>(key, direction, pivot, value).exec(this.client);
+    new LInsertCommand<TData>([key, direction, pivot, value], this.opts).exec(
+      this.client,
+    );
 
   /**
    * @see https://redis.io/commands/llen
@@ -444,37 +444,37 @@ export class Redis {
    * @see https://redis.io/commands/lpop
    */
   lpop = <TData>(...args: CommandArgs<typeof LPopCommand>) =>
-    new LPopCommand<TData>(...args).exec(this.client);
+    new LPopCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/lpush
    */
-  lpush = <TData>(key: string, ...elements: NonEmptyArray<TData>) =>
-    new LPushCommand<TData>(key, ...elements).exec(this.client);
+  lpush = <TData>(key: string, ...elements: TData[]) =>
+    new LPushCommand<TData>([key, ...elements], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/lpushx
    */
-  lpushx = <TData>(key: string, ...elements: NonEmptyArray<TData>) =>
-    new LPushXCommand<TData>(key, ...elements).exec(this.client);
+  lpushx = <TData>(key: string, ...elements: TData[]) =>
+    new LPushXCommand<TData>([key, ...elements], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/lrange
    */
   lrange = <TResult = string>(...args: CommandArgs<typeof LRangeCommand>) =>
-    new LRangeCommand<TResult>(...args).exec(this.client);
+    new LRangeCommand<TResult>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/lrem
    */
   lrem = <TData>(key: string, count: number, value: TData) =>
-    new LRemCommand(key, count, value).exec(this.client);
+    new LRemCommand([key, count, value], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/lset
    */
-  lset = <TData>(key: string, value: TData, index: number) =>
-    new LSetCommand(key, value, index).exec(this.client);
+  lset = <TData>(key: string, index: number, value: TData) =>
+    new LSetCommand([key, index, value], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/ltrim
@@ -486,19 +486,19 @@ export class Redis {
    * @see https://redis.io/commands/mget
    */
   mget = <TData extends unknown[]>(...args: CommandArgs<typeof MGetCommand>) =>
-    new MGetCommand<TData>(...args).exec(this.client);
+    new MGetCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/mset
    */
   mset = <TData>(kv: { [key: string]: TData }) =>
-    new MSetCommand<TData>(kv).exec(this.client);
+    new MSetCommand<TData>([kv], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/msetnx
    */
   msetnx = <TData>(kv: { [key: string]: TData }) =>
-    new MSetNXCommand<TData>(kv).exec(this.client);
+    new MSetNXCommand<TData>([kv], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/persist
@@ -521,14 +521,14 @@ export class Redis {
   /**
    * @see https://redis.io/commands/ping
    */
-  ping = (...args: CommandArgs<typeof PingCommand>) =>
+  ping = (args?: CommandArgs<typeof PingCommand>) =>
     new PingCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/psetex
    */
   psetex = <TData>(key: string, ttl: number, value: TData) =>
-    new PSetEXCommand<TData>(key, ttl, value).exec(this.client);
+    new PSetEXCommand<TData>([key, ttl, value], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/pttl
@@ -563,25 +563,25 @@ export class Redis {
    * @see https://redis.io/commands/rpop
    */
   rpop = <TData = string>(...args: CommandArgs<typeof RPopCommand>) =>
-    new RPopCommand<TData>(...args).exec(this.client);
+    new RPopCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/rpush
    */
-  rpush = <TData>(key: string, ...elements: NonEmptyArray<TData>) =>
-    new RPushCommand(key, ...elements).exec(this.client);
+  rpush = <TData>(key: string, ...elements: TData[]) =>
+    new RPushCommand([key, ...elements], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/rpushx
    */
-  rpushx = <TData>(key: string, ...elements: NonEmptyArray<TData>) =>
-    new RPushXCommand(key, ...elements).exec(this.client);
+  rpushx = <TData>(key: string, ...elements: TData[]) =>
+    new RPushXCommand([key, ...elements], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/sadd
    */
-  sadd = <TData>(key: string, ...members: NonEmptyArray<TData>) =>
-    new SAddCommand<TData>(key, ...members).exec(this.client);
+  sadd = <TData>(key: string, ...members: TData[]) =>
+    new SAddCommand<TData>([key, ...members], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/scan
@@ -628,7 +628,7 @@ export class Redis {
    * @see https://redis.io/commands/set
    */
   set = <TData>(key: string, value: TData, opts?: SetCommandOptions) =>
-    new SetCommand<TData>(key, value, opts).exec(this.client);
+    new SetCommand<TData>([key, value, opts], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/setbit
@@ -640,13 +640,13 @@ export class Redis {
    * @see https://redis.io/commands/setex
    */
   setex = <TData>(key: string, ttl: number, value: TData) =>
-    new SetExCommand<TData>(key, ttl, value).exec(this.client);
+    new SetExCommand<TData>([key, ttl, value], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/setnx
    */
   setnx = <TData>(key: string, value: TData) =>
-    new SetNxCommand<TData>(key, value).exec(this.client);
+    new SetNxCommand<TData>([key, value], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/setrange
@@ -670,7 +670,7 @@ export class Redis {
    * @see https://redis.io/commands/sismember
    */
   sismember = <TData>(key: string, member: TData) =>
-    new SIsMemberCommand<TData>(key, member).exec(this.client);
+    new SIsMemberCommand<TData>([key, member], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/smembers
@@ -682,25 +682,27 @@ export class Redis {
    * @see https://redis.io/commands/smove
    */
   smove = <TData>(source: string, destination: string, member: TData) =>
-    new SMoveCommand<TData>(source, destination, member).exec(this.client);
+    new SMoveCommand<TData>([source, destination, member], this.opts).exec(
+      this.client,
+    );
 
   /**
    * @see https://redis.io/commands/spop
    */
   spop = <TData>(...args: CommandArgs<typeof SPopCommand>) =>
-    new SPopCommand<TData>(...args).exec(this.client);
+    new SPopCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/srandmember
    */
   srandmember = <TData>(...args: CommandArgs<typeof SRandMemberCommand>) =>
-    new SRandMemberCommand<TData>(...args).exec(this.client);
+    new SRandMemberCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/srem
    */
-  srem = <TData>(key: string, ...members: NonEmptyArray<TData>) =>
-    new SRemCommand<TData>(key, ...members).exec(this.client);
+  srem = <TData>(key: string, ...members: TData[]) =>
+    new SRemCommand<TData>([key, ...members], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/sscan
@@ -761,28 +763,26 @@ export class Redis {
   zadd = <TData>(
     ...args:
       | [
-          key: string,
-          scoreMember: ScoreMember<TData>,
-          ...scoreMemberPairs: ScoreMember<TData>[]
-        ]
+        key: string,
+        scoreMember: ScoreMember<TData>,
+        ...scoreMemberPairs: ScoreMember<TData>[],
+      ]
       | [
-          key: string,
-          opts: ZAddCommandOptions | ZAddCommandOptionsWithIncr,
-          ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]]
-        ]
+        key: string,
+        opts: ZAddCommandOptions | ZAddCommandOptionsWithIncr,
+        ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]],
+      ]
   ) => {
     if ("score" in args[1]) {
       return new ZAddCommand<TData>(
-        args[0],
-        args[1] as ScoreMember<TData>,
-        ...(args.slice(2) as any)
+        [args[0], args[1] as ScoreMember<TData>, ...(args.slice(2) as any)],
+        this.opts,
       ).exec(this.client);
     }
 
     return new ZAddCommand<TData>(
-      args[0],
-      args[1] as any,
-      ...(args.slice(2) as any)
+      [args[0], args[1] as any, ...(args.slice(2) as any)],
+      this.opts,
     ).exec(this.client);
   };
   /**
@@ -801,7 +801,9 @@ export class Redis {
    * @see https://redis.io/commands/zincrby
    */
   zincrby = <TData>(key: string, increment: number, member: TData) =>
-    new ZIncrByComand<TData>(key, increment, member).exec(this.client);
+    new ZIncrByCommand<TData>([key, increment, member], this.opts).exec(
+      this.client,
+    );
 
   /**
    * @see https://redis.io/commands/zinterstore
@@ -819,13 +821,13 @@ export class Redis {
    * @see https://redis.io/commands/zpopmax
    */
   zpopmax = <TData>(...args: CommandArgs<typeof ZPopMaxCommand>) =>
-    new ZPopMaxCommand<TData>(...args).exec(this.client);
+    new ZPopMaxCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zpopmin
    */
   zpopmin = <TData>(...args: CommandArgs<typeof ZPopMinCommand>) =>
-    new ZPopMinCommand<TData>(...args).exec(this.client);
+    new ZPopMinCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zrange
@@ -834,36 +836,30 @@ export class Redis {
     ...args:
       | [key: string, min: number, max: number, opts?: ZRangeCommandOptions]
       | [
-          key: string,
-          min: `(${string}` | `[${string}` | "-" | "+",
-          max: `(${string}` | `[${string}` | "-" | "+",
-          opts: { byLex: true } & ZRangeCommandOptions
-        ]
+        key: string,
+        min: `(${string}` | `[${string}` | "-" | "+",
+        max: `(${string}` | `[${string}` | "-" | "+",
+        opts: { byLex: true } & ZRangeCommandOptions,
+      ]
       | [
-          key: string,
-          min: number | `(${number}` | "-inf" | "+inf",
-          max: number | `(${number}` | "-inf" | "+inf",
-          opts: { byScore: true } & ZRangeCommandOptions
-        ]
-  ) =>
-    new ZRangeCommand<TData>(
-      args[0],
-      args[1] as any,
-      args[2] as any,
-      args[3]
-    ).exec(this.client);
+        key: string,
+        min: number | `(${number}` | "-inf" | "+inf",
+        max: number | `(${number}` | "-inf" | "+inf",
+        opts: { byScore: true } & ZRangeCommandOptions,
+      ]
+  ) => new ZRangeCommand<TData>(args as any, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zrank
    */
   zrank = <TData>(key: string, member: TData) =>
-    new ZRankCommand<TData>(key, member).exec(this.client);
+    new ZRankCommand<TData>([key, member], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zrem
    */
-  zrem = <TData>(key: string, ...members: NonEmptyArray<TData>) =>
-    new ZRemCommand<TData>(key, ...members).exec(this.client);
+  zrem = <TData>(key: string, ...members: TData[]) =>
+    new ZRemCommand<TData>([key, ...members], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zremrangebylex
@@ -887,7 +883,7 @@ export class Redis {
    * @see https://redis.io/commands/zrevrank
    */
   zrevrank = <TData>(key: string, member: TData) =>
-    new ZRevRankCommand<TData>(key, member).exec(this.client);
+    new ZRevRankCommand<TData>([key, member], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zscan
@@ -899,7 +895,7 @@ export class Redis {
    * @see https://redis.io/commands/zscore
    */
   zscore = <TData>(key: string, member: TData) =>
-    new ZScoreCommand<TData>(key, member).exec(this.client);
+    new ZScoreCommand<TData>([key, member], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zunionstore

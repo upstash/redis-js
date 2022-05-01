@@ -17,8 +17,8 @@ Deno.test(
       "returns the length of the list",
       async () => {
         const key = newKey();
-        await new LPushCommand(key, randomID()).exec(client);
-        const res = await new LLenCommand(key).exec(client);
+        await new LPushCommand([key, randomID()]).exec(client);
+        const res = await new LLenCommand([key]).exec(client);
         assertEquals(res, 1);
       },
     );
@@ -32,7 +32,7 @@ Deno.test(
       "returns 0",
       async () => {
         const key = newKey();
-        const res = await new LLenCommand(key).exec(client);
+        const res = await new LLenCommand([key]).exec(client);
         assertEquals(res, 0);
       },
     );

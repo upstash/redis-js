@@ -16,8 +16,8 @@ Deno.test("returns the union", async () => {
   const member1 = randomID();
   const member2 = randomID();
 
-  await new SAddCommand(key1, member1).exec(client);
-  await new SAddCommand(key2, member2).exec(client);
-  const res = await new SUnionCommand(key1, key2).exec(client);
+  await new SAddCommand([key1, member1]).exec(client);
+  await new SAddCommand([key2, member2]).exec(client);
+  const res = await new SUnionCommand([key1, key2]).exec(client);
   assertEquals(res?.sort(), [member1, member2].sort());
 });

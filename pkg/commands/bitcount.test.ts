@@ -11,7 +11,7 @@ afterAll(cleanup);
 Deno.test("when key is not set", async (t) => {
   await t.step("returns 0", async () => {
     const key = newKey();
-    const res = await new BitCountCommand(key).exec(client);
+    const res = await new BitCountCommand([key]).exec(client);
     assertEquals(res, 0);
   });
 });
@@ -20,8 +20,8 @@ Deno.test("when key is set", async (t) => {
   await t.step("returns bitcount", async () => {
     const key = newKey();
     const value = "Hello World";
-    await new SetCommand(key, value).exec(client);
-    const res = await new BitCountCommand(key).exec(client);
+    await new SetCommand([key, value]).exec(client);
+    const res = await new BitCountCommand([key]).exec(client);
     assertEquals(res, 43);
   });
 
@@ -29,8 +29,8 @@ Deno.test("when key is set", async (t) => {
     await t.step("returns bitcount", async () => {
       const key = newKey();
       const value = "Hello World";
-      await new SetCommand(key, value).exec(client);
-      const res = await new BitCountCommand(key, 4, 8).exec(client);
+      await new SetCommand([key, value]).exec(client);
+      const res = await new BitCountCommand([key, 4, 8]).exec(client);
       assertEquals(res, 22);
     });
   });

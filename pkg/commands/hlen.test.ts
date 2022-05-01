@@ -19,8 +19,8 @@ Deno.test("with existing hash", async (t) => {
     const kv: Record<string, string> = {};
     kv[field1] = randomID();
     kv[field2] = randomID();
-    await new HMSetCommand(key, kv).exec(client);
-    const res = await new HLenCommand(key).exec(client);
+    await new HMSetCommand([key, kv]).exec(client);
+    const res = await new HLenCommand([key]).exec(client);
     assertEquals(res, 2);
   });
 });

@@ -1,16 +1,19 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 /**
  * @see https://redis.io/commands/srandmember
  */
 export class SRandMemberCommand<TData> extends Command<
-  TData | null,
-  string | null
+  string | null,
+  TData | null
 > {
-  constructor(key: string, count?: number) {
+  constructor(
+    [key, count]: [key: string, count?: number],
+    opts?: CommandOptions<string | null, TData | null>,
+  ) {
     const command: unknown[] = ["srandmember", key];
     if (typeof count === "number") {
       command.push(count);
     }
-    super(command);
+    super(command, opts);
   }
 }

@@ -1,5 +1,5 @@
 import { ScanCommandOptions } from "./scan.ts";
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 /**
  * @see https://redis.io/commands/sscan
@@ -8,7 +8,17 @@ export class SScanCommand extends Command<
   [number, (string | number)[]],
   [number, (string | number)[]]
 > {
-  constructor(key: string, cursor: number, opts?: ScanCommandOptions) {
+  constructor(
+    [key, cursor, opts]: [
+      key: string,
+      cursor: number,
+      opts?: ScanCommandOptions,
+    ],
+    cmdOpts?: CommandOptions<
+      [number, (string | number)[]],
+      [number, (string | number)[]]
+    >,
+  ) {
     const command = ["sscan", key, cursor];
     if (opts?.match) {
       command.push("match", opts.match);
@@ -17,6 +27,6 @@ export class SScanCommand extends Command<
       command.push("count", opts.count);
     }
 
-    super(command);
+    super(command, cmdOpts);
   }
 }

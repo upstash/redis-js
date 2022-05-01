@@ -1,6 +1,5 @@
 import { DelCommand } from "./commands/del.ts";
 import { HttpClient } from "./http.ts";
-import { NonEmptyArray } from "./types.ts";
 
 /**
  * crypto.randomUUID() is not available in dnt crypto shim
@@ -44,9 +43,7 @@ export function keygen(): {
     },
     cleanup: async () => {
       if (keys.length > 0) {
-        await new DelCommand(...(keys as NonEmptyArray<string>)).exec(
-          newHttpClient(),
-        );
+        await new DelCommand(keys).exec(newHttpClient());
       }
     },
   };

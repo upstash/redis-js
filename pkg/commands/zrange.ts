@@ -1,4 +1,4 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 export type ZRangeCommandOptions =
   & { withScores?: boolean }
@@ -12,32 +12,39 @@ export type ZRangeCommandOptions =
  * @see https://redis.io/commands/zrange
  */
 export class ZRangeCommand<TData extends unknown[]> extends Command<
-  TData,
-  string[]
+  string[],
+  TData
 > {
   constructor(
-    key: string,
-    min: number,
-    max: number,
-    opts?: ZRangeCommandOptions,
+    cmd: [key: string, min: number, max: number, opts?: ZRangeCommandOptions],
+    cmdOpts?: CommandOptions<string[], TData>,
   );
   constructor(
-    key: string,
-    min: `(${string}` | `[${string}` | "-" | "+",
-    max: `(${string}` | `[${string}` | "-" | "+",
-    opts: { byLex: true } & ZRangeCommandOptions,
+    cmd: [
+      key: string,
+      min: `(${string}` | `[${string}` | "-" | "+",
+      max: `(${string}` | `[${string}` | "-" | "+",
+      opts: { byLex: true } & ZRangeCommandOptions,
+    ],
+    cmdOpts?: CommandOptions<string[], TData>,
   );
   constructor(
-    key: string,
-    min: number | `(${number}` | "-inf" | "+inf",
-    max: number | `(${number}` | "-inf" | "+inf",
-    opts: { byScore: true } & ZRangeCommandOptions,
+    cmd: [
+      key: string,
+      min: number | `(${number}` | "-inf" | "+inf",
+      max: number | `(${number}` | "-inf" | "+inf",
+      opts: { byScore: true } & ZRangeCommandOptions,
+    ],
+    cmdOpts?: CommandOptions<string[], TData>,
   );
   constructor(
-    key: string,
-    min: number | string,
-    max: number | string,
-    opts?: ZRangeCommandOptions,
+    [key, min, max, opts]: [
+      key: string,
+      min: number | string,
+      max: number | string,
+      opts?: ZRangeCommandOptions,
+    ],
+    cmdOpts?: CommandOptions<string[], TData>,
   ) {
     const command: unknown[] = ["zrange", key, min, max];
 
@@ -51,6 +58,6 @@ export class ZRangeCommand<TData extends unknown[]> extends Command<
     if (opts?.withScores) {
       command.push("withscores");
     }
-    super(command);
+    super(command, cmdOpts);
   }
 }

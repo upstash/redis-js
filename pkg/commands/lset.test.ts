@@ -21,11 +21,11 @@ Deno.test("when list exists", async (t) => {
 
       const value = randomID();
       const newValue = randomID();
-      await new LPushCommand(key, value).exec(client);
-      const res = await new LSetCommand(key, newValue, 0).exec(client);
+      await new LPushCommand([key, value]).exec(client);
+      const res = await new LSetCommand([key, 0, newValue]).exec(client);
       assertEquals(res, "OK");
 
-      const res2 = await new LPopCommand(key).exec(client);
+      const res2 = await new LPopCommand([key]).exec(client);
 
       assertEquals(res2, newValue);
     });
@@ -35,9 +35,9 @@ Deno.test("when list exists", async (t) => {
 
         const value = randomID();
         const newValue = randomID();
-        await new LPushCommand(key, value).exec(client);
+        await new LPushCommand([key, value]).exec(client);
         await assertRejects(() =>
-          new LSetCommand(key, newValue, 1).exec(client)
+          new LSetCommand([key, 1, newValue]).exec(client)
         );
       });
     });

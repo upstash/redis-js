@@ -14,7 +14,7 @@ Deno.test("command format", async (t) => {
   await t.step("without options", async (t) => {
     await t.step("build the correct command", () => {
       assertEquals(
-        new ZAddCommand("key", { score: 0, member: "member" }).command,
+        new ZAddCommand(["key", { score: 0, member: "member" }]).command,
         ["zadd", "key", "0", "member"],
       );
     });
@@ -22,7 +22,7 @@ Deno.test("command format", async (t) => {
   await t.step("with nx", async (t) => {
     await t.step("build the correct command", () => {
       assertEquals(
-        new ZAddCommand("key", { nx: true }, { score: 0, member: "member" })
+        new ZAddCommand(["key", { nx: true }, { score: 0, member: "member" }])
           .command,
         ["zadd", "key", "nx", "0", "member"],
       );
@@ -31,7 +31,7 @@ Deno.test("command format", async (t) => {
   await t.step("with xx", async (t) => {
     await t.step("build the correct command", () => {
       assertEquals(
-        new ZAddCommand("key", { xx: true }, { score: 0, member: "member" })
+        new ZAddCommand(["key", { xx: true }, { score: 0, member: "member" }])
           .command,
         ["zadd", "key", "xx", "0", "member"],
       );
@@ -40,7 +40,7 @@ Deno.test("command format", async (t) => {
   await t.step("with ch", async (t) => {
     await t.step("build the correct command", () => {
       assertEquals(
-        new ZAddCommand("key", { ch: true }, { score: 0, member: "member" })
+        new ZAddCommand(["key", { ch: true }, { score: 0, member: "member" }])
           .command,
         ["zadd", "key", "ch", "0", "member"],
       );
@@ -49,7 +49,7 @@ Deno.test("command format", async (t) => {
   await t.step("with incr", async (t) => {
     await t.step("build the correct command", () => {
       assertEquals(
-        new ZAddCommand("key", { incr: true }, { score: 0, member: "member" })
+        new ZAddCommand(["key", { incr: true }, { score: 0, member: "member" }])
           .command,
         ["zadd", "key", "incr", "0", "member"],
       );
@@ -58,11 +58,11 @@ Deno.test("command format", async (t) => {
   await t.step("with nx and ch", async (t) => {
     await t.step("build the correct command", () => {
       assertEquals(
-        new ZAddCommand(
+        new ZAddCommand([
           "key",
           { nx: true, ch: true },
           { score: 0, member: "member" },
-        ).command,
+        ]).command,
         ["zadd", "key", "nx", "ch", "0", "member"],
       );
     });
@@ -70,11 +70,11 @@ Deno.test("command format", async (t) => {
   await t.step("with nx,ch and incr", async (t) => {
     await t.step("build the correct command", () => {
       assertEquals(
-        new ZAddCommand(
+        new ZAddCommand([
           "key",
           { nx: true, ch: true, incr: true },
           { score: 0, member: "member" },
-        ).command,
+        ]).command,
         ["zadd", "key", "nx", "ch", "incr", "0", "member"],
       );
     });
@@ -82,12 +82,12 @@ Deno.test("command format", async (t) => {
   await t.step("with nx and multiple members", async (t) => {
     await t.step("build the correct command", () => {
       assertEquals(
-        new ZAddCommand(
+        new ZAddCommand([
           "key",
           { nx: true },
           { score: 0, member: "member" },
           { score: 1, member: "member1" },
-        ).command,
+        ]).command,
         ["zadd", "key", "nx", "0", "member", "1", "member1"],
       );
     });
@@ -99,7 +99,7 @@ Deno.test("without options", async (t) => {
     const key = newKey();
     const member = randomID();
     const score = Math.floor(Math.random() * 10);
-    const res = await new ZAddCommand(key, { score, member }).exec(client);
+    const res = await new ZAddCommand([key, { score, member }]).exec(client);
     assertEquals(res, 1);
   });
 });
@@ -110,16 +110,16 @@ Deno.test("xx", async (t) => {
       const key = newKey();
       const member = randomID();
       const score = Math.floor(Math.random() * 10);
-      await new ZAddCommand(key, { score, member }).exec(client);
+      await new ZAddCommand([key, { score, member }]).exec(client);
       const newScore = score + 1;
-      const res = await new ZAddCommand(
+      const res = await new ZAddCommand([
         key,
         { xx: true },
         { score: newScore, member },
-      ).exec(client);
+      ]).exec(client);
       assertEquals(res, 0);
 
-      const res2 = await new ZScoreCommand(key, member).exec(client);
+      const res2 = await new ZScoreCommand([key, member]).exec(client);
       assertEquals(res2, newScore);
     });
   });
@@ -128,13 +128,13 @@ Deno.test("xx", async (t) => {
       const key = newKey();
       const member = randomID();
       const score = Math.floor(Math.random() * 10);
-      await new ZAddCommand(key, { score, member }).exec(client);
+      await new ZAddCommand([key, { score, member }]).exec(client);
       const newScore = score + 1;
-      const res = await new ZAddCommand(
+      const res = await new ZAddCommand([
         key,
         { xx: true },
         { score: newScore, member },
-      ).exec(client);
+      ]).exec(client);
       assertEquals(res, 0);
     });
   });
@@ -146,16 +146,16 @@ Deno.test("nx", async (t) => {
       const key = newKey();
       const member = randomID();
       const score = Math.floor(Math.random() * 10);
-      await new ZAddCommand(key, { score, member }).exec(client);
+      await new ZAddCommand([key, { score, member }]).exec(client);
       const newScore = score + 1;
-      const res = await new ZAddCommand(
+      const res = await new ZAddCommand([
         key,
         { nx: true },
         { score: newScore, member },
-      ).exec(client);
+      ]).exec(client);
       assertEquals(res, 0);
 
-      const res2 = await new ZScoreCommand(key, member).exec(client);
+      const res2 = await new ZScoreCommand([key, member]).exec(client);
       assertEquals(res2, score);
     });
   });
@@ -164,11 +164,11 @@ Deno.test("nx", async (t) => {
       const key = newKey();
       const member = randomID();
       const score = Math.floor(Math.random() * 10);
-      const res = await new ZAddCommand(
+      const res = await new ZAddCommand([
         key,
         { nx: true },
         { score, member },
-      ).exec(client);
+      ]).exec(client);
       assertEquals(res, 1);
     });
   });
@@ -179,13 +179,13 @@ Deno.test("ch", async (t) => {
     const key = newKey();
     const member = randomID();
     const score = Math.floor(Math.random() * 10);
-    await new ZAddCommand(key, { score, member }).exec(client);
+    await new ZAddCommand([key, { score, member }]).exec(client);
     const newScore = score + 1;
-    const res = await new ZAddCommand(
+    const res = await new ZAddCommand([
       key,
       { ch: true },
       { score: newScore, member },
-    ).exec(client);
+    ]).exec(client);
     assertEquals(res, 1);
   });
 });
@@ -195,13 +195,13 @@ Deno.test("incr", async (t) => {
     const key = newKey();
     const member = randomID();
     const score = Math.floor(Math.random() * 10);
-    await new ZAddCommand(key, { score, member }).exec(client);
+    await new ZAddCommand([key, { score, member }]).exec(client);
     const newScore = score + 1;
-    const res = await new ZAddCommand(
+    const res = await new ZAddCommand([
       key,
       { ch: true },
       { score: newScore, member },
-    ).exec(client);
+    ]).exec(client);
     assertEquals(res, 1);
   });
 });

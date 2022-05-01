@@ -1,13 +1,13 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 /**
  * @see https://redis.io/commands/flushall
  */
 export class FlushAllCommand extends Command<"OK", "OK"> {
-  constructor(opts?: { async?: boolean }) {
+  constructor(args?: [{ async?: boolean }], opts?: CommandOptions<"OK", "OK">) {
     const command = ["flushall"];
-    if (opts?.async) {
+    if (args && args.length > 0 && args[0].async) {
       command.push("async");
     }
-    super(command);
+    super(command, opts);
   }
 }

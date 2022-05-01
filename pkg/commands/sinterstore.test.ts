@@ -16,9 +16,9 @@ Deno.test("stores the intersection", async () => {
   const key2 = newKey();
   const member2 = member1;
   const destination = newKey();
-  await new SAddCommand(key1, member1).exec(client);
-  await new SAddCommand(key2, member2).exec(client);
-  const res = await new SInterStoreCommand(destination, key1, key2).exec(
+  await new SAddCommand([key1, member1]).exec(client);
+  await new SAddCommand([key2, member2]).exec(client);
+  const res = await new SInterStoreCommand([destination, key1, key2]).exec(
     client,
   );
   assertEquals(res, 1);

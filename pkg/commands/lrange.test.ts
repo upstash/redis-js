@@ -16,8 +16,8 @@ Deno.test(
     const value1 = randomID();
     const value2 = randomID();
     const value3 = randomID();
-    await new RPushCommand(key, value1, value2, value3).exec(client);
-    const res = await new LRangeCommand(key, 1, 2).exec(client);
+    await new RPushCommand([key, value1, value2, value3]).exec(client);
+    const res = await new LRangeCommand([key, 1, 2]).exec(client);
     assertEquals(res!.length, 2);
     assertEquals(res![0], value2);
     assertEquals(res![1], value3);

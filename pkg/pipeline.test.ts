@@ -41,10 +41,7 @@ Deno.test("with single command", async (t) => {
 Deno.test("when chaining in a for loop", async (t) => {
   await t.step("works", async () => {
     const key = newKey();
-    const res = await new Pipeline(client)
-      .set(key, randomID())
-      .get(key)
-      .exec();
+    const res = await new Pipeline(client).set(key, randomID()).get(key).exec();
 
     assertEquals(res.length, 2);
   });
@@ -83,7 +80,7 @@ Deno.test("use all the things", async (t) => {
     const persistentKey = newKey();
     const persistentKey2 = newKey();
 
-    const scriptHash = await new ScriptLoadCommand("return 1").exec(client);
+    const scriptHash = await new ScriptLoadCommand(["return 1"]).exec(client);
 
     p.append(newKey(), "hello")
       .bitcount(newKey(), 0, 1)
@@ -132,7 +129,7 @@ Deno.test("use all the things", async (t) => {
       .lpushx(newKey(), "element1", "element2")
       .lrange(newKey(), 0, 1)
       .lrem(newKey(), 1, "value")
-      .lset(persistentKey, "value", 0)
+      .lset(persistentKey, 0, "value")
       .ltrim(newKey(), 0, 1)
       .mget<[string, string]>(newKey(), newKey())
       .mset({ key1: "value", key2: "value" })

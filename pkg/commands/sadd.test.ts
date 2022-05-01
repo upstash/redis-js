@@ -12,6 +12,6 @@ Deno.test("returns the number of added members", async () => {
   const key = newKey();
   const value1 = randomID();
   const value2 = randomID();
-  const res = await new SAddCommand(key, value1, value2).exec(client);
+  const res = await new SAddCommand([key, value1, value2]).exec(client);
   assertEquals(res, 2);
 });

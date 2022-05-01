@@ -10,20 +10,13 @@ const client = newHttpClient();
 const { cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test(
-  "without keys",
-  async (t) => {
-    await t.step(
-      "returns something",
-      async () => {
-        const value = randomID();
-        const sha1 = await new ScriptLoadCommand(`return {ARGV[1], "${value}"}`)
-          .exec(
-            client,
-          );
-        const res = await new EvalshaCommand(sha1, [], [value]).exec(client);
-        assertEquals(res, [value, value]);
-      },
-    );
-  },
-);
+Deno.test("without keys", async (t) => {
+  await t.step("returns something", async () => {
+    const value = randomID();
+    const sha1 = await new ScriptLoadCommand([
+      `return {ARGV[1], "${value}"}`,
+    ]).exec(client);
+    const res = await new EvalshaCommand([sha1, [], [value]]).exec(client);
+    assertEquals(res, [value, value]);
+  });
+});

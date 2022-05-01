@@ -1,10 +1,10 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 /**
  * @see https://redis.io/commands/script-load
  */
 export class ScriptLoadCommand extends Command<string, string> {
-  constructor(script: string) {
-    super(["script", "load", script]);
+  constructor(args: [script: string], opts?: CommandOptions<string, string>) {
+    super(["script", "load", ...args], opts);
   }
 }

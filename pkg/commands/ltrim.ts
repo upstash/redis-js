@@ -1,7 +1,10 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 export class LTrimCommand extends Command<"OK", "OK"> {
-  constructor(key: string, start: number, end: number) {
-    super(["ltrim", key, start, end]);
+  constructor(
+    cmd: [key: string, start: number, end: number],
+    opts?: CommandOptions<"OK", "OK">,
+  ) {
+    super(["ltrim", ...cmd], opts);
   }
 }

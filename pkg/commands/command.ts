@@ -2,15 +2,34 @@ import { UpstashError } from "../error.ts";
 import { Requester } from "../http.ts";
 import { parseResponse } from "../util.ts";
 
+type Serialize = (data: unknown) => string;
+type Deserialize<TResult, TData> = (result: TResult) => TData;
+
+const defaultSerializer: Serialize = (c: unknown) =>
+  typeof c === "string" ? c : JSON.stringify(c);
+
+export type CommandOptions<TResult, TData> = {
+  /**
+   * Custom deserializer
+   */
+  deserialize?: (result: TResult) => TData;
+  /**
+   * Automatically try to deserialize the returned data from upstash using `JSON.deserialize`
+   *
+   * @default true
+   */
+  automaticDeserialization?: boolean;
+};
 /**
  * Command offers default (de)serialization and the exec method to all commands.
  *
  * TData represents what the user will enter or receive,
  * TResult is the raw data returned from upstash, which may need to be transformed or parsed.
  */
-export class Command<TData, TResult> {
+export class Command<TResult, TData> {
   public readonly command: string[];
-  public deserialize: (result: TResult) => TData;
+  public readonly serialize: Serialize;
+  public readonly deserialize: Deserialize<TResult, TData>;
   /**
    * Create a new command instance.
    *
@@ -18,12 +37,15 @@ export class Command<TData, TResult> {
    */
   constructor(
     command: (string | unknown)[],
-    opts?: { deserialize?: (result: TResult) => TData },
+    opts?: CommandOptions<TResult, TData>,
   ) {
-    this.command = command.map((c) =>
-      typeof c === "string" ? c : JSON.stringify(c)
-    );
-    this.deserialize = opts?.deserialize ?? parseResponse;
+    this.serialize = defaultSerializer;
+    this.deserialize = typeof opts?.automaticDeserialization === "undefined" ||
+        opts.automaticDeserialization
+      ? opts?.deserialize ?? parseResponse
+      : (x) => x as unknown as TData;
+
+    this.command = command.map(this.serialize);
   }
 
   /**

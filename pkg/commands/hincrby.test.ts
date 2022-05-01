@@ -14,7 +14,7 @@ afterAll(cleanup);
 Deno.test("increments a non-existing value", async () => {
   const key = newKey();
   const field = randomID();
-  const res = await new HIncrByCommand(key, field, 2).exec(client);
+  const res = await new HIncrByCommand([key, field, 2]).exec(client);
 
   assertEquals(res, 2);
 });
@@ -22,8 +22,8 @@ Deno.test("increments a non-existing value", async () => {
 Deno.test("increments and existing value", async () => {
   const key = newKey();
   const field = randomID();
-  await new HSetCommand(key, { [field]: 5 }).exec(client);
-  const res = await new HIncrByCommand(key, field, 2).exec(client);
+  await new HSetCommand([key, { [field]: 5 }]).exec(client);
+  const res = await new HIncrByCommand([key, field, 2]).exec(client);
 
   assertEquals(res, 7);
 });

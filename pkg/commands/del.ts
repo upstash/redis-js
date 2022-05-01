@@ -1,11 +1,10 @@
-import { NonEmptyArray } from "../types.ts";
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 /**
  * @see https://redis.io/commands/del
  */
 export class DelCommand extends Command<number, number> {
-  constructor(...keys: NonEmptyArray<string>) {
-    super(["del", ...keys]);
+  constructor(cmd: [...keys: string[]], opts?: CommandOptions<number, number>) {
+    super(["del", ...cmd], opts);
   }
 }

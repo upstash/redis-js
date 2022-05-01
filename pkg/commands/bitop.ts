@@ -1,22 +1,31 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 /**
  * @see https://redis.io/commands/bitop
  */
 export class BitOpCommand extends Command<number, number> {
   constructor(
-    op: "and" | "or" | "xor",
-    destinationKey: string,
-    sourceKey: string,
-    ...sourceKeys: string[]
+    cmd: [
+      op: "and" | "or" | "xor",
+      destinationKey: string,
+      sourceKey: string,
+      ...sourceKeys: string[],
+    ],
+    opts?: CommandOptions<number, number>,
   );
-  constructor(op: "not", destinationKey: string, sourceKey: string);
   constructor(
-    op: "and" | "or" | "xor" | "not",
-    destinationKey: string,
-    sourceKey: string,
-    ...sourceKeys: string[]
+    cmd: [op: "not", destinationKey: string, sourceKey: string],
+    opts?: CommandOptions<number, number>,
+  );
+  constructor(
+    cmd: [
+      op: "and" | "or" | "xor" | "not",
+      destinationKey: string,
+      sourceKeys: string,
+      ...sourceKeys: string[],
+    ],
+    opts?: CommandOptions<number, number>,
   ) {
-    super(["bitop", op, destinationKey, sourceKey, ...sourceKeys]);
+    super(["bitop", ...cmd], opts);
   }
 }

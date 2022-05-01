@@ -14,8 +14,8 @@ Deno.test(
   async () => {
     const key = newKey();
     const value = randomID();
-    await new SetCommand(key, value).exec(client);
-    const res = await new GetCommand(key).exec(client);
+    await new SetCommand([key, value]).exec(client);
+    const res = await new GetCommand([key]).exec(client);
 
     assertEquals(res, value);
   },
@@ -25,7 +25,7 @@ Deno.test(
   "gets a non-existing value",
   async () => {
     const key = newKey();
-    const res = await new GetCommand(key).exec(client);
+    const res = await new GetCommand([key]).exec(client);
 
     assertEquals(res, null);
   },
@@ -36,8 +36,8 @@ Deno.test(
   async () => {
     const key = newKey();
     const value = { v: randomID() };
-    await new SetCommand(key, value).exec(client);
-    const res = await new GetCommand(key).exec(client);
+    await new SetCommand([key, value]).exec(client);
+    const res = await new GetCommand([key]).exec(client);
 
     assertEquals(res, value);
   },

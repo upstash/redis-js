@@ -18,13 +18,13 @@ Deno.test(
     const value = randomID();
     const newValue = randomID();
 
-    const res = await new SetCommand(key, value).exec(client);
+    const res = await new SetCommand([key, value]).exec(client);
 
     assertEquals(res, "OK");
-    const res2 = await new SetNxCommand(key, newValue).exec(client);
+    const res2 = await new SetNxCommand([key, newValue]).exec(client);
 
     assertEquals(res2, 0);
-    const res3 = await new GetCommand(key).exec(client);
+    const res3 = await new GetCommand([key]).exec(client);
 
     assertEquals(res3, value);
   },

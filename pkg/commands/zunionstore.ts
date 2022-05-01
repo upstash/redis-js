@@ -1,7 +1,9 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 export type ZUnionStoreCommandOptions =
-  & { aggregate?: "sum" | "min" | "max" }
+  & {
+    aggregate?: "sum" | "min" | "max";
+  }
   & (
     | { weight: number; weights?: never }
     | { weight?: never; weights: number[] }
@@ -13,22 +15,31 @@ export type ZUnionStoreCommandOptions =
  */
 export class ZUnionStoreCommand extends Command<number, number> {
   constructor(
-    destination: string,
-    numKeys: 1,
-    key: string,
-    opts?: ZUnionStoreCommandOptions,
+    cmd: [
+      destination: string,
+      numKeys: 1,
+      key: string,
+      opts?: ZUnionStoreCommandOptions,
+    ],
+    cmdOpts?: CommandOptions<number, number>,
   );
   constructor(
-    destination: string,
-    numKeys: number,
-    keys: string[],
-    opts?: ZUnionStoreCommandOptions,
+    cmd: [
+      destination: string,
+      numKeys: number,
+      keys: string[],
+      opts?: ZUnionStoreCommandOptions,
+    ],
+    cmdOpts?: CommandOptions<number, number>,
   );
   constructor(
-    destination: string,
-    numKeys: number,
-    keyOrKeys: string | string[],
-    opts?: ZUnionStoreCommandOptions,
+    [destination, numKeys, keyOrKeys, opts]: [
+      destination: string,
+      numKeys: number,
+      keyOrKeys: string | string[],
+      opts?: ZUnionStoreCommandOptions,
+    ],
+    cmdOpts?: CommandOptions<number, number>,
   ) {
     const command: unknown[] = ["zunionstore", destination, numKeys];
     if (Array.isArray(keyOrKeys)) {
@@ -37,15 +48,15 @@ export class ZUnionStoreCommand extends Command<number, number> {
       command.push(keyOrKeys);
     }
     if (opts) {
-      if (("weights" in opts) && opts.weights) {
+      if ("weights" in opts && opts.weights) {
         command.push("weights", ...opts.weights);
-      } else if (("weight" in opts) && typeof opts.weight === "number") {
+      } else if ("weight" in opts && typeof opts.weight === "number") {
         command.push("weights", opts.weight);
       }
       if ("aggregate" in opts) {
         command.push("aggregate", opts.aggregate);
       }
     }
-    super(command);
+    super(command, cmdOpts);
   }
 }

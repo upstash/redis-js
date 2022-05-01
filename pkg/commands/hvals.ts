@@ -1,13 +1,13 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 /**
  * @see https://redis.io/commands/hvals
  */
 export class HValsCommand<TData extends unknown[]> extends Command<
-  TData,
-  unknown[]
+  unknown[],
+  TData
 > {
-  constructor(key: string) {
-    super(["hvals", key]);
+  constructor(cmd: [key: string], opts?: CommandOptions<unknown[], TData>) {
+    super(["hvals", ...cmd], opts);
   }
 }

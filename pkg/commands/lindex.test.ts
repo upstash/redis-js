@@ -16,8 +16,8 @@ Deno.test("when list exists", async (t) => {
       const key = newKey();
 
       const value = randomID();
-      await new LPushCommand(key, value).exec(client);
-      const res = await new LIndexCommand(key, 0).exec(client);
+      await new LPushCommand([key, value]).exec(client);
+      const res = await new LIndexCommand([key, 0]).exec(client);
       assertEquals(res, value);
     });
     await t.step("when the index is out of bounds", async (t) => {
@@ -25,8 +25,8 @@ Deno.test("when list exists", async (t) => {
         const key = newKey();
 
         const value = randomID();
-        await new LPushCommand(key, value).exec(client);
-        const res = await new LIndexCommand(key, 1).exec(client);
+        await new LPushCommand([key, value]).exec(client);
+        const res = await new LIndexCommand([key, 1]).exec(client);
         assertEquals(res, null);
       });
     });

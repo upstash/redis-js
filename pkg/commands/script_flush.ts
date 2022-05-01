@@ -1,4 +1,4 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 export type ScriptFlushCommandOptions =
   | { sync: true; async?: never }
@@ -8,13 +8,16 @@ export type ScriptFlushCommandOptions =
  * @see https://redis.io/commands/script-flush
  */
 export class ScriptFlushCommand extends Command<"OK", "OK"> {
-  constructor(opts?: ScriptFlushCommandOptions) {
+  constructor(
+    [opts]: [opts?: ScriptFlushCommandOptions],
+    cmdOpts?: CommandOptions<"OK", "OK">,
+  ) {
     const cmd = ["script", "flush"];
     if (opts?.sync) {
       cmd.push("sync");
     } else if (opts?.async) {
       cmd.push("async");
     }
-    super(cmd);
+    super(cmd, cmdOpts);
   }
 }

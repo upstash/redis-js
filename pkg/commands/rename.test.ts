@@ -13,7 +13,7 @@ Deno.test("renames the key", async () => {
   const source = newKey();
   const destination = newKey();
   const value = randomID();
-  await new SetCommand(source, value).exec(client);
-  const res = await new RenameCommand(source, destination).exec(client);
+  await new SetCommand([source, value]).exec(client);
+  const res = await new RenameCommand([source, destination]).exec(client);
   assertEquals(res, "OK");
 });

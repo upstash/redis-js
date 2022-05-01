@@ -14,7 +14,7 @@ Deno.test(
   async () => {
     const key = newKey();
     const field = randomID();
-    const res = await new HDelCommand(key, field).exec(client);
+    const res = await new HDelCommand([key, field]).exec(client);
 
     assertEquals(res, 0);
   },
@@ -25,13 +25,13 @@ Deno.test(
   async () => {
     const key = newKey();
     const field = randomID();
-    await new HSetCommand(key, { [field]: randomID() }).exec(
+    await new HSetCommand([key, { [field]: randomID() }]).exec(
       client,
     );
-    const res = await new HDelCommand(key, field).exec(client);
+    const res = await new HDelCommand([key, field]).exec(client);
 
     assertEquals(res, 1);
-    const res2 = await new HGetCommand(key, field).exec(client);
+    const res2 = await new HGetCommand([key, field]).exec(client);
 
     assertEquals(res2, null);
   },

@@ -11,8 +11,8 @@ Deno.test("without options", async (t) => {
   await t.step("returns cursor and members", async () => {
     const key = newKey();
     const value = randomID();
-    await new ZAddCommand(key, { score: 0, member: value }).exec(client);
-    const res = await new ZScanCommand(key, 0).exec(client);
+    await new ZAddCommand([key, { score: 0, member: value }]).exec(client);
+    const res = await new ZScanCommand([key, 0]).exec(client);
 
     assertEquals(res.length, 2);
     assertEquals(typeof res[0], "number");
@@ -24,8 +24,8 @@ Deno.test("with match", async (t) => {
   await t.step("returns cursor and members", async () => {
     const key = newKey();
     const value = randomID();
-    await new ZAddCommand(key, { score: 0, member: value }).exec(client);
-    const res = await new ZScanCommand(key, 0, { match: value }).exec(client);
+    await new ZAddCommand([key, { score: 0, member: value }]).exec(client);
+    const res = await new ZScanCommand([key, 0, { match: value }]).exec(client);
 
     assertEquals(res.length, 2);
     assertEquals(typeof res[0], "number");
@@ -37,8 +37,8 @@ Deno.test("with count", async (t) => {
   await t.step("returns cursor and members", async () => {
     const key = newKey();
     const value = randomID();
-    await new ZAddCommand(key, { score: 0, member: value }).exec(client);
-    const res = await new ZScanCommand(key, 0, { count: 1 }).exec(client);
+    await new ZAddCommand([key, { score: 0, member: value }]).exec(client);
+    const res = await new ZScanCommand([key, 0, { count: 1 }]).exec(client);
 
     assertEquals(res.length, 2);
     assertEquals(typeof res[0], "number");

@@ -16,9 +16,9 @@ Deno.test(
     const member1 = randomID();
     const key2 = newKey();
     const member2 = randomID();
-    await new SAddCommand(key1, member1).exec(client);
-    await new SAddCommand(key2, member2).exec(client);
-    const res = await new SDiffCommand(key1, key2).exec(client);
+    await new SAddCommand([key1, member1]).exec(client);
+    await new SAddCommand([key2, member2]).exec(client);
+    const res = await new SDiffCommand([key1, key2]).exec(client);
     assertEquals(res, [member1]);
   },
 );

@@ -11,7 +11,7 @@ afterAll(cleanup);
 
 Deno.test("returns a random key", async () => {
   const key = newKey();
-  await new SetCommand(key, randomID()).exec(client);
+  await new SetCommand([key, randomID()]).exec(client);
   const res = await new RandomKeyCommand().exec(client);
   assertEquals(typeof res, "string");
 });

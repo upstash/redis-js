@@ -12,8 +12,8 @@ Deno.test(
   "returns the cardinality",
   async () => {
     const key = newKey();
-    await new SAddCommand(key, "member1").exec(client);
-    const res = await new SCardCommand(key).exec(client);
+    await new SAddCommand([key, "member1"]).exec(client);
+    const res = await new SCardCommand([key]).exec(client);
     assertEquals(res, 1);
   },
 );

@@ -22,10 +22,10 @@ Deno.test(
     const kv: Record<string, string> = {};
     kv[key1] = value1;
     kv[key2] = value2;
-    const res = await new MSetNXCommand(kv).exec(client);
+    const res = await new MSetNXCommand([kv]).exec(client);
 
     assertEquals(res, 1);
-    const res2 = await new MGetCommand<[string, string]>(key1, key2).exec(
+    const res2 = await new MGetCommand<[string, string]>([key1, key2]).exec(
       client,
     );
 
@@ -40,15 +40,15 @@ Deno.test(
     const value1 = randomID();
     const key2 = newKey();
     const value2 = randomID();
-    await new SetCommand(key1, value1).exec(client);
+    await new SetCommand([key1, value1]).exec(client);
     const kv: Record<string, string> = {};
     kv[key1] = value1;
     kv[key2] = value2;
-    const res = await new MSetNXCommand(kv).exec(client);
+    const res = await new MSetNXCommand([kv]).exec(client);
 
     assertEquals(res, 0);
 
-    const res2 = await new GetCommand(key2).exec(client);
+    const res2 = await new GetCommand([key2]).exec(client);
 
     assertEquals(res2, null);
   },

@@ -122,11 +122,25 @@ import { Requester } from "./http.ts";
 import { Pipeline } from "./pipeline.ts";
 import type { CommandArgs, NonEmptyArray } from "./types.ts";
 
+export type RedisConfig = {
+  /**
+   * If you want to handle (de)serialization yourself and disable the automatic `JSON.stringify`
+   * and `JSON.parse` serialization.
+   *
+   * @experimental This flag is subject to change!!!
+   *
+   * Disabling automatic deserialization can cause type errors.
+   * Please report them here: https://github.com/upstash/upstash-redis/issues/new
+   */
+  disableJsonSerialization?: true;
+};
+
 /**
  * Serverless redis client for upstash.
  */
 export class Redis {
   private readonly client: Requester;
+  private opts?: RedisConfig;
 
   /**
    * Create a new redis client
@@ -139,8 +153,9 @@ export class Redis {
    * });
    * ```
    */
-  constructor(client: Requester) {
+  constructor(client: Requester, opts?: RedisConfig) {
     this.client = client;
+    this.opts = opts;
   }
 
   /**
@@ -148,19 +163,19 @@ export class Redis {
    *
    * @see {@link Pipeline}
    */
-  pipeline = () => new Pipeline(this.client);
+  pipeline = () => new Pipeline(this.client, opts);
 
   /**
    * @see https://redis.io/commands/append
    */
   append = (...args: CommandArgs<typeof AppendCommand>) =>
-    new AppendCommand(...args).exec(this.client);
+    new AppendCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/bitcount
    */
   bitcount = (...args: CommandArgs<typeof BitCountCommand>) =>
-    new BitCountCommand(...args).exec(this.client);
+    new BitCountCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/bitop
@@ -180,14 +195,14 @@ export class Redis {
     ...sourceKeys: string[]
   ) =>
     new BitOpCommand(op as any, destinationKey, sourceKey, ...sourceKeys).exec(
-      this.client,
+      this.client
     );
 
   /**
    * @see https://redis.io/commands/bitpos
    */
   bitpos = (...args: CommandArgs<typeof BitPosCommand>) =>
-    new BitPosCommand(...args).exec(this.client);
+    new BitPosCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/dbsize
@@ -198,25 +213,25 @@ export class Redis {
    * @see https://redis.io/commands/decr
    */
   decr = (...args: CommandArgs<typeof DecrCommand>) =>
-    new DecrCommand(...args).exec(this.client);
+    new DecrCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/decrby
    */
   decrby = (...args: CommandArgs<typeof DecrByCommand>) =>
-    new DecrByCommand(...args).exec(this.client);
+    new DecrByCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/del
    */
   del = (...args: CommandArgs<typeof DelCommand>) =>
-    new DelCommand(...args).exec(this.client);
+    new DelCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/echo
    */
   echo = (...args: CommandArgs<typeof EchoCommand>) =>
-    new EchoCommand(...args).exec(this.client);
+    new EchoCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/eval
@@ -236,31 +251,31 @@ export class Redis {
    * @see https://redis.io/commands/exists
    */
   exists = (...args: CommandArgs<typeof ExistsCommand>) =>
-    new ExistsCommand(...args).exec(this.client);
+    new ExistsCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/expire
    */
   expire = (...args: CommandArgs<typeof ExpireCommand>) =>
-    new ExpireCommand(...args).exec(this.client);
+    new ExpireCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/expireat
    */
   expireat = (...args: CommandArgs<typeof ExpireAtCommand>) =>
-    new ExpireAtCommand(...args).exec(this.client);
+    new ExpireAtCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/flushall
    */
   flushall = (...args: CommandArgs<typeof FlushAllCommand>) =>
-    new FlushAllCommand(...args).exec(this.client);
+    new FlushAllCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/flushdb
    */
   flushdb = (...args: CommandArgs<typeof FlushDBCommand>) =>
-    new FlushDBCommand(...args).exec(this.client);
+    new FlushDBCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/get
@@ -272,13 +287,13 @@ export class Redis {
    * @see https://redis.io/commands/getbit
    */
   getbit = (...args: CommandArgs<typeof GetBitCommand>) =>
-    new GetBitCommand(...args).exec(this.client);
+    new GetBitCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/getrange
    */
   getrange = (...args: CommandArgs<typeof GetRangeCommand>) =>
-    new GetRangeCommand(...args).exec(this.client);
+    new GetRangeCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/getset
@@ -290,13 +305,13 @@ export class Redis {
    * @see https://redis.io/commands/hdel
    */
   hdel = (...args: CommandArgs<typeof HDelCommand>) =>
-    new HDelCommand(...args).exec(this.client);
+    new HDelCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hexists
    */
   hexists = (...args: CommandArgs<typeof HExistsCommand>) =>
-    new HExistsCommand(...args).exec(this.client);
+    new HExistsCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hget
@@ -315,25 +330,25 @@ export class Redis {
    * @see https://redis.io/commands/hincrby
    */
   hincrby = (...args: CommandArgs<typeof HIncrByCommand>) =>
-    new HIncrByCommand(...args).exec(this.client);
+    new HIncrByCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hincrbyfloat
    */
   hincrbyfloat = (...args: CommandArgs<typeof HIncrByFloatCommand>) =>
-    new HIncrByFloatCommand(...args).exec(this.client);
+    new HIncrByFloatCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hkeys
    */
   hkeys = (...args: CommandArgs<typeof HKeysCommand>) =>
-    new HKeysCommand(...args).exec(this.client);
+    new HKeysCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hlen
    */
   hlen = (...args: CommandArgs<typeof HLenCommand>) =>
-    new HLenCommand(...args).exec(this.client);
+    new HLenCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hmget
@@ -352,7 +367,7 @@ export class Redis {
    * @see https://redis.io/commands/hscan
    */
   hscan = (...args: CommandArgs<typeof HScanCommand>) =>
-    new HScanCommand(...args).exec(this.client);
+    new HScanCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hset
@@ -370,43 +385,43 @@ export class Redis {
    * @see https://redis.io/commands/hstrlen
    */
   hstrlen = (...args: CommandArgs<typeof HStrLenCommand>) =>
-    new HStrLenCommand(...args).exec(this.client);
+    new HStrLenCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hvals
    */
   hvals = (...args: CommandArgs<typeof HValsCommand>) =>
-    new HValsCommand(...args).exec(this.client);
+    new HValsCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/incr
    */
   incr = (...args: CommandArgs<typeof IncrCommand>) =>
-    new IncrCommand(...args).exec(this.client);
+    new IncrCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/incrby
    */
   incrby = (...args: CommandArgs<typeof IncrByCommand>) =>
-    new IncrByCommand(...args).exec(this.client);
+    new IncrByCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/incrbyfloat
    */
   incrbyfloat = (...args: CommandArgs<typeof IncrByFloatCommand>) =>
-    new IncrByFloatCommand(...args).exec(this.client);
+    new IncrByFloatCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/keys
    */
   keys = (...args: CommandArgs<typeof KeysCommand>) =>
-    new KeysCommand(...args).exec(this.client);
+    new KeysCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/lindex
    */
   lindex = (...args: CommandArgs<typeof LIndexCommand>) =>
-    new LIndexCommand(...args).exec(this.client);
+    new LIndexCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/linsert
@@ -415,7 +430,7 @@ export class Redis {
     key: string,
     direction: "before" | "after",
     pivot: TData,
-    value: TData,
+    value: TData
   ) =>
     new LInsertCommand<TData>(key, direction, pivot, value).exec(this.client);
 
@@ -423,7 +438,7 @@ export class Redis {
    * @see https://redis.io/commands/llen
    */
   llen = (...args: CommandArgs<typeof LLenCommand>) =>
-    new LLenCommand(...args).exec(this.client);
+    new LLenCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/lpop
@@ -465,7 +480,7 @@ export class Redis {
    * @see https://redis.io/commands/ltrim
    */
   ltrim = (...args: CommandArgs<typeof LTrimCommand>) =>
-    new LTrimCommand(...args).exec(this.client);
+    new LTrimCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/mget
@@ -489,25 +504,25 @@ export class Redis {
    * @see https://redis.io/commands/persist
    */
   persist = (...args: CommandArgs<typeof PersistCommand>) =>
-    new PersistCommand(...args).exec(this.client);
+    new PersistCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/pexpire
    */
   pexpire = (...args: CommandArgs<typeof PExpireCommand>) =>
-    new PExpireCommand(...args).exec(this.client);
+    new PExpireCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/pexpireat
    */
   pexpireat = (...args: CommandArgs<typeof PExpireAtCommand>) =>
-    new PExpireAtCommand(...args).exec(this.client);
+    new PExpireAtCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/ping
    */
   ping = (...args: CommandArgs<typeof PingCommand>) =>
-    new PingCommand(...args).exec(this.client);
+    new PingCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/psetex
@@ -519,13 +534,13 @@ export class Redis {
    * @see https://redis.io/commands/pttl
    */
   pttl = (...args: CommandArgs<typeof PTtlCommand>) =>
-    new PTtlCommand(...args).exec(this.client);
+    new PTtlCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/publish
    */
   publish = (...args: CommandArgs<typeof PublishCommand>) =>
-    new PublishCommand(...args).exec(this.client);
+    new PublishCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/randomkey
@@ -536,13 +551,13 @@ export class Redis {
    * @see https://redis.io/commands/rename
    */
   rename = (...args: CommandArgs<typeof RenameCommand>) =>
-    new RenameCommand(...args).exec(this.client);
+    new RenameCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/renamenx
    */
   renamenx = (...args: CommandArgs<typeof RenameNXCommand>) =>
-    new RenameNXCommand(...args).exec(this.client);
+    new RenameNXCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/rpop
@@ -572,42 +587,42 @@ export class Redis {
    * @see https://redis.io/commands/scan
    */
   scan = (...args: CommandArgs<typeof ScanCommand>) =>
-    new ScanCommand(...args).exec(this.client);
+    new ScanCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/scard
    */
   scard = (...args: CommandArgs<typeof SCardCommand>) =>
-    new SCardCommand(...args).exec(this.client);
+    new SCardCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/script-exists
    */
   scriptExists = (...args: CommandArgs<typeof ScriptExistsCommand>) =>
-    new ScriptExistsCommand(...args).exec(this.client);
+    new ScriptExistsCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/script-flush
    */
   scriptFlush = (...args: CommandArgs<typeof ScriptFlushCommand>) =>
-    new ScriptFlushCommand(...args).exec(this.client);
+    new ScriptFlushCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/script-load
    */
   scriptLoad = (...args: CommandArgs<typeof ScriptLoadCommand>) =>
-    new ScriptLoadCommand(...args).exec(this.client);
+    new ScriptLoadCommand(args, this.opts).exec(this.client);
   /**
    * @see https://redis.io/commands/sdiff
    */
   sdiff = (...args: CommandArgs<typeof SDiffCommand>) =>
-    new SDiffCommand(...args).exec(this.client);
+    new SDiffCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/sdiffstore
    */
   sdiffstore = (...args: CommandArgs<typeof SDiffStoreCommand>) =>
-    new SDiffStoreCommand(...args).exec(this.client);
+    new SDiffStoreCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/set
@@ -619,7 +634,7 @@ export class Redis {
    * @see https://redis.io/commands/setbit
    */
   setbit = (...args: CommandArgs<typeof SetBitCommand>) =>
-    new SetBitCommand(...args).exec(this.client);
+    new SetBitCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/setex
@@ -637,19 +652,19 @@ export class Redis {
    * @see https://redis.io/commands/setrange
    */
   setrange = (...args: CommandArgs<typeof SetRangeCommand>) =>
-    new SetRangeCommand(...args).exec(this.client);
+    new SetRangeCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/sinter
    */
   sinter = (...args: CommandArgs<typeof SInterCommand>) =>
-    new SInterCommand(...args).exec(this.client);
+    new SInterCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/sinterstore
    */
   sinterstore = (...args: CommandArgs<typeof SInterStoreCommand>) =>
-    new SInterStoreCommand(...args).exec(this.client);
+    new SInterStoreCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/sismember
@@ -661,7 +676,7 @@ export class Redis {
    * @see https://redis.io/commands/smembers
    */
   smembers = (...args: CommandArgs<typeof SMembersCommand>) =>
-    new SMembersCommand(...args).exec(this.client);
+    new SMembersCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/smove
@@ -691,25 +706,25 @@ export class Redis {
    * @see https://redis.io/commands/sscan
    */
   sscan = (...args: CommandArgs<typeof SScanCommand>) =>
-    new SScanCommand(...args).exec(this.client);
+    new SScanCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/strlen
    */
   strlen = (...args: CommandArgs<typeof StrLenCommand>) =>
-    new StrLenCommand(...args).exec(this.client);
+    new StrLenCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/sunion
    */
   sunion = (...args: CommandArgs<typeof SUnionCommand>) =>
-    new SUnionCommand(...args).exec(this.client);
+    new SUnionCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/sunionstore
    */
   sunionstore = (...args: CommandArgs<typeof SUnionStoreCommand>) =>
-    new SUnionStoreCommand(...args).exec(this.client);
+    new SUnionStoreCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/time
@@ -720,25 +735,25 @@ export class Redis {
    * @see https://redis.io/commands/touch
    */
   touch = (...args: CommandArgs<typeof TouchCommand>) =>
-    new TouchCommand(...args).exec(this.client);
+    new TouchCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/ttl
    */
   ttl = (...args: CommandArgs<typeof TtlCommand>) =>
-    new TtlCommand(...args).exec(this.client);
+    new TtlCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/type
    */
   type = (...args: CommandArgs<typeof TypeCommand>) =>
-    new TypeCommand(...args).exec(this.client);
+    new TypeCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/unlink
    */
   unlink = (...args: CommandArgs<typeof UnlinkCommand>) =>
-    new UnlinkCommand(...args).exec(this.client);
+    new UnlinkCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zadd
@@ -746,41 +761,41 @@ export class Redis {
   zadd = <TData>(
     ...args:
       | [
-        key: string,
-        scoreMember: ScoreMember<TData>,
-        ...scoreMemberPairs: ScoreMember<TData>[],
-      ]
+          key: string,
+          scoreMember: ScoreMember<TData>,
+          ...scoreMemberPairs: ScoreMember<TData>[]
+        ]
       | [
-        key: string,
-        opts: ZAddCommandOptions | ZAddCommandOptionsWithIncr,
-        ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]],
-      ]
+          key: string,
+          opts: ZAddCommandOptions | ZAddCommandOptionsWithIncr,
+          ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]]
+        ]
   ) => {
     if ("score" in args[1]) {
       return new ZAddCommand<TData>(
         args[0],
         args[1] as ScoreMember<TData>,
-        ...(args.slice(2) as any),
+        ...(args.slice(2) as any)
       ).exec(this.client);
     }
 
     return new ZAddCommand<TData>(
       args[0],
       args[1] as any,
-      ...(args.slice(2) as any),
+      ...(args.slice(2) as any)
     ).exec(this.client);
   };
   /**
    * @see https://redis.io/commands/zcard
    */
   zcard = (...args: CommandArgs<typeof ZCardCommand>) =>
-    new ZCardCommand(...args).exec(this.client);
+    new ZCardCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zcount
    */
   zcount = (...args: CommandArgs<typeof ZCountCommand>) =>
-    new ZCountCommand(...args).exec(this.client);
+    new ZCountCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zincrby
@@ -792,13 +807,13 @@ export class Redis {
    * @see https://redis.io/commands/zinterstore
    */
   zinterstore = (...args: CommandArgs<typeof ZInterStoreCommand>) =>
-    new ZInterStoreCommand(...args).exec(this.client);
+    new ZInterStoreCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zlexcount
    */
   zlexcount = (...args: CommandArgs<typeof ZLexCountCommand>) =>
-    new ZLexCountCommand(...args).exec(this.client);
+    new ZLexCountCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zpopmax
@@ -819,22 +834,24 @@ export class Redis {
     ...args:
       | [key: string, min: number, max: number, opts?: ZRangeCommandOptions]
       | [
-        key: string,
-        min: `(${string}` | `[${string}` | "-" | "+",
-        max: `(${string}` | `[${string}` | "-" | "+",
-        opts: { byLex: true } & ZRangeCommandOptions,
-      ]
+          key: string,
+          min: `(${string}` | `[${string}` | "-" | "+",
+          max: `(${string}` | `[${string}` | "-" | "+",
+          opts: { byLex: true } & ZRangeCommandOptions
+        ]
       | [
-        key: string,
-        min: number | `(${number}` | "-inf" | "+inf",
-        max: number | `(${number}` | "-inf" | "+inf",
-        opts: { byScore: true } & ZRangeCommandOptions,
-      ]
+          key: string,
+          min: number | `(${number}` | "-inf" | "+inf",
+          max: number | `(${number}` | "-inf" | "+inf",
+          opts: { byScore: true } & ZRangeCommandOptions
+        ]
   ) =>
-    new ZRangeCommand<TData>(args[0], args[1] as any, args[2] as any, args[3])
-      .exec(
-        this.client,
-      );
+    new ZRangeCommand<TData>(
+      args[0],
+      args[1] as any,
+      args[2] as any,
+      args[3]
+    ).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zrank
@@ -852,19 +869,19 @@ export class Redis {
    * @see https://redis.io/commands/zremrangebylex
    */
   zremrangebylex = (...args: CommandArgs<typeof ZRemRangeByLexCommand>) =>
-    new ZRemRangeByLexCommand(...args).exec(this.client);
+    new ZRemRangeByLexCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zremrangebyrank
    */
   zremrangebyrank = (...args: CommandArgs<typeof ZRemRangeByRankCommand>) =>
-    new ZRemRangeByRankCommand(...args).exec(this.client);
+    new ZRemRangeByRankCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zremrangebyscore
    */
   zremrangebyscore = (...args: CommandArgs<typeof ZRemRangeByScoreCommand>) =>
-    new ZRemRangeByScoreCommand(...args).exec(this.client);
+    new ZRemRangeByScoreCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zrevrank
@@ -876,7 +893,7 @@ export class Redis {
    * @see https://redis.io/commands/zscan
    */
   zscan = (...args: CommandArgs<typeof ZScanCommand>) =>
-    new ZScanCommand(...args).exec(this.client);
+    new ZScanCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zscore
@@ -888,5 +905,5 @@ export class Redis {
    * @see https://redis.io/commands/zunionstore
    */
   zunionstore = (...args: CommandArgs<typeof ZUnionStoreCommand>) =>
-    new ZUnionStoreCommand(...args).exec(this.client);
+    new ZUnionStoreCommand(args, this.opts).exec(this.client);
 }

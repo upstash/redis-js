@@ -14,8 +14,8 @@ Deno.test("without count", async (t) => {
   await t.step("returns the first element", async () => {
     const key = newKey();
     const member = randomID();
-    await new SAddCommand(key, member).exec(client);
-    const res = await new SPopCommand(key).exec(client);
+    await new SAddCommand([key, member]).exec(client);
+    const res = await new SPopCommand([key]).exec(client);
     assertEquals(res, member);
   });
 });
@@ -27,8 +27,10 @@ Deno.test("with count", async (t) => {
     const member2 = randomID();
     const member3 = randomID();
     const member4 = randomID();
-    await new SAddCommand(key, member1, member2, member3, member4).exec(client);
-    const res = await new SPopCommand<string[]>(key, 2).exec(client);
+    await new SAddCommand([key, member1, member2, member3, member4]).exec(
+      client,
+    );
+    const res = await new SPopCommand<string[]>([key, 2]).exec(client);
 
     assertEquals(res?.length, 2);
     assertEquals([member1, member2, member3, member4].includes(res![0]), true);

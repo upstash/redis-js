@@ -19,10 +19,10 @@ Deno.test(
       [key1]: randomID(),
       [key2]: randomID(),
     };
-    const res = await new MSetCommand(kv).exec(client);
+    const res = await new MSetCommand([kv]).exec(client);
 
     assertEquals(res, "OK");
-    const res2 = await new MGetCommand(key1, key2).exec(client);
+    const res2 = await new MGetCommand([key1, key2]).exec(client);
     assertEquals(res2, Object.values(kv));
   },
 );

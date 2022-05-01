@@ -1,10 +1,13 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 /**
  * @see https://redis.io/commands/incrby
  */
 export class IncrByCommand extends Command<number, number> {
-  constructor(key: string, value: number) {
-    super(["incrby", key, value]);
+  constructor(
+    cmd: [key: string, value: number],
+    opts?: CommandOptions<number, number>,
+  ) {
+    super(["incrby", ...cmd], opts);
   }
 }

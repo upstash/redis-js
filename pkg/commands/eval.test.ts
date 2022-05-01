@@ -10,38 +10,26 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test(
-  "without keys",
-  async (t) => {
-    await t.step(
-      "returns something",
-      async () => {
-        const value = randomID();
-        const res = await new EvalCommand("return ARGV[1]", [], [value]).exec(
-          client,
-        );
-        assertEquals(res, value);
-      },
+Deno.test("without keys", async (t) => {
+  await t.step("returns something", async () => {
+    const value = randomID();
+    const res = await new EvalCommand(["return ARGV[1]", [], [value]]).exec(
+      client,
     );
-  },
-);
+    assertEquals(res, value);
+  });
+});
 
-Deno.test(
-  "with keys",
-  async (t) => {
-    await t.step(
-      "returns something",
-      async () => {
-        const value = randomID();
-        const key = newKey();
-        await new SetCommand(key, value).exec(client);
-        const res = await new EvalCommand(
-          `return redis.call("GET", KEYS[1])`,
-          [key],
-          [],
-        ).exec(client);
-        assertEquals(res, value);
-      },
-    );
-  },
-);
+Deno.test("with keys", async (t) => {
+  await t.step("returns something", async () => {
+    const value = randomID();
+    const key = newKey();
+    await new SetCommand([key, value]).exec(client);
+    const res = await new EvalCommand([
+      `return redis.call("GET", KEYS[1])`,
+      [key],
+      [],
+    ]).exec(client);
+    assertEquals(res, value);
+  });
+});

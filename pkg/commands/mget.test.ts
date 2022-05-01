@@ -19,17 +19,19 @@ Deno.test("gets exiting values", async () => {
   const kv: Record<string, string> = {};
   kv[key1] = value1;
   kv[key2] = value2;
-  const res = await new MSetCommand(kv).exec(client);
+  const res = await new MSetCommand([kv]).exec(client);
 
   assertEquals(res, "OK");
-  const res2 = await new MGetCommand<[string, string]>(key1, key2).exec(client);
+  const res2 = await new MGetCommand<[string, string]>([key1, key2]).exec(
+    client,
+  );
 
   assertEquals(res2, [value1, value2]);
 });
 
 Deno.test("gets a non-existing value", async () => {
   const key = newKey();
-  const res = await new MGetCommand<[null]>(key).exec(client);
+  const res = await new MGetCommand<[null]>([key]).exec(client);
 
   assertEquals(res, [null]);
 });
@@ -37,8 +39,8 @@ Deno.test("gets a non-existing value", async () => {
 Deno.test("gets an object", async () => {
   const key = newKey();
   const value = { v: randomID() };
-  await new SetCommand(key, value).exec(client);
-  const res = await new MGetCommand<[{ v: string }]>(key).exec(client);
+  await new SetCommand([key, value]).exec(client);
+  const res = await new MGetCommand<[{ v: string }]>([key]).exec(client);
 
   assertEquals(res, [value]);
 });

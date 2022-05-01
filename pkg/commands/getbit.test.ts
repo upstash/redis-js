@@ -12,7 +12,7 @@ afterAll(cleanup);
 Deno.test("returns the bit at offset", async () => {
   const key = newKey();
 
-  await new SetBitCommand(key, 0, 1).exec(client);
-  const res = await new GetBitCommand(key, 0).exec(client);
+  await new SetBitCommand([key, 0, 1]).exec(client);
+  const res = await new GetBitCommand([key, 0]).exec(client);
   assertEquals(res, 1);
 });

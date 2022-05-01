@@ -21,8 +21,8 @@ Deno.test(
       async () => {
         const key = newKey();
         const value = randomID();
-        await new SetCommand(key, value).exec(client);
-        const res = await new TypeCommand(key).exec(client);
+        await new SetCommand([key, value]).exec(client);
+        const res = await new TypeCommand([key]).exec(client);
         assertEquals(res, "string");
       },
     );
@@ -37,8 +37,8 @@ Deno.test(
       async () => {
         const key = newKey();
         const value = randomID();
-        await new LPushCommand(key, value).exec(client);
-        const res = await new TypeCommand(key).exec(client);
+        await new LPushCommand([key, value]).exec(client);
+        const res = await new TypeCommand([key]).exec(client);
         assertEquals(res, "list");
       },
     );
@@ -53,8 +53,8 @@ Deno.test(
       async () => {
         const key = newKey();
         const value = randomID();
-        await new SAddCommand(key, value).exec(client);
-        const res = await new TypeCommand(key).exec(client);
+        await new SAddCommand([key, value]).exec(client);
+        const res = await new TypeCommand([key]).exec(client);
         assertEquals(res, "set");
       },
     );
@@ -70,8 +70,8 @@ Deno.test(
         const key = newKey();
         const field = randomID();
         const value = randomID();
-        await new HSetCommand(key, { [field]: value }).exec(client);
-        const res = await new TypeCommand(key).exec(client);
+        await new HSetCommand([key, { [field]: value }]).exec(client);
+        const res = await new TypeCommand([key]).exec(client);
         assertEquals(res, "hash");
       },
     );
@@ -86,8 +86,8 @@ Deno.test(
       async () => {
         const key = newKey();
         const member = randomID();
-        await new ZAddCommand(key, { score: 0, member }).exec(client);
-        const res = await new TypeCommand(key).exec(client);
+        await new ZAddCommand([key, { score: 0, member }]).exec(client);
+        const res = await new TypeCommand([key]).exec(client);
         assertEquals(res, "zset");
       },
     );
@@ -101,7 +101,7 @@ Deno.test(
       "returns the correct type",
       async () => {
         const key = newKey();
-        const res = await new TypeCommand(key).exec(client);
+        const res = await new TypeCommand([key]).exec(client);
         assertEquals(res, "none");
       },
     );

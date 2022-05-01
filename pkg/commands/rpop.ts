@@ -1,13 +1,16 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 /**
  * @see https://redis.io/commands/rpop
  */
 export class RPopCommand<TData = string> extends Command<
-  TData | null,
-  unknown | null
+  unknown | null,
+  TData | null
 > {
-  constructor(key: string) {
-    super(["rpop", key]);
+  constructor(
+    cmd: [key: string],
+    opts?: CommandOptions<unknown | null, TData | null>,
+  ) {
+    super(["rpop", ...cmd], opts);
   }
 }

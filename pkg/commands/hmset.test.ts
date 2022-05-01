@@ -14,10 +14,10 @@ Deno.test("gets exiting values", async () => {
     [randomID()]: randomID(),
     [randomID()]: randomID(),
   };
-  const res = await new HMSetCommand(key, kv).exec(client);
+  const res = await new HMSetCommand([key, kv]).exec(client);
 
   assertEquals(res, "OK");
-  const res2 = await new HMGetCommand(key, ...Object.keys(kv)).exec(client);
+  const res2 = await new HMGetCommand([key, ...Object.keys(kv)]).exec(client);
 
   assertEquals(res2, kv);
 });

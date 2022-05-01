@@ -13,7 +13,7 @@ afterAll(cleanup);
 Deno.test("returns the db size", async () => {
   const key = newKey();
   const value = randomID();
-  await new SetCommand(key, value).exec(client);
+  await new SetCommand([key, value]).exec(client);
   const res = await new DBSizeCommand().exec(client);
   assertEquals(res > 0, true);
 });

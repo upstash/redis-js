@@ -14,8 +14,8 @@ Deno.test(
       "returns cursor and members",
       async () => {
         const key = newKey();
-        await new HSetCommand(key, { field: "value" }).exec(client);
-        const res = await new HScanCommand(key, 0).exec(client);
+        await new HSetCommand([key, { field: "value" }]).exec(client);
+        const res = await new HScanCommand([key, 0]).exec(client);
 
         assertEquals(res.length, 2);
         assertEquals(typeof res[0], "number");
@@ -32,8 +32,8 @@ Deno.test(
       "returns cursor and members",
       async () => {
         const key = newKey();
-        await new HSetCommand(key, { field: "value" }).exec(client);
-        const res = await new HScanCommand(key, 0, { match: "field" }).exec(
+        await new HSetCommand([key, { field: "value" }]).exec(client);
+        const res = await new HScanCommand([key, 0, { match: "field" }]).exec(
           client,
         );
 
@@ -52,8 +52,8 @@ Deno.test(
       "returns cursor and members",
       async () => {
         const key = newKey();
-        await new HSetCommand(key, { field: "value" }).exec(client);
-        const res = await new HScanCommand(key, 0, { count: 1 }).exec(client);
+        await new HSetCommand([key, { field: "value" }]).exec(client);
+        const res = await new HScanCommand([key, 0, { count: 1 }]).exec(client);
 
         assertEquals(res.length, 2);
         assertEquals(typeof res[0], "number");

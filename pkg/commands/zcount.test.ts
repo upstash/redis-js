@@ -11,7 +11,7 @@ afterAll(cleanup);
 
 Deno.test("returns the cardinality", async () => {
   const key = newKey();
-  await new ZAddCommand(key, { score: 1, member: "member1" }).exec(client);
-  const res = await new ZCountCommand(key, 0, 2).exec(client);
+  await new ZAddCommand([key, { score: 1, member: "member1" }]).exec(client);
+  const res = await new ZCountCommand([key, 0, 2]).exec(client);
   assertEquals(res, 1);
 });

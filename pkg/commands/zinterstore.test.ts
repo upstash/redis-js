@@ -13,7 +13,7 @@ afterAll(cleanup);
 Deno.test("command format", async (t) => {
   await t.step("without options", async (t) => {
     await t.step("builds the correct command", () => {
-      assertEquals(new ZInterStoreCommand("destination", 1, "key").command, [
+      assertEquals(new ZInterStoreCommand(["destination", 1, "key"]).command, [
         "zinterstore",
         "destination",
         "1",
@@ -24,7 +24,7 @@ Deno.test("command format", async (t) => {
   await t.step("with multiple keys", async (t) => {
     await t.step("builds the correct command", () => {
       assertEquals(
-        new ZInterStoreCommand("destination", 2, ["key1", "key2"]).command,
+        new ZInterStoreCommand(["destination", 2, ["key1", "key2"]]).command,
         ["zinterstore", "destination", "2", "key1", "key2"],
       );
     });
@@ -32,7 +32,8 @@ Deno.test("command format", async (t) => {
   await t.step("with single weight", async (t) => {
     await t.step("builds the correct command", () => {
       assertEquals(
-        new ZInterStoreCommand("destination", 1, "key", { weight: 4 }).command,
+        new ZInterStoreCommand(["destination", 1, "key", { weight: 4 }])
+          .command,
         ["zinterstore", "destination", "1", "key", "weights", "4"],
       );
     });
@@ -40,9 +41,9 @@ Deno.test("command format", async (t) => {
   await t.step("with multiple weights", async (t) => {
     await t.step("builds the correct command", () => {
       assertEquals(
-        new ZInterStoreCommand("destination", 2, ["key1", "key2"], {
+        new ZInterStoreCommand(["destination", 2, ["key1", "key2"], {
           weights: [2, 3],
-        }).command,
+        }]).command,
         [
           "zinterstore",
           "destination",
@@ -59,9 +60,9 @@ Deno.test("command format", async (t) => {
       await t.step("sum", async (t) => {
         await t.step("builds the correct command", () => {
           assertEquals(
-            new ZInterStoreCommand("destination", 1, "key", {
+            new ZInterStoreCommand(["destination", 1, "key", {
               aggregate: "sum",
-            }).command,
+            }]).command,
             ["zinterstore", "destination", "1", "key", "aggregate", "sum"],
           );
         });
@@ -69,9 +70,9 @@ Deno.test("command format", async (t) => {
       await t.step("min", async (t) => {
         await t.step("builds the correct command", () => {
           assertEquals(
-            new ZInterStoreCommand("destination", 1, "key", {
+            new ZInterStoreCommand(["destination", 1, "key", {
               aggregate: "min",
-            }).command,
+            }]).command,
             ["zinterstore", "destination", "1", "key", "aggregate", "min"],
           );
         });
@@ -79,9 +80,9 @@ Deno.test("command format", async (t) => {
       await t.step("max", async (t) => {
         await t.step("builds the correct command", () => {
           assertEquals(
-            new ZInterStoreCommand("destination", 1, "key", {
+            new ZInterStoreCommand(["destination", 1, "key", {
               aggregate: "max",
-            }).command,
+            }]).command,
             ["zinterstore", "destination", "1", "key", "aggregate", "max"],
           );
         });
@@ -90,10 +91,10 @@ Deno.test("command format", async (t) => {
     await t.step("complex", async (t) => {
       await t.step("builds the correct command", () => {
         assertEquals(
-          new ZInterStoreCommand("destination", 2, ["key1", "key2"], {
+          new ZInterStoreCommand(["destination", 2, ["key1", "key2"], {
             weights: [4, 2],
             aggregate: "max",
-          }).command,
+          }]).command,
           [
             "zinterstore",
             "destination",
@@ -122,18 +123,19 @@ Deno.test("without options", async (t) => {
     const score2 = 2;
     const member2 = randomID();
 
-    await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
+    await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(
       client,
     );
-    await new ZAddCommand(
+    await new ZAddCommand([
       key2,
       { score: score1, member: member1 },
       { score: score2, member: member2 },
-    ).exec(client);
+    ]).exec(client);
 
-    const res = await new ZInterStoreCommand(destination, 2, [key1, key2]).exec(
-      client,
-    );
+    const res = await new ZInterStoreCommand([destination, 2, [key1, key2]])
+      .exec(
+        client,
+      );
     assertEquals(res, 1);
   });
 });
@@ -149,18 +151,18 @@ Deno.test("with weights", async (t) => {
       const score2 = 2;
       const member2 = randomID();
 
-      await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
+      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(
         client,
       );
-      await new ZAddCommand(
+      await new ZAddCommand([
         key2,
         { score: score1, member: member1 },
         { score: score2, member: member2 },
-      ).exec(client);
+      ]).exec(client);
 
-      const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
+      const res = await new ZInterStoreCommand([destination, 2, [key1, key2], {
         weights: [2, 3],
-      }).exec(client);
+      }]).exec(client);
       assertEquals(res, 1);
     });
   });
@@ -174,18 +176,18 @@ Deno.test("with weights", async (t) => {
       const score2 = 2;
       const member2 = randomID();
 
-      await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
+      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(
         client,
       );
-      await new ZAddCommand(
+      await new ZAddCommand([
         key2,
         { score: score1, member: member1 },
         { score: score2, member: member2 },
-      ).exec(client);
+      ]).exec(client);
 
-      const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
+      const res = await new ZInterStoreCommand([destination, 2, [key1, key2], {
         weights: [1, 2],
-      }).exec(client);
+      }]).exec(client);
       assertEquals(res, 1);
     });
   });
@@ -201,18 +203,18 @@ Deno.test("aggregate", async (t) => {
       const score2 = 2;
       const member2 = randomID();
 
-      await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
+      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(
         client,
       );
-      await new ZAddCommand(
+      await new ZAddCommand([
         key2,
         { score: score1, member: member1 },
         { score: score2, member: member2 },
-      ).exec(client);
+      ]).exec(client);
 
-      const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
+      const res = await new ZInterStoreCommand([destination, 2, [key1, key2], {
         aggregate: "sum",
-      }).exec(client);
+      }]).exec(client);
       assertEquals(res, 1);
     });
   });
@@ -226,18 +228,18 @@ Deno.test("aggregate", async (t) => {
       const score2 = 2;
       const member2 = randomID();
 
-      await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
+      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(
         client,
       );
-      await new ZAddCommand(
+      await new ZAddCommand([
         key2,
         { score: score1, member: member1 },
         { score: score2, member: member2 },
-      ).exec(client);
+      ]).exec(client);
 
-      const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
+      const res = await new ZInterStoreCommand([destination, 2, [key1, key2], {
         aggregate: "min",
-      }).exec(client);
+      }]).exec(client);
       assertEquals(res, 1);
     });
   });
@@ -251,18 +253,18 @@ Deno.test("aggregate", async (t) => {
       const score2 = 2;
       const member2 = randomID();
 
-      await new ZAddCommand(key1, { score: score1, member: member1 }).exec(
+      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(
         client,
       );
-      await new ZAddCommand(
+      await new ZAddCommand([
         key2,
         { score: score1, member: member1 },
         { score: score2, member: member2 },
-      ).exec(client);
+      ]).exec(client);
 
-      const res = await new ZInterStoreCommand(destination, 2, [key1, key2], {
+      const res = await new ZInterStoreCommand([destination, 2, [key1, key2], {
         aggregate: "max",
-      }).exec(client);
+      }]).exec(client);
       assertEquals(res, 1);
     });
   });

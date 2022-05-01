@@ -12,8 +12,8 @@ Deno.test("without options", async (t) => {
   await t.step("returns cursor and keys", async () => {
     const key = newKey();
     const value = randomID();
-    await new SetCommand(key, value).exec(client);
-    const res = await new ScanCommand(0).exec(client);
+    await new SetCommand([key, value]).exec(client);
+    const res = await new ScanCommand([0]).exec(client);
 
     assertEquals(res.length, 2);
     assertEquals(typeof res[0], "number");
@@ -25,8 +25,8 @@ Deno.test("with match", async (t) => {
   await t.step("returns cursor and keys", async () => {
     const key = newKey();
     const value = randomID();
-    await new SetCommand(key, value).exec(client);
-    const res = await new ScanCommand(0, { match: key }).exec(client);
+    await new SetCommand([key, value]).exec(client);
+    const res = await new ScanCommand([0, { match: key }]).exec(client);
 
     assertEquals(res.length, 2);
     assertEquals(typeof res[0], "number");
@@ -38,8 +38,8 @@ Deno.test("with count", async (t) => {
   await t.step("returns cursor and keys", async () => {
     const key = newKey();
     const value = randomID();
-    await new SetCommand(key, value).exec(client);
-    const res = await new ScanCommand(0, { count: 1 }).exec(client);
+    await new SetCommand([key, value]).exec(client);
+    const res = await new ScanCommand([0, { count: 1 }]).exec(client);
 
     assertEquals(res.length, 2);
     assertEquals(typeof res[0], "number");

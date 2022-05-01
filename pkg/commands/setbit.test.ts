@@ -9,9 +9,9 @@ afterAll(cleanup);
 
 Deno.test("returns the original bit", async () => {
   const key = newKey();
-  const res = await new SetBitCommand(key, 0, 1).exec(client);
+  const res = await new SetBitCommand([key, 0, 1]).exec(client);
   assertEquals(res, 0);
-  const res2 = await new SetBitCommand(key, 0, 1).exec(client);
+  const res2 = await new SetBitCommand([key, 0, 1]).exec(client);
 
   assertEquals(res2, 1);
 });

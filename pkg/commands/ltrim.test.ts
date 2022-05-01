@@ -13,10 +13,10 @@ afterAll(cleanup);
 Deno.test("when the list exists", async (t) => {
   await t.step("returns ok", async () => {
     const key = newKey();
-    await new LPushCommand(key, randomID()).exec(client);
-    await new LPushCommand(key, randomID()).exec(client);
-    await new LPushCommand(key, randomID()).exec(client);
-    const res = await new LTrimCommand(key, 1, 2).exec(client);
+    await new LPushCommand([key, randomID()]).exec(client);
+    await new LPushCommand([key, randomID()]).exec(client);
+    await new LPushCommand([key, randomID()]).exec(client);
+    const res = await new LTrimCommand([key, 1, 2]).exec(client);
     assertEquals(res, "OK");
   });
 });
@@ -25,7 +25,7 @@ Deno.test("when the list does not exist", async (t) => {
   await t.step("returns ok", async () => {
     const key = newKey();
 
-    const res = await new LTrimCommand(key, 1, 2).exec(client);
+    const res = await new LTrimCommand([key, 1, 2]).exec(client);
     assertEquals(res, "OK");
   });
 });

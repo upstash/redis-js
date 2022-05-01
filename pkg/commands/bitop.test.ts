@@ -13,7 +13,7 @@ Deno.test("when key is not set", async (t) => {
   await t.step("returns 0", async () => {
     const source = newKey();
     const dest = newKey();
-    const res = await new BitOpCommand("and", dest, source).exec(client);
+    const res = await new BitOpCommand(["and", dest, source]).exec(client);
     assertEquals(res, 0);
   });
 });
@@ -25,9 +25,9 @@ Deno.test("when key is set", async (t) => {
       const sourcevalue = "Hello World";
       const dest = newKey();
       const destValue = "foo: bar";
-      await new SetCommand(source, sourcevalue).exec(client);
-      await new SetCommand(dest, destValue).exec(client);
-      const res = await new BitOpCommand("not", dest, source).exec(client);
+      await new SetCommand([source, sourcevalue]).exec(client);
+      await new SetCommand([dest, destValue]).exec(client);
+      const res = await new BitOpCommand(["not", dest, source]).exec(client);
       assertEquals(res, 11);
     });
   });
@@ -37,9 +37,9 @@ Deno.test("when key is set", async (t) => {
       const sourcevalue = "Hello World";
       const dest = newKey();
       const destValue = "foo: bar";
-      await new SetCommand(source, sourcevalue).exec(client);
-      await new SetCommand(dest, destValue).exec(client);
-      const res = await new BitOpCommand("and", dest, source).exec(client);
+      await new SetCommand([source, sourcevalue]).exec(client);
+      await new SetCommand([dest, destValue]).exec(client);
+      const res = await new BitOpCommand(["and", dest, source]).exec(client);
       assertEquals(res, 11);
     });
   });

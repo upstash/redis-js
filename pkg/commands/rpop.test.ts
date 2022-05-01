@@ -14,8 +14,8 @@ Deno.test("when list exists", async (t) => {
   await t.step("returns the first element", async () => {
     const key = newKey();
     const value = randomID();
-    await new LPushCommand(key, value).exec(client);
-    const res = await new RPopCommand(key).exec(client);
+    await new LPushCommand([key, value]).exec(client);
+    const res = await new RPopCommand([key]).exec(client);
     assertEquals(res, value);
   });
 });
@@ -23,7 +23,7 @@ Deno.test("when list exists", async (t) => {
 Deno.test("when list does not exist", async (t) => {
   await t.step("returns null", async () => {
     const key = newKey();
-    const res = await new RPopCommand(key).exec(client);
+    const res = await new RPopCommand([key]).exec(client);
     assertEquals(res, null);
   });
 });

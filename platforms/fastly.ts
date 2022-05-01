@@ -27,7 +27,7 @@ export type RedisConfigFastly = {
    * referenced by name.
    */
   backend: string;
-};
+} & core.RedisOptions;
 
 /**
  * Serverless redis client for upstash.
@@ -52,7 +52,9 @@ export class Redis extends core.Redis {
       backend: config.backend,
     });
 
-    super(client);
+    super(client, {
+      automaticDeserialization: config.automaticDeserialization,
+    });
   }
 }
 

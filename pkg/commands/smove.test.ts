@@ -13,7 +13,9 @@ Deno.test("moves the member", async () => {
   const source = newKey();
   const destination = newKey();
   const member = randomID();
-  await new SAddCommand(source, member).exec(client);
-  const res = await new SMoveCommand(source, destination, member).exec(client);
+  await new SAddCommand([source, member]).exec(client);
+  const res = await new SMoveCommand([source, destination, member]).exec(
+    client,
+  );
   assertEquals(res, 1);
 });

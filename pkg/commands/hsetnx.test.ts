@@ -20,10 +20,12 @@ Deno.test(
         const field = randomID();
         const value = randomID();
         const newValue = randomID();
-        await new HSetCommand(key, { [field]: value }).exec(client);
-        const res = await new HSetNXCommand(key, field, newValue).exec(client);
+        await new HSetCommand([key, { [field]: value }]).exec(client);
+        const res = await new HSetNXCommand([key, field, newValue]).exec(
+          client,
+        );
         assertEquals(res, 0);
-        const res2 = await new HGetCommand(key, field).exec(client);
+        const res2 = await new HGetCommand([key, field]).exec(client);
 
         assertEquals(res2, value);
       },
@@ -39,9 +41,9 @@ Deno.test(
         const key = newKey();
         const field = randomID();
         const value = randomID();
-        const res = await new HSetNXCommand(key, field, value).exec(client);
+        const res = await new HSetNXCommand([key, field, value]).exec(client);
         assertEquals(res, 1);
-        const res2 = await new HGetCommand(key, field).exec(client);
+        const res2 = await new HGetCommand([key, field]).exec(client);
 
         assertEquals(res2, value);
       },

@@ -1,11 +1,13 @@
-import { NonEmptyArray } from "../types.ts";
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 /**
  * @see https://redis.io/commands/lpush
  */
 export class LPushCommand<TData = string> extends Command<number, number> {
-  constructor(key: string, ...elements: NonEmptyArray<TData>) {
-    super(["lpush", key, ...elements]);
+  constructor(
+    cmd: [key: string, ...elements: TData[]],
+    opts?: CommandOptions<number, number>,
+  ) {
+    super(["lpush", ...cmd], opts);
   }
 }

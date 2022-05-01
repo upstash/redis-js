@@ -1,11 +1,13 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 /**
  * @see https://redis.io/commands/smembers
  */
-export class SMembersCommand<TData = string>
-  extends Command<TData[], unknown[]> {
-  constructor(key: string) {
-    super(["smembers", key]);
+export class SMembersCommand<TData = string> extends Command<
+  unknown[],
+  TData[]
+> {
+  constructor(cmd: [key: string], opts?: CommandOptions<unknown[], TData[]>) {
+    super(["smembers", ...cmd], opts);
   }
 }

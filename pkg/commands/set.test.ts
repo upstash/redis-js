@@ -13,9 +13,9 @@ Deno.test("without options", async (t) => {
     const key = newKey();
     const value = randomID();
 
-    const res = await new SetCommand(key, value).exec(client);
+    const res = await new SetCommand([key, value]).exec(client);
     assertEquals(res, "OK");
-    const res2 = await new GetCommand(key).exec(client);
+    const res2 = await new GetCommand([key]).exec(client);
     assertEquals(res2, value);
   });
 });
@@ -24,13 +24,13 @@ Deno.test("ex", async (t) => {
     const key = newKey();
     const value = randomID();
 
-    const res = await new SetCommand(key, value, { ex: 1 }).exec(client);
+    const res = await new SetCommand([key, value, { ex: 1 }]).exec(client);
     assertEquals(res, "OK");
-    const res2 = await new GetCommand(key).exec(client);
+    const res2 = await new GetCommand([key]).exec(client);
     assertEquals(res2, value);
     await new Promise((res) => setTimeout(res, 2000));
 
-    const res3 = await new GetCommand(key).exec(client);
+    const res3 = await new GetCommand([key]).exec(client);
     assertEquals(res3, null);
   });
 });
@@ -39,13 +39,13 @@ Deno.test("px", async (t) => {
     const key = newKey();
     const value = randomID();
 
-    const res = await new SetCommand(key, value, { px: 1000 }).exec(client);
+    const res = await new SetCommand([key, value, { px: 1000 }]).exec(client);
     assertEquals(res, "OK");
-    const res2 = await new GetCommand(key).exec(client);
+    const res2 = await new GetCommand([key]).exec(client);
     assertEquals(res2, value);
     await new Promise((res) => setTimeout(res, 2000));
 
-    const res3 = await new GetCommand(key).exec(client);
+    const res3 = await new GetCommand([key]).exec(client);
 
     assertEquals(res3, null);
   });
@@ -57,12 +57,12 @@ Deno.test("nx", async (t) => {
       const value = randomID();
       const newValue = randomID();
 
-      await new SetCommand(key, value).exec(client);
-      const res = await new SetCommand(key, newValue, { nx: true }).exec(
+      await new SetCommand([key, value]).exec(client);
+      const res = await new SetCommand([key, newValue, { nx: true }]).exec(
         client,
       );
       assertEquals(res, null);
-      const res2 = await new GetCommand(key).exec(client);
+      const res2 = await new GetCommand([key]).exec(client);
       assertEquals(res2, value);
     });
   });
@@ -71,9 +71,9 @@ Deno.test("nx", async (t) => {
       const key = newKey();
       const value = randomID();
 
-      const res = await new SetCommand(key, value, { nx: true }).exec(client);
+      const res = await new SetCommand([key, value, { nx: true }]).exec(client);
       assertEquals(res, "OK");
-      const res2 = await new GetCommand(key).exec(client);
+      const res2 = await new GetCommand([key]).exec(client);
       assertEquals(res2, value);
     });
   });
@@ -85,12 +85,12 @@ Deno.test("xx", async (t) => {
       const value = randomID();
       const newValue = randomID();
 
-      await new SetCommand(key, value).exec(client);
-      const res = await new SetCommand(key, newValue, { xx: true }).exec(
+      await new SetCommand([key, value]).exec(client);
+      const res = await new SetCommand([key, newValue, { xx: true }]).exec(
         client,
       );
       assertEquals(res, "OK");
-      const res2 = await new GetCommand(key).exec(client);
+      const res2 = await new GetCommand([key]).exec(client);
       assertEquals(res2, newValue);
     });
   });
@@ -99,9 +99,9 @@ Deno.test("xx", async (t) => {
       const key = newKey();
       const value = randomID();
 
-      const res = await new SetCommand(key, value, { xx: true }).exec(client);
+      const res = await new SetCommand([key, value, { xx: true }]).exec(client);
       assertEquals(res, null);
-      const res2 = await new GetCommand(key).exec(client);
+      const res2 = await new GetCommand([key]).exec(client);
       assertEquals(res2, null);
     });
   });

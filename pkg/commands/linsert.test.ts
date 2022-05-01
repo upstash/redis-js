@@ -15,8 +15,8 @@ Deno.test("adds the element", async () => {
   const value1 = randomID();
   const value2 = randomID();
 
-  await new LPushCommand(key, value1).exec(client);
-  const res = await new LInsertCommand(key, "before", value1, value2).exec(
+  await new LPushCommand([key, value1]).exec(client);
+  const res = await new LInsertCommand([key, "before", value1, value2]).exec(
     client,
   );
   assertEquals(res, 2);

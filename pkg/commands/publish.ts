@@ -1,11 +1,16 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 /**
  * @see https://redis.io/commands/publish
  */
-export class PublishCommand<TMessage = unknown>
-  extends Command<number, number> {
-  constructor(channel: string, message: TMessage) {
-    super(["publish", channel, message]);
+export class PublishCommand<TMessage = unknown> extends Command<
+  number,
+  number
+> {
+  constructor(
+    cmd: [channel: string, message: TMessage],
+    opts?: CommandOptions<number, number>,
+  ) {
+    super(["publish", ...cmd], opts);
   }
 }

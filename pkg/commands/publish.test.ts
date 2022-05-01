@@ -5,7 +5,7 @@ import { PublishCommand } from "./publish.ts";
 const client = newHttpClient();
 
 Deno.test("returns the number of clients that received the message", async () => {
-  const res = await new PublishCommand("channel", "hello").exec(client);
+  const res = await new PublishCommand(["channel", "hello"]).exec(client);
 
   assertEquals(typeof res, "number");
 });

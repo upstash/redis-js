@@ -14,7 +14,7 @@ Deno.test("returns the number of removed members", async () => {
   const key = newKey();
   const value1 = randomID();
   const value2 = randomID();
-  await new SAddCommand(key, value1, value2).exec(client);
-  const res = await new SRemCommand(key, value1).exec(client);
+  await new SAddCommand([key, value1, value2]).exec(client);
+  const res = await new SRemCommand([key, value1]).exec(client);
   assertEquals(res, 1);
 });

@@ -11,15 +11,15 @@ afterAll(cleanup);
 
 Deno.test("returns the length after command", async () => {
   const key = newKey();
-  const res = await new LPushCommand(key, randomID()).exec(
+  const res = await new LPushCommand([key, randomID()]).exec(
     client,
   );
   assertEquals(res, 1);
-  const res2 = await new LPushCommand(
+  const res2 = await new LPushCommand([
     key,
     randomID(),
     randomID(),
-  ).exec(client);
+  ]).exec(client);
 
   assertEquals(res2, 3);
 });

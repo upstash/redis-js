@@ -14,11 +14,11 @@ Deno.test(
     const key = newKey();
     const value = randomID();
 
-    const res = await new SetExCommand(key, 1, value).exec(client);
+    const res = await new SetExCommand([key, 1, value]).exec(client);
 
     assertEquals(res, "OK");
     await new Promise((res) => setTimeout(res, 2000));
-    const res2 = await new GetCommand(key).exec(client);
+    const res2 = await new GetCommand([key]).exec(client);
 
     assertEquals(res2, null);
   },

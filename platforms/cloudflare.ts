@@ -20,7 +20,7 @@ export type RedisConfigCloudflare = {
    * UPSTASH_REDIS_REST_TOKEN
    */
   token: string;
-};
+} & core.RedisOptions;
 
 /**
  * Serverless redis client for upstash.
@@ -43,7 +43,9 @@ export class Redis extends core.Redis {
       headers: { authorization: `Bearer ${config.token}` },
     });
 
-    super(client);
+    super(client, {
+      automaticDeserialization: config.automaticDeserialization,
+    });
   }
 
   /*

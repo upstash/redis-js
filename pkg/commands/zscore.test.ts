@@ -13,7 +13,7 @@ Deno.test("returns the score", async () => {
   const key = newKey();
   const member = randomID();
   const score = Math.floor(Math.random() * 10);
-  await new ZAddCommand(key, { score, member }).exec(client);
-  const res = await new ZScoreCommand(key, member).exec(client);
+  await new ZAddCommand([key, { score, member }]).exec(client);
+  const res = await new ZScoreCommand([key, member]).exec(client);
   assertEquals(res, score);
 });

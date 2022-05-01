@@ -1,4 +1,4 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 export type SetCommandOptions =
   & (
@@ -15,22 +15,25 @@ export type SetCommandOptions =
 /**
  * @see https://redis.io/commands/set
  */
-export class SetCommand<TData, TResult = "OK"> extends Command<TData, TResult> {
-  constructor(key: string, value: TData, opts?: SetCommandOptions) {
+export class SetCommand<TData, TResult = "OK"> extends Command<TResult, TData> {
+  constructor(
+    [key, value, opts]: [key: string, value: TData, opts?: SetCommandOptions],
+    cmdOpts?: CommandOptions<TResult, TData>,
+  ) {
     const command: unknown[] = ["set", key, value];
     if (opts) {
-      if (("ex" in opts) && typeof opts.ex === "number") {
+      if ("ex" in opts && typeof opts.ex === "number") {
         command.push("ex", opts.ex);
-      } else if (("px" in opts) && typeof opts.px === "number") {
+      } else if ("px" in opts && typeof opts.px === "number") {
         command.push("px", opts.px);
       }
 
-      if (("nx" in opts) && opts.nx) {
+      if ("nx" in opts && opts.nx) {
         command.push("nx");
-      } else if (("xx" in opts) && opts.xx) {
+      } else if ("xx" in opts && opts.xx) {
         command.push("xx");
       }
     }
-    super(command);
+    super(command, cmdOpts);
   }
 }

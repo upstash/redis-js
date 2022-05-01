@@ -68,7 +68,7 @@ await build({
     },
     dependencies: {
       "isomorphic-fetch": "^3.0.0",
-      encoding: "latest",
+      // encoding: "latest",
     },
     devDependencies: {
       "size-limit": "latest",

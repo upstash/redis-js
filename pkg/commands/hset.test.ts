@@ -12,10 +12,10 @@ Deno.test("sets value", async () => {
   const field = randomID();
   const value = randomID();
 
-  const res = await new HSetCommand(key, { [field]: value }).exec(client);
+  const res = await new HSetCommand([key, { [field]: value }]).exec(client);
 
   assertEquals(res, 1);
-  const res2 = await new HGetCommand(key, field).exec(client);
+  const res2 = await new HGetCommand([key, field]).exec(client);
 
   assertEquals(res2, value);
 });

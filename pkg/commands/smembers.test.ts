@@ -13,8 +13,8 @@ Deno.test("returns all members of the set", async () => {
   const value1 = { v: randomID() };
   const value2 = { v: randomID() };
 
-  await new SAddCommand(key, value1, value2).exec(client);
-  const res = await new SMembersCommand<{ v: string }>(key).exec(client);
+  await new SAddCommand([key, value1, value2]).exec(client);
+  const res = await new SMembersCommand<{ v: string }>([key]).exec(client);
 
   assertEquals(res!.length, 2);
   assertEquals(res!.map(({ v }) => v).includes(value1.v), true);

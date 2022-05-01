@@ -17,11 +17,11 @@ Deno.test(
     const field = randomID();
     const value = randomID();
 
-    const res = await new HStrLenCommand(key, field).exec(client);
+    const res = await new HStrLenCommand([key, field]).exec(client);
     assertEquals(res, 0);
-    await new HSetCommand(key, { [field]: value }).exec(client);
+    await new HSetCommand([key, { [field]: value }]).exec(client);
 
-    const res2 = await new HStrLenCommand(key, field).exec(client);
+    const res2 = await new HStrLenCommand([key, field]).exec(client);
 
     assertEquals(res2, value.length);
   },

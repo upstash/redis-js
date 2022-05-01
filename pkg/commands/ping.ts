@@ -1,13 +1,16 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 /**
  * @see https://redis.io/commands/ping
  */
 export class PingCommand extends Command<string | "PONG", string | "PONG"> {
-  constructor(message?: string) {
+  constructor(
+    cmd?: [message?: string],
+    opts?: CommandOptions<string | "PONG", string | "PONG">,
+  ) {
     const command: string[] = ["ping"];
-    if (typeof message !== "undefined") {
-      command.push(message);
+    if (typeof cmd !== "undefined" && typeof cmd![0] !== "undefined") {
+      command.push(cmd[0]);
     }
-    super(command);
+    super(command, opts);
   }
 }

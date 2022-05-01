@@ -11,7 +11,7 @@ afterAll(cleanup);
 Deno.test("returns the correct length", async () => {
   const key = newKey();
   const value = "abcd";
-  await new SetCommand(key, value).exec(client);
-  const res = await new StrLenCommand(key).exec(client);
+  await new SetCommand([key, value]).exec(client);
+  const res = await new StrLenCommand([key]).exec(client);
   assertEquals(res, value.length);
 });

@@ -1,12 +1,12 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 /**
  * @param result De
  * @returns
  */
-function deserialize<TData extends Record<string, unknown>>(result: string[]):
-  | TData
-  | null {
+function deserialize<TData extends Record<string, unknown>>(
+  result: string[],
+): TData | null {
   if (result.length === 0) {
     return null;
   }
@@ -26,15 +26,16 @@ function deserialize<TData extends Record<string, unknown>>(result: string[]):
 /**
  * @see https://redis.io/commands/hgetall
  */
-export class HGetAllCommand<TData extends Record<string, unknown>>
-  extends Command<
-    TData | null,
-    unknown | null
-  > {
-  constructor(key: string) {
-    super(
-      ["hgetall", key],
-      { deserialize: (result) => deserialize<TData>(result as string[]) },
-    );
+export class HGetAllCommand<
+  TData extends Record<string, unknown>,
+> extends Command<unknown | null, TData | null> {
+  constructor(
+    cmd: [key: string],
+    opts?: CommandOptions<unknown | null, TData | null>,
+  ) {
+    super(["hgetall", ...cmd], {
+      deserialize: (result) => deserialize<TData>(result as string[]),
+      ...opts,
+    });
   }
 }

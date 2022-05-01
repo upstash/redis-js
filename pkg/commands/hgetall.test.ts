@@ -14,18 +14,18 @@ Deno.test("returns all fields", async () => {
   const field1 = randomID();
   const value1 = false;
   const value2 = randomID();
-  await new HSetCommand(key, { [field1]: value1, [field2]: value2 }).exec(
+  await new HSetCommand([key, { [field1]: value1, [field2]: value2 }]).exec(
     client,
   );
 
-  const res = await new HGetAllCommand(key).exec(client);
+  const res = await new HGetAllCommand([key]).exec(client);
 
   const obj = { [field1]: value1, [field2]: value2 };
   assertEquals(res, obj);
 });
 Deno.test("when hash does not exist", async (t) => {
   await t.step("it returns null", async () => {
-    const res = await new HGetAllCommand(randomID()).exec(client);
+    const res = await new HGetAllCommand([randomID()]).exec(client);
     assertEquals(res, null);
   });
 });

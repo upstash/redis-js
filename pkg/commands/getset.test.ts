@@ -15,11 +15,11 @@ Deno.test(
     const key = newKey();
     const value = randomID();
     const newValue = randomID();
-    await new SetCommand(key, value).exec(client);
-    const res = await new GetSetCommand(key, newValue).exec(client);
+    await new SetCommand([key, value]).exec(client);
+    const res = await new GetSetCommand([key, newValue]).exec(client);
 
     assertEquals(res, value);
-    const res2 = await new GetCommand(key).exec(client);
+    const res2 = await new GetCommand([key]).exec(client);
 
     assertEquals(res2, newValue);
   },
@@ -29,10 +29,10 @@ Deno.test(
   async () => {
     const key = newKey();
     const newValue = randomID();
-    const res = await new GetSetCommand(key, newValue).exec(client);
+    const res = await new GetSetCommand([key, newValue]).exec(client);
 
     assertEquals(res, null);
-    const res2 = await new GetCommand(key).exec(client);
+    const res2 = await new GetCommand([key]).exec(client);
 
     assertEquals(res2, newValue);
   },

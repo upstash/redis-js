@@ -1,9 +1,12 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 /**
  * @see https://redis.io/commands/zremrangebyrank
  */
 export class ZRemRangeByRankCommand extends Command<number, number> {
-  constructor(key: string, start: number, stop: number) {
-    super(["zremrangebyrank", key, start, stop]);
+  constructor(
+    cmd: [key: string, start: number, stop: number],
+    opts?: CommandOptions<number, number>,
+  ) {
+    super(["zremrangebyrank", ...cmd], opts);
   }
 }

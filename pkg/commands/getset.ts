@@ -1,13 +1,16 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 
 /**
  * @see https://redis.io/commands/getset
  */
 export class GetSetCommand<TData = string> extends Command<
-  TData | null,
-  unknown | null
+  unknown | null,
+  TData | null
 > {
-  constructor(key: string, value: TData) {
-    super(["getset", key, value]);
+  constructor(
+    cmd: [key: string, value: TData],
+    opts?: CommandOptions<unknown | null, TData | null>,
+  ) {
+    super(["getset", ...cmd], opts);
   }
 }

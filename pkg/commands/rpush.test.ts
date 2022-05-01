@@ -11,15 +11,15 @@ Deno.test(
   "returns the length after command",
   async () => {
     const key = newKey();
-    const res = await new RPushCommand(key, randomID()).exec(
+    const res = await new RPushCommand([key, randomID()]).exec(
       client,
     );
     assertEquals(res, 1);
-    const res2 = await new RPushCommand(
+    const res2 = await new RPushCommand([
       key,
       randomID(),
       randomID(),
-    ).exec(
+    ]).exec(
       client,
     );
 

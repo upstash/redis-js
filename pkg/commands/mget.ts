@@ -1,12 +1,15 @@
-import { Command } from "./command.ts";
+import { Command, CommandOptions } from "./command.ts";
 /**
  * @see https://redis.io/commands/mget
  */
 export class MGetCommand<TData extends unknown[]> extends Command<
-  TData,
-  (string | null)[]
+  (string | null)[],
+  TData
 > {
-  constructor(...keys: [string, ...string[]]) {
-    super(["mget", ...keys]);
+  constructor(
+    cmd: [...keys: [string, ...string[]]],
+    opts?: CommandOptions<(string | null)[], TData>,
+  ) {
+    super(["mget", ...cmd], opts);
   }
 }

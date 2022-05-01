@@ -18,8 +18,8 @@ Deno.test(
     const kv: Record<string, string> = {};
     kv[key1] = randomID();
     kv[key2] = randomID();
-    await new MSetCommand(kv).exec(client);
-    const res = await new TouchCommand(key1, key2).exec(client);
+    await new MSetCommand([kv]).exec(client);
+    const res = await new TouchCommand([key1, key2]).exec(client);
     assertEquals(res, 2);
   },
 );

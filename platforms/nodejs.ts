@@ -42,7 +42,7 @@ export type RedisConfigNodejs = {
    * ```
    */
   agent?: http.Agent | https.Agent;
-};
+} & core.RedisOptions;
 
 /**
  * Serverless redis client for upstash.
@@ -91,7 +91,9 @@ export class Redis extends core.Redis {
       agent: configOrRequester.agent,
     });
 
-    super(client);
+    super(client, {
+      automaticDeserialization: configOrRequester.automaticDeserialization,
+    });
   }
 
   /**

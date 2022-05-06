@@ -4,9 +4,9 @@ import * as core from "../pkg/redis.ts";
 import { Requester, UpstashRequest, UpstashResponse } from "../pkg/http.ts";
 import { UpstashError } from "../pkg/error.ts";
 // @ts-ignore Deno can't compile
-import https from "https";
+// import https from "https";
 // @ts-ignore Deno can't compile
-import http from "http";
+// import http from "http";
 import "isomorphic-fetch";
 
 export type { Requester, UpstashRequest, UpstashResponse };
@@ -24,7 +24,6 @@ export type RedisConfigNodejs = {
    * UPSTASH_REDIS_REST_TOKEN
    */
   token: string;
-
   /**
    * An agent allows you to reuse connections to reduce latency for multiple sequential requests.
    *
@@ -40,7 +39,7 @@ export type RedisConfigNodejs = {
    * }
    * ```
    */
-  agent?: http.Agent | https.Agent;
+  // agent?: http.Agent | https.Agent;
 } & core.RedisOptions;
 
 /**
@@ -87,7 +86,7 @@ export class Redis extends core.Redis {
     const client = defaultRequester({
       baseUrl: configOrRequester.url,
       headers: { authorization: `Bearer ${configOrRequester.token}` },
-      agent: configOrRequester.agent,
+      // agent: configOrRequester.agent,
     });
 
     super(client, {
@@ -132,7 +131,7 @@ export class Redis extends core.Redis {
 function defaultRequester(config: {
   headers?: Record<string, string>;
   baseUrl: string;
-  agent?: http.Agent | https.Agent;
+  // agent?: http.Agent | https.Agent;
 }): Requester {
   return {
     request: async function <TResult>(

@@ -3,7 +3,6 @@
 import * as core from "../pkg/redis.ts";
 import { Requester, UpstashRequest, UpstashResponse } from "../pkg/http.ts";
 import { UpstashError } from "../pkg/error.ts";
-
 // @ts-ignore Deno can't compile
 import https from "https";
 // @ts-ignore Deno can't compile

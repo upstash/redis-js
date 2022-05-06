@@ -28,16 +28,20 @@ await build({
     deno: "dev",
     crypto: "dev",
     custom: [
-      {
-        package: { name: "isomorphic-fetch", version: "3.0.0" },
-        globalNames: [],
-      },
+      // {
+      //   package: { name: "isomorphic-fetch", version: "3.0.0" },
+      //   globalNames: [],
+      // },
       /**
        * Workaround for testing the build in nodejs
        */
       {
         package: { name: "@types/node", version: "latest" },
         typesPackage: { name: "@types/node", version: "latest" },
+        globalNames: [],
+      },
+      {
+        package: { name: "isomorphic-fetch", version: "latest" },
         globalNames: [],
       },
     ],
@@ -68,7 +72,7 @@ await build({
     },
     dependencies: {
       "isomorphic-fetch": "^3.0.0",
-      // encoding: "latest",
+      encoding: "latest",
     },
     devDependencies: {
       "size-limit": "latest",

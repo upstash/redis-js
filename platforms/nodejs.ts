@@ -3,12 +3,11 @@
 import * as core from "../pkg/redis.ts";
 import { Requester, UpstashRequest, UpstashResponse } from "../pkg/http.ts";
 import { UpstashError } from "../pkg/error.ts";
-
 // @ts-ignore Deno can't compile
-import https from "https";
+// import https from "https";
 // @ts-ignore Deno can't compile
-import http from "http";
-import "isomorphic-fetch";
+// import http from "http";
+import "isomorphic-fetch"
 
 export type { Requester, UpstashRequest, UpstashResponse };
 
@@ -41,7 +40,7 @@ export type RedisConfigNodejs = {
    * }
    * ```
    */
-  agent?: http.Agent | https.Agent;
+  // agent?: http.Agent | https.Agent;
 } & core.RedisOptions;
 
 /**
@@ -88,7 +87,7 @@ export class Redis extends core.Redis {
     const client = defaultRequester({
       baseUrl: configOrRequester.url,
       headers: { authorization: `Bearer ${configOrRequester.token}` },
-      agent: configOrRequester.agent,
+      // agent: configOrRequester.agent,
     });
 
     super(client, {
@@ -109,21 +108,21 @@ export class Redis extends core.Redis {
     // @ts-ignore process will be defined in node
     if (typeof process?.env === "undefined") {
       throw new Error(
-        'Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please import from "@upstash/redis/cloudflare" instead',
+        'Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please import from "@upstash/redis/cloudflare" instead'
       );
     }
     // @ts-ignore process will be defined in node
     const url = process?.env["UPSTASH_REDIS_REST_URL"];
     if (!url) {
       throw new Error(
-        "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`",
+        "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`"
       );
     }
     // @ts-ignore process will be defined in node
     const token = process?.env["UPSTASH_REDIS_REST_TOKEN"];
     if (!token) {
       throw new Error(
-        "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`",
+        "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`"
       );
     }
     return new Redis({ url, token, ...config });
@@ -133,11 +132,11 @@ export class Redis extends core.Redis {
 function defaultRequester(config: {
   headers?: Record<string, string>;
   baseUrl: string;
-  agent?: http.Agent | https.Agent;
+  // agent?: http.Agent | https.Agent;
 }): Requester {
   return {
     request: async function <TResult>(
-      req: UpstashRequest,
+      req: UpstashRequest
     ): Promise<UpstashResponse<TResult>> {
       if (!req.path) {
         req.path = [];

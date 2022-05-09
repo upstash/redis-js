@@ -136,8 +136,8 @@ export type RedisOptions = {
  * Serverless redis client for upstash.
  */
 export class Redis {
-  private readonly client: Requester;
-  private opts?: CommandOptions<any, any>;
+  protected readonly client: Requester;
+  protected opts?: CommandOptions<any, any>;
 
   /**
    * Create a new redis client

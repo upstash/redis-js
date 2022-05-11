@@ -1,7 +1,7 @@
 # Upstash Redis
 
-An HTTP/REST based Redis client built on top of
-[Upstash REST API](https://docs.upstash.com/features/restapi).
+`@upstash/redis` is an HTTP/REST based Redis client for typescript, built on top
+of [Upstash REST API](https://docs.upstash.com/features/restapi).
 
 [![Tests](https://github.com/upstash/upstash-redis/actions/workflows/tests.yaml/badge.svg)](https://github.com/upstash/upstash-redis/actions/workflows/tests.yaml)
 ![npm (scoped)](https://img.shields.io/npm/v/@upstash/redis)

@@ -1,5 +1,6 @@
 import { HttpClient } from "./pkg/http.ts";
 import * as core from "./pkg/redis.ts";
+export type { Requester, UpstashRequest, UpstashResponse } from "./pkg/http";
 
 /**
  * Connection credentials for upstash redis.

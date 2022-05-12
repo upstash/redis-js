@@ -1,6 +1,6 @@
 import { HttpClient } from "./pkg/http.ts";
 import * as core from "./pkg/redis.ts";
-export type { Requester, UpstashRequest, UpstashResponse } from "./pkg/http";
+export type { Requester, UpstashRequest, UpstashResponse } from "./pkg/http.ts";
 
 /**
  * Connection credentials for upstash redis.
@@ -33,6 +33,25 @@ export class Redis extends core.Redis {
    * ```
    */
   constructor(config: RedisConfigDeno) {
+    if (
+      config.url.startsWith(" ") ||
+      config.url.endsWith(" ") ||
+      /\r|\n/.test(config.url)
+    ) {
+      console.warn(
+        "The redis url contains whitespace or newline, which can cause errors!",
+      );
+    }
+    if (
+      config.token.startsWith(" ") ||
+      config.token.endsWith(" ") ||
+      /\r|\n/.test(config.token)
+    ) {
+      console.warn(
+        "The redis token contains whitespace or newline, which can cause errors!",
+      );
+    }
+
     const client = new HttpClient({
       baseUrl: config.url,
       headers: { authorization: `Bearer ${config.token}` },

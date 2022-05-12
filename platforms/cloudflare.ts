@@ -38,6 +38,24 @@ export class Redis extends core.Redis {
    * ```
    */
   constructor(config: RedisConfigCloudflare) {
+    if (
+      config.url.startsWith(" ") ||
+      config.url.endsWith(" ") ||
+      /\r|\n/.test(config.url)
+    ) {
+      console.warn(
+        "The redis url contains whitespace or newline, which can cause errors!",
+      );
+    }
+    if (
+      config.token.startsWith(" ") ||
+      config.token.endsWith(" ") ||
+      /\r|\n/.test(config.token)
+    ) {
+      console.warn(
+        "The redis token contains whitespace or newline, which can cause errors!",
+      );
+    }
     const client = defaultRequester({
       baseUrl: config.url,
       headers: { authorization: `Bearer ${config.token}` },

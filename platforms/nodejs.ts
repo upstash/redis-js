@@ -82,6 +82,24 @@ export class Redis extends core.Redis {
       super(configOrRequester);
       return;
     }
+    if (
+      configOrRequester.url.startsWith(" ") ||
+      configOrRequester.url.endsWith(" ") ||
+      /\r|\n/.test(configOrRequester.url)
+    ) {
+      console.warn(
+        "The redis url contains whitespace or newline, which can cause errors!",
+      );
+    }
+    if (
+      configOrRequester.token.startsWith(" ") ||
+      configOrRequester.token.endsWith(" ") ||
+      /\r|\n/.test(configOrRequester.token)
+    ) {
+      console.warn(
+        "The redis token contains whitespace or newline, which can cause errors!",
+      );
+    }
 
     const client = defaultRequester({
       baseUrl: configOrRequester.url,

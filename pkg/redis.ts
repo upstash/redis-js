@@ -133,11 +133,13 @@ export type RedisOptions = {
   automaticDeserialization?: boolean;
 
   /**
-   * Be default a request is retried once to handle network errors.
+   * Retry a request  once to handle network errors after `retryBackoff` milliseconds.
    *
-   * Set this to `true` to disable retries.
+   * Set this to `<=0` to disable retries.
+   * @default 1000
    */
-  disableRetry?: boolean;
+
+  retryBackoff?: number;
 };
 
 /**
@@ -159,7 +161,7 @@ export class Redis {
    * ```
    */
   constructor(client: Requester, opts?: RedisOptions) {
-    if (opts?.disableRetry) {
+    if (typeof opts?.retryBackoff === "number" && opts.retryBackoff <= 0) {
       this.client = client;
     } else {
       /**
@@ -170,7 +172,9 @@ export class Redis {
           try {
             return await client.request(req);
           } catch {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            await new Promise((resolve) =>
+              setTimeout(resolve, opts?.retryBackoff ?? 1000)
+            );
             return await client.request(req);
           }
         },

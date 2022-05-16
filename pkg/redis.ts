@@ -135,11 +135,11 @@ export type RedisOptions = {
   /**
    * Retry a request  once to handle network errors after `retryBackoff` milliseconds.
    *
-   * Set this to `<=0` to disable retries.
+   * Set to false to disable retrying.
    * @default 1000
    */
 
-  retryBackoff?: number;
+  retryBackoff?: number | false;
 };
 
 /**
@@ -161,7 +161,7 @@ export class Redis {
    * ```
    */
   constructor(client: Requester, opts?: RedisOptions) {
-    if (typeof opts?.retryBackoff === "number" && opts.retryBackoff <= 0) {
+    if (opts?.retryBackoff === false) {
       this.client = client;
     } else {
       /**
@@ -173,7 +173,7 @@ export class Redis {
             return await client.request(req);
           } catch {
             await new Promise((resolve) =>
-              setTimeout(resolve, opts?.retryBackoff ?? 1000)
+              setTimeout(resolve, (opts?.retryBackoff as number) ?? 1000)
             );
             return await client.request(req);
           }

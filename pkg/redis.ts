@@ -122,6 +122,7 @@ import {
 import { Requester } from "./http.ts";
 import { Pipeline } from "./pipeline.ts";
 import type { CommandArgs } from "./types.ts";
+import type { UpstashRequest } from "./http.ts";
 
 export type RedisOptions = {
   /**
@@ -130,6 +131,13 @@ export type RedisOptions = {
    * @default true
    */
   automaticDeserialization?: boolean;
+
+  /**
+   * Be default a request is retried once to handle network errors.
+   *
+   * Set this to `true` to disable retries.
+   */
+  disableRetry?: boolean;
 };
 
 /**
@@ -151,7 +159,23 @@ export class Redis {
    * ```
    */
   constructor(client: Requester, opts?: RedisOptions) {
-    this.client = client;
+    if (opts?.disableRetry) {
+      this.client = client;
+    } else {
+      /**
+       * Add a one time retry for unforseen network errors
+       */
+      this.client = {
+        request: async (req: UpstashRequest) => {
+          try {
+            return await client.request(req);
+          } catch {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return await client.request(req);
+          }
+        },
+      };
+    }
     this.opts = opts;
   }
 

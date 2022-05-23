@@ -23,6 +23,23 @@ See
 [the list of APIs](https://docs.upstash.com/features/restapi#rest---redis-api-compatibility)
 supported.
 
+## Upgrading to v1.4.0 **(ReferenceError: fetch is not defined)**
+
+If you are running on nodejs v17 and earlier, you need to manually provide a
+`fetch` polyfill. The simplest way is using `isomorphic-fetch`
+
+```bash
+npm install isomorphic-fetch
+```
+
+```typescript
+import "isomorphic-fetch";
+import { Redis } from "@upstash/redis";
+```
+
+`fetch` is natively supported in node18 as well as all major platforms: Vercel,
+Netlify, Deno, Fastly etc. and you do not need to do anything.
+
 ## Upgrading from v0.2.0?
 
 Please read the
@@ -335,4 +352,7 @@ the url and token
 
 ```sh
 UPSTASH_REDIS_REST_URL=".." UPSTASH_REDIS_REST_TOKEN=".." deno test -A
+```
+
+```
 ```

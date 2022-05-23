@@ -7,7 +7,7 @@ import { UpstashError } from "../pkg/error.ts";
 // import https from "https";
 // @ts-ignore Deno can't compile
 // import http from "http";
-import "isomorphic-fetch";
+// import "isomorphic-fetch";
 
 export type { Requester, UpstashRequest, UpstashResponse };
 

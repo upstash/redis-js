@@ -50,7 +50,7 @@ jobs:
         run: node_modules/.bin/size-limit
         working-directory: dist
 
-  example-nextjs:
+  example-nextjs-dev:
     needs:
       - test
     env:
@@ -113,6 +113,46 @@ jobs:
             echo "assertEqualsed count to be 1, got $count"
             exit 1
           fi
+
+  example-nextjs-prod:
+    # needs:
+    #   - test
+    
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+      - name: Build
+        run: deno run -A ./cmd/build.ts
+
+      - name: Deploy and test on vercel
+        uses: ./examples/nextjs/deploy
+        with:
+          RATELIMIT_VERSION: next
+          REDIS_VERSION: latest
+
+     
 
   example-cloudflare-service-worker:
     if: "false"

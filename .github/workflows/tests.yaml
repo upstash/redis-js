@@ -241,7 +241,7 @@ jobs:
       - name: Test
         run: deno test --allow-net --allow-env ./examples/nextjs_edge/test.ts
 
-  example-cloudflare-worker:
+  example-cloudflare-worker-local:
     environment: local
     needs:
       - test

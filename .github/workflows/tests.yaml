@@ -154,7 +154,7 @@ jobs:
         working-directory: ./examples/nextjs
         run: |
           DEPLOYMENT_URL=$(vercel --token=${{ secrets.VERCEL_TOKEN }})
-          echo Hello world ${DEPLYOMENT_URL}
+          echo Hello world ${DEPLOYMENT_URL}
           
 
 

@@ -1,7 +1,7 @@
-import { Redis } from "@upstash/redis";
 import { useState } from "react";
+import { Redis } from "@upstash/redis";
 
-function HomePage({ count }: { count: number }) {
+const Home = ({ count }: { count: number }) => {
   const [cacheCount, setCacheCount] = useState(count);
 
   const incr = async () => {
@@ -15,19 +15,39 @@ function HomePage({ count }: { count: number }) {
     const data = await response.json();
     setCacheCount(data.count);
   };
-
   return (
-    <div>
-      <h2>Count: {cacheCount}</h2>
-      <button type="button" onClick={incr}>
-        increment
-      </button>
-      <button type="button" onClick={decr}>
-        decrement
-      </button>
-    </div>
+    <>
+      <main>
+        <header>
+          <h1 className="text-4xl font-bold">
+            Welcome to <span className="text-primary-500">@upstash/redis</span>
+          </h1>
+
+          <p className="mt-4">
+            This is an example of how you can use Upstash redis in a nextjs
+            application
+          </p>
+        </header>
+
+        <hr className="my-10" />
+
+        <div className="flex items-center justify-around">
+          <div>
+            <button onClick={incr}>Increment</button>
+          </div>
+          <div>
+            <button onClick={decr}>Decrement</button>
+          </div>
+        </div>
+        <div className="flex justify-center mt-6">
+          <pre>{cacheCount}</pre>
+        </div>
+      </main>
+    </>
   );
-}
+};
+
+export default Home;
 
 export async function getStaticProps() {
   const redis = Redis.fromEnv();
@@ -36,5 +56,3 @@ export async function getStaticProps() {
 
   return { props: { count } };
 }
-
-export default HomePage;

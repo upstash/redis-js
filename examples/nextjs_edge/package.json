@@ -1,5 +1,5 @@
 {
-  "name": "upstash-redis-nextjs",
+  "name": "upstash-redis-nextjs-middleware",
   "private": true,
   "scripts": {
     "dev": "next dev",

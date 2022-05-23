@@ -137,16 +137,10 @@ jobs:
       - name: Build
         run: deno run -A ./cmd/build.ts
 
-      - name: Install example
-        run: |
-          pnpm add @upstash/ratelimit@next @upstash/redis@latest
-          pnpm add -g vercel
-        working-directory: ./examples/nextjs
-
       - name: Deploy
         run: |
           cp -r ./examples/nextjs/.vercel .
-          DEPLOYMENT_URL=$(vercel --token=${{ secrets.VERCEL_TOKEN }})
+          DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
 
       - name: Test

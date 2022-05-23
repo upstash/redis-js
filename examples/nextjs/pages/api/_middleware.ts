@@ -18,6 +18,6 @@ export default async function middleware(_request: Request) {
     "middleware_counter",
   ].join("_");
   const value = await incr(key);
-  console.log({ value });
+  console.log("mw", { value });
   return NextResponse.next();
 }

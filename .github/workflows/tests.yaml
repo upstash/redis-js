@@ -114,10 +114,9 @@ jobs:
             exit 1
           fi
 
-  example-nextjs-deployed:
+    example-nextjs-deployed:
     # needs:
     #   - test
-
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
@@ -131,17 +130,12 @@ jobs:
         with:
           deno-version: v1.x
 
-      - name: Cache pnpm modules
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
-
       - uses: pnpm/action-setup@v2
         with:
           version: 6
+
+      - name: Build
+        run: deno run -A ./cmd/build.ts
 
       - name: Install example
         run: |
@@ -150,15 +144,13 @@ jobs:
         working-directory: ./examples/nextjs
 
       - name: Deploy
-        id: deployment
-        working-directory: ./examples/nextjs
         run: |
+          cp -r ./examples/nextjs/.vercel .
           DEPLOYMENT_URL=$(vercel --token=${{ secrets.VERCEL_TOKEN }})
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
-     
+
       - name: Test
-        working-directory: ./examples/nextjs
-        run: deno test --allow-net --allow-env ./test.ts
+        run: deno test --allow-net --allow-env ./examples/nextjs/test.ts
 
   example-cloudflare-service-worker:
     if: "false"

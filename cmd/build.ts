@@ -28,20 +28,12 @@ await build({
     deno: "dev",
     crypto: "dev",
     custom: [
-      // {
-      //   package: { name: "isomorphic-fetch", version: "3.0.0" },
-      //   globalNames: [],
-      // },
       /**
        * Workaround for testing the build in nodejs
        */
       {
         package: { name: "@types/node", version: "latest" },
         typesPackage: { name: "@types/node", version: "latest" },
-        globalNames: [],
-      },
-      {
-        package: { name: "isomorphic-fetch", version: "latest" },
         globalNames: [],
       },
     ],
@@ -69,10 +61,6 @@ await build({
       "isomorphic-fetch": false,
       http: false,
       https: false,
-    },
-    dependencies: {
-      "isomorphic-fetch": "^3.0.0",
-      encoding: "latest",
     },
     devDependencies: {
       "size-limit": "latest",
@@ -111,6 +99,7 @@ await build({
 // post build steps
 Deno.copyFileSync("LICENSE", `${outDir}/LICENSE`);
 Deno.copyFileSync("README.md", `${outDir}/README.md`);
+Deno.copyFileSync(".releaserc", `${outDir}/.releaserc`);
 
 /**
  * Workaround because currently deno can not typecheck the built modules without `@types/node` being installed as regular dependency

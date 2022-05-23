@@ -135,9 +135,11 @@ jobs:
       - name: Deploy
         working-directory: examples/nextjs
         run: |
-          cp -r ./examples/nextjs/.vercel .
           DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
+        env:
+          VERCEL_ORG_ID: ${{secrets.VERCEL_TEAM_ID}}
+          VERCEL_PROJECT_ID: "prj_pFFK1XgNIlnW014iiuqAIQmBBuZA"
 
       - name: Test
         run: deno test --allow-net --allow-env ./examples/nextjs/test.ts
@@ -164,9 +166,11 @@ jobs:
 
       - name: Deploy
         run: |
-          cp -r ./examples/nextjs_edge/.vercel .
           DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
+        env:
+          VERCEL_ORG_ID: ${{secrets.VERCEL_TEAM_ID}}
+          VERCEL_PROJECT_ID: "prj_bc5kMFz6ifbAaA7U3N86YSYqUUUI"
 
       - name: Test
         run: deno test --allow-net --allow-env ./examples/nextjs_edge/test.ts

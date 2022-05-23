@@ -1,10 +1,16 @@
 name: Deploy and test on Vercel
 
 inputs:
-  RATELIMIT_VERSION:
+  ratelimit_version:
     required: true
-  REDIS_VERSION: 
+  redis_version: 
     required: true
+
+outputs:
+  url:
+    description: "Vercel deployment url"
+    value: ${{ steps.deployment.outputs.url}}
+
 
 runs:
   using: "composite"
@@ -30,9 +36,13 @@ runs:
         version: 6
 
     - name: Install example
-      run: pnpm add @upstash/ratelimit@${{inputs.RATELIMIT_VERSION}}  @upstash/redis@${{inputs.REDIS_VERSION}} 
+      run: |
+        pnpm add @upstash/ratelimit@${{inputs.RATELIMIT_VERSION}}  @upstash/redis@${{inputs.REDIS_VERSION}}
+        pnpm add -g vercel
       working-directory: ./examples/nextjs
 
     - name: Deploy
-      run: npx vercel
+      id: deployment
       working-directory: ./examples/nextjs
+      run: echo "::set-output name=url::$(vercel)"
+

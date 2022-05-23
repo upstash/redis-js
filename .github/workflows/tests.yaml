@@ -146,11 +146,14 @@ jobs:
       - name: Build
         run: deno run -A ./cmd/build.ts
 
-      - name: Deploy and test on vercel
+      - name: Deploy to vercel
+        id: deploy
         uses: ./examples/nextjs/deploy
         with:
           RATELIMIT_VERSION: next
           REDIS_VERSION: latest
+      - name: test
+        run:  echo ${{ steps.deploy.output.url }}
 
      
 

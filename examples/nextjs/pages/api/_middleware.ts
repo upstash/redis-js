@@ -3,10 +3,11 @@
 import { Redis } from "@upstash/redis";
 import { NextResponse } from "next/server";
 
-const { incr } = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+const { incr } = Redis.fromEnv();
+// const { incr } = new Redis({
+//   url: process.env.UPSTASH_REDIS_REST_URL!,
+//   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+// });
 export default async function middleware(_request: Request) {
   /**
    * We're prefixing the key for our automated tests.

@@ -157,6 +157,7 @@ jobs:
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
      
       - name: Test
+        working-directory: ./examples/nextjs
         run: deno test --allow-net --allow-env ./test.ts
 
   example-cloudflare-service-worker:

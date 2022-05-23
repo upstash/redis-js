@@ -156,7 +156,7 @@ jobs:
           DEPLOYMENT_URL=$(vercel --token=${{ secrets.VERCEL_TOKEN }})
 
      
-          deno --allow-net test ./test.ts ${DEPLOYMENT_URL}
+          deno test --allow-net ./test.ts ${DEPLOYMENT_URL}
 
   example-cloudflare-service-worker:
     if: "false"

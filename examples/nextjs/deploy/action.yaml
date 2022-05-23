@@ -46,5 +46,8 @@ runs:
       shell: bash
       id: deployment
       working-directory: ./examples/nextjs
-      run: echo "::set-output name=url::$(vercel)"
+      
+      run: |
+        url=$(vercel --token=${{ secrets.VERCEL_TOKEN }})
+        echo "::set-output name=url::${url}"
 

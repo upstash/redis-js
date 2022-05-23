@@ -6,6 +6,12 @@ export default async function handler(
   res: NextApiResponse,
 ) {
   const redis = Redis.fromEnv();
-  const count = await redis.incr("nextjs");
+
+  /**
+   * We're prefixing the key for our automated tests.
+   * This is to avoid collisions with other tests.
+   */
+  const key = ["vercel", process.env.VERCEL_GIT_COMMIT_SHA, "nextjs"].join("_");
+  const count = await redis.incr(key);
   res.json({ count });
 }

@@ -3,10 +3,20 @@
 import { Redis } from "@upstash/redis";
 import { NextResponse } from "next/server";
 
-const { incr } = Redis.fromEnv();
-
 export default async function middleware(_request: Request) {
-  const value = await incr("middleware_counter");
+  console.log("env: ", JSON.stringify(process.env, null, 2));
+
+  const { incr } = Redis.fromEnv();
+  /**
+   * We're prefixing the key for our automated tests.
+   * This is to avoid collisions with other tests.
+   */
+  const key = [
+    "vercel",
+    process.env.VERCEL_GIT_COMMIT_SHA,
+    "middleware_counter",
+  ].join("_");
+  const value = await incr(key);
   console.log({ value });
   return NextResponse.next();
 }

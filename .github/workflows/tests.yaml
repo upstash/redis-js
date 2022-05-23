@@ -157,7 +157,9 @@ jobs:
           echo "::set-output name=url::${DEPLOYMENT_URL}"
 
       - name: test
-        run: deno test ./examples/nextjs/test.ts ${{ steps.deployment.output.url }}
+        run: |
+          echo ${{ steps.deployment.output.url }}
+          deno test ./examples/nextjs/test.ts ${{ steps.deployment.output.url }}
 
   example-cloudflare-service-worker:
     if: "false"

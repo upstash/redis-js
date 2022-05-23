@@ -48,6 +48,6 @@ runs:
       working-directory: ./examples/nextjs
       
       run: |
-        url=$(vercel --token=${{ secrets.VERCEL_TOKEN }})
+        url=$(vercel --token=${{ secret.VERCEL_TOKEN }})
         echo "::set-output name=url::${url}"
 

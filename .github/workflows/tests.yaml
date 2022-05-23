@@ -154,10 +154,10 @@ jobs:
         working-directory: ./examples/nextjs
         run: |
           DEPLOYMENT_URL=$(vercel --token=${{ secrets.VERCEL_TOKEN }})
-           echo "::set-output name=url::${DEPLOYMENT_URL}"
+          echo "::set-output name=url::${DEPLOYMENT_URL}"
 
       - name: test
-        run: echo ${{ steps.deployment.output.url }}
+        run: deno test ./examples/nextjs/test.ts ${{ steps.deployment.output.url }}
 
   example-cloudflare-service-worker:
     if: "false"

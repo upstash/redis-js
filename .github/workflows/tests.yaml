@@ -149,8 +149,8 @@ jobs:
         id: deployment
         working-directory: ./examples/nextjs
         run: |
-          url=$(vercel --token=${{ secrets.VERCEL_TOKEN }})
-          echo "::set-output name=url::${url}"
+          vercel --token=${{ secrets.VERCEL_TOKEN }} > url.txt
+          echo "::set-output name=url::$(cat url.txt)"
 
 
       - name: test

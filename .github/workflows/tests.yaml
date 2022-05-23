@@ -51,6 +51,7 @@ jobs:
         working-directory: dist
 
   example-nextjs-local:
+    environment: local
     needs:
       - test
     env:
@@ -116,6 +117,8 @@ jobs:
 
   example-nextjs-deployed:
     runs-on: ubuntu-latest
+    concurrency: vercel
+    environment: deployed
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
@@ -147,6 +150,8 @@ jobs:
 
   example-nextjs-edge-deployed:
     runs-on: ubuntu-latest
+    concurrency: vercel
+    environment: deployed
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
@@ -235,6 +240,7 @@ jobs:
           fi
 
   example-cloudflare-modules-worker:
+    environment: local
     needs:
       - test
     env:
@@ -293,7 +299,8 @@ jobs:
             exit 1
           fi
 
-  example-fastly:
+  example-fastly-local:
+    environment: local
     needs:
       - test
     env:
@@ -360,7 +367,8 @@ jobs:
             exit 1
           fi
 
-  example-nodejs:
+  example-nodejs-local:
+    environment: local
     needs:
       - test
     env:

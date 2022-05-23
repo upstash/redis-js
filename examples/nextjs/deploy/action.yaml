@@ -36,12 +36,14 @@ runs:
         version: 6
 
     - name: Install example
+      shell: bash
       run: |
         pnpm add @upstash/ratelimit@${{inputs.RATELIMIT_VERSION}}  @upstash/redis@${{inputs.REDIS_VERSION}}
         pnpm add -g vercel
       working-directory: ./examples/nextjs
 
-    - name: Deploy
+    - name: Deploy      
+      shell: bash
       id: deployment
       working-directory: ./examples/nextjs
       run: echo "::set-output name=url::$(vercel)"

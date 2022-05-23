@@ -50,7 +50,7 @@ jobs:
         run: node_modules/.bin/size-limit
         working-directory: dist
 
-  example-nextjs-dev:
+  example-nextjs-local:
     needs:
       - test
     env:
@@ -114,10 +114,9 @@ jobs:
             exit 1
           fi
 
-  example-nextjs-prod:
+  example-nextjs-deployed:
     # needs:
     #   - test
-    
 
     runs-on: ubuntu-latest
     steps:
@@ -128,9 +127,6 @@ jobs:
         with:
           node-version: 16
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
       - name: Cache pnpm modules
         uses: actions/cache@v2
         with:
@@ -143,9 +139,6 @@ jobs:
         with:
           version: 6
 
-      - name: Build
-        run: deno run -A ./cmd/build.ts
-
       - name: Deploy to vercel
         id: deploy
         uses: ./examples/nextjs/deploy
@@ -153,9 +146,7 @@ jobs:
           RATELIMIT_VERSION: next
           REDIS_VERSION: latest
       - name: test
-        run:  echo ${{ steps.deploy.output.url }}
-
-     
+        run: echo ${{ steps.deploy.output.url }}
 
   example-cloudflare-service-worker:
     if: "false"
@@ -347,8 +338,6 @@ jobs:
             echo "assertEqualsed response to contain 'Counter: 2', got $(cat response.html)"
             exit 1
           fi
-
-
 
   example-nodejs:
     needs:

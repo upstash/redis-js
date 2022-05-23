@@ -22,16 +22,16 @@ await build({
       name: "./fastly",
       path: "./platforms/fastly.ts",
     },
+    {
+      name: "./with-fetch",
+      path: "./platforms/node_with_fetch.ts",
+    },
   ],
   outDir,
   shims: {
     deno: "dev",
     crypto: "dev",
     custom: [
-      // {
-      //   package: { name: "isomorphic-fetch", version: "3.0.0" },
-      //   globalNames: [],
-      // },
       /**
        * Workaround for testing the build in nodejs
        */
@@ -41,7 +41,8 @@ await build({
         globalNames: [],
       },
       {
-        package: { name: "isomorphic-fetch", version: "latest" },
+        package: { name: "@types/node", version: "latest" },
+        typesPackage: { name: "@types/node", version: "latest" },
         globalNames: [],
       },
     ],
@@ -64,15 +65,14 @@ await build({
     bugs: {
       url: "https://github.com/upstash/upstash-redis/issues",
     },
+    dependencies: {
+      "isomorphic-fetch": "^3.0.0",
+    },
     homepage: "https://github.com/upstash/upstash-redis#readme",
     browser: {
       "isomorphic-fetch": false,
       http: false,
       https: false,
-    },
-    dependencies: {
-      "isomorphic-fetch": "^3.0.0",
-      encoding: "latest",
     },
     devDependencies: {
       "size-limit": "latest",
@@ -111,6 +111,7 @@ await build({
 // post build steps
 Deno.copyFileSync("LICENSE", `${outDir}/LICENSE`);
 Deno.copyFileSync("README.md", `${outDir}/README.md`);
+Deno.copyFileSync(".releaserc", `${outDir}/.releaserc`);
 
 /**
  * Workaround because currently deno can not typecheck the built modules without `@types/node` being installed as regular dependency

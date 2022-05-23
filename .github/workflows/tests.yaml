@@ -114,7 +114,7 @@ jobs:
             exit 1
           fi
 
-    example-nextjs-deployed:
+  example-nextjs-deployed:
     # needs:
     #   - test
     runs-on: ubuntu-latest

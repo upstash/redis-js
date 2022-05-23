@@ -1,6 +1,9 @@
 import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
 
-const host = Deno.args[0];
+const host = Deno.env.get("DEPLOYMENT_URL");
+if (!host) {
+  throw new Error("DEPLOYMENT_URL not set");
+}
 
 Deno.test("works", async () => {
   console.log({ host });

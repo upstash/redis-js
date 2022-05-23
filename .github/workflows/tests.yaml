@@ -154,9 +154,10 @@ jobs:
         working-directory: ./examples/nextjs
         run: |
           DEPLOYMENT_URL=$(vercel --token=${{ secrets.VERCEL_TOKEN }})
-
+          echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
      
-          deno test --allow-net ./test.ts ${DEPLOYMENT_URL}
+      - name: Test
+        run: deno test --allow-net --allow-env ./test.ts
 
   example-cloudflare-service-worker:
     if: "false"

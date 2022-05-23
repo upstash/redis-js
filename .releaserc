@@ -9,6 +9,6 @@
       "prerelease": "next"
     }
   ],
-  "dryRun": true,
+  "dryRun": false,
   "ci": true
 }

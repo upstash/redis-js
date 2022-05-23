@@ -1,5 +1,5 @@
 {
-  "name": "upstash-ratelimit-nextjs",
+  "name": "upstash-redis-nextjs",
   "private": true,
   "scripts": {
     "dev": "next dev",

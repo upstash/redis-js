@@ -241,7 +241,7 @@ jobs:
       - name: Test
         run: deno test --allow-net --allow-env ./examples/nextjs_edge/test.ts
 
-  example-cloudflare-modules-worker:
+  example-cloudflare-worker:
     environment: local
     needs:
       - test
@@ -282,11 +282,11 @@ jobs:
         run: |
           pnpm install
           pnpm install -g miniflare @cloudflare/wrangler
-        working-directory: examples/cloudflare-modules-worker
+        working-directory: examples/cloudflare-worker
 
       - name: Start example
         run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
-        working-directory: examples/cloudflare-modules-worker
+        working-directory: examples/cloudflare-worker
 
       - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
         timeout-minutes: 2

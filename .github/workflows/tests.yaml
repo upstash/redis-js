@@ -154,7 +154,7 @@ jobs:
 
 
       - name: test
-        run: echo ${{ steps.deploy.output.url }}
+        run: echo ${{ steps.deployment.output.url }}
 
   example-cloudflare-service-worker:
     if: "false"

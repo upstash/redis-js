@@ -5,8 +5,8 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
 });
 export default async function middleware(
-  request: NextRequest,
-  event: NextFetchEvent,
+  _request: NextRequest,
+  _event: NextFetchEvent,
 ): Promise<Response | undefined> {
   const start = Date.now();
 

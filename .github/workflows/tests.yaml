@@ -135,6 +135,7 @@ jobs:
       - name: Deploy
         working-directory: examples/nextjs
         run: |
+          cp -r ./examples/nextjs/.vercel .
           DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
 
@@ -162,8 +163,8 @@ jobs:
           version: 6
 
       - name: Deploy
-        working-directory: examples/nextjs_edge
         run: |
+          cp -r ./examples/nextjs_edge/.vercel .
           DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
 

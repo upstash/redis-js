@@ -22,6 +22,10 @@ await build({
       name: "./fastly",
       path: "./platforms/fastly.ts",
     },
+    {
+      name: "./with-fetch",
+      path: "./platforms/node_with_fetch.ts",
+    },
   ],
   outDir,
   shims: {
@@ -31,6 +35,11 @@ await build({
       /**
        * Workaround for testing the build in nodejs
        */
+      {
+        package: { name: "@types/node", version: "latest" },
+        typesPackage: { name: "@types/node", version: "latest" },
+        globalNames: [],
+      },
       {
         package: { name: "@types/node", version: "latest" },
         typesPackage: { name: "@types/node", version: "latest" },
@@ -55,6 +64,9 @@ await build({
     license: "MIT",
     bugs: {
       url: "https://github.com/upstash/upstash-redis/issues",
+    },
+    dependencies: {
+      "isomorphic-fetch": "^3.0.0",
     },
     homepage: "https://github.com/upstash/upstash-redis#readme",
     browser: {

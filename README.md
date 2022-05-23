@@ -25,20 +25,14 @@ supported.
 
 ## Upgrading to v1.4.0 **(ReferenceError: fetch is not defined)**
 
-If you are running on nodejs v17 and earlier, you need to manually provide a
-`fetch` polyfill. The simplest way is using `isomorphic-fetch`
-
-```bash
-npm install isomorphic-fetch
-```
+If you are running on nodejs v17 and earlier, `fetch` will not be natively
+supported. Platforms like Vercel, Netlify, Deno, Fastly etc. provide a polyfill
+for you. But if you are running on bare node, you need to either specify a
+polyfill yourself or change the import path to:
 
 ```typescript
-import "isomorphic-fetch";
-import { Redis } from "@upstash/redis";
+import { Redis } from "@upstash/redis/with-fetch";
 ```
-
-`fetch` is natively supported in node18 as well as all major platforms: Vercel,
-Netlify, Deno, Fastly etc. and you do not need to do anything.
 
 ## Upgrading from v0.2.0?
 
@@ -91,6 +85,15 @@ const redis = new Redis({
 
 // or load directly from env
 const redis = Redis.fromEnv()
+```
+
+If you are running on nodejs v17 and earlier, `fetch` will not be natively
+supported. Platforms like Vercel, Netlify, Deno, Fastly etc. provide a polyfill
+for you. But if you are running on bare node, you need to either specify a
+polyfill yourself or change the import path to:
+
+```typescript
+import { Redis } from "@upstash/redis/with-fetch";
 ```
 
 - [Code example](https://github.com/upstash/upstash-redis/blob/main/examples/nodejs)

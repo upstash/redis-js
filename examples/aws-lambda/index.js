@@ -1,4 +1,4 @@
-const { Redis } = require("@upstash/redis");
+const { Redis } = require("@upstash/redis/with-fetch");
 
 exports.handler = async (_event, _context) => {
   let response;

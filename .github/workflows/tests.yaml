@@ -127,6 +127,10 @@ jobs:
         with:
           node-version: 16
 
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
       - name: Cache pnpm modules
         uses: actions/cache@v2
         with:
@@ -148,13 +152,12 @@ jobs:
       - name: Deploy      
         id: deployment
         working-directory: ./examples/nextjs
-        run: |
-          vercel --token=${{ secrets.VERCEL_TOKEN }} > url.txt
-          echo "::set-output name=url::$(cat url.txt)"
+        run: vercel --token=${{ secrets.VERCEL_TOKEN }} > url.txt
+          
 
 
       - name: test
-        run: echo ${{ steps.deployment.output.url }}
+        run: cat url.txt
 
   example-cloudflare-service-worker:
     if: "false"

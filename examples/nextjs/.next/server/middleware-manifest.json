@@ -1,0 +1,29 @@
+{
+  "sortedMiddleware": [
+    "/api"
+  ],
+  "clientInfo": [
+    [
+      "/api",
+      false
+    ]
+  ],
+  "middleware": {
+    "/api": {
+      "env": [
+        "UPSTASH_REDIS_REST_URL",
+        "UPSTASH_REDIS_REST_TOKEN",
+        "VERCEL_GIT_COMMIT_SHA"
+      ],
+      "files": [
+        "server/edge-runtime-webpack.js",
+        "server/pages/api/_middleware.js"
+      ],
+      "name": "pages/api/_middleware",
+      "page": "/api",
+      "regexp": "^/api(?:(/.*)?)$",
+      "wasm": []
+    }
+  },
+  "version": 1
+}

@@ -1,0 +1,8 @@
+{
+  "/api/_middleware": "pages/api/_middleware.js",
+  "/_app": "pages/_app.js",
+  "/_error": "pages/_error.js",
+  "/_document": "pages/_document.js",
+  "/api/incr": "pages/api/incr.js",
+  "/api/decr": "pages/api/decr.js"
+}

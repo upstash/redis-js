@@ -50,7 +50,8 @@ jobs:
         run: node_modules/.bin/size-limit
         working-directory: dist
 
-  example-nextjs:
+  example-nextjs-local:
+    environment: local
     needs:
       - test
     env:
@@ -106,21 +107,22 @@ jobs:
         run: pnpm start &
         working-directory: ./examples/nextjs
 
-      - name: Ping api
-        run: |
-          count=$(curl -s http://localhost:3000/api/incr | jq -r '.count')
-          if [ $count -ne 1 ]; then
-            echo "assertEqualsed count to be 1, got $count"
-            exit 1
-          fi
+      - name: Test
+        run: deno test --allow-net --allow-env ./examples/nextjs/test.ts
+        env:
+          DEPLOYMENT_URL: http://localhost:3000
 
-  example-cloudflare-service-worker:
-    if: "false"
+
+  example-nextjs-edge-local:
+    environment: local
     needs:
       - test
     env:
       UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+      NEXT_PUBLIC_UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
@@ -129,9 +131,17 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
+
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
 
       - uses: pnpm/action-setup@v2
         with:
@@ -149,37 +159,90 @@ jobs:
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
-        run: |
-          npm install
-          npm install -g @cloudflare/wrangler miniflare
-        working-directory: ./examples/cloudflare-service-worker
+        run: pnpm install
+        working-directory: ./examples/nextjs_edge
 
-      # - name: Build example
-      #   run: |
-      #     npm run build
-      #   working-directory: ./examples/cloudflare-service-worker
+      - name: Build example
+        run: pnpm build
+        working-directory: ./examples/nextjs_edge
 
       - name: Start example
-        # run: wrangler dev
-        run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
-        working-directory: ./examples/cloudflare-service-worker
+        run: pnpm start &
+        working-directory: ./examples/nextjs_edge
 
-      - run: |
-          sleep 5
-          curl -v localhost:8787
+      - name: Test
+        run: deno test --allow-net --allow-env ./examples/nextjs_edge/test.ts
+        env:
+          DEPLOYMENT_URL: http://localhost:3000
 
-      - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
-        timeout-minutes: 2
+  example-nextjs-deployed:
+    runs-on: ubuntu-latest
+    concurrency: vercel
+    environment: deployed
+    needs:
+      - example-nextjs-local
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
 
-      - name: Ping api
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+      - name: Deploy
         run: |
-          count=$(curl -s http://localhost:8787/ | jq -r '.count')
-          if [ $count -ne 2 ]; then
-            echo "assertEqualsed count to be 2, got $count"
-            exit 1
-          fi
+          DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
+          echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
+        env:
+          VERCEL_ORG_ID: ${{secrets.VERCEL_TEAM_ID}}
+          VERCEL_PROJECT_ID: "prj_pFFK1XgNIlnW014iiuqAIQmBBuZA"
 
-  example-cloudflare-modules-worker:
+      - name: Test
+        run: deno test --allow-net --allow-env ./examples/nextjs/test.ts
+
+  example-nextjs-edge-deployed:
+    runs-on: ubuntu-latest
+    concurrency: vercel
+    environment: deployed
+    needs:
+      - example-nextjs-edge-local
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+      - name: Deploy
+        run: |
+          DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
+          echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
+        env:
+          VERCEL_ORG_ID: ${{secrets.VERCEL_TEAM_ID}}
+          VERCEL_PROJECT_ID: "prj_bc5kMFz6ifbAaA7U3N86YSYqUUUI"
+
+      - name: Test
+        run: deno test --allow-net --allow-env ./examples/nextjs_edge/test.ts
+
+  example-cloudflare-worker-local:
+    environment: local
     needs:
       - test
     env:
@@ -219,11 +282,11 @@ jobs:
         run: |
           pnpm install
           pnpm install -g miniflare @cloudflare/wrangler
-        working-directory: examples/cloudflare-modules-worker
+        working-directory: examples/cloudflare-worker
 
       - name: Start example
         run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
-        working-directory: examples/cloudflare-modules-worker
+        working-directory: examples/cloudflare-worker
 
       - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
         timeout-minutes: 2
@@ -238,7 +301,8 @@ jobs:
             exit 1
           fi
 
-  example-fastly:
+  example-fastly-local:
+    environment: local
     needs:
       - test
     env:
@@ -305,9 +369,8 @@ jobs:
             exit 1
           fi
 
-
-
-  example-nodejs:
+  example-nodejs-local:
+    environment: local
     needs:
       - test
     env:

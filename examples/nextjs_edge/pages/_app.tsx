@@ -18,7 +18,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         breadcrumbOptions={{
           data: [
             {
-              name: "redis",
+              name: "ratelimit",
               url: "https://github.com/upstash/upstash-redis",
             },
           ],

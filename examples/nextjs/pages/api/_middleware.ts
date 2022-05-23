@@ -3,10 +3,11 @@
 import { Redis } from "@upstash/redis";
 import { NextResponse } from "next/server";
 
+const { incr } = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+});
 export default async function middleware(_request: Request) {
-  console.log("env: ", JSON.stringify(process.env, null, 2));
-
-  const { incr } = Redis.fromEnv();
   /**
    * We're prefixing the key for our automated tests.
    * This is to avoid collisions with other tests.
@@ -17,6 +18,6 @@ export default async function middleware(_request: Request) {
     "middleware_counter",
   ].join("_");
   const value = await incr(key);
-  console.log({ value });
+  console.log("mw", { value });
   return NextResponse.next();
 }

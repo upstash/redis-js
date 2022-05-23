@@ -109,8 +109,8 @@ jobs:
       - name: Ping api
         run: |
           count=$(curl -s http://localhost:3000/api/incr | jq -r '.count')
-          if [ $count -ne 2 ]; then
-            echo "assertEqualsed count to be 2, got $count"
+          if [ $count -ne 1 ]; then
+            echo "assertEqualsed count to be 1, got $count"
             exit 1
           fi
 

@@ -87,6 +87,15 @@ const redis = new Redis({
 const redis = Redis.fromEnv()
 ```
 
+If you are running on nodejs v17 and earlier, `fetch` will not be natively
+supported. Platforms like Vercel, Netlify, Deno, Fastly etc. provide a polyfill
+for you. But if you are running on bare node, you need to either specify a
+polyfill yourself or change the import path to:
+
+```typescript
+import { Redis } from "@upstash/redis/with-fetch";
+```
+
 - [Code example](https://github.com/upstash/upstash-redis/blob/main/examples/nodejs)
 
 #### Cloudflare Workers

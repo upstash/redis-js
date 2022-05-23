@@ -1,6 +1,6 @@
 const { Redis } = require("@upstash/redis");
 
-exports.handler = async (event, context) => {
+exports.handler = async (_event, _context) => {
   let response;
   try {
     const redis = Redis.fromEnv();

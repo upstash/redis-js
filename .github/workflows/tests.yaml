@@ -107,18 +107,17 @@ jobs:
         run: pnpm start &
         working-directory: ./examples/nextjs
 
-      - name: Ping api
-        run: |
-          count=$(curl -s http://localhost:3000/api/incr | jq -r '.count')
-          if [ $count -ne 1 ]; then
-            echo "expexted count to be 1, got $count"
-            exit 1
-          fi
+      - name: Test
+        run: deno test --allow-net --allow-env ./examples/nextjs/test.ts
+        env:
+          DEPLOYMENT_URL: http://localhost:3000
 
   example-nextjs-deployed:
     runs-on: ubuntu-latest
     concurrency: vercel
     environment: deployed
+    needs:
+      - example-nextjs-local
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
@@ -152,6 +151,8 @@ jobs:
     runs-on: ubuntu-latest
     concurrency: vercel
     environment: deployed
+    needs:
+      - example-nextjs-local
     steps:
       - name: Setup repo
         uses: actions/checkout@v2

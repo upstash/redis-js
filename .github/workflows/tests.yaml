@@ -406,8 +406,8 @@ jobs:
 
   example-fastly-deployed:
     environment: deployed
-    # needs:
-    #   - example-fastly-local
+    needs:
+      - example-fastly-local
     env:
       UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
@@ -434,7 +434,7 @@ jobs:
         run: deno run -A ./cmd/build.ts
 
       - name: Install example
-        working-directory: ./examples/fastly2
+        working-directory: ./examples/fastly
         run: |
           pnpm install
           curl -L https://github.com/fastly/cli/releases/download/v1.7.0/fastly_v1.7.0_linux-amd64.tar.gz > fastly.tar.gz

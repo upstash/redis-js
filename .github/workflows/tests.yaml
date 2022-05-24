@@ -458,17 +458,14 @@ jobs:
 
       - name: Deploy
         working-directory: ./examples/fastly
-        run: ./fastly compute deploy
+        run: ./fastly compute publish
         env:
           FASTLY_API_TOKEN: ${{secrets.FASTLY_API_TOKEN}}
-
-      - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:7676/)" != "200" ]]; do sleep 1; done
-        timeout-minutes: 2
 
       - name: Test
         run: deno test -A ./examples/fastly/test.ts
         env:
-          DEPLOYMENT_URL: http://localhost:7676
+          DEPLOYMENT_URL: https://redis-fastly.upstashdev.com
 
   example-nodejs-local:
     environment: local

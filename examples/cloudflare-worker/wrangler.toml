@@ -18,7 +18,7 @@ dir = "dist"
 main = "./index.mjs"
 
 
-
-[vars]
-UPSTASH_REDIS_REST_URL = "REPLACE_THIS"
-UPSTASH_REDIS_REST_TOKEN = "REPLACE_THIS"
+# Set variables here or on cloudflare
+# [vars]
+# UPSTASH_REDIS_REST_URL = "REPLACE_THIS"
+# UPSTASH_REDIS_REST_TOKEN = "REPLACE_THIS"

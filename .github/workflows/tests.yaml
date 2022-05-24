@@ -112,7 +112,6 @@ jobs:
         env:
           DEPLOYMENT_URL: http://localhost:3000
 
-
   example-nextjs-edge-local:
     environment: local
     needs:
@@ -291,15 +290,56 @@ jobs:
       - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
         timeout-minutes: 2
 
-      - name: Ping api
+      - name: Test
+        run: deno test -A ./examples/cloudflare-worker/test.ts
+        env:
+          DEPLOYMENT_URL: http://localhost:8787
+
+  example-cloudflare-worker-deployed:
+    environment: deployed
+    needs:
+      - example-cloudflare-worker-local
+    env:
+      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+      - name: Build
+        run: deno run -A ./cmd/build.ts
+
+      - name: Install example
         run: |
-          curl -s http://localhost:8787/ -o response.html
-          if grep -q "Count: 2" response.html; then
-            exit 0
-          else
-            echo "assertEqualsed response to contain 'Count: 2', got $(cat response.html)"
-            exit 1
-          fi
+          pnpm install
+          pnpm install -g @cloudflare/wrangler
+        working-directory: examples/cloudflare-worker
+
+      - name: Deploy
+        run: wrangler publish
+        working-directory: examples/cloudflare-worker
+        env:
+          CF_API_TOKEN: ${{secrets.CF_API_TOKEN}}
+
+      - name: Test
+        run: deno test -A ./examples/cloudflare-worker/test.ts
+        env:
+          DEPLOYMENT_URL: https://upstash-modules-worker.upstash.workers.dev
 
   example-fastly-local:
     environment: local
@@ -359,15 +399,65 @@ jobs:
       - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:7676/)" != "200" ]]; do sleep 1; done
         timeout-minutes: 2
 
-      - name: Ping api
+      - name: Test
+        run: deno test -A ./examples/fastly/test.ts
+        env:
+          DEPLOYMENT_URL: http://localhost:7676
+
+  example-fastly-deployed:
+    environment: deployed
+    needs:
+      - example-fastly-local
+    env:
+      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+      - name: Build
+        run: deno run -A ./cmd/build.ts
+
+      - name: Install example
+        working-directory: ./examples/fastly
         run: |
-          curl -s http://localhost:7676/ -o response.html
-          if grep -q "Counter: 2" response.html; then
-            exit 0
-          else
-            echo "assertEqualsed response to contain 'Counter: 2', got $(cat response.html)"
-            exit 1
-          fi
+          pnpm install
+          curl -L https://github.com/fastly/cli/releases/download/v1.7.0/fastly_v1.7.0_linux-amd64.tar.gz > fastly.tar.gz
+          tar -xf ./fastly.tar.gz
+
+      - name: Inject variables
+        working-directory: ./examples/fastly
+        run: |
+          sed -i 's;<UPSTASH_REDIS_REST_URL>;${{ secrets.UPSTASH_REDIS_REST_URL_CLOUD }};' fastly.toml
+          sed -i 's;<UPSTASH_REDIS_REST_URL>;${{ secrets.UPSTASH_REDIS_REST_URL_CLOUD }};' src/index.js
+          sed -i 's;<UPSTASH_REDIS_REST_TOKEN>;${{ secrets.UPSTASH_REDIS_REST_TOKEN_CLOUD }};' src/index.js
+
+      - name: Deploy
+        working-directory: ./examples/fastly
+        run: ./fastly compute publish --service-id=${{ secrets.FASTLY_SERVICE_ID }}
+        env:
+          FASTLY_API_TOKEN: ${{secrets.FASTLY_API_TOKEN}}
+      - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://terminally-flowing-lizard.edgecompute.app)" != "200" ]]; do sleep 1; done
+        timeout-minutes: 2
+      - name: Test
+        run: deno test -A ./examples/fastly/test.ts
+        env:
+          DEPLOYMENT_URL: https://terminally-flowing-lizard.edgecompute.app
 
   example-nodejs-local:
     environment: local

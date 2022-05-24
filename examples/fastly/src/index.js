@@ -9,6 +9,6 @@ async function handleRequest(_event) {
     backend: "upstash-db", // same name you used in `fastly.toml`
   });
 
-  const counter = await redis.incr("fastly");
-  return new Response(`Counter: ${counter}`);
+  const count = await redis.incr("fastly");
+  return new Response(JSON.stringify(({ count })))
 }

@@ -404,15 +404,10 @@ jobs:
       - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:7676/)" != "200" ]]; do sleep 1; done
         timeout-minutes: 2
 
-      - name: Ping api
-        run: |
-          curl -s http://localhost:7676/ -o response.html
-          if grep -q "Counter: 2" response.html; then
-            exit 0
-          else
-            echo "assertEqualsed response to contain 'Counter: 2', got $(cat response.html)"
-            exit 1
-          fi
+      - name: Test
+        run: deno test -A ./examples/fastly/test.ts
+        env:
+          DEPLOYMENT_URL: http://localhost:7676
 
   example-nodejs-local:
     environment: local

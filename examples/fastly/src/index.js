@@ -10,5 +10,5 @@ async function handleRequest(_event) {
   });
 
   const count = await redis.incr("fastly");
-  return new Response(JSON.stringify(({ count })))
+  return new Response(JSON.stringify({ count }));
 }

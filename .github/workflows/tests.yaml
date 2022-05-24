@@ -406,8 +406,8 @@ jobs:
 
   example-fastly-deployed:
     environment: deployed
-    needs:
-      - example-fastly-local
+    # needs:
+    #   - example-fastly-local
     env:
       UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
@@ -442,14 +442,15 @@ jobs:
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
-        working-directory: ./examples/fastly
+        working-directory: ./examples/fastly2
         run: |
           pnpm install
           curl -L https://github.com/fastly/cli/releases/download/v1.7.0/fastly_v1.7.0_linux-amd64.tar.gz > fastly.tar.gz
           tar -xf ./fastly.tar.gz
 
       - name: Inject variables
-        working-directory: ./examples/fastly
+        if: "false"
+        working-directory: ./examples/fastly2
         run: |
           sed -i 's;<UPSTASH_REDIS_REST_URL>;${{ secrets.UPSTASH_REDIS_REST_URL_CLOUD }};' fastly.toml
           sed -i 's;<UPSTASH_REDIS_REST_URL>;${{ secrets.UPSTASH_REDIS_REST_URL_CLOUD }};' src/index.js
@@ -457,13 +458,13 @@ jobs:
           sed -i 's;<SERVICE_ID>;${{ secrets.FASTLY_SERVICE_ID }};' fastly.toml
 
       - name: Deploy
-        working-directory: ./examples/fastly
+        working-directory: ./examples/fastly2
         run: ./fastly compute publish
         env:
           FASTLY_API_TOKEN: ${{secrets.FASTLY_API_TOKEN}}
 
       - name: Test
-        run: deno test -A ./examples/fastly/test.ts
+        run: deno test -A ./examples/fastly2/test.ts
         env:
           DEPLOYMENT_URL: https://redis-fastly.upstashdev.com
 

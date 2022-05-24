@@ -112,7 +112,6 @@ jobs:
         env:
           DEPLOYMENT_URL: http://localhost:3000
 
-
   example-nextjs-edge-local:
     environment: local
     needs:
@@ -296,8 +295,6 @@ jobs:
         env:
           DEPLOYMENT_URL: http://localhost:8787
 
-
-      
   example-cloudflare-worker-deployed:
     environment: deployed
     needs:
@@ -327,7 +324,6 @@ jobs:
       - name: Build
         run: deno run -A ./cmd/build.ts
 
-
       - name: Install example
         run: |
           pnpm install
@@ -344,7 +340,6 @@ jobs:
         run: deno test -A ./examples/cloudflare-worker/test.ts
         env:
           DEPLOYMENT_URL: https://upstash-modules-worker.upstash.workers.dev
-
 
   example-fastly-local:
     environment: local
@@ -400,6 +395,72 @@ jobs:
       - name: Start example
         working-directory: ./examples/fastly
         run: ./fastly compute serve &
+
+      - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:7676/)" != "200" ]]; do sleep 1; done
+        timeout-minutes: 2
+
+      - name: Test
+        run: deno test -A ./examples/fastly/test.ts
+        env:
+          DEPLOYMENT_URL: http://localhost:7676
+
+  example-fastly-deployed:
+    environment: deployed
+    needs:
+      - example-fastly-local
+    env:
+      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+      - name: Build
+        run: deno run -A ./cmd/build.ts
+
+      - name: Start redis server
+        uses: ./.github/actions/redis
+        with:
+          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
+          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
+
+      - name: Install example
+        working-directory: ./examples/fastly
+        run: |
+          pnpm install
+          curl -L https://github.com/fastly/cli/releases/download/v1.7.0/fastly_v1.7.0_linux-amd64.tar.gz > fastly.tar.gz
+          tar -xf ./fastly.tar.gz
+
+      - name: Inject variables
+        working-directory: ./examples/fastly
+        run: |
+          sed -i 's;<UPSTASH_REDIS_REST_URL>;${{secrets.UPSTASH_REDIS_REST_URL_CLOUD}};' fastly.toml
+          sed -i 's;<UPSTASH_REDIS_REST_URL>;${{secrets.UPSTASH_REDIS_REST_URL_CLOUD}};' src/index.js
+          sed -i 's;<UPSTASH_REDIS_REST_TOKEN>;${{ secrets.UPSTASH_REDIS_REST_TOKEN_CLOUD }};' src/index.js
+          sed -i 's;<SERVICE_ID>;4pvtt4FvUh7v6FjKn5wOBL;' fastly.toml
+
+      - name: Deploy
+        working-directory: ./examples/fastly
+        run: ./fastly compute deploy
+        env:
+          FASTLY_API_TOKEN: ${{secrets.FASTLY_API_TOKEN}}
 
       - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:7676/)" != "200" ]]; do sleep 1; done
         timeout-minutes: 2

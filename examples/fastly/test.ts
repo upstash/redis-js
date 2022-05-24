@@ -7,8 +7,7 @@ if (!deploymentURL) {
 
 Deno.test("works", async () => {
   console.log({ deploymentURL });
-  const url = `${deploymentURL}`;
-  const res = await fetch(url);
+  const res = await fetch(deploymentURL);
   assertEquals(res.status, 200);
   const json = (await res.json()) as { count: number };
   assertEquals(typeof json.count, "number");

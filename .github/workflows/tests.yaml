@@ -452,11 +452,12 @@ jobs:
         run: ./fastly compute publish --service-id=${{ secrets.FASTLY_SERVICE_ID }}
         env:
           FASTLY_API_TOKEN: ${{secrets.FASTLY_API_TOKEN}}
-
+      - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://terminally-flowing-lizard.edgecompute.app)" != "200" ]]; do sleep 1; done
+        timeout-minutes: 2
       - name: Test
         run: deno test -A ./examples/fastly/test.ts
         env:
-          DEPLOYMENT_URL: https://terminally-flowing-lizard.edgecompute.app/
+          DEPLOYMENT_URL: https://terminally-flowing-lizard.edgecompute.app
 
   example-nodejs-local:
     environment: local

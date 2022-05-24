@@ -441,7 +441,6 @@ jobs:
           tar -xf ./fastly.tar.gz
 
       - name: Inject variables
-        if: "false"
         working-directory: ./examples/fastly
         run: |
           sed -i 's;<UPSTASH_REDIS_REST_URL>;${{ secrets.UPSTASH_REDIS_REST_URL_CLOUD }};' fastly.toml

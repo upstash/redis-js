@@ -388,7 +388,7 @@ jobs:
         working-directory: examples/cloudflare-worker-wrangler2
 
       - name: Add account ID
-        run: echo "account_id = ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" >> wrangler.toml
+        run: echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"'' >> wrangler.toml
         working-directory: examples/cloudflare-worker-wrangler2
 
       - name: Start example
@@ -439,7 +439,7 @@ jobs:
         working-directory: examples/cloudflare-worker-wrangler2
 
       - name: Add account ID
-        run: echo "account_id = ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" >> wrangler.toml
+        run: echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"'' >> wrangler.toml
         working-directory: examples/cloudflare-worker-wrangler2
 
       - name: Deploy

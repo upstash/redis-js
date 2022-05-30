@@ -1,6 +1,6 @@
 import { newHttpClient, randomID } from "../test-utils.ts";
 import { ScriptLoadCommand } from "./script_load.ts";
-import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.141.0/testing/asserts.ts";
 
 import { ScriptExistsCommand } from "./script_exists.ts";
 import { ScriptFlushCommand } from "./script_flush.ts";

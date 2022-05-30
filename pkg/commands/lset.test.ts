@@ -1,13 +1,13 @@
 import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
-import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.141.0/testing/bdd.ts";
 import { LPushCommand } from "./lpush.ts";
 import { LSetCommand } from "./lset.ts";
 import { LPopCommand } from "./lpop.ts";
 import {
   assertEquals,
   assertRejects,
-} from "https://deno.land/std@0.136.0/testing/asserts.ts";
+} from "https://deno.land/std@0.141.0/testing/asserts.ts";
 
 const client = newHttpClient();
 

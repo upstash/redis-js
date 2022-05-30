@@ -9,6 +9,7 @@ await build({
   packageManager,
   entryPoints: [
     "platforms/nodejs.ts",
+
     {
       name: "./nodejs",
       path: "./platforms/nodejs.ts",
@@ -31,24 +32,10 @@ await build({
   shims: {
     deno: "dev",
     crypto: "dev",
-    custom: [
-      /**
-       * Workaround for testing the build in nodejs
-       */
-      {
-        package: { name: "@types/node", version: "latest" },
-        typesPackage: { name: "@types/node", version: "latest" },
-        globalNames: [],
-      },
-      {
-        package: { name: "@types/node", version: "latest" },
-        typesPackage: { name: "@types/node", version: "latest" },
-        globalNames: [],
-      },
-    ],
   },
   typeCheck: true,
   test: typeof Deno.env.get("TEST") !== "undefined",
+
   package: {
     // package.json properties
     name: "@upstash/redis",
@@ -60,24 +47,32 @@ await build({
       url: "git+https://github.com/upstash/upstash-redis.git",
     },
     keywords: ["redis", "database", "serverless", "edge", "upstash"],
-    author: "Andreas Thomas <andreas.thomas@chronark.com>",
+    author: "Andreas Thomas <dev@chronark.com>",
     license: "MIT",
     bugs: {
       url: "https://github.com/upstash/upstash-redis/issues",
     },
-    dependencies: {
-      "isomorphic-fetch": "^3.0.0",
-    },
     homepage: "https://github.com/upstash/upstash-redis#readme",
-    browser: {
-      "isomorphic-fetch": false,
-      http: false,
-      https: false,
-    },
     devDependencies: {
       "size-limit": "latest",
       "@size-limit/preset-small-lib": "latest",
     },
+    dependencies: {
+      "isomorphic-fetch": "^3.0.0",
+    },
+    /**
+     * typesVersion is required to make imports work in typescript.
+     * Without this you would not be able to import {} from "@upstash/redis/<some_path>"
+     */
+    typesVersions: {
+      "*": {
+        nodejs: "./types/platforms/nodejs.d.ts",
+        cloudflare: "./types/platforms/cloudflare.d.ts",
+        fastly: "./types/platforms/fastly.d.ts",
+        "with-fetch": "./types/platforms/node_with_fetch.d.ts",
+      },
+    },
+
     "size-limit": [
       {
         path: "esm/platforms/nodejs.js",
@@ -91,6 +86,10 @@ await build({
         path: "esm/platforms/cloudflare.js",
         limit: "5 KB",
       },
+      {
+        path: "esm/platforms/node_with_fetch.js",
+        limit: "15 KB",
+      },
 
       {
         path: "script/platforms/nodejs.js",
@@ -103,6 +102,10 @@ await build({
       {
         path: "script/platforms/cloudflare.js",
         limit: "10 KB",
+      },
+      {
+        path: "script/platforms/node_with_fetch.js",
+        limit: "15 KB",
       },
     ],
   },

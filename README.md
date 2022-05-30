@@ -130,8 +130,8 @@ export default {
 }
 ```
 
-- [Code example service worker](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-workers)
-- [Code example module worker](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-workers-modules)
+- [Code example Wrangler 2](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-worker-wrangler2)
+- [Code example Wrangler 1](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-worker)
 - [Documentation](https://docs.upstash.com/redis/tutorials/cloudflare_workers_with_redis)
 
 #### Fastly

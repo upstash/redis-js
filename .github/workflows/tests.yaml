@@ -619,7 +619,11 @@ jobs:
     needs:
       - example-nodejs-local
       - example-fastly-local
-      - example-fastly-deployed
+      - example-nextjs-local
+      - example-nextjs-edge-local
+      - example-cloudflare-worker-local
+      - example-cloudflare-worker-wrangler2-local
+
     name: Release
     runs-on: ubuntu-latest
     steps:

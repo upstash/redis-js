@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "wrangler dev",
-    "publish": "wrangler publish"
+    "deploy": "wrangler publish"
   },
   "devDependencies": {
     "wrangler": "^2.0.7"

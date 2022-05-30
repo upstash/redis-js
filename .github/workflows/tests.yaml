@@ -53,7 +53,7 @@ jobs:
         run: node_modules/.bin/size-limit
         working-directory: dist
 
-  example-nextjs-local:
+  nextjs-local:
     environment: local
     needs:
       - test
@@ -115,7 +115,7 @@ jobs:
         env:
           DEPLOYMENT_URL: http://localhost:3000
 
-  example-nextjs-edge-local:
+  nextjs-edge-local:
     environment: local
     needs:
       - test
@@ -177,7 +177,7 @@ jobs:
         env:
           DEPLOYMENT_URL: http://localhost:3000
 
-  example-nextjs-deployed:
+  nextjs-deployed:
     runs-on: ubuntu-latest
     concurrency: vercel
     environment: deployed
@@ -211,7 +211,7 @@ jobs:
       - name: Test
         run: deno test --allow-net --allow-env ./examples/nextjs/test.ts
 
-  example-nextjs-edge-deployed:
+  nextjs-edge-deployed:
     runs-on: ubuntu-latest
     concurrency: vercel
     environment: deployed
@@ -245,7 +245,7 @@ jobs:
       - name: Test
         run: deno test --allow-net --allow-env ./examples/nextjs_edge/test.ts
 
-  example-cloudflare-worker-local:
+  cloudflare-worker-local:
     environment: local
     needs:
       - test
@@ -300,7 +300,7 @@ jobs:
         env:
           DEPLOYMENT_URL: http://localhost:8787
 
-  example-cloudflare-worker-deployed:
+  cloudflare-worker-deployed:
     environment: deployed
     needs:
       - release
@@ -346,7 +346,7 @@ jobs:
 
 
 
-  example-cloudflare-worker-wrangler2-local:
+  cloudflare-worker-wrangler2-local:
     environment: local
     needs:
       - test
@@ -392,6 +392,8 @@ jobs:
       - name: Start example
         run: pnpm dev &
         working-directory: examples/cloudflare-worker-wrangler2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
 
       - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
         timeout-minutes: 2
@@ -401,7 +403,7 @@ jobs:
         env:
           DEPLOYMENT_URL: http://localhost:8787
 
-  example-cloudflare-worker-wrangler2-deployed:
+  cloudflare-worker-wrangler2-deployed:
     environment: deployed
     needs:
       - release
@@ -436,7 +438,7 @@ jobs:
         working-directory: examples/cloudflare-worker-wrangler2
 
       - name: Deploy
-        run: wrangler publish
+        run: pnpm deploy
         working-directory: examples/cloudflare-worker-wrangler2
         env:
           CF_API_TOKEN: ${{secrets.CF_API_TOKEN}}
@@ -446,7 +448,7 @@ jobs:
         env:
           DEPLOYMENT_URL: https://cloudflare-worker-wrangler2.upstash.workers.dev
 
-  example-fastly-local:
+  fastly-local:
     environment: local
     needs:
       - test
@@ -509,7 +511,7 @@ jobs:
         env:
           DEPLOYMENT_URL: http://localhost:7676
 
-  example-fastly-deployed:
+  fastly-deployed:
     environment: deployed
     needs:
       - release
@@ -565,7 +567,7 @@ jobs:
         env:
           DEPLOYMENT_URL: https://terminally-flowing-lizard.edgecompute.app
 
-  example-nodejs-local:
+  nodejs-local:
     environment: local
     needs:
       - test
@@ -611,18 +613,68 @@ jobs:
         run: node ./index.js
         working-directory: examples/nodejs
 
+  nodejs-18-local:
+    environment: local
+    needs:
+      - test
+    env:
+      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+      - name: Build
+        run: deno run -A ./cmd/build.ts
+
+      - name: Start redis server
+        uses: ./.github/actions/redis
+        with:
+          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
+          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
+
+      - name: Install example
+        run: |
+          pnpm install
+        working-directory: examples/nodejs-18
+
+      - name: Run example
+        run: node ./index.js
+        working-directory: examples/nodejs-18
+
 
 
   release:
     outputs:
       version: ${{ steps.version.outputs.version }}
     needs:
-      - example-nodejs-local
-      - example-fastly-local
-      - example-nextjs-local
-      - example-nextjs-edge-local
-      - example-cloudflare-worker-local
-      - example-cloudflare-worker-wrangler2-local
+      - nodejs-local
+      - fastly-local
+      - nextjs-local
+      - nextjs-edge-local
+      - cloudflare-worker-local
+      - cloudflare-worker-wrangler2-local
 
     name: Release
     runs-on: ubuntu-latest

@@ -670,6 +670,7 @@ jobs:
       version: ${{ steps.version.outputs.version }}
     needs:
       - nodejs-local
+      - nodejs-18-local
       - fastly-local
       - nextjs-local
       - nextjs-edge-local

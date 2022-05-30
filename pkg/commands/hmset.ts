@@ -3,10 +3,10 @@ import { Command, CommandOptions } from "./command.ts";
 /**
  * @see https://redis.io/commands/hmset
  */
-export class HMSetCommand<TData> extends Command<number, number> {
+export class HMSetCommand<TData> extends Command<"OK", "OK"> {
   constructor(
     [key, kv]: [key: string, kv: { [field: string]: TData }],
-    opts?: CommandOptions<number, number>,
+    opts?: CommandOptions<"OK", "OK">,
   ) {
     super(
       [

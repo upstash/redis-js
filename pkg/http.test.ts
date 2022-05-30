@@ -2,7 +2,7 @@ import { HttpClient } from "./http.ts";
 import {
   assertEquals,
   assertRejects,
-} from "https://deno.land/std@0.136.0/testing/asserts.ts";
+} from "https://deno.land/std@0.141.0/testing/asserts.ts";
 
 import { newHttpClient } from "./test-utils.ts";
 Deno.test("remove trailing slash from urls", () => {

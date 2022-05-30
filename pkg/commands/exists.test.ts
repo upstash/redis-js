@@ -1,8 +1,8 @@
 import { keygen, newHttpClient } from "../test-utils.ts";
 import { ExistsCommand } from "./exists.ts";
-import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.141.0/testing/asserts.ts";
 
-import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.141.0/testing/bdd.ts";
 import { SetCommand } from "./set.ts";
 
 const client = newHttpClient();

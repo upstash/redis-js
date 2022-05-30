@@ -5,6 +5,9 @@ on:
     - cron: "0 0 * * *" # daily
 
 jobs:
+
+
+
   test:
     runs-on: ubuntu-latest
 
@@ -50,7 +53,7 @@ jobs:
         run: node_modules/.bin/size-limit
         working-directory: dist
 
-  example-nextjs-local:
+  nextjs-local:
     environment: local
     needs:
       - test
@@ -112,7 +115,7 @@ jobs:
         env:
           DEPLOYMENT_URL: http://localhost:3000
 
-  example-nextjs-edge-local:
+  nextjs-edge-local:
     environment: local
     needs:
       - test
@@ -174,12 +177,12 @@ jobs:
         env:
           DEPLOYMENT_URL: http://localhost:3000
 
-  example-nextjs-deployed:
+  nextjs-deployed:
     runs-on: ubuntu-latest
     concurrency: vercel
     environment: deployed
     needs:
-      - example-nextjs-local
+      - release
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
@@ -198,6 +201,7 @@ jobs:
 
       - name: Deploy
         run: |
+          pnpm add @upstash/redis@${{needs.release.outputs.version}}
           DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
         env:
@@ -207,12 +211,12 @@ jobs:
       - name: Test
         run: deno test --allow-net --allow-env ./examples/nextjs/test.ts
 
-  example-nextjs-edge-deployed:
+  nextjs-edge-deployed:
     runs-on: ubuntu-latest
     concurrency: vercel
     environment: deployed
     needs:
-      - example-nextjs-edge-local
+      - release
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
@@ -231,6 +235,7 @@ jobs:
 
       - name: Deploy
         run: |
+          pnpm add @upstash/redis@${{needs.release.outputs.version}}
           DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
         env:
@@ -240,7 +245,7 @@ jobs:
       - name: Test
         run: deno test --allow-net --allow-env ./examples/nextjs_edge/test.ts
 
-  example-cloudflare-worker-local:
+  cloudflare-worker-local:
     environment: local
     needs:
       - test
@@ -295,10 +300,49 @@ jobs:
         env:
           DEPLOYMENT_URL: http://localhost:8787
 
-  example-cloudflare-worker-deployed:
+  cloudflare-worker-deployed:
     environment: deployed
     needs:
-      - example-cloudflare-worker-local
+      - release
+    env:
+      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+     
+      - name: Install example
+        run: |
+          pnpm add @upstash/redis@${{needs.release.outputs.version}}
+          pnpm install -g @cloudflare/wrangler
+        working-directory: examples/cloudflare-worker
+
+      - name: Deploy
+        run: wrangler publish
+        working-directory: examples/cloudflare-worker
+        env:
+          CF_API_TOKEN: ${{secrets.CF_API_TOKEN}}
+
+      - name: Test
+        run: deno test -A ./examples/cloudflare-worker/test.ts
+        env:
+          DEPLOYMENT_URL: https://upstash-modules-worker.upstash.workers.dev
+
+
+
+  cloudflare-worker-wrangler2-local:
+    environment: local
+    needs:
+      - test
     env:
       UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
@@ -324,24 +368,85 @@ jobs:
       - name: Build
         run: deno run -A ./cmd/build.ts
 
-      - name: Install example
-        run: |
-          pnpm install
-          pnpm install -g @cloudflare/wrangler
-        working-directory: examples/cloudflare-worker
+      - name: Start redis server
+        uses: ./.github/actions/redis
+        with:
+          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
+          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
-      - name: Deploy
-        run: wrangler publish
-        working-directory: examples/cloudflare-worker
+      - name: Install example
+        run: pnpm install
+        working-directory: examples/cloudflare-worker-wrangler2
+
+      - name: Add account ID
+        run: echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
+        working-directory: examples/cloudflare-worker-wrangler2
+
+      - name: Start example
+        run: pnpm dev &
+        working-directory: examples/cloudflare-worker-wrangler2
         env:
-          CF_API_TOKEN: ${{secrets.CF_API_TOKEN}}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+
+      - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
+        timeout-minutes: 2
 
       - name: Test
-        run: deno test -A ./examples/cloudflare-worker/test.ts
+        run: deno test -A ./examples/cloudflare-worker-wrangler2/test.ts
         env:
-          DEPLOYMENT_URL: https://upstash-modules-worker.upstash.workers.dev
+          DEPLOYMENT_URL: http://localhost:8787
 
-  example-fastly-local:
+  cloudflare-worker-wrangler2-deployed:
+    environment: deployed
+    needs:
+      - release
+    env:
+      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+     
+
+      - name: Install example
+        run: |
+          pnpm add @upstash/redis@${{needs.release.outputs.version}}
+        working-directory: examples/cloudflare-worker-wrangler2
+
+      - name: Add account ID
+        run: echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
+        working-directory: examples/cloudflare-worker-wrangler2
+
+      - name: Deploy
+        run: pnpm deploy
+        working-directory: examples/cloudflare-worker-wrangler2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{secrets.CF_API_TOKEN}}
+
+      - name: Test
+        run: deno test -A ./examples/cloudflare-worker-wrangler2/test.ts
+        env:
+          DEPLOYMENT_URL: https://cloudflare-worker-wrangler2.upstash.workers.dev
+
+  fastly-local:
     environment: local
     needs:
       - test
@@ -404,10 +509,10 @@ jobs:
         env:
           DEPLOYMENT_URL: http://localhost:7676
 
-  example-fastly-deployed:
+  fastly-deployed:
     environment: deployed
     needs:
-      - example-fastly-local
+      - release
     env:
       UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
@@ -430,13 +535,12 @@ jobs:
         with:
           version: 6
 
-      - name: Build
-        run: deno run -A ./cmd/build.ts
+     
 
       - name: Install example
         working-directory: ./examples/fastly
         run: |
-          pnpm install
+          pnpm add @upstash/redis@${{needs.release.outputs.version}}
           curl -L https://github.com/fastly/cli/releases/download/v1.7.0/fastly_v1.7.0_linux-amd64.tar.gz > fastly.tar.gz
           tar -xf ./fastly.tar.gz
 
@@ -459,7 +563,7 @@ jobs:
         env:
           DEPLOYMENT_URL: https://terminally-flowing-lizard.edgecompute.app
 
-  example-nodejs-local:
+  nodejs-local:
     environment: local
     needs:
       - test
@@ -504,3 +608,95 @@ jobs:
       - name: Run example
         run: node ./index.js
         working-directory: examples/nodejs
+
+  nodejs-18-local:
+    environment: local
+    needs:
+      - test
+    env:
+      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+      - name: Build
+        run: deno run -A ./cmd/build.ts
+
+      - name: Start redis server
+        uses: ./.github/actions/redis
+        with:
+          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
+          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
+
+      - name: Install example
+        run: |
+          pnpm install
+        working-directory: examples/nodejs-18
+
+      - name: Run example
+        run: node ./index.js
+        working-directory: examples/nodejs-18
+
+
+
+  release:
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    needs:
+      - nodejs-local
+      - nodejs-18-local
+      - fastly-local
+      - nextjs-local
+      - nextjs-edge-local
+      - cloudflare-worker-local
+      - cloudflare-worker-wrangler2-local
+
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Get version
+        id:  version
+        run: echo "::set-output name=version::v0.0.0-ci.${GITHUB_SHA::8}"
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Build
+        run: deno run -A ./cmd/build.ts ${{ steps.version.outputs.version }}
+
+      - name: Publish ci version
+        working-directory: ./dist
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
+          npm publish --access public --tag=ci 

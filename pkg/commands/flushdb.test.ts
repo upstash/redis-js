@@ -1,5 +1,5 @@
 import { newHttpClient } from "../test-utils.ts";
-import { assertEquals } from "https://deno.land/std@0.136.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.141.0/testing/asserts.ts";
 import { FlushDBCommand } from "./flushdb.ts";
 const client = newHttpClient();
 

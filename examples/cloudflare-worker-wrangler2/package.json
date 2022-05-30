@@ -1,0 +1,17 @@
+{
+  "name": "wrangler2",
+  "version": "1.0.0",
+  "description": "Example project using wrangler2",
+  "author": "Andreas Thomas <dev@chronark.com>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler publish"
+  },
+  "devDependencies": {
+    "wrangler": "^2.0.7"
+  },
+  "dependencies": {
+    "@upstash/redis": "../../dist"
+  }
+}

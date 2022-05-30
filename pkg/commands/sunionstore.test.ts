@@ -1,11 +1,11 @@
 import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
-import { afterAll } from "https://deno.land/std@0.136.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.141.0/testing/bdd.ts";
 import { SAddCommand } from "./sadd.ts";
 import {
   assertEquals,
   assertExists,
-} from "https://deno.land/std@0.136.0/testing/asserts.ts";
+} from "https://deno.land/std@0.141.0/testing/asserts.ts";
 
 import { SUnionStoreCommand } from "./sunionstore.ts";
 import { SMembersCommand } from "./smembers.ts";

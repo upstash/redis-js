@@ -1,10 +1,11 @@
 import * as core from "../pkg/redis.ts";
 import type {
   Requester,
+  RetryConfig,
   UpstashRequest,
   UpstashResponse,
 } from "../pkg/http.ts";
-import { UpstashError } from "../pkg/error.ts";
+import { HttpClient } from "../pkg/http.ts";
 
 export type { Requester, UpstashRequest, UpstashResponse };
 
@@ -27,6 +28,11 @@ export type RedisConfigFastly = {
    * referenced by name.
    */
   backend: string;
+
+  /**
+   * Configure the retry behaviour in case of network errors
+   */
+  retry?: RetryConfig;
 } & core.RedisOptions;
 
 /**
@@ -64,45 +70,15 @@ export class Redis extends core.Redis {
         "The redis token contains whitespace or newline, which can cause errors!",
       );
     }
-    const client = defaultRequester({
+    const client = new HttpClient({
       baseUrl: config.url,
+      retry: config.retry,
       headers: { authorization: `Bearer ${config.token}` },
-      backend: config.backend,
+      options: { backend: config.backend },
     });
 
     super(client, {
       automaticDeserialization: config.automaticDeserialization,
     });
   }
-}
-
-function defaultRequester(config: {
-  headers?: Record<string, string>;
-  baseUrl: string;
-  backend: string;
-}): Requester {
-  return {
-    request: async function <TResult>(
-      req: UpstashRequest,
-    ): Promise<UpstashResponse<TResult>> {
-      if (!req.path) {
-        req.path = [];
-      }
-
-      const res = await fetch([config.baseUrl, ...req.path].join("/"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...config.headers },
-        body: JSON.stringify(req.body),
-        keepalive: true,
-        // @ts-expect-error fastly requires `backend`
-        backend: config.backend,
-      });
-      const body = (await res.json()) as UpstashResponse<TResult>;
-      if (!res.ok) {
-        throw new UpstashError(body.error!);
-      }
-
-      return body;
-    },
-  };
 }

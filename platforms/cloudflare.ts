@@ -1,10 +1,11 @@
 import * as core from "../pkg/redis.ts";
 import type {
   Requester,
+  RetryConfig,
   UpstashRequest,
   UpstashResponse,
 } from "../pkg/http.ts";
-import { UpstashError } from "../pkg/error.ts";
+import { HttpClient } from "../pkg/http.ts";
 
 export type { Requester, UpstashRequest, UpstashResponse };
 /**
@@ -20,6 +21,11 @@ export type RedisConfigCloudflare = {
    * UPSTASH_REDIS_REST_TOKEN
    */
   token: string;
+
+  /**
+   * Configure the retry behaviour in case of network errors
+   */
+  retry?: RetryConfig;
 } & core.RedisOptions;
 
 /**
@@ -56,7 +62,8 @@ export class Redis extends core.Redis {
         "The redis token contains whitespace or newline, which can cause errors!",
       );
     }
-    const client = defaultRequester({
+    const client = new HttpClient({
+      retry: config.retry,
       baseUrl: config.url,
       headers: { authorization: `Bearer ${config.token}` },
     });
@@ -76,12 +83,14 @@ export class Redis extends core.Redis {
    * ```ts
    * const redis = Redis.fromEnv(env)
    * ```
-   *
    */
-  static fromEnv(env?: {
-    UPSTASH_REDIS_REST_URL: string;
-    UPSTASH_REDIS_REST_TOKEN: string;
-  }): Redis {
+  static fromEnv(
+    env?: {
+      UPSTASH_REDIS_REST_URL: string;
+      UPSTASH_REDIS_REST_TOKEN: string;
+    },
+    opts?: Omit<RedisConfigCloudflare, "url" | "token">,
+  ): Redis {
     // @ts-ignore These will be defined by cloudflare
     const url = env?.UPSTASH_REDIS_REST_URL ?? UPSTASH_REDIS_REST_URL;
 
@@ -98,34 +107,6 @@ export class Redis extends core.Redis {
         "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_TOKEN`",
       );
     }
-    return new Redis({ url, token });
+    return new Redis({ ...opts, url, token });
   }
-}
-
-function defaultRequester(config: {
-  headers?: Record<string, string>;
-  baseUrl: string;
-}): Requester {
-  return {
-    request: async function <TResult>(
-      req: UpstashRequest,
-    ): Promise<UpstashResponse<TResult>> {
-      if (!req.path) {
-        req.path = [];
-      }
-
-      const res = await fetch([config.baseUrl, ...req.path].join("/"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...config.headers },
-        body: JSON.stringify(req.body),
-        keepalive: true,
-      });
-      const body = (await res.json()) as UpstashResponse<TResult>;
-      if (!res.ok) {
-        throw new UpstashError(body.error!);
-      }
-
-      return body;
-    },
-  };
 }

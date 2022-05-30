@@ -76,15 +76,15 @@ await build({
     "size-limit": [
       {
         path: "esm/platforms/nodejs.js",
-        limit: "5 KB",
+        limit: "6 KB",
       },
       {
         path: "esm/platforms/fastly.js",
-        limit: "5 KB",
+        limit: "6 KB",
       },
       {
         path: "esm/platforms/cloudflare.js",
-        limit: "5 KB",
+        limit: "6 KB",
       },
       {
         path: "esm/platforms/node_with_fetch.js",

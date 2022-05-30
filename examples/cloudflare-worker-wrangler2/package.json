@@ -2,7 +2,6 @@
   "name": "wrangler2",
   "version": "1.0.0",
   "description": "Example project using wrangler2",
-  "keywords": [],
   "author": "Andreas Thomas <dev@chronark.com>",
   "license": "MIT",
   "scripts": {

@@ -387,7 +387,7 @@ jobs:
         working-directory: examples/cloudflare-worker-wrangler2
 
       - name: Start example
-        run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
+        run: pnpm dev &
         working-directory: examples/cloudflare-worker-wrangler2
 
       - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done

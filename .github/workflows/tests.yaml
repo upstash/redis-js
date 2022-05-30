@@ -341,6 +341,107 @@ jobs:
         env:
           DEPLOYMENT_URL: https://upstash-modules-worker.upstash.workers.dev
 
+
+
+  example-cloudflare-worker-wrangler2-local:
+    environment: local
+    needs:
+      - test
+    env:
+      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+      - name: Build
+        run: deno run -A ./cmd/build.ts
+
+      - name: Start redis server
+        uses: ./.github/actions/redis
+        with:
+          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
+          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
+
+      - name: Install example
+        run: |
+          pnpm install
+          pnpm install -g miniflare
+        working-directory: examples/cloudflare-worker-wrangler2
+
+      - name: Start example
+        run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
+        working-directory: examples/cloudflare-worker-wrangler2
+
+      - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
+        timeout-minutes: 2
+
+      - name: Test
+        run: deno test -A ./examples/cloudflare-worker-wrangler2/test.ts
+        env:
+          DEPLOYMENT_URL: http://localhost:8787
+
+  example-cloudflare-worker-wrangler2-deployed:
+    environment: deployed
+    needs:
+      - example-cloudflare-worker-wrangler2-local
+    env:
+      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+      - name: Build
+        run: deno run -A ./cmd/build.ts
+
+      - name: Install example
+        run: pnpm install
+        working-directory: examples/cloudflare-worker-wrangler2
+
+      - name: Deploy
+        run: wrangler publish
+        working-directory: examples/cloudflare-worker-wrangler2
+        env:
+          CF_API_TOKEN: ${{secrets.CF_API_TOKEN}}
+
+      - name: Test
+        run: deno test -A ./examples/cloudflare-worker-wrangler2/test.ts
+        env:
+          DEPLOYMENT_URL: https://cloudflare-worker-wrangler2.upstash.workers.dev
+
   example-fastly-local:
     environment: local
     needs:

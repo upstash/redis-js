@@ -708,4 +708,4 @@ jobs:
         working-directory: ./dist
         run: |
           echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
-          npm publish--dry-run --access public --tag=ci 
+          npm publish --dry-run --access public --tag=ci 

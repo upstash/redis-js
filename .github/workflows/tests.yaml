@@ -314,14 +314,7 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-      - name: Cache pnpm modules
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
-
+      
       - uses: pnpm/action-setup@v2
         with:
           version: 6
@@ -542,13 +535,11 @@ jobs:
         with:
           version: 6
 
-      - name: Build
-        run: deno run -A ./cmd/build.ts
+     
 
       - name: Install example
         working-directory: ./examples/fastly
         run: |
-          pnpm install
           pnpm add @upstash/redis:@${{needs.release.outputs.version}}
           curl -L https://github.com/fastly/cli/releases/download/v1.7.0/fastly_v1.7.0_linux-amd64.tar.gz > fastly.tar.gz
           tar -xf ./fastly.tar.gz

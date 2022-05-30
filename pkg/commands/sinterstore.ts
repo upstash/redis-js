@@ -2,13 +2,13 @@ import { Command, CommandOptions } from "./command.ts";
 /**
  * @see https://redis.io/commands/sinterstore
  */
-export class SInterStoreCommand<TData = string> extends Command<
-  unknown[],
-  TData[]
+export class SInterStoreCommand extends Command<
+  number,
+  number
 > {
   constructor(
     cmd: [destination: string, key: string, ...keys: string[]],
-    opts?: CommandOptions<unknown[], TData[]>,
+    opts?: CommandOptions<number, number>,
   ) {
     super(["sinterstore", ...cmd], opts);
   }

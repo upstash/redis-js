@@ -32,7 +32,9 @@ Deno.test("with multiple sets", async (t) => {
     const value3 = { v: randomID() };
     await new SAddCommand([key1, value1, value2]).exec(client);
     await new SAddCommand([key2, value2, value3]).exec(client);
-    const res = await new SInterCommand([key1, key2]).exec(client);
+    const res = await new SInterCommand<{ v: string }>([key1, key2]).exec(
+      client,
+    );
     assertEquals(res, [value2]);
   });
 });

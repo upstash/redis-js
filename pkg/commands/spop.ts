@@ -2,7 +2,7 @@ import { Command, CommandOptions } from "./command.ts";
 /**
  * @see https://redis.io/commands/spop
  */
-export class SPopCommand<TData = number> extends Command<
+export class SPopCommand<TData> extends Command<
   string | null,
   TData | null
 > {

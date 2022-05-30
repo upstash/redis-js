@@ -11,13 +11,13 @@ Deno.test("with a single script", async (t) => {
       const script = `return "${randomID()}"`;
       const hash = await new ScriptLoadCommand([script]).exec(client);
       const res = await new ScriptExistsCommand([hash]).exec(client);
-      assertEquals(res, 1);
+      assertEquals(res, [1]);
     });
   });
   await t.step("when the script does not exist", async (t) => {
     await t.step("returns 0", async () => {
       const res = await new ScriptExistsCommand(["21"]).exec(client);
-      assertEquals(res, 0);
+      assertEquals(res, [0]);
     });
   });
 });

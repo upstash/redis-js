@@ -37,7 +37,7 @@ Deno.test(
     const key = newKey();
     const value = { v: randomID() };
     await new SetCommand([key, value]).exec(client);
-    const res = await new GetCommand([key]).exec(client);
+    const res = await new GetCommand<{ v: string }>([key]).exec(client);
 
     assertEquals(res, value);
   },

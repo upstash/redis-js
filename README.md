@@ -25,7 +25,7 @@ supported.
 
 ## Docs
 
-See [the documentation](https://docs.upstash.com/features/javascriptsdk) for
+See [the documentation](https://docs.upstash.com/features/javascriptsdk/getstarted) for
 details.
 
 ## Contributing

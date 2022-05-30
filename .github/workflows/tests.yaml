@@ -5,6 +5,9 @@ on:
     - cron: "0 0 * * *" # daily
 
 jobs:
+
+
+
   test:
     runs-on: ubuntu-latest
 
@@ -179,7 +182,7 @@ jobs:
     concurrency: vercel
     environment: deployed
     needs:
-      - example-nextjs-local
+      - release
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
@@ -198,6 +201,7 @@ jobs:
 
       - name: Deploy
         run: |
+          pnpm add @upstash/redis:@${{needs.release.outputs.version}}
           DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
         env:
@@ -212,7 +216,7 @@ jobs:
     concurrency: vercel
     environment: deployed
     needs:
-      - example-nextjs-edge-local
+      - release
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
@@ -231,6 +235,7 @@ jobs:
 
       - name: Deploy
         run: |
+          pnpm add @upstash/redis:@${{needs.release.outputs.version}}
           DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
         env:
@@ -298,7 +303,7 @@ jobs:
   example-cloudflare-worker-deployed:
     environment: deployed
     needs:
-      - example-cloudflare-worker-local
+      - release
     env:
       UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
@@ -321,12 +326,10 @@ jobs:
         with:
           version: 6
 
-      - name: Build
-        run: deno run -A ./cmd/build.ts
-
+     
       - name: Install example
         run: |
-          pnpm install
+          pnpm add @upstash/redis:@${{needs.release.outputs.version}}
           pnpm install -g @cloudflare/wrangler
         working-directory: examples/cloudflare-worker
 
@@ -401,7 +404,7 @@ jobs:
   example-cloudflare-worker-wrangler2-deployed:
     environment: deployed
     needs:
-      - example-cloudflare-worker-wrangler2-local
+      - release
     env:
       UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
@@ -424,11 +427,12 @@ jobs:
         with:
           version: 6
 
-      - name: Build
-        run: deno run -A ./cmd/build.ts
+     
 
       - name: Install example
-        run: pnpm install
+        run: |
+          pnpm add @upstash/redis:@${{needs.release.outputs.version}}
+          
         working-directory: examples/cloudflare-worker-wrangler2
 
       - name: Deploy
@@ -508,7 +512,7 @@ jobs:
   example-fastly-deployed:
     environment: deployed
     needs:
-      - example-fastly-local
+      - release
     env:
       UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
@@ -538,6 +542,7 @@ jobs:
         working-directory: ./examples/fastly
         run: |
           pnpm install
+          pnpm add @upstash/redis:@${{needs.release.outputs.version}}
           curl -L https://github.com/fastly/cli/releases/download/v1.7.0/fastly_v1.7.0_linux-amd64.tar.gz > fastly.tar.gz
           tar -xf ./fastly.tar.gz
 
@@ -605,3 +610,40 @@ jobs:
       - name: Run example
         run: node ./index.js
         working-directory: examples/nodejs
+
+
+
+  release:
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    needs:
+      - example-nodejs-local
+      - example-fastly-local
+      - example-fastly-deployed
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Get version
+        id:  version
+        run: echo "::set-output name=version::${git rev-parse --short HEAD}"
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Build
+        run: deno run -A ./cmd/build.ts ${{ steps.version.outputs.version }}
+
+      - name: Publish ci version
+        working-directory: ./dist
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
+          npm publish--dry-run --access public --tag=ci 

@@ -337,7 +337,7 @@ jobs:
         run: wrangler publish
         working-directory: examples/cloudflare-worker
         env:
-          CF_API_TOKEN: ${{secrets.CF_API_TOKEN}}
+          CLOUDFLARE_API_TOKEN: ${{secrets.CF_API_TOKEN}}
 
       - name: Test
         run: deno test -A ./examples/cloudflare-worker/test.ts
@@ -446,7 +446,7 @@ jobs:
         run: pnpm deploy
         working-directory: examples/cloudflare-worker-wrangler2
         env:
-          CF_API_TOKEN: ${{secrets.CF_API_TOKEN}}
+          CLOUDFLARE_API_TOKEN: ${{secrets.CF_API_TOKEN}}
 
       - name: Test
         run: deno test -A ./examples/cloudflare-worker-wrangler2/test.ts
@@ -673,14 +673,14 @@ jobs:
   release:
     outputs:
       version: ${{ steps.version.outputs.version }}
-    # needs:
-    #   - nodejs-local
-    #   - nodejs-18-local
-    #   - fastly-local
-    #   - nextjs-local
-    #   - nextjs-edge-local
-    #   - cloudflare-worker-local
-    #   - cloudflare-worker-wrangler2-local
+    needs:
+      - nodejs-local
+      - nodejs-18-local
+      - fastly-local
+      - nextjs-local
+      - nextjs-edge-local
+      - cloudflare-worker-local
+      - cloudflare-worker-wrangler2-local
 
     name: Release
     runs-on: ubuntu-latest

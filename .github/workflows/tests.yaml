@@ -75,13 +75,7 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-      - name: Cache pnpm modules
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
+    
 
       - uses: pnpm/action-setup@v2
         with:
@@ -99,7 +93,7 @@ jobs:
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
-        run: pnpm install
+        run: pnpm add @upstash/redis@../../dist
         working-directory: ./examples/nextjs
 
       - name: Build example
@@ -137,13 +131,7 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-      - name: Cache pnpm modules
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
+     
 
       - uses: pnpm/action-setup@v2
         with:
@@ -161,7 +149,7 @@ jobs:
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
-        run: pnpm install
+        run: pnpm add @upstash/redis@../../dist
         working-directory: ./examples/nextjs_edge
 
       - name: Build example
@@ -259,13 +247,7 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-      - name: Cache pnpm modules
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
+      
 
       - uses: pnpm/action-setup@v2
         with:
@@ -284,7 +266,7 @@ jobs:
 
       - name: Install example
         run: |
-          pnpm install
+          pnpm add @upstash/redis@../../dist
           pnpm install -g miniflare @cloudflare/wrangler
         working-directory: examples/cloudflare-worker
 
@@ -353,13 +335,7 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-      - name: Cache pnpm modules
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
+    
 
       - uses: pnpm/action-setup@v2
         with:
@@ -377,7 +353,7 @@ jobs:
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
-        run: pnpm install
+        run: pnpm add @upstash/redis@../../dist
         working-directory: examples/cloudflare-worker-wrangler2
 
       - name: Add account ID
@@ -412,14 +388,7 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-      - name: Cache pnpm modules
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
-
+     
       - uses: pnpm/action-setup@v2
         with:
           version: 6
@@ -460,14 +429,7 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-      - name: Cache pnpm modules
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
-
+     
       - uses: pnpm/action-setup@v2
         with:
           version: 6
@@ -486,7 +448,7 @@ jobs:
       - name: Install example
         working-directory: ./examples/fastly
         run: |
-          pnpm install
+          pnpm add @upstash/redis@../../dist
           curl -L https://github.com/fastly/cli/releases/download/v1.7.0/fastly_v1.7.0_linux-amd64.tar.gz > fastly.tar.gz
           tar -xf ./fastly.tar.gz
 
@@ -601,8 +563,7 @@ jobs:
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
-        run: |
-          pnpm install
+        run: pnpm add @upstash/redis@../../dist
         working-directory: examples/nodejs
 
       - name: Run example
@@ -627,14 +588,7 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-      - name: Cache pnpm modules
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
-
+     
       - uses: pnpm/action-setup@v2
         with:
           version: 6
@@ -651,8 +605,7 @@ jobs:
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
-        run: |
-          pnpm install
+        run: pnpm add @upstash/redis@../../dist
         working-directory: examples/nodejs-18
 
       - name: Run example

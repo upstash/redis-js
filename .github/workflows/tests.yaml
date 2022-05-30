@@ -235,7 +235,7 @@ jobs:
 
       - name: Deploy
         run: |
-          pnpm add @upstash/redis${{needs.release.outputs.version}}
+          pnpm add @upstash/redis@${{needs.release.outputs.version}}
           DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
         env:

@@ -690,7 +690,7 @@ jobs:
 
       - name: Get version
         id:  version
-        run: echo "::set-output name=version::${git rev-parse --short HEAD}"
+        run: echo "::set-output name=version::${GITHUB_SHA::8}"
 
       - name: Setup Node
         uses: actions/setup-node@v2

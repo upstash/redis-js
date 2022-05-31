@@ -1,8 +1,8 @@
 import { Redis } from "@upstash/redis/with-fetch";
 
 const redis = new Redis({
-  url: "",
-  token: "",
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
   retry: {
     maxRetries: 5,
     backoff: (retryCoount) => Math.exp(retryCoount) * 50,

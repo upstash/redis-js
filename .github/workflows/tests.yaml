@@ -54,7 +54,6 @@ jobs:
         working-directory: dist
 
   nextjs-local:
-    environment: local
     needs:
       - test
     env:
@@ -110,7 +109,6 @@ jobs:
           DEPLOYMENT_URL: http://localhost:3000
 
   nextjs-edge-local:
-    environment: local
     needs:
       - test
     env:
@@ -168,7 +166,6 @@ jobs:
   nextjs-deployed:
     runs-on: ubuntu-latest
     concurrency: vercel
-    environment: deployed
     needs:
       - release
     steps:
@@ -202,7 +199,6 @@ jobs:
   nextjs-edge-deployed:
     runs-on: ubuntu-latest
     concurrency: vercel
-    environment: deployed
     needs:
       - release
     steps:
@@ -234,7 +230,6 @@ jobs:
         run: deno test --allow-net --allow-env ./examples/nextjs_edge/test.ts
 
   cloudflare-workers-with-wrangler-1-local:
-    environment: local
     needs:
       - test
     env:
@@ -283,7 +278,6 @@ jobs:
           DEPLOYMENT_URL: http://localhost:8787
 
   cloudflare-workers-with-wrangler-1-deployed:
-    environment: deployed
     needs:
       - release
     env:
@@ -322,7 +316,6 @@ jobs:
 
 
   cloudflare-workers-local:
-    environment: local
     needs:
       - test
     env:
@@ -375,7 +368,6 @@ jobs:
           DEPLOYMENT_URL: http://localhost:8787
 
   cloudflare-workers-deployed:
-    environment: deployed
     needs:
       - release
     env:
@@ -416,7 +408,6 @@ jobs:
           DEPLOYMENT_URL: https://cloudflare-workers.upstash.workers.dev
 
   fastly-local:
-    environment: local
     needs:
       - test
     env:
@@ -472,7 +463,6 @@ jobs:
           DEPLOYMENT_URL: http://localhost:7676
 
   fastly-deployed:
-    environment: deployed
     needs:
       - release
     env:
@@ -526,7 +516,6 @@ jobs:
           DEPLOYMENT_URL: https://terminally-flowing-lizard.edgecompute.app
 
   nodejs-local:
-    environment: local
     needs:
       - test
     env:
@@ -571,7 +560,6 @@ jobs:
         working-directory: examples/nodejs
 
   nodejs-18-local:
-    environment: local
     needs:
       - test
     env:

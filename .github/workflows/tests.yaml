@@ -313,7 +313,7 @@ jobs:
         run: deno test -A ./test.ts
         working-directory: examples/cloudflare-workers-with-wrangler-1
         env:
-          DEPLOYMENT_URL: https://upstash-modules-worker.upstash.workers.dev
+          DEPLOYMENT_URL: https://upstash-redis-with-wrangler-1.upstash.workers.dev
 
 
 
@@ -409,7 +409,7 @@ jobs:
         run: deno test -A ./test.ts
         working-directory: examples/cloudflare-workers
         env:
-          DEPLOYMENT_URL: https://cloudflare-workers.upstash.workers.dev
+          DEPLOYMENT_URL: https://upstash-redis.upstash.workers.dev
 
   fastly-local:
     needs:

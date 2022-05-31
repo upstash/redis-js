@@ -346,7 +346,7 @@ jobs:
         working-directory: examples/cloudflare-workers
 
       - name: Start example
-        run: pnpm dev & sleep 5
+        run: pnpm start & sleep 5
         working-directory: examples/cloudflare-workers
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
@@ -437,7 +437,7 @@ jobs:
         working-directory: examples/cloudflare-workers-with-typescript
 
       - name: Start example
-        run: pnpm dev & sleep 5
+        run: pnpm start & sleep 5
         working-directory: examples/cloudflare-workers-with-typescript
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}

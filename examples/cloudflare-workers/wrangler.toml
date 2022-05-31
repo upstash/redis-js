@@ -1,7 +1,8 @@
+
+
 name = "upstash-redis"
 main = "index.js"
 compatibility_date = "2022-05-27"
-
 
 
 # Set variables here or on cloudflare

@@ -37,7 +37,7 @@ import { Redis } from "@upstash/redis/with-fetch";
 ## Upgrading from v0.2.0?
 
 Please read the
-[migration guide](https://github.com/upstash/upstash-redis#migrating-to-v1). For
+[migration guide](https://docs.upstash.com/redis/sdks/javascriptsdk/migration). For
 further explanation we wrote a
 [blog post](https://blog.upstash.com/upstash-redis-sdk-v1).
 
@@ -61,6 +61,45 @@ import { Redis } from "https://deno.land/x/upstash_redis/mod.ts";
 
 Create a new redis database on [upstash](https://console.upstash.com/)
 
+
+
+## Basic Usage:
+
+```ts
+import { Redis } from "@upstash/redis"
+
+const redis = new Redis({
+  url: <UPSTASH_REDIS_REST_URL>,
+  token: <UPSTASH_REDIS_REST_TOKEN>,
+})
+
+// string
+await redis.set('key', 'value');
+let data = await redis.get('key');
+console.log(data)
+
+await redis.set('key2', 'value2', {ex: 1});
+
+// sorted set
+await redis.zadd('scores', { score: 1, member: 'team1' })
+data = await redis.zrange('scores', 0, 100 )
+console.log(data)
+
+// list
+await redis.lpush('elements', 'magnesium')
+data = await redis.lrange('elements', 0, 100 )
+console.log(data)
+
+// hash
+await redis.hset('people', {name: 'joe'})
+data = await redis.hget('people', 'name' )
+console.log(data)
+
+// sets
+await redis.sadd('animals', 'cat')
+data  = await redis.spop('animals', 1)
+console.log(data)
+```
 
 ## Docs
 

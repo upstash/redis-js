@@ -130,7 +130,8 @@ export default {
 }
 ```
 
-- [Code example Wrangler 2](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-workers)
+- [Code example](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-workers)
+- [Code example typescript](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-workers-with-typescript)
 - [Code example Wrangler 1](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-workers-with-wrangler-1)
 - [Documentation](https://docs.upstash.com/redis/tutorials/cloudflare_workers_with_redis)
 

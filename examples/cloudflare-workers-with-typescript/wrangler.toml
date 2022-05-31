@@ -1,8 +1,6 @@
-
-
-name = "upstash-redis"
-main = "index.js"
-compatibility_date = "2022-05-27"
+name = "cloudflare-workers-with-typescript"
+main = "src/index.ts"
+compatibility_date = "2022-05-31"
 
 
 # Set variables here or on cloudflare

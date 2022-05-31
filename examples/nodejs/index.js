@@ -1,6 +1,13 @@
 import { Redis } from "@upstash/redis/with-fetch";
 
-const redis = Redis.fromEnv();
+const redis = new Redis({
+  url: "",
+  token: "",
+  retry: {
+    maxRetries: 5,
+    backoff: (retryCoount) => Math.exp(retryCoount) * 50,
+  },
+});
 async function run() {
   const key = "key";
   const value = { hello: "world" };

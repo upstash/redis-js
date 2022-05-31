@@ -1,5 +1,5 @@
 {
-  "name": "wrangler2",
+  "name": "cloudflare-workers",
   "version": "1.0.0",
   "description": "Example project using wrangler2",
   "author": "Andreas Thomas <dev@chronark.com>",

@@ -37,8 +37,8 @@ import { Redis } from "@upstash/redis/with-fetch";
 ## Upgrading from v0.2.0?
 
 Please read the
-[migration guide](https://docs.upstash.com/redis/sdks/javascriptsdk/migration). For
-further explanation we wrote a
+[migration guide](https://docs.upstash.com/redis/sdks/javascriptsdk/migration).
+For further explanation we wrote a
 [blog post](https://blog.upstash.com/upstash-redis-sdk-v1).
 
 ## Quick Start
@@ -60,8 +60,6 @@ import { Redis } from "https://deno.land/x/upstash_redis/mod.ts";
 ### Create database
 
 Create a new redis database on [upstash](https://console.upstash.com/)
-
-
 
 ## Basic Usage:
 

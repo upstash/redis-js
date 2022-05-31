@@ -1,4 +1,4 @@
-name = "upstash-modules-worker"
+name = "upstash-redis-with-wrangler-1"
 type = "javascript"
 
 workers_dev = true

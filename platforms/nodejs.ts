@@ -1,8 +1,13 @@
 // deno-lint-ignore-file
 
 import * as core from "../pkg/redis.ts";
-import { Requester, UpstashRequest, UpstashResponse } from "../pkg/http.ts";
-import { UpstashError } from "../pkg/error.ts";
+import {
+  HttpClient,
+  Requester,
+  RetryConfig,
+  UpstashRequest,
+  UpstashResponse,
+} from "../pkg/http.ts";
 // @ts-ignore Deno can't compile
 // import https from "https";
 // @ts-ignore Deno can't compile
@@ -40,6 +45,11 @@ export type RedisConfigNodejs = {
    * ```
    */
   // agent?: http.Agent | https.Agent;
+
+  /**
+   * Configure the retry behaviour in case of network errors
+   */
+  retry?: RetryConfig;
 } & core.RedisOptions;
 
 /**
@@ -101,8 +111,9 @@ export class Redis extends core.Redis {
       );
     }
 
-    const client = defaultRequester({
+    const client = new HttpClient({
       baseUrl: configOrRequester.url,
+      retry: configOrRequester.retry,
       headers: { authorization: `Bearer ${configOrRequester.token}` },
       // agent: configOrRequester.agent,
     });
@@ -142,37 +153,6 @@ export class Redis extends core.Redis {
         "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`",
       );
     }
-    return new Redis({ url, token, ...config });
+    return new Redis({ ...config, url, token });
   }
-}
-
-function defaultRequester(config: {
-  headers?: Record<string, string>;
-  baseUrl: string;
-  // agent?: http.Agent | https.Agent;
-}): Requester {
-  return {
-    request: async function <TResult>(
-      req: UpstashRequest,
-    ): Promise<UpstashResponse<TResult>> {
-      if (!req.path) {
-        req.path = [];
-      }
-
-      const res = await fetch([config.baseUrl, ...req.path].join("/"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...config.headers },
-        body: JSON.stringify(req.body),
-        keepalive: true,
-        // @ts-ignore
-        agent: config.agent,
-      });
-      const body = (await res.json()) as UpstashResponse<TResult>;
-      if (!res.ok) {
-        throw new UpstashError(body.error!);
-      }
-
-      return body;
-    },
-  };
 }

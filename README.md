@@ -11,9 +11,9 @@ It is the only connectionless (HTTP based) Redis client and designed for:
 
 - Serverless functions (AWS Lambda ...)
 - Cloudflare Workers (see
-  [the example](https://github.com/upstash/upstash-redis/tree/master/examples/cloudflare-workers))
+  [the example](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-workers))
 - Fastly Compute@Edge (see
-  [the example](https://github.com/upstash/upstash-redis/tree/master/examples/fastly))
+  [the example](https://github.com/upstash/upstash-redis/tree/main/examples/fastly))
 - Next.js, Jamstack ...
 - Client side web/mobile applications
 - WebAssembly
@@ -130,8 +130,8 @@ export default {
 }
 ```
 
-- [Code example service worker](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-workers)
-- [Code example module worker](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-workers-modules)
+- [Code example Wrangler 2](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-workers)
+- [Code example Wrangler 1](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-workers-with-wrangler-1)
 - [Documentation](https://docs.upstash.com/redis/tutorials/cloudflare_workers_with_redis)
 
 #### Fastly

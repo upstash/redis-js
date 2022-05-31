@@ -1,4 +1,4 @@
-# Nextjs Example
+# Vanialla Example
 
 ## How to use
 
@@ -6,7 +6,7 @@
 
 ```bash
 git clone https://github.com/upstash/upstash-redis.git
-cd upstash-redis/examples/nextjs
+cd upstash-redis/examples/vanilla
 npm install
 ```
 

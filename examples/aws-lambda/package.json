@@ -7,7 +7,7 @@
   "author": "SAM CLI",
   "license": "MIT",
   "dependencies": {
-    "@upstash/redis": "../../dist"
+    "@upstash/redis": "latest"
   },
   "scripts": {
     "test": "mocha tests/unit/"

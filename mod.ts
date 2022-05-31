@@ -1,4 +1,4 @@
-import { HttpClient } from "./pkg/http.ts";
+import { HttpClient, RetryConfig } from "./pkg/http.ts";
 import * as core from "./pkg/redis.ts";
 export type { Requester, UpstashRequest, UpstashResponse } from "./pkg/http.ts";
 
@@ -15,6 +15,13 @@ export type RedisConfigDeno = {
    * UPSTASH_REDIS_REST_TOKEN
    */
   token: string;
+
+  /**
+   * Configure the retry behaviour in case of network errors
+   *
+   * Set false to disable retries
+   */
+  retry?: RetryConfig;
 } & core.RedisOptions;
 
 /**
@@ -53,6 +60,7 @@ export class Redis extends core.Redis {
     }
 
     const client = new HttpClient({
+      retry: config.retry,
       baseUrl: config.url,
       headers: { authorization: `Bearer ${config.token}` },
     });
@@ -67,7 +75,7 @@ export class Redis extends core.Redis {
 
    *
    */
-  static fromEnv(opts?: core.RedisOptions): Redis {
+  static fromEnv(opts?: Omit<RedisConfigDeno, "url" | "token">): Redis {
     /**
      * These should be injected by Deno.
      */
@@ -85,6 +93,6 @@ export class Redis extends core.Redis {
         "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`.",
       );
     }
-    return new Redis({ url, token, ...opts });
+    return new Redis({ ...opts, url, token });
   }
 }

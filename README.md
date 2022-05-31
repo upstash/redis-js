@@ -25,8 +25,9 @@ supported.
 
 ## Docs
 
-See [the documentation](https://docs.upstash.com/redis/sdks/javascriptsdk/getstarted) for
-details.
+See
+[the documentation](https://docs.upstash.com/redis/sdks/javascriptsdk/getstarted)
+for details.
 
 ## Contributing
 

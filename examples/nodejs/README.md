@@ -18,4 +18,3 @@ npm install
 ```bash
 UPSTASH_REDIS_REST_URL="" UPSTASH_REDIS_REST_TOKEN="" node ./index.js
 ```
-

@@ -5,8 +5,8 @@
   "author": "Andreas Thomas <dev@chronark.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler publish"
+    "start": "wrangler dev",
+    "publish": "wrangler publish"
   },
   "devDependencies": {
     "wrangler": "^2.0.7"

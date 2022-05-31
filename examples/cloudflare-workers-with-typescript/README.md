@@ -1,8 +1,8 @@
-# Cloudflare Workers Example
+# Cloudflare Worker Typescript Example
 
 This example uses
 [Wrangler](https://developers.cloudflare.com/workers/wrangler/) to create a
-javascript worker.
+typescript worker
 
 ## How to use
 
@@ -10,7 +10,7 @@ javascript worker.
 
 ```bash
 git clone https://github.com/upstash/upstash-redis.git
-cd upstash-redis/examples/cloudflare-workers
+cd upstash-redis/examples/cloudflare-workers-with-typescript
 npm install
 ```
 

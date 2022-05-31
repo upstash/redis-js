@@ -10,7 +10,7 @@ typescript worker.
 
 ```bash
 git clone https://github.com/upstash/upstash-redis.git
-cd upstash-redis/examples/cloudflare-worker
+cd upstash-redis/examples/cloudflare-workers-with-wrangler-1
 npm install
 ```
 

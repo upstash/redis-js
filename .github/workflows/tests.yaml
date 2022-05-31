@@ -5,9 +5,6 @@ on:
     - cron: "0 0 * * *" # daily
 
 jobs:
-
-
-
   test:
     runs-on: ubuntu-latest
 
@@ -74,7 +71,6 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-    
 
       - uses: pnpm/action-setup@v2
         with:
@@ -129,7 +125,6 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-     
 
       - uses: pnpm/action-setup@v2
         with:
@@ -242,7 +237,6 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-      
 
       - uses: pnpm/action-setup@v2
         with:
@@ -291,12 +285,11 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-      
+
       - uses: pnpm/action-setup@v2
         with:
           version: 6
 
-     
       - name: Install example
         run: |
           pnpm add @upstash/redis@${{needs.release.outputs.version}}
@@ -315,8 +308,6 @@ jobs:
         env:
           DEPLOYMENT_URL: https://upstash-redis-with-wrangler-1.upstash.workers.dev
 
-
-
   cloudflare-workers-local:
     needs:
       - test
@@ -330,7 +321,6 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-    
 
       - uses: pnpm/action-setup@v2
         with:
@@ -383,12 +373,10 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-     
+
       - uses: pnpm/action-setup@v2
         with:
           version: 6
-
-     
 
       - name: Install example
         run: |
@@ -411,6 +399,94 @@ jobs:
         env:
           DEPLOYMENT_URL: https://upstash-redis.upstash.workers.dev
 
+  cloudflare-workers-with-typescript-local:
+    needs:
+      - test
+    env:
+      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+      - name: Build
+        run: deno run -A ./cmd/build.ts
+
+      - name: Start redis server
+        uses: ./.github/actions/redis
+        with:
+          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
+          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
+
+      - name: Install example
+        run: pnpm add @upstash/redis@../../dist
+        working-directory: examples/cloudflare-workers-with-typescript
+
+      - name: Add account ID
+        run: echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
+        working-directory: examples/cloudflare-workers-with-typescript
+
+      - name: Start example
+        run: pnpm dev & sleep 5
+        working-directory: examples/cloudflare-workers-with-typescript
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+
+      - name: Test
+        run: deno test -A ./test.ts
+        working-directory: examples/cloudflare-workers-with-typescript
+        env:
+          DEPLOYMENT_URL: http://localhost:8787
+
+  cloudflare-workers-with-typescript-deployed:
+    needs:
+      - release
+    env:
+      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+      - name: Install example
+        run: |
+          pnpm add @upstash/redis@${{needs.release.outputs.version}}
+        working-directory: examples/cloudflare-workers-with-typescript
+
+      - name: Add account ID
+        run: echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
+        working-directory: examples/cloudflare-workers-with-typescript
+
+      - name: Deploy
+        run: pnpm deploy
+        working-directory: examples/cloudflare-workers-with-typescript
+        env:
+          CLOUDFLARE_API_TOKEN: ${{secrets.CF_API_TOKEN}}
+
+      - name: Test
+        run: deno test -A ./test.ts
+        working-directory: examples/cloudflare-workers-with-typescript
+        env:
+          DEPLOYMENT_URL: https://cloudflare-workers-with-typescript.upstash.workers.dev
+
   fastly-local:
     needs:
       - test
@@ -424,7 +500,7 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-     
+
       - uses: pnpm/action-setup@v2
         with:
           version: 6
@@ -490,8 +566,6 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: 6
-
-     
 
       - name: Install example
         working-directory: ./examples/fastly
@@ -580,7 +654,7 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-     
+
       - uses: pnpm/action-setup@v2
         with:
           version: 6
@@ -604,8 +678,6 @@ jobs:
         run: node ./index.js
         working-directory: examples/nodejs-18
 
-
-
   release:
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -625,7 +697,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Get version
-        id:  version
+        id: version
         run: echo "::set-output name=version::v0.0.0-ci.${GITHUB_SHA::8}"
 
       - name: Setup Node
@@ -644,4 +716,4 @@ jobs:
         working-directory: ./dist
         run: |
           echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
-          npm publish --access public --tag=ci 
+          npm publish --access public --tag=ci

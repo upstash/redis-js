@@ -338,7 +338,9 @@ jobs:
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
-        run: pnpm add @upstash/redis@../../dist
+        run: |
+          pnpm add @upstash/redis@../../dist
+          pnpm add -g wrangler
         working-directory: examples/cloudflare-workers
 
       - name: Add account ID
@@ -346,7 +348,7 @@ jobs:
         working-directory: examples/cloudflare-workers
 
       - name: Start example
-        run: pnpm start & sleep 5
+        run: wrangler dev & sleep 5
         working-directory: examples/cloudflare-workers
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
@@ -381,6 +383,7 @@ jobs:
       - name: Install example
         run: |
           pnpm add @upstash/redis@${{needs.release.outputs.version}}
+          pnpm add -g wrangler 
         working-directory: examples/cloudflare-workers
 
       - name: Add account ID
@@ -388,7 +391,7 @@ jobs:
         working-directory: examples/cloudflare-workers
 
       - name: Deploy
-        run: pnpm deploy
+        run: wrangler publish
         working-directory: examples/cloudflare-workers
         env:
           CLOUDFLARE_API_TOKEN: ${{secrets.CF_API_TOKEN}}
@@ -429,7 +432,10 @@ jobs:
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
-        run: pnpm add @upstash/redis@../../dist
+        run: |
+          pnpm add @upstash/redis@../../dist
+          pnpm add -g wrangler 
+
         working-directory: examples/cloudflare-workers-with-typescript
 
       - name: Add account ID
@@ -437,7 +443,7 @@ jobs:
         working-directory: examples/cloudflare-workers-with-typescript
 
       - name: Start example
-        run: pnpm start & sleep 5
+        run: wrangler dev & sleep 5
         working-directory: examples/cloudflare-workers-with-typescript
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
@@ -469,6 +475,7 @@ jobs:
       - name: Install example
         run: |
           pnpm add @upstash/redis@${{needs.release.outputs.version}}
+          pnpm add -g wrangler
         working-directory: examples/cloudflare-workers-with-typescript
 
       - name: Add account ID
@@ -476,7 +483,7 @@ jobs:
         working-directory: examples/cloudflare-workers-with-typescript
 
       - name: Deploy
-        run: pnpm deploy
+        run: wrangler publish
         working-directory: examples/cloudflare-workers-with-typescript
         env:
           CLOUDFLARE_API_TOKEN: ${{secrets.CF_API_TOKEN}}

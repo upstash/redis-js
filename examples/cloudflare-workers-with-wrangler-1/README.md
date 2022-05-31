@@ -1,4 +1,4 @@
-# Cloudflare Worker Example
+# Cloudflare Workers Example
 
 This example uses
 [Wrangler 1](https://developers.cloudflare.com/workers/wrangler/) to create a

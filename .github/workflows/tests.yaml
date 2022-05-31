@@ -54,7 +54,6 @@ jobs:
         working-directory: dist
 
   nextjs-local:
-    environment: local
     needs:
       - test
     env:
@@ -110,7 +109,6 @@ jobs:
           DEPLOYMENT_URL: http://localhost:3000
 
   nextjs-edge-local:
-    environment: local
     needs:
       - test
     env:
@@ -168,7 +166,6 @@ jobs:
   nextjs-deployed:
     runs-on: ubuntu-latest
     concurrency: vercel
-    environment: deployed
     needs:
       - release
     steps:
@@ -202,7 +199,6 @@ jobs:
   nextjs-edge-deployed:
     runs-on: ubuntu-latest
     concurrency: vercel
-    environment: deployed
     needs:
       - release
     steps:
@@ -233,8 +229,7 @@ jobs:
       - name: Test
         run: deno test --allow-net --allow-env ./examples/nextjs_edge/test.ts
 
-  cloudflare-worker-local:
-    environment: local
+  cloudflare-workers-with-wrangler-1-local:
     needs:
       - test
     env:
@@ -268,22 +263,22 @@ jobs:
         run: |
           pnpm add @upstash/redis@../../dist
           pnpm install -g miniflare @cloudflare/wrangler
-        working-directory: examples/cloudflare-worker
+        working-directory: examples/cloudflare-workers-with-wrangler-1
 
       - name: Start example
         run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
-        working-directory: examples/cloudflare-worker
+        working-directory: examples/cloudflare-workers-with-wrangler-1
 
       - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
         timeout-minutes: 2
 
       - name: Test
-        run: deno test -A ./examples/cloudflare-worker/test.ts
+        run: deno test -A ./test.ts
+        working-directory: examples/cloudflare-workers-with-wrangler-1
         env:
           DEPLOYMENT_URL: http://localhost:8787
 
-  cloudflare-worker-deployed:
-    environment: deployed
+  cloudflare-workers-with-wrangler-1-deployed:
     needs:
       - release
     env:
@@ -306,23 +301,23 @@ jobs:
         run: |
           pnpm add @upstash/redis@${{needs.release.outputs.version}}
           pnpm install -g @cloudflare/wrangler
-        working-directory: examples/cloudflare-worker
+        working-directory: examples/cloudflare-workers-with-wrangler-1
 
       - name: Deploy
         run: wrangler publish
-        working-directory: examples/cloudflare-worker
+        working-directory: examples/cloudflare-workers-with-wrangler-1
         env:
           CF_API_TOKEN: ${{secrets.CF_API_TOKEN}}
 
       - name: Test
-        run: deno test -A ./examples/cloudflare-worker/test.ts
+        run: deno test -A ./test.ts
+        working-directory: examples/cloudflare-workers-with-wrangler-1
         env:
-          DEPLOYMENT_URL: https://upstash-modules-worker.upstash.workers.dev
+          DEPLOYMENT_URL: https://upstash-redis-with-wrangler-1.upstash.workers.dev
 
 
 
-  cloudflare-worker-wrangler2-local:
-    environment: local
+  cloudflare-workers-local:
     needs:
       - test
     env:
@@ -354,28 +349,28 @@ jobs:
 
       - name: Install example
         run: pnpm add @upstash/redis@../../dist
-        working-directory: examples/cloudflare-worker-wrangler2
+        working-directory: examples/cloudflare-workers
 
       - name: Add account ID
         run: echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
-        working-directory: examples/cloudflare-worker-wrangler2
+        working-directory: examples/cloudflare-workers
 
       - name: Start example
-        run: pnpm dev &
-        working-directory: examples/cloudflare-worker-wrangler2
+        run: pnpm dev & sleep 5
+        working-directory: examples/cloudflare-workers
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
 
-      - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
-        timeout-minutes: 2
+      # - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
+      #   timeout-minutes: 2
 
       - name: Test
-        run: deno test -A ./examples/cloudflare-worker-wrangler2/test.ts
+        run: deno test -A ./test.ts
+        working-directory: examples/cloudflare-workers
         env:
           DEPLOYMENT_URL: http://localhost:8787
 
-  cloudflare-worker-wrangler2-deployed:
-    environment: deployed
+  cloudflare-workers-deployed:
     needs:
       - release
     env:
@@ -398,25 +393,25 @@ jobs:
       - name: Install example
         run: |
           pnpm add @upstash/redis@${{needs.release.outputs.version}}
-        working-directory: examples/cloudflare-worker-wrangler2
+        working-directory: examples/cloudflare-workers
 
       - name: Add account ID
         run: echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
-        working-directory: examples/cloudflare-worker-wrangler2
+        working-directory: examples/cloudflare-workers
 
       - name: Deploy
         run: pnpm deploy
-        working-directory: examples/cloudflare-worker-wrangler2
+        working-directory: examples/cloudflare-workers
         env:
           CLOUDFLARE_API_TOKEN: ${{secrets.CF_API_TOKEN}}
 
       - name: Test
-        run: deno test -A ./examples/cloudflare-worker-wrangler2/test.ts
+        run: deno test -A ./test.ts
+        working-directory: examples/cloudflare-workers
         env:
-          DEPLOYMENT_URL: https://cloudflare-worker-wrangler2.upstash.workers.dev
+          DEPLOYMENT_URL: https://upstash-redis.upstash.workers.dev
 
   fastly-local:
-    environment: local
     needs:
       - test
     env:
@@ -472,7 +467,6 @@ jobs:
           DEPLOYMENT_URL: http://localhost:7676
 
   fastly-deployed:
-    environment: deployed
     needs:
       - release
     env:
@@ -526,7 +520,6 @@ jobs:
           DEPLOYMENT_URL: https://terminally-flowing-lizard.edgecompute.app
 
   nodejs-local:
-    environment: local
     needs:
       - test
     env:
@@ -571,7 +564,6 @@ jobs:
         working-directory: examples/nodejs
 
   nodejs-18-local:
-    environment: local
     needs:
       - test
     env:
@@ -623,8 +615,8 @@ jobs:
       - fastly-local
       - nextjs-local
       - nextjs-edge-local
-      - cloudflare-worker-local
-      - cloudflare-worker-wrangler2-local
+      - cloudflare-workers-with-wrangler-1-local
+      - cloudflare-workers-local
 
     name: Release
     runs-on: ubuntu-latest

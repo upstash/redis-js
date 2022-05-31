@@ -1,4 +1,4 @@
-name = "cloudflare-worker-wrangler2"
+name = "upstash-redis"
 main = "index.js"
 compatibility_date = "2022-05-27"
 

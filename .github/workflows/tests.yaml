@@ -688,6 +688,7 @@ jobs:
       - nextjs-local
       - nextjs-edge-local
       - cloudflare-workers-with-wrangler-1-local
+      - cloudflare-workers-with-typescript-local
       - cloudflare-workers-local
 
     name: Release

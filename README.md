@@ -23,7 +23,6 @@ See
 [the list of APIs](https://docs.upstash.com/features/restapi#rest---redis-api-compatibility)
 supported.
 
-
 ## Quick Start
 
 ### Install
@@ -99,7 +98,6 @@ Please read the
 [migration guide](https://docs.upstash.com/redis/sdks/javascriptsdk/migration).
 For further explanation we wrote a
 [blog post](https://blog.upstash.com/upstash-redis-sdk-v1).
-
 
 ## Docs
 

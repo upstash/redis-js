@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["deno.window"]
+    "lib": ["deno.window", "dom"]
   },
   "lint": {
     "files": {

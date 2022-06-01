@@ -1,7 +1,5 @@
 {
-  "compilerOptions": {
-    "lib": ["deno.window", "dom"]
-  },
+  
   "lint": {
     "files": {
       "exclude": ["**/node_modules/**"]

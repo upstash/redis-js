@@ -1,11 +1,11 @@
-import { build, emptyDir } from "https://deno.land/x/dnt/mod.ts";
+import { dnt } from "../deps.ts";
 
 const packageManager = "npm";
 const outDir = "./dist";
 
-await emptyDir(outDir);
+await dnt.emptyDir(outDir);
 
-await build({
+await dnt.build({
   packageManager,
   entryPoints: [
     "platforms/nodejs.ts",

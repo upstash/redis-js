@@ -1,4 +1,4 @@
-import { build, emptyDir } from "https://deno.land/x/dnt/mod.ts";
+import { build, emptyDir } from "https://deno.land/x/dnt@0.23.0/mod.ts";
 
 const packageManager = "npm";
 const outDir = "./dist";

@@ -809,7 +809,16 @@ jobs:
         run: deno run -A ./cmd/build.ts ${{ steps.version.outputs.version }}
 
       - name: Publish ci version
+        if: ${{ github.event_name != 'schedule' }}
         working-directory: ./dist
         run: |
           echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
           npm publish --access public --tag=ci
+
+        # When the release is scheduled, we the git commit sha will not have changed, so we can not create a real release.
+      - name: Pretend to publish ci version
+        if: ${{ github.event_name == 'schedule' }}
+        working-directory: ./dist
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
+          npm publish --access public --tag=ci --dry-run

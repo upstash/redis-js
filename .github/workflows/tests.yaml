@@ -104,6 +104,60 @@ jobs:
         env:
           DEPLOYMENT_URL: http://localhost:3000
 
+  nextjs-export-local:
+    needs:
+      - test
+    env:
+      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+      NEXT_PUBLIC_UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+      - name: Build
+        run: deno run -A ./cmd/build.ts
+
+      - name: Start redis server
+        uses: ./.github/actions/redis
+        with:
+          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
+          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
+
+      - name: Install example
+        run: pnpm add @upstash/redis@../../dist
+        working-directory: ./examples/nextjs_export
+
+      - name: Build example
+        run: pnpm build
+        working-directory: ./examples/nextjs_export
+
+      - name: Start example
+        run: pnpm start &
+        working-directory: ./examples/nextjs_export
+
+      - name: Test
+        run: deno test --allow-net --allow-env ./examples/nextjs_export/test.ts
+        env:
+          DEPLOYMENT_URL: http://localhost:3000
+
   nextjs-edge-local:
     needs:
       - test
@@ -187,6 +241,39 @@ jobs:
         env:
           VERCEL_ORG_ID: ${{secrets.VERCEL_TEAM_ID}}
           VERCEL_PROJECT_ID: "prj_pFFK1XgNIlnW014iiuqAIQmBBuZA"
+
+      - name: Test
+        run: deno test --allow-net --allow-env ./examples/nextjs/test.ts
+
+  nextjs-export-deployed:
+    runs-on: ubuntu-latest
+    concurrency: vercel
+    needs:
+      - release
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+      - name: Deploy
+        run: |
+          pnpm add @upstash/redis@${{needs.release.outputs.version}}
+          DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
+          echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
+        env:
+          VERCEL_ORG_ID: ${{secrets.VERCEL_TEAM_ID}}
+          VERCEL_PROJECT_ID: "prj_O4xbovmJKQ2xLtjhwrtxA3sKpPAY"
 
       - name: Test
         run: deno test --allow-net --allow-env ./examples/nextjs/test.ts
@@ -693,6 +780,7 @@ jobs:
       - nodejs-18-local
       - fastly-local
       - nextjs-local
+      - nextjs-export-local
       - nextjs-edge-local
       - cloudflare-workers-with-wrangler-1-local
       - cloudflare-workers-with-typescript-local
@@ -721,7 +809,16 @@ jobs:
         run: deno run -A ./cmd/build.ts ${{ steps.version.outputs.version }}
 
       - name: Publish ci version
+        if: ${{ github.event_name != 'schedule' }}
         working-directory: ./dist
         run: |
           echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
           npm publish --access public --tag=ci
+
+        # When the release is scheduled, we the git commit sha will not have changed, so we can not create a real release.
+      - name: Pretend to publish ci version
+        if: ${{ github.event_name == 'schedule' }}
+        working-directory: ./dist
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
+          npm publish --access public --tag=ci --dry-run

@@ -245,7 +245,7 @@ jobs:
       - name: Test
         run: deno test --allow-net --allow-env ./examples/nextjs/test.ts
 
-  nextjs--export-deployed:
+  nextjs-export-deployed:
     runs-on: ubuntu-latest
     concurrency: vercel
     needs:
@@ -273,7 +273,7 @@ jobs:
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
         env:
           VERCEL_ORG_ID: ${{secrets.VERCEL_TEAM_ID}}
-          VERCEL_PROJECT_ID: "prj_pFFK1XgNIlnW014iiuqAIQmBBuZA"
+          VERCEL_PROJECT_ID: "prj_O4xbovmJKQ2xLtjhwrtxA3sKpPAY"
 
       - name: Test
         run: deno test --allow-net --allow-env ./examples/nextjs/test.ts

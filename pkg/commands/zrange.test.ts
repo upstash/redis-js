@@ -151,9 +151,27 @@ Deno.test("rev", async (t) => {
     const res = await new ZRangeCommand([key, 0, 7, { rev: true }]).exec(
       client,
     );
-    console.log({ res });
     assertEquals(res.length, 2);
     assertEquals(res![0], member2);
     assertEquals(res![1], member1);
+  });
+});
+
+Deno.test("limit", async (t) => {
+  await t.step("returns only the first 2", async () => {
+    const key = newKey();
+    for (let i = 0; i < 10; i++) {
+      await new ZAddCommand([
+        key,
+        { score: i, member: randomID() },
+      ]).exec(client);
+    }
+
+    const res = await new ZRangeCommand([key, 0, 7, { offset: 0, count: 2 }])
+      .exec(
+        client,
+      );
+    console.log({ res });
+    assertEquals(res.length, 2);
   });
 });

@@ -430,9 +430,9 @@ jobs:
           pnpm add -g wrangler
         working-directory: examples/cloudflare-workers
 
-      - name: Add account ID
-        run: echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
-        working-directory: examples/cloudflare-workers
+      # - name: Add account ID
+      #   run: echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
+      #   working-directory: examples/cloudflare-workers
 
       - name: Start example
         run: wrangler dev & sleep 5
@@ -440,8 +440,6 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
 
-      # - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
-      #   timeout-minutes: 2
 
       - name: Test
         run: deno test -A ./test.ts

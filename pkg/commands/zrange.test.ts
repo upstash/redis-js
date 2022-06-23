@@ -132,3 +132,46 @@ Deno.test("bylex", async (t) => {
     assertEquals(res3![1], "b");
   });
 });
+
+Deno.test("rev", async (t) => {
+  await t.step("returns the set in reverse order", async () => {
+    const key = newKey();
+    const score1 = 2;
+    const member1 = randomID();
+
+    const score2 = 5;
+    const member2 = randomID();
+
+    await new ZAddCommand([
+      key,
+      { score: score1, member: member1 },
+      { score: score2, member: member2 },
+    ]).exec(client);
+
+    const res = await new ZRangeCommand([key, 0, 7, { rev: true }]).exec(
+      client,
+    );
+    assertEquals(res.length, 2);
+    assertEquals(res![0], member2);
+    assertEquals(res![1], member1);
+  });
+});
+
+Deno.test("limit", async (t) => {
+  await t.step("returns only the first 2", async () => {
+    const key = newKey();
+    for (let i = 0; i < 10; i++) {
+      await new ZAddCommand([
+        key,
+        { score: i, member: randomID() },
+      ]).exec(client);
+    }
+
+    const res = await new ZRangeCommand([key, 0, 7, { offset: 0, count: 2 }])
+      .exec(
+        client,
+      );
+    console.log({ res });
+    assertEquals(res.length, 2);
+  });
+});

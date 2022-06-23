@@ -148,11 +148,12 @@ Deno.test("rev", async (t) => {
       { score: score2, member: member2 },
     ]).exec(client);
 
-    const res = await new ZRangeCommand([key, 1, 3, { rev: true }]).exec(
+    const res = await new ZRangeCommand([key, 0, 7, { rev: true }]).exec(
       client,
     );
+    console.log({ res });
     assertEquals(res.length, 2);
-    assertEquals(res![0], member1);
-    assertEquals(res![1], score1);
+    assertEquals(res![0], member2);
+    assertEquals(res![1], member1);
   });
 });

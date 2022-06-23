@@ -6,7 +6,7 @@ export type ZRangeCommandOptions =
     | { byScore: true; byLex?: never }
     | { byScore?: never; byLex: true }
     | { byScore?: never; byLex?: never }
-  );
+  ) & { rev?: boolean }
 
 /**
  * @see https://redis.io/commands/zrange
@@ -54,6 +54,9 @@ export class ZRangeCommand<TData extends unknown[]> extends Command<
     }
     if (opts?.byLex) {
       command.push("bylex");
+    }
+    if (opts?.rev) {
+      command.push("rev")
     }
     if (opts?.withScores) {
       command.push("withscores");

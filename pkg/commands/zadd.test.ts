@@ -191,17 +191,17 @@ Deno.test("ch", async (t) => {
 });
 
 Deno.test("incr", async (t) => {
-  await t.step("returns the number of changed elements", async () => {
+  await t.step("increments the score", async () => {
     const key = newKey();
     const member = randomID();
     const score = Math.floor(Math.random() * 10);
     await new ZAddCommand([key, { score, member }]).exec(client);
-    const newScore = score + 1;
     const res = await new ZAddCommand([
       key,
-      { ch: true },
-      { score: newScore, member },
+      { incr: true },
+      { score: 1, member },
     ]).exec(client);
-    assertEquals(res, 1);
+    assertEquals(typeof res, "number");
+    assertEquals(res, score + 1);
   });
 });

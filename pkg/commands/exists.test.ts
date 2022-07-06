@@ -11,7 +11,7 @@ const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
 Deno.test("when the key does not eist", async (t) => {
-  await t.step("it returns 1", async () => {
+  await t.step("it returns 0", async () => {
     const key = newKey();
 
     const res = await new ExistsCommand([key]).exec(client);

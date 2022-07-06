@@ -12,7 +12,7 @@ afterAll(cleanup);
 Deno.test("when key is not set", async (t) => {
   await t.step("returns 0", async () => {
     const key = newKey();
-    const res = await new BitPosCommand([key, 1, 1]).exec(client);
+    const res = await new BitPosCommand([key, 0, 1, 1]).exec(client);
     assertEquals(res, -1);
   });
 });
@@ -22,7 +22,7 @@ Deno.test("when key is set", async (t) => {
     const key = newKey();
     const value = "Hello World";
     await new SetCommand([key, value]).exec(client);
-    const res = await new BitPosCommand([key, 2, 3]).exec(client);
+    const res = await new BitPosCommand([key, 0, 2, 3]).exec(client);
     assertEquals(res, 24);
   });
 });

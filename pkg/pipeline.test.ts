@@ -85,7 +85,7 @@ Deno.test("use all the things", async (t) => {
     p.append(newKey(), "hello")
       .bitcount(newKey(), 0, 1)
       .bitop("and", newKey(), newKey())
-      .bitpos(newKey(), 0, 1)
+      .bitpos(newKey(), 1, 0)
       .dbsize()
       .decr(newKey())
       .decrby(newKey(), 1)

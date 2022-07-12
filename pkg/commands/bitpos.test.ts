@@ -12,17 +12,37 @@ afterAll(cleanup);
 Deno.test("when key is not set", async (t) => {
   await t.step("returns 0", async () => {
     const key = newKey();
-    const res = await new BitPosCommand([key, 0, 1, 1]).exec(client);
-    assertEquals(res, -1);
+    const res = await new BitPosCommand([key, 0]).exec(client);
+    assertEquals(res, 0);
   });
 });
 
 Deno.test("when key is set", async (t) => {
   await t.step("returns position of first set bit", async () => {
     const key = newKey();
-    const value = "Hello World";
+    const value = "\xff\xf0\x00";
     await new SetCommand([key, value]).exec(client);
-    const res = await new BitPosCommand([key, 0, 2, 3]).exec(client);
-    assertEquals(res, 24);
+    const res = await new BitPosCommand([key, 0]).exec(client);
+    assertEquals(res, 2);
+  });
+});
+
+Deno.test("with start", async (t) => {
+  await t.step("returns position of first set bit", async () => {
+    const key = newKey();
+    const value = "\x00\xff\xf0";
+    await new SetCommand([key, value]).exec(client);
+    const res = await new BitPosCommand([key, 0, 0]).exec(client);
+    assertEquals(res, 0);
+  });
+});
+
+Deno.test("with start and end", async (t) => {
+  await t.step("returns position of first set bit", async () => {
+    const key = newKey();
+    const value = "\x00\xff\xf0";
+    await new SetCommand([key, value]).exec(client);
+    const res = await new BitPosCommand([key, 1, 2, -1]).exec(client);
+    assertEquals(res, 16);
   });
 });

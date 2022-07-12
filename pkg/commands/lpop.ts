@@ -8,7 +8,7 @@ export class LPopCommand<TData = string> extends Command<
   TData | null
 > {
   constructor(
-    cmd: [key: string],
+    cmd: [key: string, count?: number],
     opts?: CommandOptions<unknown | null, TData | null>,
   ) {
     super(["lpop", ...cmd], opts);

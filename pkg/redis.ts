@@ -43,6 +43,7 @@ import {
   LInsertCommand,
   LLenCommand,
   LPopCommand,
+  LPosCommand,
   LPushCommand,
   LPushXCommand,
   LRangeCommand,
@@ -445,6 +446,12 @@ export class Redis {
    */
   lpop = <TData>(...args: CommandArgs<typeof LPopCommand>) =>
     new LPopCommand<TData>(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/lpos
+   */
+  lpos = <TData = number>(...args: CommandArgs<typeof LPosCommand>) =>
+    new LPosCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/lpush

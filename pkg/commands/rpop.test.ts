@@ -2,7 +2,11 @@ import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
 import { afterAll } from "https://deno.land/std@0.141.0/testing/bdd.ts";
 import { RPopCommand } from "./rpop.ts";
-import { assertEquals } from "https://deno.land/std@0.141.0/testing/asserts.ts";
+import {
+  assertArrayIncludes,
+  assertEquals,
+  assertExists,
+} from "https://deno.land/std@0.141.0/testing/asserts.ts";
 
 import { LPushCommand } from "./lpush.ts";
 const client = newHttpClient();
@@ -25,5 +29,17 @@ Deno.test("when list does not exist", async (t) => {
     const key = newKey();
     const res = await new RPopCommand([key]).exec(client);
     assertEquals(res, null);
+  });
+});
+
+Deno.test("with count", async (t) => {
+  await t.step("returns 2 elements", async () => {
+    const key = newKey();
+    const value1 = randomID();
+    const value2 = randomID();
+    await new LPushCommand([key, value1, value2]).exec(client);
+    const res = await new RPopCommand<string[]>([key, 2]).exec(client);
+    assertExists(res);
+    assertArrayIncludes(res, [value1, value2]);
   });
 });

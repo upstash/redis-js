@@ -42,6 +42,7 @@ export * from "./lindex.ts";
 export * from "./linsert.ts";
 export * from "./llen.ts";
 export * from "./lpop.ts";
+export * from "./lpos.ts";
 export * from "./lpush.ts";
 export * from "./lpushx.ts";
 export * from "./lrange.ts";

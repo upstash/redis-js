@@ -42,6 +42,7 @@ import {
   LInsertCommand,
   LLenCommand,
   LPopCommand,
+  LPosCommand,
   LPushCommand,
   LPushXCommand,
   LRangeCommand,
@@ -506,6 +507,12 @@ export class Pipeline {
    */
   lpop = <TData>(...args: CommandArgs<typeof LPopCommand>) =>
     this.chain(new LPopCommand<TData>(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/lpos
+   */
+  lpos = <TData>(...args: CommandArgs<typeof LPosCommand>) =>
+    this.chain(new LPosCommand<TData>(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/lpush

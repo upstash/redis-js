@@ -23,6 +23,6 @@ export default async function middleware(
   console.log("Middleware", counter);
   return NextResponse.next(null, {
     // sets a custom response header
-    headers: { "Counter": counter },
+    headers: { "Counter": counter, "Latency": Date.now() - start },
   });
 }

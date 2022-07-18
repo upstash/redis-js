@@ -10,7 +10,10 @@ Deno.test("works", async () => {
   const url = `${deploymentURL}/api`;
   const res = await fetch(url);
   assertEquals(res.status, 200);
-  const json = (await res.json()) as { counter: number; latency: number };
-  assertEquals(typeof json.counter, "number");
-  assertEquals(json.latency > 0, true);
+  const counterString = res.headers.get("Counter");
+  assertEquals(typeof counterString, "string");
+  const counter = parseInt(counterString!);
+
+  assertEquals(counter, "number");
+  assertEquals(true, counter > 0);
 });

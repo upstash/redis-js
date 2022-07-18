@@ -124,9 +124,6 @@ import { Requester, UpstashRequest, UpstashResponse } from "./http.ts";
 import { Pipeline } from "./pipeline.ts";
 import type { CommandArgs } from "./types.ts";
 
-
-
-
 export type RedisOptions = {
   /**
    * Automatically try to deserialize the returned data from upstash using `JSON.deserialize`
@@ -162,23 +159,19 @@ export class Redis {
   /**
    * Wrap a new middleware around the HTTP client.
    */
-  use = <TResult = unknown>(middleware: (r: UpstashRequest, next: <TResult = unknown>(
-    req: UpstashRequest,
-  ) => Promise<UpstashResponse<TResult>>) => Promise<UpstashResponse<TResult>>) => {
-    console.warn("use")
-
-
-
+  use = <TResult = unknown>(
+    middleware: (
+      r: UpstashRequest,
+      next: <TResult = unknown>(
+        req: UpstashRequest,
+      ) => Promise<UpstashResponse<TResult>>,
+    ) => Promise<UpstashResponse<TResult>>,
+  ) => {
+    console.warn("use");
 
     const makeRequest = this.client.request.bind(this.client);
-    this.client.request = (req: UpstashRequest) => middleware(req, makeRequest) as any
-
-
-
-
-
-
-
+    this.client.request = (req: UpstashRequest) =>
+      middleware(req, makeRequest) as any;
   };
 
   /**
@@ -217,10 +210,10 @@ export class Redis {
     sourceKey: string,
     ...sourceKeys: string[]
   ) =>
-      new BitOpCommand(
-        [op as any, destinationKey, sourceKey, ...sourceKeys],
-        this.opts,
-      ).exec(this.client);
+    new BitOpCommand(
+      [op as any, destinationKey, sourceKey, ...sourceKeys],
+      this.opts,
+    ).exec(this.client);
 
   /**
    * @see https://redis.io/commands/bitpos

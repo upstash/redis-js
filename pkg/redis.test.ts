@@ -41,36 +41,32 @@ Deno.test("zrange", async (t) => {
   });
 });
 
-
 Deno.test("middleware", async (t) => {
-
-  let state = false
+  let state = false;
   await t.step("before", async () => {
     const r = new Redis(client);
     r.use(async (req, next) => {
-      state = true
+      state = true;
 
-      return await next(req)
-    })
+      return await next(req);
+    });
 
-    await r.incr(newKey())
+    await r.incr(newKey());
 
-    assertEquals(state, true)
-  })
-
+    assertEquals(state, true);
+  });
 
   await t.step("after", async () => {
-    let state = false
+    let state = false;
     const r = new Redis(client);
     r.use(async (req, next) => {
-      
-      const res =  await next(req)
-      state = true
-      return res
-    })
+      const res = await next(req);
+      state = true;
+      return res;
+    });
 
-    await r.incr(newKey())
+    await r.incr(newKey());
 
-    assertEquals(state, true)
-  })
-})
+    assertEquals(state, true);
+  });
+});

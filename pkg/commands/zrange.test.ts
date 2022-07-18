@@ -171,7 +171,6 @@ Deno.test("limit", async (t) => {
       .exec(
         client,
       );
-    console.log({ res });
     assertEquals(res.length, 2);
   });
 });

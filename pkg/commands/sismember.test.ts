@@ -21,7 +21,7 @@ Deno.test("when member exists", async (t) => {
 });
 
 Deno.test("when member exists", async (t) => {
-  await t.step("returns 1", async () => {
+  await t.step("returns 0", async () => {
     const key = newKey();
     const value1 = randomID();
     const value2 = randomID();

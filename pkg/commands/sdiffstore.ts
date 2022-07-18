@@ -1,6 +1,6 @@
 import { Command, CommandOptions } from "./command.ts";
 /**
- * @see https://redis.io/commands/sdiffstpre
+ * @see https://redis.io/commands/sdiffstore
  */
 export class SDiffStoreCommand extends Command<number, number> {
   constructor(

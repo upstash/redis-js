@@ -21,7 +21,7 @@ Deno.test("without count", async (t) => {
 });
 
 Deno.test("with count", async (t) => {
-  await t.step("returns the first n elements", async () => {
+  await t.step("returns n elements", async () => {
     const key = newKey();
     const member1 = randomID();
     const member2 = randomID();

@@ -24,7 +24,7 @@ Deno.test("async", async (t) => {
     const sha1 = await new ScriptLoadCommand([script]).exec(client);
     assertEquals(await new ScriptExistsCommand([sha1]).exec(client), [1]);
 
-    const res = await new ScriptFlushCommand([{ sync: true }]).exec(client);
+    const res = await new ScriptFlushCommand([{ async: true }]).exec(client);
 
     assertEquals(res, "OK");
 

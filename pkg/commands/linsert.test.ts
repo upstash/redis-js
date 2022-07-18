@@ -5,6 +5,7 @@ import { LInsertCommand } from "./linsert.ts";
 import { assertEquals } from "https://deno.land/std@0.141.0/testing/asserts.ts";
 
 import { LPushCommand } from "./lpush.ts";
+import { LRangeCommand } from "./lrange.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -20,4 +21,7 @@ Deno.test("adds the element", async () => {
     client,
   );
   assertEquals(res, 2);
+
+  const list = await new LRangeCommand([key, 0, -1]).exec(client);
+  assertEquals(list, [value2, value1]);
 });

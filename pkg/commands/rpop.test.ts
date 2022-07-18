@@ -15,7 +15,7 @@ const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
 Deno.test("when list exists", async (t) => {
-  await t.step("returns the first element", async () => {
+  await t.step("returns the last element", async () => {
     const key = newKey();
     const value = randomID();
     await new LPushCommand([key, value]).exec(client);

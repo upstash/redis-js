@@ -926,3 +926,6 @@ export class Redis {
   zunionstore = (...args: CommandArgs<typeof ZUnionStoreCommand>) =>
     new ZUnionStoreCommand(args, this.opts).exec(this.client);
 }
+
+
+

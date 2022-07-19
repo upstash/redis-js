@@ -204,7 +204,7 @@ jobs:
         working-directory: ./examples/nextjs_edge
 
       - name: Start example
-        run: pnpm start &
+        run: pnpm start & sleep 5
         working-directory: ./examples/nextjs_edge
 
       - name: Test

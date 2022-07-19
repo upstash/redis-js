@@ -156,3 +156,15 @@ export class Redis extends core.Redis {
     return new Redis({ ...config, url, token });
   }
 }
+
+
+
+const r = new Redis({
+  // ...
+  retry: {
+    retries: 3,
+    backoff: (retryCount: number) => {
+      return retryCount * 1000;
+    }
+  }
+})

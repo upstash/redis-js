@@ -8,11 +8,10 @@ if (!deploymentURL) {
 Deno.test("works", async (t) => {
   console.log({ deploymentURL });
   const url = `${deploymentURL}/api/counter`;
-  setTimeout(()=>{
-    console.error("manual timeout")
-    Deno.exit(1)
-  }, 5000)
-
+  setTimeout(() => {
+    console.error("manual timeout");
+    Deno.exit(1);
+  }, 5000);
 
   const res = await fetch(url);
   assertEquals(res.status, 200);

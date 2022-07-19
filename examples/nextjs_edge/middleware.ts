@@ -21,8 +21,8 @@ export default async function middleware(
   const counter = await redis.incr(key);
 
   console.log("Middleware", counter);
-  return NextResponse.next(null, {
+  return NextResponse.next({
     // sets a custom response header
-    headers: { "Counter": counter, "Latency": Date.now() - start },
+    headers: { "Counter": counter.toString(), "Latency": (Date.now() - start).toString() },
   });
 }

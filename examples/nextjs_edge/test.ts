@@ -6,12 +6,8 @@ if (!deploymentURL) {
 }
 
 Deno.test("works", async () => {
-  console.log({ deploymentURL });
   const url = `${deploymentURL}/api/counter`;
-  setTimeout(() => {
-    console.error("manual timeout");
-    Deno.exit(1);
-  }, 5000);
+  console.log({ url });
 
   const res = await fetch(url);
   assertEquals(res.status, 200);
@@ -19,4 +15,5 @@ Deno.test("works", async () => {
   assertEquals(typeof counterString, "string");
   const counter = parseInt(counterString!);
   assertEquals(true, counter > 0);
+  assertEquals("OK", await res.text());
 });

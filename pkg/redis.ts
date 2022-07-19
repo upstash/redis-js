@@ -167,8 +167,6 @@ export class Redis {
       ) => Promise<UpstashResponse<TResult>>,
     ) => Promise<UpstashResponse<TResult>>,
   ) => {
-    console.warn("use");
-
     const makeRequest = this.client.request.bind(this.client);
     this.client.request = (req: UpstashRequest) =>
       middleware(req, makeRequest) as any;

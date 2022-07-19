@@ -1,0 +1,17 @@
+{
+  "name": "with-sentry",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Andreas Thomas",
+  "license": "ISC",
+  "dependencies": {
+    "@sentry/node": "^7.7.0",
+    "@upstash/redis": "^1.10.0",
+    "isomorphic-fetch": "^3.0.0"
+  }
+}

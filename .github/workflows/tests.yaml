@@ -430,9 +430,9 @@ jobs:
           pnpm add -g wrangler
         working-directory: examples/cloudflare-workers
 
-      # - name: Add account ID
-      #   run: echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
-      #   working-directory: examples/cloudflare-workers
+      - name: Add account ID
+        run: echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
+        working-directory: examples/cloudflare-workers
 
       - name: Start example
         run: wrangler dev & sleep 5

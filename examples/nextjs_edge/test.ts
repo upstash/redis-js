@@ -5,7 +5,7 @@ if (!deploymentURL) {
   throw new Error("DEPLOYMENT_URL not set");
 }
 
-Deno.test("works", async (t) => {
+Deno.test("works", async () => {
   console.log({ deploymentURL });
   const url = `${deploymentURL}/api/counter`;
   setTimeout(() => {

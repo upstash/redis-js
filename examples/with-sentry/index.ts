@@ -24,11 +24,12 @@ redis.use(async (req, next) => {
 
   const res = await next(req);
   span?.finish();
+  console.log("res", JSON.stringify(res, null, 2));
   return res;
 });
 
 async function main() {
-  await redis.set("foot", Math.random());
+  await redis.set("foo", Math.random());
   const res = await redis.get("foo");
   console.log(res);
 }

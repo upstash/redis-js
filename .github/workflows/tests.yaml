@@ -204,7 +204,7 @@ jobs:
         working-directory: ./examples/nextjs_edge
 
       - name: Start example
-        run: pnpm start &
+        run: pnpm start & sleep 5
         working-directory: ./examples/nextjs_edge
 
       - name: Test
@@ -214,7 +214,6 @@ jobs:
 
   nextjs-deployed:
     runs-on: ubuntu-latest
-    concurrency: vercel
     needs:
       - release
     steps:
@@ -247,7 +246,6 @@ jobs:
 
   nextjs-export-deployed:
     runs-on: ubuntu-latest
-    concurrency: vercel
     needs:
       - release
     steps:
@@ -280,7 +278,6 @@ jobs:
 
   nextjs-edge-deployed:
     runs-on: ubuntu-latest
-    concurrency: vercel
     needs:
       - release
     steps:
@@ -430,15 +427,15 @@ jobs:
           pnpm add -g wrangler
         working-directory: examples/cloudflare-workers
 
-      # - name: Add account ID
-      #   run: echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
-      #   working-directory: examples/cloudflare-workers
+      - name: Add account ID
+        run: echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
+        working-directory: examples/cloudflare-workers
 
       - name: Start example
         run: wrangler dev & sleep 5
         working-directory: examples/cloudflare-workers
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
 
       - name: Test

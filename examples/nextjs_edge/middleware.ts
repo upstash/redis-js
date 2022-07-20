@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextFetchEvent, NextRequest } from "next/server";
 import { Redis } from "@upstash/redis";
+
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL!,
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
@@ -21,11 +22,9 @@ export default async function middleware(
   const counter = await redis.incr(key);
 
   console.log("Middleware", counter);
-  return NextResponse.next({
-    // sets a custom response header
-    headers: {
-      "Counter": counter.toString(),
-      "Latency": (Date.now() - start).toString(),
-    },
-  });
+  const res = NextResponse.next();
+  res.headers.set("Counter", counter.toString());
+  res.headers.set("Latency", (Date.now() - start).toString());
+
+  return res;
 }

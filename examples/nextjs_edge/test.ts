@@ -6,12 +6,13 @@ if (!deploymentURL) {
 }
 
 Deno.test("works", async () => {
-  console.log({ deploymentURL });
   const url = `${deploymentURL}/api/counter`;
+  console.log({ url });
+
   const res = await fetch(url);
   assertEquals(res.status, 200);
   const counterString = res.headers.get("Counter");
-  assertEquals(typeof counterString, "string");
   const counter = parseInt(counterString!);
-  assertEquals(true, counter > 0);
+  assertEquals("number", typeof counter);
+  assertEquals("OK", await res.text());
 });

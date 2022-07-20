@@ -13,6 +13,6 @@ Deno.test("works", async () => {
   assertEquals(res.status, 200);
   const counterString = res.headers.get("Counter");
   const counter = parseInt(counterString!);
-  assertEquals(true, counter > 0);
+  assertEquals("number", typeof counter);
   assertEquals("OK", await res.text());
 });

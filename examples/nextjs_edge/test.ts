@@ -12,7 +12,6 @@ Deno.test("works", async () => {
   const res = await fetch(url);
   assertEquals(res.status, 200);
   const counterString = res.headers.get("Counter");
-  assertEquals(typeof counterString, "string");
   const counter = parseInt(counterString!);
   assertEquals(true, counter > 0);
   assertEquals("OK", await res.text());

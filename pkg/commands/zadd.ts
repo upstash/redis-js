@@ -36,12 +36,11 @@ export class ZAddCommand<TData = string> extends Command<
   );
   constructor(
     [key, arg1, ...arg2]: [
-      key: string,
-      arg1:
-        | ScoreMember<TData>
-        | ZAddCommandOptions
-        | ZAddCommandOptionsWithIncr,
-      ...arg2: ScoreMember<TData>[],
+      string,
+      | ScoreMember<TData>
+      | ZAddCommandOptions
+      | ZAddCommandOptionsWithIncr,
+      ...ScoreMember<TData>[],
     ],
     opts?: CommandOptions<number | null, number | null>,
   ) {

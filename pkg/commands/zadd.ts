@@ -30,7 +30,7 @@ export class ZAddCommand<TData = string> extends Command<
     cmd: [
       key: string,
       opts: ZAddCommandOptions | ZAddCommandOptionsWithIncr,
-      ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]],
+      ...scoreMemberPairs: ScoreMember<TData>[],
     ],
     opts?: CommandOptions<number | null, number | null>,
   );

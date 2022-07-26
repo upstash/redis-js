@@ -8,7 +8,6 @@ export class BitOpCommand extends Command<number, number> {
     cmd: [
       op: "and" | "or" | "xor",
       destinationKey: string,
-      sourceKey: string,
       ...sourceKeys: string[],
     ],
     opts?: CommandOptions<number, number>,
@@ -21,7 +20,6 @@ export class BitOpCommand extends Command<number, number> {
     cmd: [
       op: "and" | "or" | "xor" | "not",
       destinationKey: string,
-      sourceKeys: string,
       ...sourceKeys: string[],
     ],
     opts?: CommandOptions<number, number>,

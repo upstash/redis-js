@@ -7,7 +7,7 @@ export class MGetCommand<TData extends unknown[]> extends Command<
   TData
 > {
   constructor(
-    cmd: [...keys: [string, ...string[]]],
+    cmd: [...keys: string[]],
     opts?: CommandOptions<(string | null)[], TData>,
   ) {
     super(["mget", ...cmd], opts);

@@ -10,6 +10,15 @@ export type ZAddCommandOptions =
 
 export type ZAddCommandOptionsWithIncr = ZAddCommandOptions & { incr: true };
 
+/**
+ * This type is defiend up here because otherwise it would be automatically formatted into
+ * multiple lines by Deno. As a result of that, Deno will add a comma to the end and then
+ * complain about the comma being there...
+ */
+type Arg2<TData> =
+  | ScoreMember<TData>
+  | ZAddCommandOptions
+  | ZAddCommandOptionsWithIncr;
 export type ScoreMember<TData> = { score: number; member: TData };
 /**
  * @see https://redis.io/commands/zadd
@@ -30,19 +39,12 @@ export class ZAddCommand<TData = string> extends Command<
     cmd: [
       key: string,
       opts: ZAddCommandOptions | ZAddCommandOptionsWithIncr,
-      ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]],
+      ...scoreMemberPairs: ScoreMember<TData>[],
     ],
     opts?: CommandOptions<number | null, number | null>,
   );
   constructor(
-    [key, arg1, ...arg2]: [
-      key: string,
-      arg1:
-        | ScoreMember<TData>
-        | ZAddCommandOptions
-        | ZAddCommandOptionsWithIncr,
-      ...arg2: ScoreMember<TData>[],
-    ],
+    [key, arg1, ...arg2]: [string, Arg2<TData>, ...ScoreMember<TData>[]],
     opts?: CommandOptions<number | null, number | null>,
   ) {
     const command: unknown[] = ["zadd", key];

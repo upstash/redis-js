@@ -127,6 +127,7 @@ jobs:
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: 4da5ba73-dedc-44b2-b27b-fa951c3da512
         
 
       - name: Test
@@ -185,8 +186,8 @@ jobs:
 
   netlify-edge-deployed:
     runs-on: ubuntu-latest
-    # needs:
-    #   - release
+    needs:
+      - release
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
@@ -210,6 +211,7 @@ jobs:
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: c3fbfe63-06ee-4aca-8e38-14ba73cb035e
 
       - name: Test
         run: deno test --allow-net --allow-env ./examples/netlify-edge/test.ts

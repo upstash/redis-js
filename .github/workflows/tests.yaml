@@ -120,7 +120,7 @@ jobs:
           version: 6
 
       - name: Install @upstash/redis 
-        run: pnpm add @upstash/redis@${{needs.release.outputs.version}}
+        run: pnpm install # TODO: pnpm add @upstash/redis@${{needs.release.outputs.version}}
       - name: Deploy
         run: |
           DEPLOYMENT_URL=$(npx netlify-cli deploy --dir=examples/netlify --prod --json | jq -r '.deploy_url')

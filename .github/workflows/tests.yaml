@@ -87,11 +87,13 @@ jobs:
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
-        run: pnpm add @upstash/redis@../../dist
+        run: |
+          pnpm add @upstash/redis@../../dist
+          npm i -g netlify-cli
         working-directory: ./examples/netlify
 
       - name: Start example
-        run:  npx netlify-cli dev --port 15015 & sleep 5
+        run:  netlify dev --port 15015 & sleep 10
         working-directory: ./examples/netlify
 
       - name: Test

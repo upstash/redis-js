@@ -51,8 +51,8 @@ jobs:
         working-directory: dist
 
   netlify-local:
-    needs:
-      - test
+    # needs:
+    #   - test
     env:
       UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
@@ -91,7 +91,7 @@ jobs:
         working-directory: ./examples/netlify
 
       - name: Start example
-        run:  npx netlify-cli dev --targetPort 15015 & sleep 5
+        run:  npx netlify-cli dev --port 15015 & sleep 5
         working-directory: ./examples/netlify
 
       - name: Test
@@ -133,8 +133,8 @@ jobs:
 
 
   netlify-edge-local:
-    needs:
-      - test
+    # needs:
+    #   - test
     env:
       UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
@@ -173,7 +173,7 @@ jobs:
         working-directory: ./examples/netlify-edge
 
       - name: Start example
-        run:  npx netlify-cli dev --targetPort 15015 & sleep 5
+        run:  npx netlify-cli dev --port 15015 & sleep 5
         working-directory: ./examples/netlify-edge
 
 

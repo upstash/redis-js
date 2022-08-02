@@ -90,12 +90,8 @@ jobs:
         run: pnpm add @upstash/redis@../../dist
         working-directory: ./examples/netlify
 
-      - name: Build example
-        run: pnpm build
-        working-directory: ./examples/netlify
-
       - name: Start example
-        run: pnpm start &
+        run:  pnpm dev & sleep(5)
         working-directory: ./examples/netlify
 
       - name: Test
@@ -174,12 +170,8 @@ jobs:
         run: pnpm add @upstash/redis@../../dist
         working-directory: ./examples/netlify-edge
 
-      - name: Build example
-        run: pnpm build
-        working-directory: ./examples/netlify-edge
-
       - name: Start example
-        run: pnpm start &
+        run:  pnpm dev & sleep(5)
         working-directory: ./examples/netlify-edge
 
       - name: Test

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "netlify-cli dev"
   },
   "keywords": [],
   "author": "Andreas Thomas",
@@ -12,5 +12,8 @@
   "dependencies": {
     "@netlify/functions": "^1.0.0",
     "@upstash/redis": "^1.10.2"
+  },
+  "devDependencies": {
+    "netlify-cli": "^10.14.0"
   }
 }

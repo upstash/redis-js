@@ -3,17 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "dev": "netlify dev"
-  },
   "keywords": [],
   "author": "Andreas Thomas",
   "license": "ISC",
   "dependencies": {
     "@netlify/functions": "^1.0.0",
     "@upstash/redis": "^1.10.2"
-  },
-  "devDependencies": {
-    "netlify-cli": "^10.14.0"
   }
 }

@@ -91,7 +91,7 @@ jobs:
         working-directory: ./examples/netlify
 
       - name: Start example
-        run:  npx netlify-cli dev -p=15015 & sleep 5
+        run:  npx netlify-cli dev --target-port 15015 & sleep 5
         working-directory: ./examples/netlify
 
       - name: Test
@@ -173,7 +173,7 @@ jobs:
         working-directory: ./examples/netlify-edge
 
       - name: Start example
-        run:  npx netlify-cli dev -p=15015 & sleep 5
+        run:  npx netlify-cli dev --target-port 15015 & sleep 5
         working-directory: ./examples/netlify-edge
 
 

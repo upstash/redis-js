@@ -119,9 +119,10 @@ jobs:
         with:
           version: 6
 
+      - name: Install @upstash/redis 
+        run: pnpm add @upstash/redis@${{needs.release.outputs.version}}
       - name: Deploy
         run: |
-          pnpm add @upstash/redis@${{needs.release.outputs.version}}
           DEPLOYMENT_URL=$(npx netlify-cli deploy --dir=examples/netlify --prod --json | jq -r '.deploy_url')
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
         env:

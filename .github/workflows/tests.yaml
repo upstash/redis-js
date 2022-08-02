@@ -126,7 +126,6 @@ jobs:
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: 5bfa3b54-68ad-4036-9697-3790d68933bc
         
 
       - name: Test
@@ -210,7 +209,6 @@ jobs:
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: 5bfa3b54-68ad-4036-9697-3790d68933bc
 
       - name: Test
         run: deno test --allow-net --allow-env ./examples/netlify-edge/test.ts

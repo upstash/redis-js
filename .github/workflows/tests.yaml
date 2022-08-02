@@ -101,7 +101,125 @@ jobs:
       - name: Test
         run: deno test --allow-net --allow-env ./examples/netlify/test.ts
         env:
-          DEPLOYMENT_URL: http://localhost:3000
+          DEPLOYMENT_URL: http://localhost:8888
+
+  netlify-deployed:
+    runs-on: ubuntu-latest
+    needs:
+      - release
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+      - name: Deploy
+        run: |
+          pnpm add @upstash/redis@${{needs.release.outputs.version}}
+          DEPLOYMENT_URL=$(npx netlify-cli deploy --dir=examples/netlify --prod --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} --json | jq -r '.deploy_url')
+          echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
+        
+
+      - name: Test
+        run: deno test --allow-net --allow-env ./examples/netlify/test.ts
+
+
+  netlify-edge-local:
+    needs:
+      - test
+    env:
+      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+      - name: Build
+        run: deno run -A ./cmd/build.ts
+
+      - name: Start redis server
+        uses: ./.github/actions/redis
+        with:
+          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
+          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
+
+      - name: Install example
+        run: pnpm add @upstash/redis@../../dist
+        working-directory: ./examples/netlify-edge
+
+      - name: Build example
+        run: pnpm build
+        working-directory: ./examples/netlify-edge
+
+      - name: Start example
+        run: pnpm start &
+        working-directory: ./examples/netlify-edge
+
+      - name: Test
+        run: deno test --allow-net --allow-env ./examples/netlify-edge/test.ts
+        env:
+          DEPLOYMENT_URL: http://localhost:8888
+
+  netlify-edge-deployed:
+    runs-on: ubuntu-latest
+    needs:
+      - release
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6
+
+      - name: Deploy
+        run: |
+          pnpm add @upstash/redis@${{needs.release.outputs.version}}
+          DEPLOYMENT_URL=$(npx netlify-cli deploy --dir=examples/netlify-edge --prod --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} --json | jq -r '.deploy_url')
+          echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
+        
+
+      - name: Test
+        run: deno test --allow-net --allow-env ./examples/netlify-edge/test.ts
+
+        
+
+
   nextjs-local:
     needs:
       - test
@@ -156,35 +274,7 @@ jobs:
         env:
           DEPLOYMENT_URL: http://localhost:3000
 
-  netlify-deployed:
-    runs-on: ubuntu-latest
-    needs:
-      - release
-    steps:
-      - name: Setup repo
-        uses: actions/checkout@v2
-      - name: Setup node
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 6
-
-      - name: Deploy
-        run: |
-          pnpm add @upstash/redis@${{needs.release.outputs.version}}
-          DEPLOYMENT_URL=$(npx netlify-cli deploy --dir=examples/netlify --prod --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} --json | jq -r '.deploy_url')
-          echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
-        
-
-      - name: Test
-        run: deno test --allow-net --allow-env ./examples/netlify/test.ts
 
   nextjs-export-local:
     needs:
@@ -860,6 +950,7 @@ jobs:
       - nextjs-export-local
       - nextjs-edge-local
       - netlify-local
+      - netlify-edge-local
       - cloudflare-workers-with-wrangler-1-local
       - cloudflare-workers-with-typescript-local
       - cloudflare-workers-local

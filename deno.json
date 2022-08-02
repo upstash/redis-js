@@ -4,7 +4,7 @@
   },
   "lint": {
     "files": {
-      "exclude": ["node_modules", "dist", ".next"]
+      "exclude": ["node_modules", "dist", ".next", ".netlify"]
     },
     "rules": {
       "tags": ["recommended"],
@@ -13,7 +13,7 @@
   },
   "fmt": {
     "files": {
-      "exclude": ["node_modules", "dist", ".next"]
+      "exclude": ["node_modules", "dist", ".next", ".netlify"]
     }
   }
 }

@@ -93,9 +93,6 @@ jobs:
       - name: Start example
         run:  pnpm dev & sleep 5
         working-directory: ./examples/netlify
-        env:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
 
       - name: Test
         run: deno test --allow-net --allow-env ./examples/netlify/test.ts
@@ -125,8 +122,11 @@ jobs:
       - name: Deploy
         run: |
           pnpm add @upstash/redis@${{needs.release.outputs.version}}
-          DEPLOYMENT_URL=$(npx netlify-cli deploy --dir=examples/netlify --prod --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} --json | jq -r '.deploy_url')
+          DEPLOYMENT_URL=$(npx netlify-cli deploy --dir=examples/netlify --prod --json | jq -r '.deploy_url')
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: 5bfa3b54-68ad-4036-9697-3790d68933bc
         
 
       - name: Test
@@ -176,9 +176,7 @@ jobs:
       - name: Start example
         run:  pnpm dev & sleep 5
         working-directory: ./examples/netlify-edge
-        env:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+
 
       - name: Test
         run: deno test --allow-net --allow-env ./examples/netlify-edge/test.ts
@@ -208,9 +206,11 @@ jobs:
       - name: Deploy
         run: |
           pnpm add @upstash/redis@${{needs.release.outputs.version}}
-          DEPLOYMENT_URL=$(npx netlify-cli deploy --dir=examples/netlify-edge --prod --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} --json | jq -r '.deploy_url')
+          DEPLOYMENT_URL=$(npx netlify-cli deploy --dir=examples/netlify-edge --prod --json | jq -r '.deploy_url')
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
-        
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: 5bfa3b54-68ad-4036-9697-3790d68933bc
 
       - name: Test
         run: deno test --allow-net --allow-env ./examples/netlify-edge/test.ts
@@ -947,8 +947,8 @@ jobs:
       - nextjs-local
       - nextjs-export-local
       - nextjs-edge-local
-      - netlify-local
-      - netlify-edge-local
+      # - netlify-local
+      # - netlify-edge-local
       - cloudflare-workers-with-wrangler-1-local
       - cloudflare-workers-with-typescript-local
       - cloudflare-workers-local

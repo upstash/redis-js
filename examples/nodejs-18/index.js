@@ -1,6 +1,7 @@
 import { Redis } from "@upstash/redis";
 
 const redis = Redis.fromEnv();
+
 async function run() {
   const key = "key";
   const value = { hello: "world" };

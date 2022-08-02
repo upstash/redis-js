@@ -51,8 +51,8 @@ jobs:
         working-directory: dist
 
   netlify-local:
-    # needs:
-    #   - test
+    needs:
+      - test
     env:
       UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
@@ -133,8 +133,8 @@ jobs:
 
 
   netlify-edge-local:
-    # needs:
-    #   - test
+    needs:
+      - test
     env:
       UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}

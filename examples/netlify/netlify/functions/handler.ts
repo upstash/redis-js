@@ -3,7 +3,7 @@ import { Redis } from "@upstash/redis/with-fetch";
 
 const redis = Redis.fromEnv();
 
-const handler: Handler = async (event, context) => {
+const handler: Handler = async (_event, _context) => {
   return {
     statusCode: 200,
     body: JSON.stringify({

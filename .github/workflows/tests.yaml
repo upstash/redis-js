@@ -101,8 +101,8 @@ jobs:
 
   netlify-deployed:
     runs-on: ubuntu-latest
-    needs:
-      - release
+    # needs:
+    #   - release
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
@@ -184,8 +184,8 @@ jobs:
 
   netlify-edge-deployed:
     runs-on: ubuntu-latest
-    needs:
-      - release
+    # needs:
+    #   - release
     steps:
       - name: Setup repo
         uses: actions/checkout@v2

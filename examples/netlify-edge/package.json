@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "netlify-cli dev"
+    "dev": "netlify dev"
   },
   "keywords": [],
   "author": "Andreas Thomas",

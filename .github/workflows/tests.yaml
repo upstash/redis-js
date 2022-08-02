@@ -123,8 +123,9 @@ jobs:
         run: pnpm install # TODO: pnpm add @upstash/redis@${{needs.release.outputs.version}}
       - name: Deploy
         run: |
-          DEPLOYMENT_URL=$(npx netlify-cli deploy --dir=examples/netlify --prod --json | jq -r '.deploy_url')
+          DEPLOYMENT_URL=$(npx netlify-cli deploy --dir=. --prod --json | jq -r '.deploy_url')
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
+        working-directory: ./examples/netlify
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: 4da5ba73-dedc-44b2-b27b-fa951c3da512

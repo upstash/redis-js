@@ -209,11 +209,16 @@ jobs:
         with:
           version: 6
 
+
+      - name: Install @upstash/redis 
+        run: pnpm add @upstash/redis@${{needs.release.outputs.version}}
+        working-directory: ./examples/netlify
+
       - name: Deploy
         run: |
-          pnpm add @upstash/redis@${{needs.release.outputs.version}}
-          DEPLOYMENT_URL=$(npx netlify-cli deploy --dir=examples/netlify-edge --prod --json | jq -r '.deploy_url')
+          DEPLOYMENT_URL=$(npx netlify-cli deploy --dir=. --prod --json | jq -r '.deploy_url')
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
+        working-directory: ./examples/netlify-edge
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: c3fbfe63-06ee-4aca-8e38-14ba73cb035e

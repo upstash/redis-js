@@ -7,6 +7,6 @@ export default async (_req: Request, ctx: Context) => {
 
   return new Response(JSON.stringify({
     message: "Hello World",
-    counter: await redis.incr("netlify"),
+    counter: await redis.incr("netlify-edge"),
   }));
 };

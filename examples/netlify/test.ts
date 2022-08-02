@@ -8,6 +8,8 @@ if (!deploymentURL) {
 Deno.test("works", async () => {
   console.log({ deploymentURL });
   const url = `${deploymentURL}/.netlify/functions/handler`;
+  console.log({ url });
+
   const res = await fetch(url);
   assertEquals(res.status, 200);
   const json = (await res.json()) as { counter: number };

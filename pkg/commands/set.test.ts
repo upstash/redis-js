@@ -50,6 +50,55 @@ Deno.test("px", async (t) => {
     assertEquals(res3, null);
   });
 });
+
+Deno.test("exat", async (t) => {
+  await t.step("sets value", async () => {
+    const key = newKey();
+    const value = randomID();
+
+    const res = await new SetCommand([key, value, {
+      exat: Math.floor(Date.now() / 1000) + 1,
+    }]).exec(client);
+    assertEquals(res, "OK");
+    const res2 = await new GetCommand([key]).exec(client);
+    assertEquals(res2, value);
+    await new Promise((res) => setTimeout(res, 2000));
+
+    const res3 = await new GetCommand([key]).exec(client);
+
+    assertEquals(res3, null);
+  });
+});
+
+Deno.test("pxat", async (t) => {
+  await t.step("sets value", async () => {
+    const key = newKey();
+    const value = randomID();
+
+    const res = await new SetCommand([key, value, { pxat: Date.now() + 1000 }])
+      .exec(client);
+    assertEquals(res, "OK");
+    const res2 = await new GetCommand([key]).exec(client);
+    assertEquals(res2, value);
+    await new Promise((res) => setTimeout(res, 2000));
+
+    const res3 = await new GetCommand([key]).exec(client);
+
+    assertEquals(res3, null);
+  });
+});
+
+Deno.test("get", async (t) => {
+  await t.step("gets the old value", async () => {
+    const key = newKey();
+    const old = randomID();
+    const value = randomID();
+    await new SetCommand([key, old]).exec(client);
+
+    const res = await new SetCommand([key, value, { get: true }]).exec(client);
+    assertEquals(res, old);
+  });
+});
 Deno.test("nx", async (t) => {
   await t.step("when key exists", async (t) => {
     await t.step("does nothing", async () => {

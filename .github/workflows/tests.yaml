@@ -972,7 +972,7 @@ jobs:
 
       - name: Get version
         id: version
-        run: echo "::set-output name=version::v0.0.0-ci.${GITHUB_SHA::8}-$(shell date -u '+%Y%m%d')"
+        run: echo "::set-output name=version::v0.0.0-ci.${GITHUB_SHA::8}-$(date '+%Y%m%d')"
 
       - name: Setup Node
         uses: actions/setup-node@v2

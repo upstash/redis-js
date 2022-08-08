@@ -1,4 +1,5 @@
 import { Redis } from "./redis.ts";
+import { sha1 as digest } from "https://denopkg.com/chiefbiiko/sha1/mod.ts";
 
 /**
  * Creates a new script.
@@ -18,10 +19,12 @@ import { Redis } from "./redis.ts";
  */
 export class Script<TResult = unknown> {
   public readonly script: string;
+  public readonly sha1: string;
   private readonly redis: Redis;
 
   constructor(redis: Redis, script: string) {
     this.redis = redis;
+    this.sha1 = this.digest(script);
     this.script = script;
   }
 
@@ -36,8 +39,7 @@ export class Script<TResult = unknown> {
    * Calculates the sha1 hash of the script and then calls `EVALSHA`.
    */
   public async evalsha(keys: string[], args: string[]): Promise<TResult> {
-    const sha = await this.sha1();
-    return await this.redis.evalsha(sha, keys, args);
+    return await this.redis.evalsha(this.sha1, keys, args);
   }
 
   /**
@@ -47,9 +49,7 @@ export class Script<TResult = unknown> {
    * Following calls will be able to use the cached script
    */
   public async exec(keys: string[], args: string[]): Promise<TResult> {
-    const sha1 = await this.sha1();
-
-    const res = await this.redis.evalsha(sha1, keys, args).catch(
+    const res = await this.redis.evalsha(this.sha1, keys, args).catch(
       async (err) => {
         if (
           err instanceof Error &&
@@ -66,13 +66,8 @@ export class Script<TResult = unknown> {
   /**
    * Compute the sha1 hash of the script and return its hex representation.
    */
-  public async sha1(): Promise<string> {
-    const hash = await crypto.subtle.digest(
-      "sha-1",
-      new TextEncoder().encode(this.script),
-    );
-    return Array.from(new Uint8Array(hash)).map((b) =>
-      b.toString(16).padStart(2, "0")
-    ).join("");
+  private digest(s: string): string {
+    const hash = digest(s, "utf8", "hex");
+    return typeof hash === "string" ? hash : new TextDecoder().decode(hash);
   }
 }

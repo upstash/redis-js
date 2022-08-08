@@ -21,22 +21,20 @@ Deno.test("create a new script", async (t) => {
 });
 
 Deno.test("sha1", async (t) => {
-  await t.step("calculates the correct sha1", async () => {
+  await t.step("calculates the correct sha1", () => {
     const redis = new Redis(client);
     const script = redis.createScript(
       "The quick brown fox jumps over the lazy dog",
     );
 
-    const sha1 = await script.sha1();
-    assertEquals(sha1, "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
+    assertEquals(script.sha1, "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
   });
 
-  await t.step("calculates the correct sha1 for empty string", async () => {
+  await t.step("calculates the correct sha1 for empty string", () => {
     const redis = new Redis(client);
     const script = redis.createScript("");
 
-    const sha1 = await script.sha1();
-    assertEquals(sha1, "da39a3ee5e6b4b0d3255bfef95601890afd80709");
+    assertEquals(script.sha1, "da39a3ee5e6b4b0d3255bfef95601890afd80709");
   });
 });
 

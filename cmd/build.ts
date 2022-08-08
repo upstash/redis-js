@@ -31,7 +31,7 @@ await dnt.build({
   outDir,
   shims: {
     deno: "dev",
-    crypto: true,
+    crypto: "dev",
   },
   typeCheck: true,
   test: typeof Deno.env.get("TEST") !== "undefined",

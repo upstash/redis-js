@@ -123,6 +123,7 @@ import {
 import { Requester, UpstashRequest, UpstashResponse } from "./http.ts";
 import { Pipeline } from "./pipeline.ts";
 import type { CommandArgs } from "./types.ts";
+import { Script } from "./script.ts";
 
 export type RedisOptions = {
   /**
@@ -172,6 +173,9 @@ export class Redis {
       middleware(req, makeRequest) as any;
   };
 
+  createScript(script: string): Script {
+    return new Script(this, script);
+  }
   /**
    * Create a new pipeline that allows you to send requests in bulk.
    *

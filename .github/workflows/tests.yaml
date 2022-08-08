@@ -46,10 +46,6 @@ jobs:
       - name: Build
         run: deno run -A ./cmd/build.ts
 
-      - name: Size limit
-        run: node_modules/.bin/size-limit
-        working-directory: dist
-
   netlify-local:
     needs:
       - test

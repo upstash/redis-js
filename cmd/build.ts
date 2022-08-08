@@ -53,10 +53,6 @@ await dnt.build({
       url: "https://github.com/upstash/upstash-redis/issues",
     },
     homepage: "https://github.com/upstash/upstash-redis#readme",
-    devDependencies: {
-      "size-limit": "latest",
-      "@size-limit/preset-small-lib": "latest",
-    },
     dependencies: {
       "isomorphic-fetch": "^3.0.0",
     },
@@ -72,42 +68,6 @@ await dnt.build({
         "with-fetch": "./types/platforms/node_with_fetch.d.ts",
       },
     },
-
-    "size-limit": [
-      {
-        path: "esm/platforms/nodejs.js",
-        limit: "6 KB",
-      },
-      {
-        path: "esm/platforms/fastly.js",
-        limit: "6 KB",
-      },
-      {
-        path: "esm/platforms/cloudflare.js",
-        limit: "6 KB",
-      },
-      {
-        path: "esm/platforms/node_with_fetch.js",
-        limit: "15 KB",
-      },
-
-      {
-        path: "script/platforms/nodejs.js",
-        limit: "10 KB",
-      },
-      {
-        path: "script/platforms/fastly.js",
-        limit: "10 KB",
-      },
-      {
-        path: "script/platforms/cloudflare.js",
-        limit: "10 KB",
-      },
-      {
-        path: "script/platforms/node_with_fetch.js",
-        limit: "15 KB",
-      },
-    ],
   },
 });
 

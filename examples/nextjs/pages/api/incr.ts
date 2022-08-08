@@ -12,6 +12,10 @@ export default async function handler(
    * This is to avoid collisions with other tests.
    */
   const key = ["vercel", process.env.VERCEL_GIT_COMMIT_SHA, "nextjs"].join("_");
-  const count = await redis.incr(key);
+
+  const count = await redis.createScript("return redis.call('INCR', KEYS[1]);")
+    .exec([
+      key,
+    ], []);
   res.json({ count });
 }

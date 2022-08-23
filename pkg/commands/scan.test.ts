@@ -49,8 +49,6 @@ Deno.test("with count", async (t) => {
   });
 });
 
-
-
 Deno.test("with type", async (t) => {
   await t.step("returns cursor and keys", async () => {
     const key2 = newKey();
@@ -58,8 +56,8 @@ Deno.test("with type", async (t) => {
     const value = randomID();
     await new SetCommand([key1, value]).exec(client);
 
-    // Add a non-string type 
-    await new ZAddCommand([key2, { score: 1, member: "abc" }]).exec(client)
+    // Add a non-string type
+    await new ZAddCommand([key2, { score: 1, member: "abc" }]).exec(client);
     const res = await new ScanCommand([0, { type: "string" }]).exec(client);
 
     assertEquals(res.length, 2);
@@ -67,8 +65,8 @@ Deno.test("with type", async (t) => {
     assertEquals(res![1].length > 0, true);
 
     for (const key of res![1]) {
-      const type = await new TypeCommand([key]).exec(client)
-      assertEquals(type, "string")
+      const type = await new TypeCommand([key]).exec(client);
+      assertEquals(type, "string");
     }
   });
 });

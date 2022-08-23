@@ -136,6 +136,7 @@ jobs:
 
 
   netlify-edge-local:
+
     needs:
       - test
     env:
@@ -956,7 +957,7 @@ jobs:
       - nextjs-export-local
       - nextjs-edge-local
       - netlify-local
-      - netlify-edge-local
+      # - netlify-edge-local
       - cloudflare-workers-with-wrangler-1-local
       - cloudflare-workers-with-typescript-local
       - cloudflare-workers-local

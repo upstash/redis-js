@@ -136,6 +136,7 @@ jobs:
 
 
   netlify-edge-local:
+
     needs:
       - test
     env:
@@ -172,13 +173,14 @@ jobs:
           REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
-        run: pnpm add @upstash/redis@../../dist
+        run: |
+          pnpm add @upstash/redis@../../dist
+          npm i -g netlify-cli
         working-directory: ./examples/netlify-edge
 
       - name: Start example
-        run:  npx netlify-cli dev --port 15015 & sleep 5
+        run:  netlify dev --port 15015 & sleep 10
         working-directory: ./examples/netlify-edge
-
 
       - name: Test
         run: deno test --allow-net --allow-env ./examples/netlify-edge/test.ts
@@ -944,6 +946,68 @@ jobs:
         run: node ./index.js
         working-directory: examples/nodejs-18
 
+  deno-local:
+    needs:
+      - test
+    env:
+      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Start redis server
+        uses: ./.github/actions/redis
+        with:
+          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
+          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
+
+      - name: Run example
+        run: deno run -A ./main.ts & sleep 5
+        working-directory: examples/deno
+
+      - name: Test
+        run: deno test -A ./main.test.ts
+        working-directory: examples/deno
+        env:
+          DEPLOYMENT_URL: http://localhost:8000
+
+      
+  deno-deployed:
+    needs:
+      - release
+    env:
+      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Deploy
+        run: deno run -A https://deno.land/x/deploy/deployctl.ts deploy --project=upstash-redis ./main.ts
+        working-directory: examples/deno
+        env:
+          DENO_DEPLOY_TOKEN: ${{ secrets.DENO_DEPLOY_TOKEN }}
+
+      - name: Test
+        run: deno test -A ./main.test.ts
+        working-directory: examples/deno
+        env:
+          DEPLOYMENT_URL: https://upstash-redis-70jbfgxwz310.deno.dev
+
+
   release:
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -955,7 +1019,8 @@ jobs:
       - nextjs-export-local
       - nextjs-edge-local
       - netlify-local
-      - netlify-edge-local
+      - deno-local
+      # - netlify-edge-local
       - cloudflare-workers-with-wrangler-1-local
       - cloudflare-workers-with-typescript-local
       - cloudflare-workers-local

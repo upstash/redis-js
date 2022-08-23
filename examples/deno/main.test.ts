@@ -7,9 +7,7 @@ if (!deploymentURL) {
 
 Deno.test("works", async () => {
   console.log({ deploymentURL });
-  const url = `${deploymentURL}/handler`;
-  console.log({ url });
-  const res = await fetch(url);
+  const res = await fetch(deploymentURL);
   const body = await res.text();
   console.log({ body });
   assertEquals(res.status, 200);

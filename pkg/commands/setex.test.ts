@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils.ts";
-import { assertEquals } from "https://deno.land/std@0.141.0/testing/asserts.ts";
-import { afterAll } from "https://deno.land/std@0.141.0/testing/bdd.ts";
+import { assertEquals } from "https://deno.land/std@0.152.0/testing/asserts.ts";
+import { afterAll } from "https://deno.land/std@0.152.0/testing/bdd.ts";
 import { SetExCommand } from "./setex.ts";
 import { GetCommand } from "./get.ts";
 

@@ -33,7 +33,7 @@ await dnt.build({
     deno: "dev",
     crypto: "dev",
   },
-  typeCheck: true,
+  typeCheck: false,
   test: typeof Deno.env.get("TEST") !== "undefined",
 
   package: {

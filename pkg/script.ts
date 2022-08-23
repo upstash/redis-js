@@ -1,5 +1,5 @@
 import { Redis } from "./redis.ts";
-import { sha1 as digest } from "https://denopkg.com/chiefbiiko/sha1/mod.ts";
+import { sha1 as digest } from "https://deno.land/x/sha1@v1.0.3/mod.ts";
 
 /**
  * Creates a new script.

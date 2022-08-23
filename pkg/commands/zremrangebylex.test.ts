@@ -1,7 +1,7 @@
 import { keygen, newHttpClient } from "../test-utils.ts";
-import { afterAll } from "https://deno.land/std@0.141.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.152.0/testing/bdd.ts";
 import { ZAddCommand } from "./zadd.ts";
-import { assertEquals } from "https://deno.land/std@0.141.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.152.0/testing/asserts.ts";
 
 import { ZRemRangeByLexCommand } from "./zremrangebylex.ts";
 const client = newHttpClient();

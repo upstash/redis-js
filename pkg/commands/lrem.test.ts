@@ -1,6 +1,6 @@
 import { keygen, newHttpClient } from "../test-utils.ts";
-import { afterAll } from "https://deno.land/std@0.141.0/testing/bdd.ts";
-import { assertEquals } from "https://deno.land/std@0.141.0/testing/asserts.ts";
+import { afterAll } from "https://deno.land/std@0.152.0/testing/bdd.ts";
+import { assertEquals } from "https://deno.land/std@0.152.0/testing/asserts.ts";
 
 import { LPushCommand } from "./lpush.ts";
 import { LRemCommand } from "./lrem.ts";

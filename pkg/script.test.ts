@@ -3,8 +3,8 @@ import { keygen, newHttpClient, randomID } from "./test-utils.ts";
 import {
   assertEquals,
   assertRejects,
-} from "https://deno.land/std@0.141.0/testing/asserts.ts";
-import { afterEach } from "https://deno.land/std@0.141.0/testing/bdd.ts";
+} from "https://deno.land/std@0.152.0/testing/asserts.ts";
+import { afterEach } from "https://deno.land/std@0.152.0/testing/bdd.ts";
 const client = newHttpClient();
 
 const { cleanup } = keygen();

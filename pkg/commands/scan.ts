@@ -1,6 +1,6 @@
 import { Command, CommandOptions } from "./command.ts";
 
-export type ScanCommandOptions = { match?: string; count?: number };
+export type ScanCommandOptions = { match?: string; count?: number, type?: string };
 /**
  * @see https://redis.io/commands/scan
  */
@@ -18,6 +18,9 @@ export class ScanCommand extends Command<
     }
     if (typeof opts?.count === "number") {
       command.push("count", opts.count);
+    }
+    if (opts?.type && opts.type.length > 0) {
+      command.push("type", opts.type);
     }
     super(command, cmdOpts);
   }

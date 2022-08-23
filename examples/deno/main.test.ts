@@ -1,12 +1,16 @@
-import {
-  assert,
-  assertEquals,
-} from "https://deno.land/std@0.152.0/testing/asserts.ts";
-import { Redis } from "https://deno.land/x/upstash_redis@v1.12.0-rc.1/mod.ts";
+import { assertEquals } from "https://deno.land/std@0.152.0/testing/asserts.ts";
 
-Deno.test("Simple counter", async () => {
-  const redis = Redis.fromEnv();
-  const counter = await redis.incr("deno counter");
-  assertEquals(typeof counter, "number");
-  assert(counter > 0);
+const deploymentURL = Deno.env.get("DEPLOYMENT_URL");
+if (!deploymentURL) {
+  throw new Error("DEPLOYMENT_URL not set");
+}
+
+Deno.test("works", async () => {
+  console.log({ deploymentURL });
+  const res = await fetch(deploymentURL);
+  const body = await res.text();
+  console.log({ body });
+  assertEquals(res.status, 200);
+  const json = JSON.parse(body) as { counter: number };
+  assertEquals(typeof json.counter, "number");
 });

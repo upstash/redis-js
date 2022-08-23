@@ -10,7 +10,9 @@ Deno.test("works", async () => {
   const url = `${deploymentURL}/handler`;
   console.log({ url });
   const res = await fetch(url);
+  const body = await res.text()
+  console.log({ body })
   assertEquals(res.status, 200);
-  const json = (await res.json()) as { counter: number };
+  const json = JSON.parse(body) as { counter: number };
   assertEquals(typeof json.counter, "number");
 });

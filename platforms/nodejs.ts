@@ -133,26 +133,35 @@ export class Redis extends core.Redis {
    * your environment using `process.env`.
    */
   static fromEnv(config?: Omit<RedisConfigNodejs, "url" | "token">): Redis {
+    let url: string | undefined = undefined;
+    let token: string | undefined = undefined;
     // @ts-ignore process will be defined in node
-    if (typeof process?.env === "undefined") {
-      throw new Error(
-        'Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please import from "@upstash/redis/cloudflare" instead',
-      );
+    if (typeof process !== "undefined") {
+      // @ts-ignore process will be defined in node
+      url = process?.env["UPSTASH_REDIS_REST_URL"];
+      // @ts-ignore process will be defined in node
+      token = process?.env["UPSTASH_REDIS_REST_TOKEN"];
     }
-    // @ts-ignore process will be defined in node
-    const url = process?.env["UPSTASH_REDIS_REST_URL"];
+
+    // fallback for Vite https://vitejs.dev/guide/env-and-mode.html
+    if (!url) {
+      url = (import.meta as any).env["VITE_UPSTASH_REDIS_REST_URL"];
+    }
     if (!url) {
       throw new Error(
         "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`",
       );
     }
-    // @ts-ignore process will be defined in node
-    const token = process?.env["UPSTASH_REDIS_REST_TOKEN"];
+    // fallback for Vite https://vitejs.dev/guide/env-and-mode.html
+    if (!token) {
+      token = (import.meta as any).env.VITE_UPSTASH_REDIS_REST_TOKEN;
+    }
     if (!token) {
       throw new Error(
         "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`",
       );
     }
+
     return new Redis({ ...config, url, token });
   }
 }

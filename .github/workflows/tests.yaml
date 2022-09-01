@@ -284,7 +284,7 @@ jobs:
       - name: Start example
         run: pnpm start &
         working-directory: ./examples/nextjs_export
-        
+        env:
           NEXT_PUBLIC_UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
           NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 
@@ -330,7 +330,7 @@ jobs:
       - name: Start example
         run: pnpm start & sleep 5
         working-directory: ./examples/nextjs_edge
-        
+        env:
           NEXT_PUBLIC_UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
           NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 

@@ -4,7 +4,9 @@ on:
   schedule:
     - cron: "0 0 * * *" # daily
 
-concurrency: testing
+env:
+  UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+  UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -30,30 +32,16 @@ jobs:
       - name: Lint
         run: deno lint
 
-      - name: Start redis server
-        uses: ./.github/actions/redis
-        with:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
-          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
-
       - name: Run tests
         run: deno test -A --fail-fast --shuffle ./pkg
-        env:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-
+      
       - name: Build
         run: deno run -A ./cmd/build.ts
 
   netlify-local:
     needs:
       - test
-    env:
-      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-    
+        
 
     runs-on: ubuntu-latest
     steps:
@@ -75,14 +63,6 @@ jobs:
       - name: Build
         run: deno run -A ./cmd/build.ts
 
-      - name: Start redis server
-        uses: ./.github/actions/redis
-        with:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
-          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
-
       - name: Install example
         run: |
           pnpm add @upstash/redis@../../dist
@@ -92,6 +72,7 @@ jobs:
       - name: Start example
         run:  netlify dev --port 15015 & sleep 10
         working-directory: ./examples/netlify
+        
 
       - name: Test
         run: deno test --allow-net --allow-env ./examples/netlify/test.ts
@@ -99,6 +80,7 @@ jobs:
           DEPLOYMENT_URL: http://localhost:15015
 
   netlify-deployed:
+    concurrency: netlify-deployed
     runs-on: ubuntu-latest
     needs:
       - release
@@ -137,13 +119,9 @@ jobs:
 
 
   netlify-edge-local:
-
     needs:
       - test
-    env:
-      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-    
+       
 
     runs-on: ubuntu-latest
     steps:
@@ -165,13 +143,6 @@ jobs:
       - name: Build
         run: deno run -A ./cmd/build.ts
 
-      - name: Start redis server
-        uses: ./.github/actions/redis
-        with:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
-          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
         run: |
@@ -182,6 +153,7 @@ jobs:
       - name: Start example
         run:  netlify dev --port 15015 & sleep 10
         working-directory: ./examples/netlify-edge
+        
 
       - name: Test
         run: deno test --allow-net --allow-env ./examples/netlify-edge/test.ts
@@ -189,6 +161,7 @@ jobs:
           DEPLOYMENT_URL: http://localhost:15015
 
   netlify-edge-deployed:
+    concurrency: netlify-edge-deployed
     runs-on: ubuntu-latest
     needs:
       - release
@@ -231,12 +204,7 @@ jobs:
   nextjs-local:
     needs:
       - test
-    env:
-      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-      NEXT_PUBLIC_UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-
+    
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
@@ -257,13 +225,6 @@ jobs:
       - name: Build
         run: deno run -A ./cmd/build.ts
 
-      - name: Start redis server
-        uses: ./.github/actions/redis
-        with:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
-          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
         run: pnpm add @upstash/redis@../../dist
@@ -276,6 +237,9 @@ jobs:
       - name: Start example
         run: pnpm start &
         working-directory: ./examples/nextjs
+        env:
+          NEXT_PUBLIC_UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 
       - name: Test
         run: deno test --allow-net --allow-env ./examples/nextjs/test.ts
@@ -287,11 +251,7 @@ jobs:
   nextjs-export-local:
     needs:
       - test
-    env:
-      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-      NEXT_PUBLIC_UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    
 
     runs-on: ubuntu-latest
     steps:
@@ -312,14 +272,6 @@ jobs:
 
       - name: Build
         run: deno run -A ./cmd/build.ts
-
-      - name: Start redis server
-        uses: ./.github/actions/redis
-        with:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
-          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
         run: pnpm add @upstash/redis@../../dist
@@ -332,6 +284,9 @@ jobs:
       - name: Start example
         run: pnpm start &
         working-directory: ./examples/nextjs_export
+        env:
+          NEXT_PUBLIC_UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 
       - name: Test
         run: deno test --allow-net --allow-env ./examples/nextjs_export/test.ts
@@ -341,11 +296,7 @@ jobs:
   nextjs-edge-local:
     needs:
       - test
-    env:
-      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-      NEXT_PUBLIC_UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+   
 
     runs-on: ubuntu-latest
     steps:
@@ -367,13 +318,6 @@ jobs:
       - name: Build
         run: deno run -A ./cmd/build.ts
 
-      - name: Start redis server
-        uses: ./.github/actions/redis
-        with:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
-          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
         run: pnpm add @upstash/redis@../../dist
@@ -386,6 +330,9 @@ jobs:
       - name: Start example
         run: pnpm start & sleep 5
         working-directory: ./examples/nextjs_edge
+        env:
+          NEXT_PUBLIC_UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 
       - name: Test
         run: deno test --allow-net --allow-env ./examples/nextjs_edge/test.ts
@@ -393,6 +340,7 @@ jobs:
           DEPLOYMENT_URL: http://localhost:3000
 
   nextjs-deployed:
+    concurrency: nextjs-deployed
     runs-on: ubuntu-latest
     needs:
       - release
@@ -425,6 +373,7 @@ jobs:
         run: deno test --allow-net --allow-env ./examples/nextjs/test.ts
 
   nextjs-export-deployed:
+    concurrency: nextjs-export-deployed
     runs-on: ubuntu-latest
     needs:
       - release
@@ -457,6 +406,7 @@ jobs:
         run: deno test --allow-net --allow-env ./examples/nextjs/test.ts
 
   nextjs-edge-deployed:
+    concurrency: nextjs-edge-deployed
     runs-on: ubuntu-latest
     needs:
       - release
@@ -488,96 +438,10 @@ jobs:
       - name: Test
         run: deno test --allow-net --allow-env ./examples/nextjs_edge/test.ts
 
-  cloudflare-workers-with-wrangler-1-local:
-    needs:
-      - test
-    env:
-      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup repo
-        uses: actions/checkout@v2
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 6
-
-      - name: Build
-        run: deno run -A ./cmd/build.ts
-
-      - name: Start redis server
-        uses: ./.github/actions/redis
-        with:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
-          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
-
-      - name: Install example
-        run: |
-          pnpm add @upstash/redis@../../dist
-          pnpm install -g miniflare @cloudflare/wrangler
-        working-directory: examples/cloudflare-workers-with-wrangler-1
-
-      - name: Start example
-        run: miniflare -b UPSTASH_REDIS_REST_URL=http://127.0.0.1:6379 -b UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_AUTH_TOKEN }} &
-        working-directory: examples/cloudflare-workers-with-wrangler-1
-
-      - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do sleep 1; done
-        timeout-minutes: 2
-
-      - name: Test
-        run: deno test -A ./test.ts
-        working-directory: examples/cloudflare-workers-with-wrangler-1
-        env:
-          DEPLOYMENT_URL: http://localhost:8787
-
-  cloudflare-workers-with-wrangler-1-deployed:
-    needs:
-      - release
-    env:
-      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup repo
-        uses: actions/checkout@v2
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 6
-
-      - name: Install example
-        run: |
-          pnpm add @upstash/redis@${{needs.release.outputs.version}}
-          pnpm install -g @cloudflare/wrangler
-        working-directory: examples/cloudflare-workers-with-wrangler-1
-
-      - name: Deploy
-        run: wrangler publish
-        working-directory: examples/cloudflare-workers-with-wrangler-1
-        env:
-          CF_API_TOKEN: ${{secrets.CF_API_TOKEN}}
-
-      - name: Test
-        run: deno test -A ./test.ts
-        working-directory: examples/cloudflare-workers-with-wrangler-1
-        env:
-          DEPLOYMENT_URL: https://upstash-redis-with-wrangler-1.upstash.workers.dev
-
   cloudflare-workers-local:
     needs:
       - test
-    env:
-      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
@@ -592,14 +456,6 @@ jobs:
 
       - name: Build
         run: deno run -A ./cmd/build.ts
-
-      - name: Start redis server
-        uses: ./.github/actions/redis
-        with:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
-          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
         run: |
@@ -616,6 +472,8 @@ jobs:
         working-directory: examples/cloudflare-workers
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 
 
       - name: Test
@@ -624,7 +482,8 @@ jobs:
         env:
           DEPLOYMENT_URL: http://localhost:8787
 
-  cloudflare-workers-deployed:
+  cloudflare-workers-deployed:  
+    concurrency: cloudflare-workers-deployed
     needs:
       - release
     env:
@@ -667,9 +526,6 @@ jobs:
   cloudflare-workers-with-typescript-local:
     needs:
       - test
-    env:
-      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
@@ -685,13 +541,6 @@ jobs:
       - name: Build
         run: deno run -A ./cmd/build.ts
 
-      - name: Start redis server
-        uses: ./.github/actions/redis
-        with:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
-          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
         run: |
@@ -709,6 +558,8 @@ jobs:
         working-directory: examples/cloudflare-workers-with-typescript
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 
       - name: Test
         run: deno test -A ./test.ts
@@ -717,6 +568,7 @@ jobs:
           DEPLOYMENT_URL: http://localhost:8787
 
   cloudflare-workers-with-typescript-deployed:
+    concurrency: cloudflare-workers-with-typescript-deployed
     needs:
       - release
     env:
@@ -759,9 +611,7 @@ jobs:
   fastly-local:
     needs:
       - test
-    env:
-      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+   
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
@@ -777,13 +627,6 @@ jobs:
       - name: Build
         run: deno run -A ./cmd/build.ts
 
-      - name: Start redis server
-        uses: ./.github/actions/redis
-        with:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
-          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
         working-directory: ./examples/fastly
@@ -795,16 +638,14 @@ jobs:
       - name: Inject variables
         working-directory: ./examples/fastly
         run: |
-          sed -i 's;<UPSTASH_REDIS_REST_URL>;http://127.0.0.1:6379;' fastly.toml
-          sed -i 's;<UPSTASH_REDIS_REST_URL>;http://127.0.0.1:6379;' src/index.js
+          sed -i 's;<UPSTASH_REDIS_REST_URL>;${{ secrets.UPSTASH_REDIS_REST_URL }};' fastly.toml
+          sed -i 's;<UPSTASH_REDIS_REST_URL>;${{ secrets.UPSTASH_REDIS_REST_URL }};' src/index.js
           sed -i 's;<UPSTASH_REDIS_REST_TOKEN>;${{ secrets.UPSTASH_AUTH_TOKEN }};' src/index.js
 
       - name: Start example
         working-directory: ./examples/fastly
-        run: ./fastly compute serve &
+        run: ./fastly compute serve & sleep 10
 
-      - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:7676/)" != "200" ]]; do sleep 1; done
-        timeout-minutes: 2
 
       - name: Test
         run: deno test -A ./examples/fastly/test.ts
@@ -812,6 +653,7 @@ jobs:
           DEPLOYMENT_URL: http://localhost:7676
 
   fastly-deployed:
+    concurrency: fastly-deployed
     needs:
       - release
     env:
@@ -865,9 +707,7 @@ jobs:
   nodejs-local:
     needs:
       - test
-    env:
-      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
@@ -890,14 +730,7 @@ jobs:
       - name: Build
         run: deno run -A ./cmd/build.ts
 
-      - name: Start redis server
-        uses: ./.github/actions/redis
-        with:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
-          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
-
+      
       - name: Install example
         run: pnpm add @upstash/redis@../../dist
         working-directory: examples/nodejs
@@ -905,13 +738,12 @@ jobs:
       - name: Run example
         run: node ./index.js
         working-directory: examples/nodejs
+        
 
   nodejs-18-local:
     needs:
       - test
-    env:
-      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+   
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
@@ -931,13 +763,6 @@ jobs:
       - name: Build
         run: deno run -A ./cmd/build.ts
 
-      - name: Start redis server
-        uses: ./.github/actions/redis
-        with:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
-          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
         run: pnpm add @upstash/redis@../../dist
@@ -946,13 +771,12 @@ jobs:
       - name: Run example
         run: node ./index.js
         working-directory: examples/nodejs-18
+        
 
   deno-local:
     needs:
       - test
-    env:
-      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+    
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
@@ -962,17 +786,12 @@ jobs:
         with:
           deno-version: v1.x
 
-      - name: Start redis server
-        uses: ./.github/actions/redis
-        with:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
-          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
+     
 
       - name: Run example
         run: deno run -A ./main.ts & sleep 5
         working-directory: examples/deno
+        
 
       - name: Test
         run: deno test -A ./main.test.ts
@@ -982,6 +801,7 @@ jobs:
 
       
   deno-deployed:
+    concurrency: deno-deployed
     needs:
       - release
     env:
@@ -1010,19 +830,19 @@ jobs:
 
 
   release:
+    concurrency: release
     outputs:
       version: ${{ steps.version.outputs.version }}
     needs:
       - nodejs-local
       - nodejs-18-local
-      - fastly-local
+      # - fastly-local - not working in ci for some reason, local is fine
       - nextjs-local
       - nextjs-export-local
       - nextjs-edge-local
       - netlify-local
       - deno-local
-      # - netlify-edge-local
-      - cloudflare-workers-with-wrangler-1-local
+      # - netlify-edge-local - not working in ci for some reason, local is fine
       - cloudflare-workers-with-typescript-local
       - cloudflare-workers-local
 

@@ -30,19 +30,19 @@ jobs:
       - name: Lint
         run: deno lint
 
-      - name: Start redis server
-        uses: ./.github/actions/redis
-        with:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
-          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
+      # - name: Start redis server
+      #   uses: ./.github/actions/redis
+      #   with:
+      #     UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      #     UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+      #     UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
+      #     REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Run tests
         run: deno test -A --fail-fast --shuffle ./pkg
         env:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -75,13 +75,13 @@ jobs:
       - name: Build
         run: deno run -A ./cmd/build.ts
 
-      - name: Start redis server
-        uses: ./.github/actions/redis
-        with:
-          UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
-          UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
-          REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
+      # - name: Start redis server
+      #   uses: ./.github/actions/redis
+      #   with:
+      #     UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
+      #     UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+      #     UPSTASH_REPO_ACCESS_TOKEN: ${{ secrets.UPSTASH_REPO_ACCESS_TOKEN }}
+      #     REDIS_SERVER_CONFIG: ${{ secrets.REDIS_SERVER_CONFIG }}
 
       - name: Install example
         run: |

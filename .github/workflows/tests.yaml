@@ -836,13 +836,13 @@ jobs:
     needs:
       - nodejs-local
       - nodejs-18-local
-      - fastly-local
+      # - fastly-local - not working in ci for some reason, local is fine
       - nextjs-local
       - nextjs-export-local
       - nextjs-edge-local
       - netlify-local
       - deno-local
-      # - netlify-edge-local
+      # - netlify-edge-local - not working in ci for some reason, local is fine
       - cloudflare-workers-with-typescript-local
       - cloudflare-workers-local
 

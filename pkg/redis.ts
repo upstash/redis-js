@@ -124,6 +124,7 @@ import { Requester, UpstashRequest, UpstashResponse } from "./http.ts";
 import { Pipeline } from "./pipeline.ts";
 import type { CommandArgs } from "./types.ts";
 import { Script } from "./script.ts";
+import { ZMScoreCommand } from "./commands/zmscore.ts";
 
 export type RedisOptions = {
   /**
@@ -843,6 +844,12 @@ export class Redis {
    */
   zlexcount = (...args: CommandArgs<typeof ZLexCountCommand>) =>
     new ZLexCountCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/zmscore
+   */
+  zmscore = (...args: CommandArgs<typeof ZMScoreCommand>) =>
+    new ZMScoreCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zpopmax

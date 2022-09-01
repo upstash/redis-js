@@ -124,6 +124,7 @@ import { UpstashError } from "./error.ts";
 import { Requester } from "./http.ts";
 import { UpstashResponse } from "./http.ts";
 import { CommandArgs } from "./types.ts";
+import { ZMScoreCommand } from "./commands/zmscore.ts";
 
 /**
  * Upstash REST API supports command pipelining to send multiple commands in
@@ -898,6 +899,12 @@ export class Pipeline {
    */
   zlexcount = (...args: CommandArgs<typeof ZLexCountCommand>) =>
     this.chain(new ZLexCountCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/zmscore
+   */
+  zmscore = (...args: CommandArgs<typeof ZMScoreCommand>) =>
+    this.chain(new ZMScoreCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/zpopmax

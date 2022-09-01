@@ -4,6 +4,7 @@ on:
   schedule:
     - cron: "0 0 * * *" # daily
 
+concurrency: testing
 jobs:
   test:
     runs-on: ubuntu-latest

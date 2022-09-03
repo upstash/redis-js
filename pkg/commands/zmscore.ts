@@ -1,7 +1,7 @@
 import { Command, CommandOptions } from "./command.ts";
 
 /**
- * @see https://redis.io/commands/zscore
+ * @see https://redis.io/commands/zmscore
  */
 export class ZMScoreCommand<TData> extends Command<
   string[] | null,

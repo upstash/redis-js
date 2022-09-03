@@ -1,7 +1,7 @@
 import { Command, CommandOptions } from "./command.ts";
 
 /**
- * @see https://redis.io/commands/zscore
+ * @see https://redis.io/commands/zmscore
  */
 export class ZMScoreCommand<TData> extends Command<
   string[] | null,
@@ -12,7 +12,6 @@ export class ZMScoreCommand<TData> extends Command<
     opts?: CommandOptions<string[] | null, number[] | null>,
   ) {
     const [key, members] = cmd;
-    console.log({ key, members });
     super(["zmscore", key, ...members], opts);
   }
 }

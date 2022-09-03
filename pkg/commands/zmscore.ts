@@ -12,7 +12,6 @@ export class ZMScoreCommand<TData> extends Command<
     opts?: CommandOptions<string[] | null, number[] | null>,
   ) {
     const [key, members] = cmd;
-    console.log({ key, members });
     super(["zmscore", key, ...members], opts);
   }
 }

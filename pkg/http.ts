@@ -1,5 +1,4 @@
 import { UpstashError } from "./error.ts";
-import { base64Decode } from "./base64.ts";
 export type UpstashRequest = {
   path?: string[];
   /**
@@ -134,9 +133,7 @@ function decode(body: ResultError): ResultError {
       break;
     case "object":
       if (Array.isArray(body.result)) {
-        decoded = body.result.map((x) =>
-          typeof x === "string" ? base64Decode(x) : x
-        );
+        decoded = body.result.map((x) => typeof x === "string" ? atob(x) : x);
       } else {
         // must be null
         decoded = null;
@@ -144,34 +141,13 @@ function decode(body: ResultError): ResultError {
       break;
 
     case "string":
-      decoded = body.result === "OK" ? "OK" : base64Decode(body.result);
+      decoded = body.result === "OK" ? "OK" : atob(body.result);
 
       break;
 
     default:
       break;
   }
-
-  // if (typeof body.result === "number") {
-  //   decoded = body.result
-  // } else if (Array.isArray(body.result)) {
-  //   decoded = body.result.map(x => typeof x === "string" ? base64Decode(x) : x)
-
-  // } else if (body.result === "OK") {
-  //   decoded = body.result
-  // } else if (typeof body.result === "string") {
-  //   // try {
-  //   //   decoded = parseFloat(body.result)
-  //   //   if (Number.isNaN(decoded)) throw new Error()
-
-  //   // } catch {
-  //   decoded = base64Decode(body.result)
-  //   // }
-  // } else if (typeof body.result === "undefined" || body.result === null) {
-  //   decoded = null
-  // } else {
-  //   decoded = base64Decode(body.result)
-  // }
 
   let result: any;
   try {

@@ -1,5 +1,5 @@
 import { UpstashError } from "./error.ts";
-
+import { base64Decode } from "./base64.ts";
 export type UpstashRequest = {
   path?: string[];
   /**
@@ -15,6 +15,10 @@ export interface Requester {
   ) => Promise<UpstashResponse<TResult>>;
 }
 
+type ResultError = {
+  result?: string | number | null | (string | number | null)[];
+  error?: string;
+};
 export type RetryConfig =
   | false
   | {
@@ -58,7 +62,11 @@ export class HttpClient implements Requester {
   public constructor(config: HttpClientConfig) {
     this.baseUrl = config.baseUrl.replace(/\/$/, "");
 
-    this.headers = { "Content-Type": "application/json", ...config.headers };
+    this.headers = {
+      "Content-Type": "application/json",
+      "Upstash-Encoding": "base64",
+      ...config.headers,
+    };
 
     this.options = { backend: config.options?.backend };
 
@@ -109,10 +117,71 @@ export class HttpClient implements Requester {
       throw error ?? new Error("Exhausted all retries");
     }
 
-    const body = (await res.json()) as UpstashResponse<TResult>;
+    const body = (await res.json()) as UpstashResponse<string>;
     if (!res.ok) {
       throw new UpstashError(body.error!);
     }
-    return body;
+
+    return Array.isArray(body) ? body.map(decode) : decode(body) as any;
   }
+}
+
+function decode(body: ResultError): ResultError {
+  let decoded: any = undefined;
+  switch (typeof body.result) {
+    case "number":
+      decoded = body.result;
+      break;
+    case "object":
+      if (Array.isArray(body.result)) {
+        decoded = body.result.map((x) =>
+          typeof x === "string" ? base64Decode(x) : x
+        );
+      } else {
+        // must be null
+        decoded = null;
+      }
+      break;
+
+    case "string":
+      decoded = body.result === "OK" ? "OK" : base64Decode(body.result);
+
+      break;
+
+    default:
+      break;
+  }
+
+  // if (typeof body.result === "number") {
+  //   decoded = body.result
+  // } else if (Array.isArray(body.result)) {
+  //   decoded = body.result.map(x => typeof x === "string" ? base64Decode(x) : x)
+
+  // } else if (body.result === "OK") {
+  //   decoded = body.result
+  // } else if (typeof body.result === "string") {
+  //   // try {
+  //   //   decoded = parseFloat(body.result)
+  //   //   if (Number.isNaN(decoded)) throw new Error()
+
+  //   // } catch {
+  //   decoded = base64Decode(body.result)
+  //   // }
+  // } else if (typeof body.result === "undefined" || body.result === null) {
+  //   decoded = null
+  // } else {
+  //   decoded = base64Decode(body.result)
+  // }
+
+  let result: any;
+  try {
+    result = typeof decoded === "string" ? JSON.parse(decoded) : decoded;
+    if (Array.isArray(decoded) && !Array.isArray(result)) {
+      result = [result] as any;
+    }
+  } catch {
+    result = decoded;
+  }
+
+  return { result, error: body.error };
 }

@@ -39,8 +39,8 @@ jobs:
         run: deno run -A ./cmd/build.ts
 
   netlify-local:
-    needs:
-      - test
+    # needs:
+    #   - test
         
 
     runs-on: ubuntu-latest
@@ -119,8 +119,8 @@ jobs:
 
 
   netlify-edge-local:
-    needs:
-      - test
+    # needs:
+    #   - test
        
 
     runs-on: ubuntu-latest
@@ -202,8 +202,8 @@ jobs:
 
 
   nextjs-local:
-    needs:
-      - test
+    # needs:
+    #   - test
     
     runs-on: ubuntu-latest
     steps:
@@ -249,8 +249,8 @@ jobs:
 
 
   nextjs-export-local:
-    needs:
-      - test
+    # needs:
+    #   - test
     
 
     runs-on: ubuntu-latest
@@ -294,8 +294,8 @@ jobs:
           DEPLOYMENT_URL: http://localhost:3000
 
   nextjs-edge-local:
-    needs:
-      - test
+    # needs:
+    #   - test
    
 
     runs-on: ubuntu-latest
@@ -439,8 +439,8 @@ jobs:
         run: deno test --allow-net --allow-env ./examples/nextjs_edge/test.ts
 
   cloudflare-workers-local:
-    needs:
-      - test
+    # needs:
+    #   - test
     
     runs-on: ubuntu-latest
     steps:
@@ -524,8 +524,8 @@ jobs:
           DEPLOYMENT_URL: https://upstash-redis.upstash.workers.dev
 
   cloudflare-workers-with-typescript-local:
-    needs:
-      - test
+    # needs:
+    #   - test
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
@@ -609,8 +609,8 @@ jobs:
           DEPLOYMENT_URL: https://cloudflare-workers-with-typescript.upstash.workers.dev
 
   fastly-local:
-    needs:
-      - test
+    # needs:
+    #   - test
    
     runs-on: ubuntu-latest
     steps:
@@ -705,8 +705,8 @@ jobs:
           DEPLOYMENT_URL: https://terminally-flowing-lizard.edgecompute.app
 
   nodejs-local:
-    needs:
-      - test
+    # needs:
+    #   - test
     
     runs-on: ubuntu-latest
     steps:
@@ -741,8 +741,8 @@ jobs:
         
 
   nodejs-18-local:
-    needs:
-      - test
+    # needs:
+    #   - test
    
     runs-on: ubuntu-latest
     steps:
@@ -774,8 +774,8 @@ jobs:
         
 
   deno-local:
-    needs:
-      - test
+    # needs:
+    #   - test
     
     runs-on: ubuntu-latest
     steps:

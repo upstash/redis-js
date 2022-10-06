@@ -125,23 +125,52 @@ export class HttpClient implements Requester {
   }
 }
 
-function decode(body: ResultError): ResultError {
-  let decoded: any = undefined;
-  switch (typeof body.result) {
+function base64decode(b64: string): string {
+  let dec = "";
+  try {
+    dec = atob(b64).split("").map((c) =>
+      "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)
+    ).join("");
+  } catch (e) {
+    console.warn(`Unable to decode base64 [${dec}]: ${(e as Error).message}`);
+
+    return dec;
+  }
+  try {
+    return decodeURIComponent(dec);
+  } catch (e) {
+    console.warn(`Unable to decode URI [${dec}]: ${(e as Error).message}`);
+    return dec;
+  }
+}
+
+function decode(raw: ResultError): ResultError {
+  let result: any = undefined;
+  switch (typeof raw.result) {
+    case "undefined":
+      return raw;
+
     case "number":
-      decoded = body.result;
+      result = raw.result;
       break;
     case "object":
-      if (Array.isArray(body.result)) {
-        decoded = body.result.map((x) => typeof x === "string" ? atob(x) : x);
+      if (Array.isArray(raw.result)) {
+        result = raw.result.map((v) =>
+          typeof v === "string"
+            ? base64decode(v)
+            : Array.isArray(v)
+            ? v.map(base64decode)
+            : v
+        );
       } else {
-        // must be null
-        decoded = null;
+        // If it's not an array it must be null
+        // Apparently null is an object in javascript
+        result = null;
       }
       break;
 
     case "string":
-      decoded = body.result === "OK" ? "OK" : atob(body.result);
+      result = raw.result === "OK" ? "OK" : base64decode(raw.result);
 
       break;
 
@@ -149,15 +178,5 @@ function decode(body: ResultError): ResultError {
       break;
   }
 
-  let result: any;
-  try {
-    result = typeof decoded === "string" ? JSON.parse(decoded) : decoded;
-    if (Array.isArray(decoded) && !Array.isArray(result)) {
-      result = [result] as any;
-    }
-  } catch {
-    result = decoded;
-  }
-
-  return { result, error: body.error };
+  return { result, error: raw.error };
 }

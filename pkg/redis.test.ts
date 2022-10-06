@@ -2,6 +2,7 @@ import { Redis } from "./redis.ts";
 import { keygen, newHttpClient, randomID } from "./test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.152.0/testing/asserts.ts";
 import { afterEach } from "https://deno.land/std@0.152.0/testing/bdd.ts";
+import { reset } from "https://deno.land/std@0.152.0/fmt/colors.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -97,5 +98,17 @@ Deno.test("middleware", async (t) => {
     await r.incr(newKey());
 
     assertEquals(state, true);
+  });
+});
+
+Deno.test("bad data", async (t) => {
+  await t.step("emojis", async () => {
+    const key = newKey();
+    const value = "😀";
+    const redis = new Redis(client);
+    await redis.set(key, value);
+    const res = await redis.get(key);
+
+    assertEquals(res, value);
   });
 });

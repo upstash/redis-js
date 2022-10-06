@@ -2,7 +2,6 @@ import { Redis } from "./redis.ts";
 import { keygen, newHttpClient, randomID } from "./test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.152.0/testing/asserts.ts";
 import { afterEach } from "https://deno.land/std@0.152.0/testing/bdd.ts";
-import { reset } from "https://deno.land/std@0.152.0/fmt/colors.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();

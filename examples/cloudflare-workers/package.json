@@ -12,6 +12,6 @@
     "wrangler": "^2.1.10"
   },
   "dependencies": {
-    "@upstash/redis": "^1.13.1"
+    "@upstash/redis": "latest"
   }
 }

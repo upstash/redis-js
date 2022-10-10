@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@sentry/node": "^7.14.2",
-    "@upstash/redis": "^1.13.1",
+    "@upstash/redis": "latest",
     "isomorphic-fetch": "^3.0.0"
   }
 }

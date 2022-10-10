@@ -101,6 +101,15 @@ Deno.test("middleware", async (t) => {
 });
 
 Deno.test("bad data", async (t) => {
+  await t.step("with encodeURIComponent", async () => {
+    const key = newKey();
+    const value = "😀";
+    const redis = new Redis(client);
+    await redis.set(key, encodeURIComponent(value));
+    const res = await redis.get<string>(key);
+
+    assertEquals(decodeURIComponent(res!), value);
+  });
   await t.step("emojis", async () => {
     const key = newKey();
     const value = "😀";

@@ -7,6 +7,35 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterEach(cleanup);
 
+Deno.test("when storing base64 data", async (t) => {
+  await t.step("general", async () => {
+    const redis = new Redis(client);
+    const key = newKey();
+    const value = "VXBzdGFzaCBpcyByZWFsbHkgY29vbA";
+    await redis.set(key, value);
+    const res = await redis.get(key);
+    assertEquals(res, value);
+  });
+
+  // decode("OK") => 8
+  await t.step("getting '8'", async () => {
+    const redis = new Redis(client);
+    const key = newKey();
+    const value = 8;
+    await redis.set(key, value);
+    const res = await redis.get(key);
+    assertEquals(res, value);
+  });
+  await t.step("getting 'OK'", async () => {
+    const redis = new Redis(client);
+    const key = newKey();
+    const value = "OK";
+    await redis.set(key, value);
+    const res = await redis.get(key);
+    assertEquals(res, value);
+  });
+});
+
 Deno.test("when destructuring the redis class", async (t) => {
   await t.step("correctly binds this", async () => {
     const { get, set } = new Redis(client);
@@ -68,5 +97,26 @@ Deno.test("middleware", async (t) => {
     await r.incr(newKey());
 
     assertEquals(state, true);
+  });
+});
+
+Deno.test("bad data", async (t) => {
+  await t.step("with encodeURIComponent", async () => {
+    const key = newKey();
+    const value = "😀";
+    const redis = new Redis(client);
+    await redis.set(key, encodeURIComponent(value));
+    const res = await redis.get<string>(key);
+
+    assertEquals(decodeURIComponent(res!), value);
+  });
+  await t.step("emojis", async () => {
+    const key = newKey();
+    const value = "😀";
+    const redis = new Redis(client);
+    await redis.set(key, value);
+    const res = await redis.get(key);
+
+    assertEquals(res, value);
   });
 });

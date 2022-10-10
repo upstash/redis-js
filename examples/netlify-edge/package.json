@@ -10,10 +10,10 @@
   "author": "Andreas Thomas",
   "license": "ISC",
   "dependencies": {
-    "@netlify/functions": "^1.0.0",
-    "@upstash/redis": "^1.10.2"
+    "@netlify/functions": "^1.3.0",
+    "@upstash/redis": "latest"
   },
   "devDependencies": {
-    "netlify-cli": "^10.14.0"
+    "netlify-cli": "^12.0.7"
   }
 }

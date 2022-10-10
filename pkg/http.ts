@@ -1,5 +1,4 @@
 import { UpstashError } from "./error.ts";
-
 export type UpstashRequest = {
   path?: string[];
   /**
@@ -15,6 +14,10 @@ export interface Requester {
   ) => Promise<UpstashResponse<TResult>>;
 }
 
+type ResultError = {
+  result?: string | number | null | (string | number | null)[];
+  error?: string;
+};
 export type RetryConfig =
   | false
   | {
@@ -58,7 +61,11 @@ export class HttpClient implements Requester {
   public constructor(config: HttpClientConfig) {
     this.baseUrl = config.baseUrl.replace(/\/$/, "");
 
-    this.headers = { "Content-Type": "application/json", ...config.headers };
+    this.headers = {
+      "Content-Type": "application/json",
+      "Upstash-Encoding": "base64",
+      ...config.headers,
+    };
 
     this.options = { backend: config.options?.backend };
 
@@ -109,10 +116,67 @@ export class HttpClient implements Requester {
       throw error ?? new Error("Exhausted all retries");
     }
 
-    const body = (await res.json()) as UpstashResponse<TResult>;
+    const body = (await res.json()) as UpstashResponse<string>;
     if (!res.ok) {
       throw new UpstashError(body.error!);
     }
-    return body;
+
+    return Array.isArray(body) ? body.map(decode) : decode(body) as any;
   }
+}
+
+function base64decode(b64: string): string {
+  let dec = "";
+  try {
+    dec = atob(b64).split("").map((c) =>
+      "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)
+    ).join("");
+  } catch (e) {
+    console.warn(`Unable to decode base64 [${dec}]: ${(e as Error).message}`);
+
+    return dec;
+  }
+  try {
+    return decodeURIComponent(dec);
+  } catch (e) {
+    console.warn(`Unable to decode URI [${dec}]: ${(e as Error).message}`);
+    return dec;
+  }
+}
+
+function decode(raw: ResultError): ResultError {
+  let result: any = undefined;
+  switch (typeof raw.result) {
+    case "undefined":
+      return raw;
+
+    case "number":
+      result = raw.result;
+      break;
+    case "object":
+      if (Array.isArray(raw.result)) {
+        result = raw.result.map((v) =>
+          typeof v === "string"
+            ? base64decode(v)
+            : Array.isArray(v)
+            ? v.map(base64decode)
+            : v
+        );
+      } else {
+        // If it's not an array it must be null
+        // Apparently null is an object in javascript
+        result = null;
+      }
+      break;
+
+    case "string":
+      result = raw.result === "OK" ? "OK" : base64decode(raw.result);
+
+      break;
+
+    default:
+      break;
+  }
+
+  return { result, error: raw.error };
 }

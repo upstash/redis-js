@@ -196,6 +196,7 @@ export class Pipeline {
       path: ["pipeline"],
       body: Object.values(this.commands).map((c) => c.command),
     })) as UpstashResponse<any>[];
+
     return res.map(({ error, result }, i) => {
       if (error) {
         throw new UpstashError(

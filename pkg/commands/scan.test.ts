@@ -6,6 +6,7 @@ import { SetCommand } from "./set.ts";
 import { ZAddCommand } from "./zadd.ts";
 import { ScanCommand } from "./scan.ts";
 import { TypeCommand } from "./type.ts";
+import { FlushDBCommand } from "./flushdb.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -15,11 +16,15 @@ Deno.test("without options", async (t) => {
     const key = newKey();
     const value = randomID();
     await new SetCommand([key, value]).exec(client);
-    const res = await new ScanCommand([0]).exec(client);
-
-    assertEquals(res.length, 2);
-    assertEquals(typeof res[0], "number");
-    assertEquals(res![1].length > 0, true);
+    let cursor = 0;
+    const found: string[] = [];
+    do {
+      const res = await new ScanCommand([cursor]).exec(client);
+      assertEquals(typeof res[0], "number");
+      cursor = res[0];
+      found.push(...res[1]);
+    } while (cursor != 0);
+    assertEquals(found.includes(key), true);
   });
 });
 
@@ -28,11 +33,17 @@ Deno.test("with match", async (t) => {
     const key = newKey();
     const value = randomID();
     await new SetCommand([key, value]).exec(client);
-    const res = await new ScanCommand([0, { match: key }]).exec(client);
 
-    assertEquals(res.length, 2);
-    assertEquals(typeof res[0], "number");
-    assertEquals(res![1].length > 0, true);
+    let cursor = 0;
+    const found: string[] = [];
+    do {
+      const res = await new ScanCommand([cursor, { match: key }]).exec(client);
+      assertEquals(typeof res[0], "number");
+      cursor = res[0];
+      found.push(...res[1]);
+    } while (cursor != 0);
+
+    assertEquals(found, [key]);
   });
 });
 
@@ -41,30 +52,42 @@ Deno.test("with count", async (t) => {
     const key = newKey();
     const value = randomID();
     await new SetCommand([key, value]).exec(client);
-    const res = await new ScanCommand([0, { count: 1 }]).exec(client);
 
-    assertEquals(res.length, 2);
-    assertEquals(typeof res[0], "number");
-    assertEquals(res![1].length > 0, true);
+    let cursor = 0;
+    const found: string[] = [];
+    do {
+      const res = await new ScanCommand([cursor, { count: 1 }]).exec(client);
+      cursor = res[0];
+      found.push(...res[1]);
+    } while (cursor != 0);
+
+    assertEquals(found.includes(key), true);
   });
 });
 
 Deno.test("with type", async (t) => {
   await t.step("returns cursor and keys", async () => {
-    const key2 = newKey();
+    await new FlushDBCommand([]).exec(client);
     const key1 = newKey();
+    const key2 = newKey();
     const value = randomID();
     await new SetCommand([key1, value]).exec(client);
 
     // Add a non-string type
     await new ZAddCommand([key2, { score: 1, member: "abc" }]).exec(client);
-    const res = await new ScanCommand([0, { type: "string" }]).exec(client);
 
-    assertEquals(res.length, 2);
-    assertEquals(typeof res[0], "number");
-    assertEquals(res![1].length > 0, true);
+    let cursor = 0;
+    const found: string[] = [];
+    do {
+      const res = await new ScanCommand([cursor, { type: "string" }]).exec(
+        client,
+      );
+      cursor = res[0];
+      found.push(...res[1]);
+    } while (cursor != 0);
 
-    for (const key of res![1]) {
+    assertEquals(found.length, 1);
+    for (const key of found) {
       const type = await new TypeCommand([key]).exec(client);
       assertEquals(type, "string");
     }

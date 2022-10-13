@@ -30,7 +30,7 @@ Deno.test("with destructuring", async (t) => {
 
 Deno.test("with single command", async (t) => {
   await t.step("works with multiple commands", async () => {
-    const p = new Pipeline(client);
+    const p = new Pipeline({ client });
     p.set(newKey(), randomID());
     const res = await p.exec();
     assertEquals(res.length, 1);
@@ -41,7 +41,8 @@ Deno.test("with single command", async (t) => {
 Deno.test("when chaining in a for loop", async (t) => {
   await t.step("works", async () => {
     const key = newKey();
-    const res = await new Pipeline(client).set(key, randomID()).get(key).exec();
+    const res = await new Pipeline({ client }).set(key, randomID()).get(key)
+      .exec();
 
     assertEquals(res.length, 2);
   });
@@ -50,7 +51,7 @@ Deno.test("when chaining in a for loop", async (t) => {
 Deno.test("when chaining inline", async (t) => {
   await t.step("works", async () => {
     const key = newKey();
-    const p = new Pipeline(client);
+    const p = new Pipeline({ client });
     for (let i = 0; i < 10; i++) {
       p.set(key, randomID());
     }
@@ -62,20 +63,35 @@ Deno.test("when chaining inline", async (t) => {
 
 Deno.test("when no commands were added", async (t) => {
   await t.step("throws", async () => {
-    await assertRejects(() => new Pipeline(client).exec());
+    await assertRejects(() => new Pipeline({ client }).exec());
   });
 });
 
 Deno.test("when one command throws an error", async (t) => {
   await t.step("throws", async () => {
-    const p = new Pipeline(client).set("key", "value").hget("key", "field");
+    const p = new Pipeline({ client }).set("key", "value").hget("key", "field");
     await assertRejects(() => p.exec());
   });
 });
 
+Deno.test("transaction", async (t) => {
+  await t.step("works", async () => {
+    const key = newKey();
+    const value = randomID();
+    const tx = new Pipeline({ client, multiExec: true });
+    tx.set(key, value);
+    tx.get(key);
+    tx.del(key);
+
+    const [ok, storedvalue, deleted] = await tx.exec<["OK", string, number]>();
+    assertEquals(ok, "OK");
+    assertEquals(storedvalue, value);
+    assertEquals(deleted, 1);
+  });
+});
 Deno.test("use all the things", async (t) => {
   await t.step("works", async () => {
-    const p = new Pipeline(client);
+    const p = new Pipeline({ client });
 
     const persistentKey = newKey();
     const persistentKey2 = newKey();

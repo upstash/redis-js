@@ -142,7 +142,7 @@ import { ZMScoreCommand } from "./commands/zmscore.ts";
  * **Examples:**
  *
  * ```ts
- *  const p = redis.pipeline()
+ *  const p = redis.pipeline() // or redis.multi()
  * p.set("key","value")
  * p.get("key")
  * const res = await p.exec()
@@ -168,11 +168,17 @@ export class Pipeline {
   private client: Requester;
   private commands: Command<unknown, unknown>[];
   private commandOptions?: CommandOptions<any, any>;
-  constructor(client: Requester, commandOptions?: CommandOptions<any, any>) {
-    this.client = client;
+  private multiExec: boolean;
+  constructor(opts: {
+    client: Requester;
+    commandOptions?: CommandOptions<any, any>;
+    multiExec?: boolean;
+  }) {
+    this.client = opts.client;
 
     this.commands = [];
-    this.commandOptions = commandOptions;
+    this.commandOptions = opts.commandOptions;
+    this.multiExec = opts.multiExec ?? false;
   }
 
   /**
@@ -191,9 +197,9 @@ export class Pipeline {
     if (this.commands.length === 0) {
       throw new Error("Pipeline is empty");
     }
-
+    const path = this.multiExec ? ["multi-exec"] : ["pipeline"];
     const res = (await this.client.request({
-      path: ["pipeline"],
+      path,
       body: Object.values(this.commands).map((c) => c.command),
     })) as UpstashResponse<any>[];
 

@@ -182,7 +182,28 @@ export class Redis {
    *
    * @see {@link Pipeline}
    */
-  pipeline = () => new Pipeline(this.client, this.opts);
+  pipeline = () =>
+    new Pipeline({
+      client: this.client,
+      commandOptions: this.opts,
+      multiExec: false,
+    });
+
+  /**
+   * Create a new transaction to allow executing multiple steps atomically.
+   *
+   * All the commands in a transaction are serialized and executed sequentially. A request sent by
+   * another client will never be served in the middle of the execution of a Redis Transaction. This
+   * guarantees that the commands are executed as a single isolated operation.
+   *
+   * @see {@link Pipeline}
+   */
+  multi = () =>
+    new Pipeline({
+      client: this.client,
+      commandOptions: this.opts,
+      multiExec: true,
+    });
 
   /**
    * @see https://redis.io/commands/append

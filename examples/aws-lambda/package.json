@@ -3,17 +3,18 @@
   "version": "1.0.0",
   "description": "hello world sample for NodeJS",
   "main": "app.js",
-  "repository": "https://github.com/awslabs/aws-sam-cli/tree/develop/samcli/local/init/templates/cookiecutter-aws-sam-hello-nodejs",
-  "author": "SAM CLI",
   "license": "MIT",
   "dependencies": {
     "@upstash/redis": "latest"
   },
   "scripts": {
-    "test": "mocha tests/unit/"
+    "build": "rm -rf ./dist; esbuild index.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outfile=dist/index.js && cd dist && zip -r index.zip index.js*"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.108",
+    "@types/node": "^18.11.2",
     "chai": "^4.3.6",
+    "esbuild": "^0.15.12",
     "mocha": "^10.0.0"
   }
 }

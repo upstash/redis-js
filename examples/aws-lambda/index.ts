@@ -25,7 +25,7 @@ export const handler = async (
   } catch (err) {
     console.log(err);
     return {
-      statusCode: 200,
+      statusCode: 500,
       body: err.message,
     };
   }

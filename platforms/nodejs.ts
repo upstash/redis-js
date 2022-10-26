@@ -25,6 +25,7 @@ export type RedisConfigNodejs = {
    * UPSTASH_REDIS_REST_TOKEN
    */
   token: string;
+  
   /**
    * An agent allows you to reuse connections to reduce latency for multiple sequential requests.
    *

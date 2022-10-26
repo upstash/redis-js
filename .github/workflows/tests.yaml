@@ -362,14 +362,12 @@ jobs:
 
       - name: Deploy
         run: |
-          pnpm add @upstash/redis@${{needs.release.outputs.version}}
-          cat package.json
+          pnpm --dir=examples/nextjs add @upstash/redis@${{needs.release.outputs.version}}
           DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
         env:
           VERCEL_ORG_ID: ${{secrets.VERCEL_TEAM_ID}}
           VERCEL_PROJECT_ID: "prj_pFFK1XgNIlnW014iiuqAIQmBBuZA"
-        working-directory: examples/nextjs
 
       - name: Test
         run: deno test --allow-net --allow-env ./test.ts
@@ -398,7 +396,7 @@ jobs:
 
       - name: Deploy
         run: |
-          pnpm add @upstash/redis@${{needs.release.outputs.version}}
+          pnpm --dir=examples/nextjs add @upstash/redis@${{needs.release.outputs.version}}
           DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
         env:
@@ -431,7 +429,7 @@ jobs:
 
       - name: Deploy
         run: |
-          pnpm add @upstash/redis@${{needs.release.outputs.version}}
+          pnpm --dir=examples/nextjs add @upstash/redis@${{needs.release.outputs.version}}
           DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
         env:

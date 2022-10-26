@@ -46,12 +46,13 @@ export type HttpClientConfig = {
   baseUrl: string;
   options?: Options;
   retry?: RetryConfig;
+  agent?: any;
 };
 
 export class HttpClient implements Requester {
   public baseUrl: string;
   public headers: Record<string, string>;
-  public readonly options?: { backend?: string };
+  public readonly options?: { backend?: string; agent: any };
 
   public readonly retry: {
     attempts: number;
@@ -67,7 +68,7 @@ export class HttpClient implements Requester {
       ...config.headers,
     };
 
-    this.options = { backend: config.options?.backend };
+    this.options = { backend: config.options?.backend, agent: config.agent };
 
     if (typeof config?.retry === "boolean" && config?.retry === false) {
       this.retry = {
@@ -86,11 +87,12 @@ export class HttpClient implements Requester {
   public async request<TResult>(
     req: UpstashRequest,
   ): Promise<UpstashResponse<TResult>> {
-    const requestOptions: RequestInit & { backend?: string } = {
+    const requestOptions: RequestInit & { backend?: string; agent?: any } = {
       method: "POST",
       headers: this.headers,
       body: JSON.stringify(req.body),
       keepalive: true,
+      agent: this.options?.agent,
 
       /**
        * Fastly specific

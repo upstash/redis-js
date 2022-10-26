@@ -1,11 +1,12 @@
 import { Redis } from "@upstash/redis";
 import type { NextApiRequest, NextApiResponse } from "next";
-
+import https from "https";
+const agent = new https.Agent({ keepAlive: true });
 export default async function handler(
   _req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  const redis = Redis.fromEnv();
+  const redis = Redis.fromEnv({ agent });
 
   /**
    * We're prefixing the key for our automated tests.

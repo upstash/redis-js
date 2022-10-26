@@ -8,10 +8,6 @@ import {
   UpstashRequest,
   UpstashResponse,
 } from "../pkg/http.ts";
-// @ts-ignore Deno can't compile
-// import https from "https";
-// @ts-ignore Deno can't compile
-// import http from "http";
 // import "isomorphic-fetch";
 
 export type { Requester, UpstashRequest, UpstashResponse };
@@ -44,7 +40,7 @@ export type RedisConfigNodejs = {
    * }
    * ```
    */
-  // agent?: http.Agent | https.Agent;
+  agent?: any;
 
   /**
    * Configure the retry behaviour in case of network errors
@@ -115,7 +111,7 @@ export class Redis extends core.Redis {
       baseUrl: configOrRequester.url,
       retry: configOrRequester.retry,
       headers: { authorization: `Bearer ${configOrRequester.token}` },
-      // agent: configOrRequester.agent,
+      agent: configOrRequester.agent,
     });
 
     super(client, {

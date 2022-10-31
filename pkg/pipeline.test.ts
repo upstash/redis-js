@@ -116,6 +116,7 @@ Deno.test("use all the things", async (t) => {
       .flushdb()
       .get(newKey())
       .getbit(newKey(), 0)
+      .getdel(newKey())
       .getrange(newKey(), 0, 1)
       .getset(newKey(), "hello")
       .hdel(newKey(), "field")
@@ -214,6 +215,6 @@ Deno.test("use all the things", async (t) => {
       .zunionstore(newKey(), 1, [newKey()]);
 
     const res = await p.exec();
-    assertEquals(res.length, 114);
+    assertEquals(res.length, 115);
   });
 });

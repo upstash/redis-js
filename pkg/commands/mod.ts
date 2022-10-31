@@ -19,6 +19,7 @@ export * from "./get.ts";
 export * from "./getbit.ts";
 export * from "./getrange.ts";
 export * from "./getset.ts";
+export * from "./getdel.ts";
 export * from "./hdel.ts";
 export * from "./hexists.ts";
 export * from "./hget.ts";

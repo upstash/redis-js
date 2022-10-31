@@ -17,6 +17,7 @@ import {
   FlushDBCommand,
   GetBitCommand,
   GetCommand,
+  GetDelCommand,
   GetRangeCommand,
   GetSetCommand,
   HDelCommand,
@@ -351,7 +352,11 @@ export class Pipeline {
    */
   getbit = (...args: CommandArgs<typeof GetBitCommand>) =>
     this.chain(new GetBitCommand(args, this.commandOptions));
-
+  /**
+   * @see https://redis.io/commands/getdel
+   */
+  getdel = <TData>(...args: CommandArgs<typeof GetDelCommand>) =>
+    this.chain(new GetDelCommand<TData>(args, this.commandOptions));
   /**
    * @see https://redis.io/commands/getrange
    */

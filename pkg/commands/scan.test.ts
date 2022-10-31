@@ -20,7 +20,6 @@ Deno.test("without options", async (t) => {
     const found: string[] = [];
     do {
       const res = await new ScanCommand([cursor]).exec(client);
-      assertEquals(typeof res[0], "number");
       cursor = res[0];
       found.push(...res[1]);
     } while (cursor != 0);

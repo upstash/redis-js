@@ -18,6 +18,7 @@ import {
   FlushDBCommand,
   GetBitCommand,
   GetCommand,
+  GetDelCommand,
   GetRangeCommand,
   GetSetCommand,
   HDelCommand,
@@ -329,6 +330,11 @@ export class Redis {
    */
   getbit = (...args: CommandArgs<typeof GetBitCommand>) =>
     new GetBitCommand(args, this.opts).exec(this.client);
+  /**
+   * @see https://redis.io/commands/getdel
+   */
+  getdel = <TData>(...args: CommandArgs<typeof GetDelCommand>) =>
+    new GetDelCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/getrange

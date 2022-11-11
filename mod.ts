@@ -40,6 +40,10 @@ export class Redis extends core.Redis {
    * ```
    */
   constructor(config: RedisConfigDeno) {
+    if (!config?.url || !config?.token) {
+      return Redis.fromEnv();
+    }
+
     if (
       config.url.startsWith(" ") ||
       config.url.endsWith(" ") ||

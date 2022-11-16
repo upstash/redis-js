@@ -1,4 +1,7 @@
 import { UpstashError } from "./error.ts";
+import * as utf8 from "https://deno.land/std@0.82.0/encoding/utf8.ts";
+import * as base64 from "https://deno.land/std@0.82.0/encoding/base64.ts";
+
 export type UpstashRequest = {
   path?: string[];
   /**
@@ -123,25 +126,36 @@ export class HttpClient implements Requester {
       throw new UpstashError(body.error!);
     }
 
-    return Array.isArray(body) ? body.map(decode) : decode(body) as any;
+    console.time("decode");
+    const resp = Array.isArray(body) ? body.map(decode) : decode(body) as any;
+    console.timeEnd("decode");
+    return resp;
   }
 }
 
 function base64decode(b64: string): string {
   let dec = "";
   try {
-    dec = atob(b64).split("").map((c) =>
-      "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)
-    ).join("");
+    console.time("atob");
+
+    /**
+     * THIS WORKS
+     */
+    const s = utf8.decode(base64.decode(b64));
+
+    console.timeEnd("atob");
+    console.time("escape");
+
+    console.timeEnd("escape");
+    dec = decodeURIComponent(s);
   } catch (e) {
     console.warn(`Unable to decode base64 [${dec}]: ${(e as Error).message}`);
-
     return dec;
   }
   try {
     return decodeURIComponent(dec);
   } catch (e) {
-    console.warn(`Unable to decode URI [${dec}]: ${(e as Error).message}`);
+    console.warn(`Unable to decode URI[${dec}]: ${(e as Error).message}`);
     return dec;
   }
 }
@@ -152,10 +166,11 @@ function decode(raw: ResultError): ResultError {
     case "undefined":
       return raw;
 
-    case "number":
+    case "number": {
       result = raw.result;
       break;
-    case "object":
+    }
+    case "object": {
       if (Array.isArray(raw.result)) {
         result = raw.result.map((v) =>
           typeof v === "string"
@@ -170,11 +185,12 @@ function decode(raw: ResultError): ResultError {
         result = null;
       }
       break;
+    }
 
-    case "string":
+    case "string": {
       result = raw.result === "OK" ? "OK" : base64decode(raw.result);
-
       break;
+    }
 
     default:
       break;

@@ -176,7 +176,6 @@ export class HttpClient implements Requester {
 function base64decode(b64: string): string {
   let dec = "";
   try {
-
     /**
      * Using only atob() is not enough because it doesn't work with unicode characters
      */

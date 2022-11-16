@@ -85,7 +85,7 @@ export type HttpClientConfig = {
 export class HttpClient implements Requester {
   public baseUrl: string;
   public headers: Record<string, string>;
-  public readonly options?: {
+  public readonly options: {
     backend?: string;
     agent: any;
     responseEncoding?: false | "base64";
@@ -167,7 +167,6 @@ export class HttpClient implements Requester {
     }
 
     if (this.options?.responseEncoding === "base64") {
-      console.log("decoding base64");
       return Array.isArray(body) ? body.map(decode) : decode(body) as any;
     }
     return body as UpstashResponse<TResult>;

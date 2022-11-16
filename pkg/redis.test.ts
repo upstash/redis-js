@@ -2,6 +2,7 @@ import { Redis } from "./redis.ts";
 import { keygen, newHttpClient, randomID } from "./test-utils.ts";
 import { assertEquals } from "https://deno.land/std@0.152.0/testing/asserts.ts";
 import { afterEach } from "https://deno.land/std@0.152.0/testing/bdd.ts";
+import { HttpClient } from "./http.ts";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -116,6 +117,68 @@ Deno.test("bad data", async (t) => {
     const redis = new Redis(client);
     await redis.set(key, value);
     const res = await redis.get(key);
+
+    assertEquals(res, value);
+  });
+});
+
+Deno.test("disable base64 encoding", async (t) => {
+  await t.step("emojis", async () => {
+    const key = newKey();
+    const value = "😀";
+    const url = Deno.env.get("UPSTASH_REDIS_REST_URL");
+    if (!url) {
+      throw new Error("Could not find url");
+    }
+    const token = Deno.env.get("UPSTASH_REDIS_REST_TOKEN");
+    if (!token) {
+      throw new Error("Could not find token");
+    }
+
+    const client = new HttpClient({
+      baseUrl: url,
+      headers: { authorization: `Bearer ${token}` },
+      responseEncoding: false,
+    });
+    const redis = new Redis(client);
+    redis.use(async (r, next) => {
+      const res = await next(r);
+      console.log({ res });
+      return res;
+    });
+    await redis.set(key, value);
+    const res = await redis.get(key);
+    console.log({ value, res });
+
+    assertEquals(res, value);
+  });
+
+  await t.step("random bytes", async () => {
+    const key = newKey();
+    const value = crypto.getRandomValues(new Uint8Array(2 ** 16)).toString();
+    const url = Deno.env.get("UPSTASH_REDIS_REST_URL");
+    if (!url) {
+      throw new Error("Could not find url");
+    }
+    const token = Deno.env.get("UPSTASH_REDIS_REST_TOKEN");
+    if (!token) {
+      throw new Error("Could not find token");
+    }
+
+    const client = new HttpClient({
+      baseUrl: url,
+      headers: { authorization: `Bearer ${token}` },
+      responseEncoding: false,
+    });
+    const redis = new Redis(client);
+    redis.use(async (r, next) => {
+      const res = await next(r);
+      console.log({ res });
+      return res;
+    });
+    await redis.set(key, value);
+    const res = await redis.get(key);
+    console.log({ value, res });
 
     assertEquals(res, value);
   });

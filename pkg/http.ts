@@ -107,6 +107,7 @@ export class HttpClient implements Requester {
 
     this.headers = {
       "Content-Type": "application/json",
+      "Upstash-Encoding": "base64",
       ...config.headers,
     };
     if (this.options.responseEncoding === "base64") {
@@ -176,6 +177,8 @@ export class HttpClient implements Requester {
 function base64decode(b64: string): string {
   let dec = "";
   try {
+    console.time("atob");
+
     /**
      * Using only atob() is not enough because it doesn't work with unicode characters
      */

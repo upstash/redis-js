@@ -10,7 +10,7 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
-    "@fastly/js-compute": "^0.2.1",
+    "@fastly/js-compute": "^0.5.4",
     "@upstash/redis": "latest",
     "flight-path": "^1.0.10"
   },

@@ -4,6 +4,7 @@ import * as core from "../pkg/redis.ts";
 import {
   HttpClient,
   Requester,
+  RequesterConfig,
   RetryConfig,
   UpstashRequest,
   UpstashResponse,
@@ -16,38 +17,36 @@ export type { Requester, UpstashRequest, UpstashResponse };
  * Connection credentials for upstash redis.
  * Get them from https://console.upstash.com/redis/<uuid>
  */
-export type RedisConfigNodejs = {
-  /**
-   * UPSTASH_REDIS_REST_URL
-   */
-  url: string;
-  /**
-   * UPSTASH_REDIS_REST_TOKEN
-   */
-  token: string;
+export type RedisConfigNodejs =
+  & {
+    /**
+     * UPSTASH_REDIS_REST_URL
+     */
+    url: string;
+    /**
+     * UPSTASH_REDIS_REST_TOKEN
+     */
+    token: string;
 
-  /**
-   * An agent allows you to reuse connections to reduce latency for multiple sequential requests.
-   *
-   * This is a node specific implementation and is not supported in various runtimes like Vercel
-   * edge functions.
-   *
-   * @example
-   * ```ts
-   * import https from "https"
-   *
-   * const options: RedisConfigNodejs = {
-   *  agent: new https.Agent({ keepAlive: true })
-   * }
-   * ```
-   */
-  agent?: any;
-
-  /**
-   * Configure the retry behaviour in case of network errors
-   */
-  retry?: RetryConfig;
-} & core.RedisOptions;
+    /**
+     * An agent allows you to reuse connections to reduce latency for multiple sequential requests.
+     *
+     * This is a node specific implementation and is not supported in various runtimes like Vercel
+     * edge functions.
+     *
+     * @example
+     * ```ts
+     * import https from "https"
+     *
+     * const options: RedisConfigNodejs = {
+     *  agent: new https.Agent({ keepAlive: true })
+     * }
+     * ```
+     */
+    agent?: any;
+  }
+  & core.RedisOptions
+  & RequesterConfig;
 
 /**
  * Serverless redis client for upstash.
@@ -113,6 +112,7 @@ export class Redis extends core.Redis {
       retry: configOrRequester.retry,
       headers: { authorization: `Bearer ${configOrRequester.token}` },
       agent: configOrRequester.agent,
+      responseEncoding: configOrRequester.responseEncoding,
     });
 
     super(client, {

@@ -1,4 +1,5 @@
 import { UpstashError } from "./error.ts";
+
 export type UpstashRequest = {
   path?: string[];
   /**
@@ -38,21 +39,57 @@ export type RetryConfig =
     backoff?: (retryCount: number) => number;
   };
 
-type Options = {
+export type Options = {
   backend?: string;
 };
+
+export type RequesterConfig = {
+  /**
+   * Configure the retry behaviour in case of network errors
+   */
+  retry?: RetryConfig;
+
+  /**
+   * Due to the nature of dynamic and custom data, it is possible to write data to redis that is not
+   * valid json and will therefore cause errors when deserializing. This used to happen very
+   * frequently with non-utf8 data, such as emojis.
+   *
+   * By default we will therefore encode the data as base64 on the server, before sending it to the
+   * client. The client will then decode the base64 data and parse it as utf8.
+   *
+   * For very large entries, this can add a few milliseconds, so if you are sure that your data is
+   * valid utf8, you can disable this behaviour by setting this option to false.
+   *
+   * Here's what the response body looks like:
+   *
+   * ```json
+   * {
+   *  result?: "base64-encoded",
+   *  error?: string
+   * }
+   * ```
+   *
+   * @default "base64"
+   */
+  responseEncoding?: false | "base64";
+};
+
 export type HttpClientConfig = {
   headers?: Record<string, string>;
   baseUrl: string;
   options?: Options;
   retry?: RetryConfig;
   agent?: any;
-};
+} & RequesterConfig;
 
 export class HttpClient implements Requester {
   public baseUrl: string;
   public headers: Record<string, string>;
-  public readonly options?: { backend?: string; agent: any };
+  public readonly options: {
+    backend?: string;
+    agent: any;
+    responseEncoding?: false | "base64";
+  };
 
   public readonly retry: {
     attempts: number;
@@ -60,15 +97,21 @@ export class HttpClient implements Requester {
   };
 
   public constructor(config: HttpClientConfig) {
+    this.options = {
+      backend: config.options?.backend,
+      agent: config.agent,
+      responseEncoding: config.responseEncoding ?? "base64", // default to base64
+    };
+
     this.baseUrl = config.baseUrl.replace(/\/$/, "");
 
     this.headers = {
       "Content-Type": "application/json",
-      "Upstash-Encoding": "base64",
       ...config.headers,
     };
-
-    this.options = { backend: config.options?.backend, agent: config.agent };
+    if (this.options.responseEncoding === "base64") {
+      this.headers["Upstash-Encoding"] = "base64";
+    }
 
     if (typeof config?.retry === "boolean" && config?.retry === false) {
       this.retry = {
@@ -123,25 +166,33 @@ export class HttpClient implements Requester {
       throw new UpstashError(body.error!);
     }
 
-    return Array.isArray(body) ? body.map(decode) : decode(body) as any;
+    if (this.options?.responseEncoding === "base64") {
+      return Array.isArray(body) ? body.map(decode) : decode(body) as any;
+    }
+    return body as UpstashResponse<TResult>;
   }
 }
 
 function base64decode(b64: string): string {
   let dec = "";
   try {
-    dec = atob(b64).split("").map((c) =>
-      "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)
-    ).join("");
-  } catch (e) {
-    console.warn(`Unable to decode base64 [${dec}]: ${(e as Error).message}`);
 
-    return dec;
+    /**
+     * Using only atob() is not enough because it doesn't work with unicode characters
+     */
+    const binString = atob(b64);
+    const size = binString.length;
+    const bytes = new Uint8Array(size);
+    for (let i = 0; i < size; i++) {
+      bytes[i] = binString.charCodeAt(i);
+    }
+    dec = new TextDecoder().decode(bytes);
+  } catch {
+    dec = b64;
   }
   try {
     return decodeURIComponent(dec);
-  } catch (e) {
-    console.warn(`Unable to decode URI [${dec}]: ${(e as Error).message}`);
+  } catch {
     return dec;
   }
 }
@@ -152,10 +203,11 @@ function decode(raw: ResultError): ResultError {
     case "undefined":
       return raw;
 
-    case "number":
+    case "number": {
       result = raw.result;
       break;
-    case "object":
+    }
+    case "object": {
       if (Array.isArray(raw.result)) {
         result = raw.result.map((v) =>
           typeof v === "string"
@@ -170,11 +222,12 @@ function decode(raw: ResultError): ResultError {
         result = null;
       }
       break;
+    }
 
-    case "string":
+    case "string": {
       result = raw.result === "OK" ? "OK" : base64decode(raw.result);
-
       break;
+    }
 
     default:
       break;

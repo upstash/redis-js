@@ -1,6 +1,7 @@
 import * as core from "../pkg/redis.ts";
 import type {
   Requester,
+  RequesterConfig,
   RetryConfig,
   UpstashRequest,
   UpstashResponse,
@@ -13,27 +14,25 @@ export type { Requester, UpstashRequest, UpstashResponse };
  * Connection credentials for upstash redis.
  * Get them from https://console.upstash.com/redis/<uuid>
  */
-export type RedisConfigFastly = {
-  /**
-   * UPSTASH_REDIS_REST_URL
-   */
-  url: string;
-  /**
-   * UPSTASH_REDIS_REST_TOKEN
-   */
-  token: string;
-  /**
-   * A Request can be forwarded to any backend defined on your service. Backends
-   * can be created via the Fastly CLI, API, or web interface, and are
-   * referenced by name.
-   */
-  backend: string;
-
-  /**
-   * Configure the retry behaviour in case of network errors
-   */
-  retry?: RetryConfig;
-} & core.RedisOptions;
+export type RedisConfigFastly =
+  & {
+    /**
+     * UPSTASH_REDIS_REST_URL
+     */
+    url: string;
+    /**
+     * UPSTASH_REDIS_REST_TOKEN
+     */
+    token: string;
+    /**
+     * A Request can be forwarded to any backend defined on your service. Backends
+     * can be created via the Fastly CLI, API, or web interface, and are
+     * referenced by name.
+     */
+    backend: string;
+  }
+  & core.RedisOptions
+  & RequesterConfig;
 
 /**
  * Serverless redis client for upstash.
@@ -75,6 +74,7 @@ export class Redis extends core.Redis {
       retry: config.retry,
       headers: { authorization: `Bearer ${config.token}` },
       options: { backend: config.backend },
+      responseEncoding: config.responseEncoding,
     });
 
     super(client, {

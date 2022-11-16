@@ -1,4 +1,4 @@
-import { HttpClient, RetryConfig } from "./pkg/http.ts";
+import { HttpClient, RequesterConfig, RetryConfig } from "./pkg/http.ts";
 import * as core from "./pkg/redis.ts";
 export type { Requester, UpstashRequest, UpstashResponse } from "./pkg/http.ts";
 
@@ -6,23 +6,26 @@ export type { Requester, UpstashRequest, UpstashResponse } from "./pkg/http.ts";
  * Connection credentials for upstash redis.
  * Get them from https://console.upstash.com/redis/<uuid>
  */
-export type RedisConfigDeno = {
-  /**
-   * UPSTASH_REDIS_REST_URL
-   */
-  url: string;
-  /**
-   * UPSTASH_REDIS_REST_TOKEN
-   */
-  token: string;
+export type RedisConfigDeno =
+  & {
+    /**
+     * UPSTASH_REDIS_REST_URL
+     */
+    url: string;
+    /**
+     * UPSTASH_REDIS_REST_TOKEN
+     */
+    token: string;
 
-  /**
-   * Configure the retry behaviour in case of network errors
-   *
-   * Set false to disable retries
-   */
-  retry?: RetryConfig;
-} & core.RedisOptions;
+    /**
+     * Configure the retry behaviour in case of network errors
+     *
+     * Set false to disable retries
+     */
+    retry?: RetryConfig;
+  }
+  & core.RedisOptions
+  & RequesterConfig;
 
 /**
  * Serverless redis client for upstash.
@@ -63,6 +66,7 @@ export class Redis extends core.Redis {
       retry: config.retry,
       baseUrl: config.url,
       headers: { authorization: `Bearer ${config.token}` },
+      responseEncoding: config.responseEncoding,
     });
 
     super(client, {

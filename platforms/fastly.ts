@@ -2,7 +2,6 @@ import * as core from "../pkg/redis.ts";
 import type {
   Requester,
   RequesterConfig,
-  RetryConfig,
   UpstashRequest,
   UpstashResponse,
 } from "../pkg/http.ts";

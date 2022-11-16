@@ -5,28 +5,26 @@ import type {
   UpstashRequest,
   UpstashResponse,
 } from "../pkg/http.ts";
-import { HttpClient } from "../pkg/http.ts";
+import { HttpClient, RequesterConfig } from "../pkg/http.ts";
 
 export type { Requester, UpstashRequest, UpstashResponse };
 /**
  * Connection credentials for upstash redis.
  * Get them from https://console.upstash.com/redis/<uuid>
  */
-export type RedisConfigCloudflare = {
-  /**
-   * UPSTASH_REDIS_REST_URL
-   */
-  url: string;
-  /**
-   * UPSTASH_REDIS_REST_TOKEN
-   */
-  token: string;
-
-  /**
-   * Configure the retry behaviour in case of network errors
-   */
-  retry?: RetryConfig;
-} & core.RedisOptions;
+export type RedisConfigCloudflare =
+  & {
+    /**
+     * UPSTASH_REDIS_REST_URL
+     */
+    url: string;
+    /**
+     * UPSTASH_REDIS_REST_TOKEN
+     */
+    token: string;
+  }
+  & core.RedisOptions
+  & RequesterConfig;
 
 /**
  * Serverless redis client for upstash.
@@ -66,6 +64,7 @@ export class Redis extends core.Redis {
       retry: config.retry,
       baseUrl: config.url,
       headers: { authorization: `Bearer ${config.token}` },
+      responseEncoding: config.responseEncoding,
     });
 
     super(client, {

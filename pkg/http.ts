@@ -1,6 +1,4 @@
 import { UpstashError } from "./error.ts";
-import * as utf8 from "https://deno.land/std@0.82.0/encoding/utf8.ts";
-import * as base64 from "https://deno.land/std@0.82.0/encoding/base64.ts";
 
 export type UpstashRequest = {
   path?: string[];
@@ -41,21 +39,57 @@ export type RetryConfig =
     backoff?: (retryCount: number) => number;
   };
 
-type Options = {
+export type Options = {
   backend?: string;
 };
+
+export type RequesterConfig = {
+  /**
+   * Configure the retry behaviour in case of network errors
+   */
+  retry?: RetryConfig;
+
+  /**
+   * Due to the nature of dynamic and custom data, it is possible to write data to redis that is not
+   * valid json and will therefore cause errors when deserializing. This used to happen very
+   * frequently with non-utf8 data, such as emojis.
+   *
+   * By default we will therefore encode the data as base64 on the server, before sending it to the
+   * client. The client will then decode the base64 data and parse it as utf8.
+   *
+   * For very large entries, this can add a few milliseconds, so if you are sure that your data is
+   * valid utf8, you can disable this behaviour by setting this option to false.
+   *
+   * Here's what the response body looks like:
+   *
+   * ```json
+   * {
+   *  result?: "base64-encoded",
+   *  error?: string
+   * }
+   * ```
+   *
+   * @default "base64"
+   */
+  responseEncoding?: false | "base64";
+};
+
 export type HttpClientConfig = {
   headers?: Record<string, string>;
   baseUrl: string;
   options?: Options;
   retry?: RetryConfig;
   agent?: any;
-};
+} & RequesterConfig;
 
 export class HttpClient implements Requester {
   public baseUrl: string;
   public headers: Record<string, string>;
-  public readonly options?: { backend?: string; agent: any };
+  public readonly options?: {
+    backend?: string;
+    agent: any;
+    responseEncoding?: false | "base64";
+  };
 
   public readonly retry: {
     attempts: number;
@@ -63,15 +97,21 @@ export class HttpClient implements Requester {
   };
 
   public constructor(config: HttpClientConfig) {
+    this.options = {
+      backend: config.options?.backend,
+      agent: config.agent,
+      responseEncoding: config.responseEncoding ?? "base64", // default to base64
+    };
+
     this.baseUrl = config.baseUrl.replace(/\/$/, "");
 
     this.headers = {
       "Content-Type": "application/json",
-      "Upstash-Encoding": "base64",
       ...config.headers,
     };
-
-    this.options = { backend: config.options?.backend, agent: config.agent };
+    if (this.options.responseEncoding === "base64") {
+      this.headers["Upstash-Encoding"] = "base64";
+    }
 
     if (typeof config?.retry === "boolean" && config?.retry === false) {
       this.retry = {
@@ -126,31 +166,30 @@ export class HttpClient implements Requester {
       throw new UpstashError(body.error!);
     }
 
-    console.time("decode");
-    const resp = Array.isArray(body) ? body.map(decode) : decode(body) as any;
-    console.timeEnd("decode");
-    return resp;
+    if (this.options?.responseEncoding === "base64") {
+      console.log("decoding base64");
+      return Array.isArray(body) ? body.map(decode) : decode(body) as any;
+    }
+    return body as UpstashResponse<TResult>;
   }
 }
 
 function base64decode(b64: string): string {
   let dec = "";
   try {
-    console.time("atob");
-
     /**
-     * THIS WORKS
+     * Using only atob() is not enough because it doesn't work with unicode characters
      */
-    const s = utf8.decode(base64.decode(b64));
-
-    console.timeEnd("atob");
-    console.time("escape");
-
-    console.timeEnd("escape");
-    dec = decodeURIComponent(s);
+    const binString = atob(b64);
+    const size = binString.length;
+    const bytes = new Uint8Array(size);
+    for (let i = 0; i < size; i++) {
+      bytes[i] = binString.charCodeAt(i);
+    }
+    dec = new TextDecoder().decode(bytes);
   } catch (e) {
     console.warn(`Unable to decode base64 [${dec}]: ${(e as Error).message}`);
-    return dec;
+    return b64;
   }
   try {
     return decodeURIComponent(dec);

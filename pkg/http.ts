@@ -187,15 +187,19 @@ function base64decode(b64: string): string {
     }
     dec = new TextDecoder().decode(bytes);
   } catch (e) {
-    console.warn(`Unable to decode base64 [${b64}]: ${(e as Error).message}`);
+    if (Deno.env.get("UPSTASH_DEBUG")) {
+      console.warn(`Unable to decode base64 ${b64}: ${(e as Error).message}`);
+    }
     return b64;
   }
   try {
     return decodeURIComponent(dec);
   } catch (e) {
-    console.warn(
-      `Unable to decode URIComponent [${dec}]: ${(e as Error).message}`,
-    );
+    if (Deno.env.get("UPSTASH_DEBUG")) {
+      console.warn(
+        `Unable to decode URIComponent ${dec}: ${(e as Error).message}`,
+      );
+    }
     return dec;
   }
 }

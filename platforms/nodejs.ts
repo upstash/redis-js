@@ -3,13 +3,13 @@
 import * as core from "../pkg/redis.ts";
 import {
   HttpClient,
+  HttpClientConfig,
   Requester,
   RequesterConfig,
-  RetryConfig,
   UpstashRequest,
   UpstashResponse,
 } from "../pkg/http.ts";
-// import "isomorphic-fetch";
+import { VERSION } from "../version.ts";
 
 export type { Requester, UpstashRequest, UpstashResponse };
 
@@ -107,12 +107,24 @@ export class Redis extends core.Redis {
       );
     }
 
+    const telemetry: HttpClientConfig["telemetry"] = {};
+    if (!process.env.UPSTASH_DISABLE_TELEMETRY) {
+      telemetry.runtime = `node@${process.version}`;
+      telemetry.platform = process.env.VERCEL
+        ? "vercel"
+        : process.env.AWS_REGION
+        ? "aws"
+        : "unknown";
+      telemetry.sdk = `@upstash/redis@${VERSION}`;
+    }
+
     const client = new HttpClient({
       baseUrl: configOrRequester.url,
       retry: configOrRequester.retry,
       headers: { authorization: `Bearer ${configOrRequester.token}` },
       agent: configOrRequester.agent,
       responseEncoding: configOrRequester.responseEncoding,
+      telemetry,
     });
 
     super(client, {

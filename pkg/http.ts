@@ -80,11 +80,30 @@ export type HttpClientConfig = {
   options?: Options;
   retry?: RetryConfig;
   agent?: any;
+  telemetry?: {
+    /**
+     * Upstash-Telemetry-Sdk
+     * @example @upstash/redis@v1.1.1
+     */
+    sdk?: string;
+
+    /**
+     * Upstash-Telemetry-Platform
+     * @example cloudflare
+     */
+    platform?: string;
+
+    /**
+     * Upstash-Telemetry-Runtime
+     * @example node@v18
+     */
+    runtime?: string;
+  };
 } & RequesterConfig;
 
 export class HttpClient implements Requester {
   public baseUrl: string;
-  public headers: Record<string, string>;
+  public headers: Record<string, string | undefined>;
   public readonly options: {
     backend?: string;
     agent: any;
@@ -107,8 +126,12 @@ export class HttpClient implements Requester {
 
     this.headers = {
       "Content-Type": "application/json",
+      "Upstash-Telemetry-Runtime": config.telemetry?.runtime,
+      "Upstash-Telemetry-Platform": config.telemetry?.platform,
+      "Upstash-Telemetry-Sdk": config.telemetry?.sdk,
       ...config.headers,
     };
+
     if (this.options.responseEncoding === "base64") {
       this.headers["Upstash-Encoding"] = "base64";
     }
@@ -130,9 +153,18 @@ export class HttpClient implements Requester {
   public async request<TResult>(
     req: UpstashRequest,
   ): Promise<UpstashResponse<TResult>> {
+    const headers = Object.entries(this.headers).reduce((acc, [key, value]) => {
+      if (value) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as Record<string, string>);
+
+    console.log({ headers });
+
     const requestOptions: RequestInit & { backend?: string; agent?: any } = {
       method: "POST",
-      headers: this.headers,
+      headers,
       body: JSON.stringify(req.body),
       keepalive: true,
       agent: this.options?.agent,

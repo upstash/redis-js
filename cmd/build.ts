@@ -5,6 +5,17 @@ const outDir = "./dist";
 
 await dnt.emptyDir(outDir);
 
+const version = Deno.args.length > 0 ? Deno.args[0] : "development";
+Deno.writeFileSync(
+  "version.ts",
+  new TextEncoder().encode(`export const VERSION = "${version}"`),
+);
+
+await Deno.run({
+  cmd: [packageManager, "uninstall", "@types/node"],
+  stdout: "piped",
+}).output();
+
 await dnt.build({
   packageManager,
   entryPoints: [
@@ -39,7 +50,7 @@ await dnt.build({
   package: {
     // package.json properties
     name: "@upstash/redis",
-    version: Deno.args[0],
+    version,
     description:
       "An HTTP/REST based Redis client built on top of Upstash REST API.",
     repository: {

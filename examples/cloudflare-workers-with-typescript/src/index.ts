@@ -15,6 +15,6 @@ export default {
 
     const count = await redis.incr("cloudflare-workers-with-typescript-count");
 
-    return new Response(JSON.stringify({ count }));
+    return new Response(JSON.stringify({ count, env }));
   },
 };

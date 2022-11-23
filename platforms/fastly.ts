@@ -68,6 +68,7 @@ export class Redis extends core.Redis {
         "The redis token contains whitespace or newline, which can cause errors!",
       );
     }
+
     const client = new HttpClient({
       baseUrl: config.url,
       retry: config.retry,

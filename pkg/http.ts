@@ -160,7 +160,6 @@ export class HttpClient implements Requester {
       return acc;
     }, {} as Record<string, string>);
 
-
     const requestOptions: RequestInit & { backend?: string; agent?: any } = {
       method: "POST",
       headers,

@@ -11,11 +11,6 @@ Deno.writeFileSync(
   new TextEncoder().encode(`export const VERSION = "${version}"`),
 );
 
-await Deno.run({
-  cmd: [packageManager, "uninstall", "@types/node"],
-  stdout: "piped",
-}).output();
-
 await dnt.build({
   packageManager,
   entryPoints: [

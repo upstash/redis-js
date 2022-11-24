@@ -126,6 +126,7 @@ import { Requester } from "./http.ts";
 import { UpstashResponse } from "./http.ts";
 import { CommandArgs } from "./types.ts";
 import { ZMScoreCommand } from "./commands/zmscore.ts";
+import { HRandFieldCommand } from "./commands/hrandfield.ts";
 
 /**
  * Upstash REST API supports command pipelining to send multiple commands in
@@ -430,6 +431,21 @@ export class Pipeline {
    */
   hmset = <TData>(key: string, kv: { [field: string]: TData }) =>
     this.chain(new HMSetCommand([key, kv], this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/hrandfield
+   */
+  hrandfield = <TData extends string | string[] | Record<string, unknown>>(
+    key: string,
+    count?: number,
+    withValues?: boolean,
+  ) =>
+    this.chain(
+      new HRandFieldCommand<TData>(
+        [key, count, withValues] as any,
+        this.commandOptions,
+      ),
+    );
 
   /**
    * @see https://redis.io/commands/hscan

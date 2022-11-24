@@ -1,9 +1,5 @@
 import { Command, CommandOptions } from "./command.ts";
 
-/**
- * @param result De
- * @returns
- */
 function deserialize<TData extends Record<string, unknown>>(
   result: string[],
 ): TData | null {

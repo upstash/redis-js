@@ -31,6 +31,7 @@ import {
   HLenCommand,
   HMGetCommand,
   HMSetCommand,
+  HRandFieldCommand,
   HScanCommand,
   HSetCommand,
   HSetNXCommand,
@@ -409,6 +410,25 @@ export class Redis {
    */
   hmset = <TData>(key: string, kv: { [field: string]: TData }) =>
     new HMSetCommand([key, kv], this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/hrandfield
+   */
+  hrandfield: {
+    (key: string): Promise<string>;
+    (key: string, count: number): Promise<string[]>;
+    <TData extends Record<string, unknown>>(
+      key: string,
+      count: number,
+      withValues: boolean,
+    ): Promise<Partial<TData>>;
+  } = <TData extends string | string[] | Record<string, unknown>>(
+    key: string,
+    count?: number,
+    withValues?: boolean,
+  ) =>
+    new HRandFieldCommand<TData>([key, count, withValues] as any, this.opts)
+      .exec(this.client);
 
   /**
    * @see https://redis.io/commands/hscan

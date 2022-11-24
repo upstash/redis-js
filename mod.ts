@@ -1,6 +1,12 @@
-import { HttpClient, RequesterConfig, RetryConfig } from "./pkg/http.ts";
+import {
+  HttpClient,
+  HttpClientConfig,
+  RequesterConfig,
+  RetryConfig,
+} from "./pkg/http.ts";
 import * as core from "./pkg/redis.ts";
 export type { Requester, UpstashRequest, UpstashResponse } from "./pkg/http.ts";
+import { VERSION } from "./version.ts";
 
 /**
  * Connection credentials for upstash redis.
@@ -62,11 +68,17 @@ export class Redis extends core.Redis {
       );
     }
 
+    const telemetry: HttpClientConfig["telemetry"] = {};
+    if (!Deno.env.get("UPSTASH_DISABLE_TELEMETRY")) {
+      telemetry.runtime = `deno@${Deno.version.deno}`;
+      telemetry.sdk = `@upstash/redis@${VERSION}`;
+    }
     const client = new HttpClient({
       retry: config.retry,
       baseUrl: config.url,
       headers: { authorization: `Bearer ${config.token}` },
       responseEncoding: config.responseEncoding,
+      telemetry,
     });
 
     super(client, {

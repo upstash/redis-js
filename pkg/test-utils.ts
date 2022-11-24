@@ -1,5 +1,6 @@
 import { DelCommand } from "./commands/del.ts";
-import { HttpClient } from "./http.ts";
+import { HttpClient, HttpClientConfig } from "./http.ts";
+import { VERSION } from "../version.ts";
 
 /**
  * crypto.randomUUID() is not available in dnt crypto shim
@@ -23,10 +24,15 @@ export const newHttpClient = () => {
   if (!token) {
     throw new Error("Could not find token");
   }
-
+  const telemetry: HttpClientConfig["telemetry"] = {};
+  if (!Deno.env.get("UPSTASH_DISABLE_TELEMETRY")) {
+    telemetry.runtime = `deno@${Deno.version.deno}`;
+    telemetry.sdk = `@upstash/redis@${VERSION}`;
+  }
   return new HttpClient({
     baseUrl: url,
     headers: { authorization: `Bearer ${token}` },
+    telemetry,
   });
 };
 

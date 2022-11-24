@@ -100,3 +100,19 @@ the url and token
 ```sh
 UPSTASH_REDIS_REST_URL=".." UPSTASH_REDIS_REST_TOKEN=".." deno test -A
 ```
+
+### Telemetry
+
+This library sends anonymous telemetry data to help us improve your experience.
+We collect the following:
+
+- SDK version
+- Platform (Deno, Cloudflare, Vercel)
+- Runtime version (node@18.x)
+
+You can opt out by setting the `UPSTASH_DISABLE_TELEMETRY` environment variable
+to any truthy value.
+
+```sh
+UPSTASH_DISABLE_TELEMETRY=1
+```

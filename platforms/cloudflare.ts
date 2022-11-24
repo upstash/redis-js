@@ -1,11 +1,16 @@
 import * as core from "../pkg/redis.ts";
 import type {
+  HttpClientConfig,
   Requester,
   UpstashRequest,
   UpstashResponse,
 } from "../pkg/http.ts";
 import { HttpClient, RequesterConfig } from "../pkg/http.ts";
+import { VERSION } from "../version.ts";
 
+type Env = {
+  UPSTASH_DISABLE_TELEMETRY?: string;
+};
 export type { Requester, UpstashRequest, UpstashResponse };
 /**
  * Connection credentials for upstash redis.
@@ -23,7 +28,8 @@ export type RedisConfigCloudflare =
     token: string;
   }
   & core.RedisOptions
-  & RequesterConfig;
+  & RequesterConfig
+  & Env;
 
 /**
  * Serverless redis client for upstash.
@@ -40,7 +46,7 @@ export class Redis extends core.Redis {
    * });
    * ```
    */
-  constructor(config: RedisConfigCloudflare) {
+  constructor(config: RedisConfigCloudflare, env?: Env) {
     if (
       config.url.startsWith(" ") ||
       config.url.endsWith(" ") ||
@@ -59,11 +65,19 @@ export class Redis extends core.Redis {
         "The redis token contains whitespace or newline, which can cause errors!",
       );
     }
+
+    const telemetry: HttpClientConfig["telemetry"] = {};
+    if (!env?.UPSTASH_DISABLE_TELEMETRY) {
+      telemetry.platform = "cloudflare";
+      telemetry.sdk = `@upstash/redis@${VERSION}`;
+    }
+
     const client = new HttpClient({
       retry: config.retry,
       baseUrl: config.url,
       headers: { authorization: `Bearer ${config.token}` },
       responseEncoding: config.responseEncoding,
+      telemetry,
     });
 
     super(client, {
@@ -86,6 +100,7 @@ export class Redis extends core.Redis {
     env?: {
       UPSTASH_REDIS_REST_URL: string;
       UPSTASH_REDIS_REST_TOKEN: string;
+      UPSTASH_DISABLE_TELEMETRY?: string;
     },
     opts?: Omit<RedisConfigCloudflare, "url" | "token">,
   ): Redis {
@@ -105,6 +120,6 @@ export class Redis extends core.Redis {
         "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_TOKEN`",
       );
     }
-    return new Redis({ ...opts, url, token });
+    return new Redis({ ...opts, url, token }, env);
   }
 }

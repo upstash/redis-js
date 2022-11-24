@@ -80,6 +80,25 @@ export type HttpClientConfig = {
   options?: Options;
   retry?: RetryConfig;
   agent?: any;
+  telemetry?: {
+    /**
+     * Upstash-Telemetry-Sdk
+     * @example @upstash/redis@v1.1.1
+     */
+    sdk?: string;
+
+    /**
+     * Upstash-Telemetry-Platform
+     * @example cloudflare
+     */
+    platform?: string;
+
+    /**
+     * Upstash-Telemetry-Runtime
+     * @example node@v18
+     */
+    runtime?: string;
+  };
 } & RequesterConfig;
 
 export class HttpClient implements Requester {
@@ -107,8 +126,19 @@ export class HttpClient implements Requester {
 
     this.headers = {
       "Content-Type": "application/json",
+
       ...config.headers,
     };
+    if (config.telemetry?.runtime) {
+      this.headers["Upstash-Telemetry-Runtime"] = config.telemetry.runtime;
+    }
+    if (config.telemetry?.platform) {
+      this.headers["Upstash-Telemetry-Platform"] = config.telemetry.platform;
+    }
+    if (config.telemetry?.sdk) {
+      this.headers["Upstash-Telemetry-Sdk"] = config.telemetry.sdk;
+    }
+
     if (this.options.responseEncoding === "base64") {
       this.headers["Upstash-Encoding"] = "base64";
     }

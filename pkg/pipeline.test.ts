@@ -149,6 +149,9 @@ Deno.test("use all the things", async (t) => {
       .lrem(newKey(), 1, "value")
       .lset(persistentKey, 0, "value")
       .ltrim(newKey(), 0, 1)
+      .hrandfield(newKey())
+      .hrandfield(newKey(), 2)
+      .hrandfield(newKey(), 3, true)
       .mget<[string, string]>(newKey(), newKey())
       .mset({ key1: "value", key2: "value" })
       .msetnx({ key3: "value", key4: "value" })
@@ -215,6 +218,6 @@ Deno.test("use all the things", async (t) => {
       .zunionstore(newKey(), 1, [newKey()]);
 
     const res = await p.exec();
-    assertEquals(res.length, 115);
+    assertEquals(res.length, 118);
   });
 });

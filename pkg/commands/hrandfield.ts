@@ -1,6 +1,5 @@
 import { Command, CommandOptions } from "./command.ts";
 
-
 function deserialize<TData extends Record<string, unknown>>(
   result: string[],
 ): TData | null {
@@ -23,24 +22,38 @@ function deserialize<TData extends Record<string, unknown>>(
 /**
  * @see https://redis.io/commands/hrandfield
  */
-export class HRandFieldCommand<TData extends string | Record<string, unknown>> extends Command<
+export class HRandFieldCommand<
+  TData extends string | string[] | Record<string, unknown>,
+> extends Command<
   string | string[],
-  TData 
+  TData
 > {
-  constructor(cmd: [key: string], opts?: CommandOptions<string[], string>)
-  constructor(cmd: [key: string, count: number], opts?: CommandOptions<string[], string[]>)
-  constructor(cmd: [key: string, count: number, withValues: true], opts?: CommandOptions<unknown[], Partial<TData>>)
-  constructor(cmd: [key: string, count?: number, withValues?: boolean], opts?: CommandOptions<unknown[], any>) {
-    const command = ["hrandfield", cmd[0]] as unknown[]
+  constructor(cmd: [key: string], opts?: CommandOptions<string, string>);
+  constructor(
+    cmd: [key: string, count: number],
+    opts?: CommandOptions<string[], string[]>,
+  );
+  constructor(
+    cmd: [key: string, count: number, withValues: boolean],
+    opts?: CommandOptions<string[], Partial<TData>>,
+  );
+  constructor(
+    cmd: [key: string, count?: number, withValues?: boolean],
+    opts?: CommandOptions<any, string | string[] | Partial<TData>>,
+  ) {
+    const command = ["hrandfield", cmd[0]] as unknown[];
     if (typeof cmd[1] === "number") {
-      command.push(cmd[1])
+      command.push(cmd[1]);
     }
     if (cmd[2]) {
-      command.push("WITHVALUES")
+      command.push("WITHVALUES");
     }
     super(command, {
       // @ts-ignore TODO:
-      deserialize: cmd[2] ? (result) => deserialize(result as string[]) : opts?.deserialize, ...opts
+      deserialize: cmd[2]
+        ? (result) => deserialize(result as string[])
+        : opts?.deserialize,
+      ...opts,
     });
   }
 }

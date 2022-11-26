@@ -70,7 +70,8 @@ export class Redis extends core.Redis {
 
     const telemetry: HttpClientConfig["telemetry"] = {};
     if (!Deno.env.get("UPSTASH_DISABLE_TELEMETRY")) {
-      telemetry.runtime = `deno@${Deno.version.deno}`;
+      // Deno Deploy does not include the version data, so we need to treat it as optional
+      telemetry.runtime = `deno@${Deno.version?.deno}`;
       telemetry.sdk = `@upstash/redis@${VERSION}`;
     }
     const client = new HttpClient({

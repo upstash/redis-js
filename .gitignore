@@ -18,3 +18,4 @@ examples/**/pnpm-lock.yaml
 
 # Local Netlify folder
 .netlify
+x/

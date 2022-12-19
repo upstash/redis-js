@@ -18,6 +18,15 @@ import "isomorphic-fetch";
 // import http from "http";
 // import "isomorphic-fetch";
 
+/**
+ * Workaround for nodejs 14, where atob is not included in the standardlib
+ */
+if (typeof atob === "undefined") {
+  global.atob = function (b64: string) {
+    return Buffer.from(b64, "base64").toString("utf-8");
+  };
+}
+
 export type { Requester, UpstashRequest, UpstashResponse };
 
 /**

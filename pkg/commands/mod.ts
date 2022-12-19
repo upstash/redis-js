@@ -43,6 +43,7 @@ export * from "./keys.ts";
 export * from "./lindex.ts";
 export * from "./linsert.ts";
 export * from "./llen.ts";
+export * from "./lmove.ts";
 export * from "./lpop.ts";
 export * from "./lpos.ts";
 export * from "./lpush.ts";

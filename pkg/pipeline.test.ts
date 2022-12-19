@@ -141,6 +141,7 @@ Deno.test("use all the things", async (t) => {
       .lindex(newKey(), 0)
       .linsert(newKey(), "before", "pivot", "value")
       .llen(newKey())
+      .lmove(newKey(), newKey(), "left", "right")
       .lpop(newKey())
       .lpos(newKey(), "value")
       .lpush(persistentKey, "element")
@@ -218,6 +219,6 @@ Deno.test("use all the things", async (t) => {
       .zunionstore(newKey(), 1, [newKey()]);
 
     const res = await p.exec();
-    assertEquals(res.length, 118);
+    assertEquals(res.length, 119);
   });
 });

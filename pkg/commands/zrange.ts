@@ -67,7 +67,7 @@ export class ZRangeCommand<TData extends unknown[]> extends Command<
     if (
       typeof opts?.count !== "undefined" && typeof opts?.offset !== "undefined"
     ) {
-      command.push("limit", opts.offset, opts.count);
+      command.push("limit", opts!.offset, opts!.count);
     }
     if (opts?.withScores) {
       command.push("withscores");

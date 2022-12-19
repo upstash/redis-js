@@ -4,7 +4,6 @@ import { afterAll } from "https://deno.land/std@0.152.0/testing/bdd.ts";
 import { LPushCommand } from "./lpush.ts";
 import { assertEquals } from "https://deno.land/std@0.152.0/testing/asserts.ts";
 import { LMoveCommand } from "./lmove.ts";
-import { LIndexCommand } from "./lindex.ts";
 import { LPopCommand } from "./lpop.ts";
 import { LLenCommand } from "./llen.ts";
 

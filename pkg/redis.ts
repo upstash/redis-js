@@ -750,8 +750,9 @@ export class Redis {
   /**
    * @see https://redis.io/commands/smembers
    */
-  smembers = (...args: CommandArgs<typeof SMembersCommand>) =>
-    new SMembersCommand(args, this.opts).exec(this.client);
+  smembers = <TData extends unknown[] = string[]>(
+    ...args: CommandArgs<typeof SMembersCommand>
+  ) => new SMembersCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/smove

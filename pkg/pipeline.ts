@@ -778,8 +778,9 @@ export class Pipeline {
   /**
    * @see https://redis.io/commands/smembers
    */
-  smembers = (...args: CommandArgs<typeof SMembersCommand>) =>
-    this.chain(new SMembersCommand(args, this.commandOptions));
+  smembers = <TData extends unknown[] = string[]>(
+    ...args: CommandArgs<typeof SMembersCommand>
+  ) => this.chain(new SMembersCommand<TData>(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/smove

@@ -44,6 +44,7 @@ import {
   LIndexCommand,
   LInsertCommand,
   LLenCommand,
+  LMoveCommand,
   LPopCommand,
   LPosCommand,
   LPushCommand,
@@ -508,6 +509,12 @@ export class Redis {
    */
   llen = (...args: CommandArgs<typeof LLenCommand>) =>
     new LLenCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/lmove
+   */
+  lmove = <TData = string>(...args: CommandArgs<typeof LMoveCommand>) =>
+    new LMoveCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/lpop

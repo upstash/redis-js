@@ -42,6 +42,7 @@ import {
   LIndexCommand,
   LInsertCommand,
   LLenCommand,
+  LMoveCommand,
   LPopCommand,
   LPosCommand,
   LPushCommand,
@@ -530,6 +531,12 @@ export class Pipeline {
    */
   llen = (...args: CommandArgs<typeof LLenCommand>) =>
     this.chain(new LLenCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/lmove
+   */
+  lmove = <TData = string>(...args: CommandArgs<typeof LMoveCommand>) =>
+    this.chain(new LMoveCommand<TData>(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/lpop

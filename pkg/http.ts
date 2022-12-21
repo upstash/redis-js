@@ -219,11 +219,12 @@ function base64decode(b64: string): string {
   } catch {
     dec = b64;
   }
-  try {
-    return decodeURIComponent(dec);
-  } catch {
-    return dec;
-  }
+  return dec
+  // try {
+  //   return decodeURIComponent(dec);
+  // } catch {
+  //   return dec;
+  // }
 }
 
 function decode(raw: ResultError): ResultError {

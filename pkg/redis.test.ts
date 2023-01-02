@@ -135,7 +135,17 @@ Deno.test("special data", async (t) => {
     await redis.set(key, encodeURIComponent(value));
     const res = await redis.get<string>(key);
 
-    assertEquals(res!, decodeURIComponent(value));
+    assertEquals(decodeURIComponent(res!), value);
+  });
+
+  await t.step("without encodeURIComponent", async () => {
+    const key = newKey();
+    const value = "😀";
+    const redis = new Redis(client);
+    await redis.set(key, value);
+    const res = await redis.get<string>(key);
+
+    assertEquals(res!, value);
   });
   await t.step("emojis", async () => {
     const key = newKey();

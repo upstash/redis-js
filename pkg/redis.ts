@@ -128,6 +128,7 @@ import { Pipeline } from "./pipeline.ts";
 import type { CommandArgs } from "./types.ts";
 import { Script } from "./script.ts";
 import { ZMScoreCommand } from "./commands/zmscore.ts";
+import { ZDiffStoreCommand } from "./commands/zdiffstore.ts";
 
 export type RedisOptions = {
   /**
@@ -879,6 +880,12 @@ export class Redis {
    */
   zcount = (...args: CommandArgs<typeof ZCountCommand>) =>
     new ZCountCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/zdiffstore
+   */
+  zdiffstore = (...args: CommandArgs<typeof ZDiffStoreCommand>) =>
+    new ZDiffStoreCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zincrby

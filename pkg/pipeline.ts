@@ -128,6 +128,7 @@ import { UpstashResponse } from "./http.ts";
 import { CommandArgs } from "./types.ts";
 import { ZMScoreCommand } from "./commands/zmscore.ts";
 import { HRandFieldCommand } from "./commands/hrandfield.ts";
+import { ZDiffStoreCommand } from "./commands/zdiffstore.ts";
 
 /**
  * Upstash REST API supports command pipelining to send multiple commands in
@@ -269,6 +270,12 @@ export class Pipeline {
    */
   bitpos = (...args: CommandArgs<typeof BitPosCommand>) =>
     this.chain(new BitPosCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/zdiffstore
+   */
+  zdiffstore = (...args: CommandArgs<typeof ZDiffStoreCommand>) =>
+    this.chain(new ZDiffStoreCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/dbsize

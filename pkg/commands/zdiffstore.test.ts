@@ -1,4 +1,4 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
+import { keygen, newHttpClient } from "../test-utils.ts";
 import { afterAll } from "https://deno.land/std@0.152.0/testing/bdd.ts";
 import { ZRangeCommand } from "./zrange.ts";
 import { assertEquals } from "https://deno.land/std@0.152.0/testing/asserts.ts";

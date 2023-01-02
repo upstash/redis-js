@@ -81,10 +81,13 @@ data  = await redis.spop('animals', 1)
 console.log(data)
 ```
 
+## Troubleshooting
+
+We have a [dedicated page](https://docs.upstash.com/troubleshooting) for common problems. If you can't find a solution, please [open an issue](https://github.com/upstash/upstash-redis/issues/new).
+
 ## Docs
 
-See [the documentation](https://docs.upstash.com/features/javascriptsdk) for
-details.
+See [the documentation](https://docs.upstash.com/features/javascriptsdk) for details.
 
 ## Contributing
 

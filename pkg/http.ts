@@ -219,7 +219,7 @@ function base64decode(b64: string): string {
   } catch {
     dec = b64;
   }
-  return dec
+  return dec;
   // try {
   //   return decodeURIComponent(dec);
   // } catch {

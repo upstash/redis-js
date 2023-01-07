@@ -17,7 +17,7 @@ Deno.test("when member exists", async (t) => {
     const value2 = randomID();
     await new SAddCommand([key, value1]).exec(client);
     await new SAddCommand([key, value2]).exec(client);
-    const res = await new SMIsMemberCommand([key, value1, randomID()]).exec(
+    const res = await new SMIsMemberCommand([key, [value1, randomID()]]).exec(
       client,
     );
     assertEquals(res, [1, 0]);

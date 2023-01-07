@@ -88,6 +88,7 @@ import {
   SInterStoreCommand,
   SIsMemberCommand,
   SMembersCommand,
+  SMIsMemberCommand,
   SMoveCommand,
   SPopCommand,
   SRandMemberCommand,
@@ -754,6 +755,14 @@ export class Redis {
    */
   sismember = <TData>(key: string, member: TData) =>
     new SIsMemberCommand<TData>([key, member], this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/smismember
+   */
+  smismember = <TMembers extends unknown[]>(key: string, members: TMembers) =>
+    new SMIsMemberCommand<TMembers>([key, members], this.opts).exec(
+      this.client,
+    );
 
   /**
    * @see https://redis.io/commands/smembers

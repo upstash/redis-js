@@ -23,6 +23,7 @@ export * from "./getset.ts";
 export * from "./hdel.ts";
 export * from "./hexists.ts";
 export * from "./hget.ts";
+export * from "./smismember.ts";
 export * from "./hgetall.ts";
 export * from "./hincrby.ts";
 export * from "./hincrbyfloat.ts";

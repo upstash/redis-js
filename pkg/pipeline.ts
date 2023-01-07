@@ -86,6 +86,7 @@ import {
   SInterStoreCommand,
   SIsMemberCommand,
   SMembersCommand,
+  SMIsMemberCommand,
   SMoveCommand,
   SPopCommand,
   SRandMemberCommand,
@@ -795,6 +796,14 @@ export class Pipeline {
   smembers = <TData extends unknown[] = string[]>(
     ...args: CommandArgs<typeof SMembersCommand>
   ) => this.chain(new SMembersCommand<TData>(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/smismember
+   */
+  smismember = <TMembers extends unknown[]>(key: string, members: TMembers) =>
+    this.chain(
+      new SMIsMemberCommand<TMembers>([key, members], this.commandOptions),
+    );
 
   /**
    * @see https://redis.io/commands/smove

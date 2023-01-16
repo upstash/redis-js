@@ -83,7 +83,7 @@ console.log(data)
 
 ## Troubleshooting
 
-We have a [dedicated page](https://docs.upstash.com/troubleshooting) for common
+We have a [dedicated page](https://docs.upstash.com/redis/sdks/javascriptsdk/troubleshooting) for common
 problems. If you can't find a solution, please
 [open an issue](https://github.com/upstash/upstash-redis/issues/new).
 

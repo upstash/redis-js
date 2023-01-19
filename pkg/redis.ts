@@ -139,6 +139,8 @@ export type RedisOptions = {
    * @default true
    */
   automaticDeserialization?: boolean;
+
+  enableTelemetry?: boolean;
 };
 
 /**
@@ -147,6 +149,7 @@ export type RedisOptions = {
 export class Redis {
   protected client: Requester;
   protected opts?: CommandOptions<any, any>;
+  protected enableTelemetry: boolean;
 
   /**
    * Create a new redis client
@@ -162,6 +165,7 @@ export class Redis {
   constructor(client: Requester, opts?: RedisOptions) {
     this.client = client;
     this.opts = opts;
+    this.enableTelemetry = opts?.enableTelemetry ?? true;
   }
 
   /**
@@ -183,7 +187,10 @@ export class Redis {
   /**
    * Technically this is not private, we can hide it from intellisense by doing this
    */
-  private addTelemetry = (telemetry: Telemetry) => {
+  protected addTelemetry = (telemetry: Telemetry) => {
+    if (!this.enableTelemetry) {
+      return;
+    }
     try {
       // @ts-ignore - The `Requester` interface does not know about this method but it will be there
       // as long as the user uses the standard HttpClient

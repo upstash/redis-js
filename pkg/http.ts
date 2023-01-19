@@ -81,7 +81,6 @@ export type HttpClientConfig = {
   options?: Options;
   retry?: RetryConfig;
   agent?: any;
-  telemetry?: Telemetry;
 } & RequesterConfig;
 
 export class HttpClient implements Requester {
@@ -112,15 +111,6 @@ export class HttpClient implements Requester {
 
       ...config.headers,
     };
-    if (config.telemetry?.runtime) {
-      this.headers["Upstash-Telemetry-Runtime"] = config.telemetry.runtime;
-    }
-    if (config.telemetry?.platform) {
-      this.headers["Upstash-Telemetry-Platform"] = config.telemetry.platform;
-    }
-    if (config.telemetry?.sdk) {
-      this.headers["Upstash-Telemetry-Sdk"] = config.telemetry.sdk;
-    }
 
     if (this.options.responseEncoding === "base64") {
       this.headers["Upstash-Encoding"] = "base64";

@@ -1,6 +1,5 @@
 import * as core from "../pkg/redis.ts";
 import type {
-  HttpClientConfig,
   Requester,
   UpstashRequest,
   UpstashResponse,
@@ -66,22 +65,21 @@ export class Redis extends core.Redis {
       );
     }
 
-    const telemetry: HttpClientConfig["telemetry"] = {};
-    if (!env?.UPSTASH_DISABLE_TELEMETRY) {
-      telemetry.platform = "cloudflare";
-      telemetry.sdk = `@upstash/redis@${VERSION}`;
-    }
-
     const client = new HttpClient({
       retry: config.retry,
       baseUrl: config.url,
       headers: { authorization: `Bearer ${config.token}` },
       responseEncoding: config.responseEncoding,
-      telemetry,
     });
 
     super(client, {
+      enableTelemetry: !env?.UPSTASH_DISABLE_TELEMETRY,
       automaticDeserialization: config.automaticDeserialization,
+    });
+    // This is only added of the user has not disabled telemetry
+    this.addTelemetry({
+      platform: "cloudflare",
+      sdk: `@upstash/redis@${VERSION}`,
     });
   }
 

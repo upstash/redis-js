@@ -3,7 +3,6 @@
 import * as core from "../pkg/redis.ts";
 import {
   HttpClient,
-  HttpClientConfig,
   Requester,
   RequesterConfig,
   UpstashRequest,
@@ -116,28 +115,27 @@ export class Redis extends core.Redis {
       );
     }
 
-    const telemetry: HttpClientConfig["telemetry"] = {};
-    if (!process.env.UPSTASH_DISABLE_TELEMETRY) {
-      telemetry.runtime = `node@${process.version}`;
-      telemetry.platform = process.env.VERCEL
-        ? "vercel"
-        : process.env.AWS_REGION
-        ? "aws"
-        : "unknown";
-      telemetry.sdk = `@upstash/redis@${VERSION}`;
-    }
-
     const client = new HttpClient({
       baseUrl: configOrRequester.url,
       retry: configOrRequester.retry,
       headers: { authorization: `Bearer ${configOrRequester.token}` },
       agent: configOrRequester.agent,
       responseEncoding: configOrRequester.responseEncoding,
-      telemetry,
     });
 
     super(client, {
       automaticDeserialization: configOrRequester.automaticDeserialization,
+      enableTelemetry: !process.env.UPSTASH_DISABLE_TELEMETRY,
+    });
+
+    this.addTelemetry({
+      runtime: `node@${process.version}`,
+      platform: process.env.VERCEL
+        ? "vercel"
+        : process.env.AWS_REGION
+        ? "aws"
+        : "unknown",
+      sdk: `@upstash/redis@${VERSION}`,
     });
   }
 

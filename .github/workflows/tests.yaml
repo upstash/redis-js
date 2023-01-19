@@ -689,9 +689,9 @@ jobs:
       - name: Inject variables
         working-directory: ./examples/fastly
         run: |
-          sed -i 's;<UPSTASH_REDIS_REST_URL>;${{ secrets.UPSTASH_REDIS_REST_URL_CLOUD }};' fastly.toml
-          sed -i 's;<UPSTASH_REDIS_REST_URL>;${{ secrets.UPSTASH_REDIS_REST_URL_CLOUD }};' src/index.js
-          sed -i 's;<UPSTASH_REDIS_REST_TOKEN>;${{ secrets.UPSTASH_REDIS_REST_TOKEN_CLOUD }};' src/index.js
+          sed -i 's;<UPSTASH_REDIS_REST_URL>;${{ secrets.UPSTASH_REDIS_REST_URL }};' fastly.toml
+          sed -i 's;<UPSTASH_REDIS_REST_URL>;${{ secrets.UPSTASH_REDIS_REST_URL }};' src/index.js
+          sed -i 's;<UPSTASH_REDIS_REST_TOKEN>;${{ secrets.UPSTASH_REDIS_REST_TOKEN }};' src/index.js
 
       - name: Deploy
         working-directory: ./examples/fastly

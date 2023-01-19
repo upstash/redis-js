@@ -130,6 +130,7 @@ import type { CommandArgs } from "./types.ts";
 import { Script } from "./script.ts";
 import { ZMScoreCommand } from "./commands/zmscore.ts";
 import { ZDiffStoreCommand } from "./commands/zdiffstore.ts";
+import { Telemetry } from "./types.ts";
 
 export type RedisOptions = {
   /**
@@ -177,6 +178,19 @@ export class Redis {
     const makeRequest = this.client.request.bind(this.client);
     this.client.request = (req: UpstashRequest) =>
       middleware(req, makeRequest) as any;
+  };
+
+  /**
+   * Technically this is not private, we can hide it from intellisense by doing this
+   */
+  private addTelemetry = (telemetry: Telemetry) => {
+    try {
+      // @ts-ignore - The `Requester` interface does not know about this method but it will be there
+      // as long as the user uses the standard HttpClient
+      this.client.mergeTelemetry(telemetry);
+    } catch {
+      // ignore
+    }
   };
 
   createScript(script: string): Script {

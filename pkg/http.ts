@@ -1,4 +1,5 @@
 import { UpstashError } from "./error.ts";
+import { Telemetry } from "./types.ts";
 
 export type UpstashRequest = {
   path?: string[];
@@ -80,25 +81,7 @@ export type HttpClientConfig = {
   options?: Options;
   retry?: RetryConfig;
   agent?: any;
-  telemetry?: {
-    /**
-     * Upstash-Telemetry-Sdk
-     * @example @upstash/redis@v1.1.1
-     */
-    sdk?: string;
-
-    /**
-     * Upstash-Telemetry-Platform
-     * @example cloudflare
-     */
-    platform?: string;
-
-    /**
-     * Upstash-Telemetry-Runtime
-     * @example node@v18
-     */
-    runtime?: string;
-  };
+  telemetry?: Telemetry;
 } & RequesterConfig;
 
 export class HttpClient implements Requester {
@@ -155,6 +138,36 @@ export class HttpClient implements Requester {
           ((retryCount) => Math.exp(retryCount) * 50),
       };
     }
+  }
+
+  public mergeTelemetry(telemetry: Telemetry): void {
+    function merge(
+      obj: Record<string, string>,
+      key: string,
+      value?: string,
+    ): Record<string, string> {
+      if (!value) {
+        return obj;
+      }
+      if (obj[key]) {
+        obj[key] = [obj[key], value].join(",");
+      } else {
+        obj[key] = value;
+      }
+      return obj;
+    }
+
+    this.headers = merge(
+      this.headers,
+      "Upstash-Telemetry-Runtime",
+      telemetry.runtime,
+    );
+    this.headers = merge(
+      this.headers,
+      "Upstash-Telemetry-Platform",
+      telemetry.platform,
+    );
+    this.headers = merge(this.headers, "Upstash-Telemetry-Sdk", telemetry.sdk);
   }
 
   public async request<TResult>(

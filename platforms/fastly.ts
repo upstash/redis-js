@@ -6,6 +6,7 @@ import type {
   UpstashResponse,
 } from "../pkg/http.ts";
 import { HttpClient } from "../pkg/http.ts";
+import { VERSION } from "../version.ts";
 
 export type { Requester, UpstashRequest, UpstashResponse };
 
@@ -79,6 +80,10 @@ export class Redis extends core.Redis {
 
     super(client, {
       automaticDeserialization: config.automaticDeserialization,
+    });
+    this.addTelemetry({
+      sdk: `@upstash/redis@${VERSION}`,
+      platform: "fastly",
     });
   }
 }

@@ -1,5 +1,5 @@
 import { newHttpClient } from "../test-utils.ts";
-import { assertEquals } from "https://deno.land/std@0.152.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
 import { TimeCommand } from "./time.ts";
 const client = newHttpClient();
 

@@ -1,7 +1,7 @@
 import { Redis } from "./redis.ts";
 import { keygen, newHttpClient, randomID } from "./test-utils.ts";
-import { assertEquals } from "https://deno.land/std@0.152.0/testing/asserts.ts";
-import { afterEach } from "https://deno.land/std@0.152.0/testing/bdd.ts";
+import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { afterEach } from "https://deno.land/std@0.177.0/testing/bdd.ts";
 import { HttpClient } from "./http.ts";
 const client = newHttpClient();
 

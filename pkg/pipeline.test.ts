@@ -4,9 +4,9 @@ import { keygen, newHttpClient, randomID } from "./test-utils.ts";
 import {
   assertEquals,
   assertRejects,
-} from "https://deno.land/std@0.152.0/testing/asserts.ts";
+} from "https://deno.land/std@0.177.0/testing/asserts.ts";
 
-import { afterEach } from "https://deno.land/std@0.152.0/testing/bdd.ts";
+import { afterEach } from "https://deno.land/std@0.177.0/testing/bdd.ts";
 
 import { ScriptLoadCommand } from "./commands/script_load.ts";
 

@@ -1,7 +1,7 @@
-import { assertEquals } from "https://deno.land/std@0.152.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
 import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
-import { afterAll } from "https://deno.land/std@0.152.0/testing/bdd.ts";
+import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
 import { RPushCommand } from "./rpush.ts";
 import { LRangeCommand } from "./lrange.ts";
 const client = newHttpClient();

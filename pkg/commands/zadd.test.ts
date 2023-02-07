@@ -15,7 +15,7 @@ Deno.test("command format", async (t) => {
     await t.step("build the correct command", () => {
       assertEquals(
         new ZAddCommand(["key", { score: 0, member: "member" }]).command,
-        ["zadd", "key", "0", "member"],
+        ["zadd", "key", 0, "member"],
       );
     });
   });
@@ -24,7 +24,7 @@ Deno.test("command format", async (t) => {
       assertEquals(
         new ZAddCommand(["key", { nx: true }, { score: 0, member: "member" }])
           .command,
-        ["zadd", "key", "nx", "0", "member"],
+        ["zadd", "key", "nx", 0, "member"],
       );
     });
   });
@@ -33,7 +33,7 @@ Deno.test("command format", async (t) => {
       assertEquals(
         new ZAddCommand(["key", { xx: true }, { score: 0, member: "member" }])
           .command,
-        ["zadd", "key", "xx", "0", "member"],
+        ["zadd", "key", "xx", 0, "member"],
       );
     });
   });
@@ -42,7 +42,7 @@ Deno.test("command format", async (t) => {
       assertEquals(
         new ZAddCommand(["key", { ch: true }, { score: 0, member: "member" }])
           .command,
-        ["zadd", "key", "ch", "0", "member"],
+        ["zadd", "key", "ch", 0, "member"],
       );
     });
   });
@@ -51,7 +51,7 @@ Deno.test("command format", async (t) => {
       assertEquals(
         new ZAddCommand(["key", { incr: true }, { score: 0, member: "member" }])
           .command,
-        ["zadd", "key", "incr", "0", "member"],
+        ["zadd", "key", "incr", 0, "member"],
       );
     });
   });
@@ -63,7 +63,7 @@ Deno.test("command format", async (t) => {
           { nx: true, ch: true },
           { score: 0, member: "member" },
         ]).command,
-        ["zadd", "key", "nx", "ch", "0", "member"],
+        ["zadd", "key", "nx", "ch", 0, "member"],
       );
     });
   });
@@ -75,7 +75,7 @@ Deno.test("command format", async (t) => {
           { nx: true, ch: true, incr: true },
           { score: 0, member: "member" },
         ]).command,
-        ["zadd", "key", "nx", "ch", "incr", "0", "member"],
+        ["zadd", "key", "nx", "ch", "incr", 0, "member"],
       );
     });
   });
@@ -88,7 +88,7 @@ Deno.test("command format", async (t) => {
           { score: 0, member: "member" },
           { score: 1, member: "member1" },
         ]).command,
-        ["zadd", "key", "nx", "0", "member", "1", "member1"],
+        ["zadd", "key", "nx", 0, "member", 1, "member1"],
       );
     });
   });

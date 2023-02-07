@@ -16,7 +16,7 @@ Deno.test("command format", async (t) => {
       assertEquals(new ZInterStoreCommand(["destination", 1, "key"]).command, [
         "zinterstore",
         "destination",
-        "1",
+        1,
         "key",
       ]);
     });
@@ -25,7 +25,7 @@ Deno.test("command format", async (t) => {
     await t.step("builds the correct command", () => {
       assertEquals(
         new ZInterStoreCommand(["destination", 2, ["key1", "key2"]]).command,
-        ["zinterstore", "destination", "2", "key1", "key2"],
+        ["zinterstore", "destination", 2, "key1", "key2"],
       );
     });
   });
@@ -34,7 +34,7 @@ Deno.test("command format", async (t) => {
       assertEquals(
         new ZInterStoreCommand(["destination", 1, "key", { weight: 4 }])
           .command,
-        ["zinterstore", "destination", "1", "key", "weights", "4"],
+        ["zinterstore", "destination", 1, "key", "weights", 4],
       );
     });
   });
@@ -47,12 +47,12 @@ Deno.test("command format", async (t) => {
         [
           "zinterstore",
           "destination",
-          "2",
+          2,
           "key1",
           "key2",
           "weights",
-          "2",
-          "3",
+          2,
+          3,
         ],
       );
     });
@@ -63,7 +63,7 @@ Deno.test("command format", async (t) => {
             new ZInterStoreCommand(["destination", 1, "key", {
               aggregate: "sum",
             }]).command,
-            ["zinterstore", "destination", "1", "key", "aggregate", "sum"],
+            ["zinterstore", "destination", 1, "key", "aggregate", "sum"],
           );
         });
       });
@@ -73,7 +73,7 @@ Deno.test("command format", async (t) => {
             new ZInterStoreCommand(["destination", 1, "key", {
               aggregate: "min",
             }]).command,
-            ["zinterstore", "destination", "1", "key", "aggregate", "min"],
+            ["zinterstore", "destination", 1, "key", "aggregate", "min"],
           );
         });
       });
@@ -83,7 +83,7 @@ Deno.test("command format", async (t) => {
             new ZInterStoreCommand(["destination", 1, "key", {
               aggregate: "max",
             }]).command,
-            ["zinterstore", "destination", "1", "key", "aggregate", "max"],
+            ["zinterstore", "destination", 1, "key", "aggregate", "max"],
           );
         });
       });
@@ -98,12 +98,12 @@ Deno.test("command format", async (t) => {
           [
             "zinterstore",
             "destination",
-            "2",
+            2,
             "key1",
             "key2",
             "weights",
-            "4",
-            "2",
+            4,
+            2,
             "aggregate",
             "max",
           ],

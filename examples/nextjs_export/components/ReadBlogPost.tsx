@@ -5,5 +5,5 @@ export default function ReadBlogPost({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="bg-gray-100 p-4 text-center">{children}</div>;
+  return <div className="p-4 text-center bg-gray-100">{children}</div>;
 }

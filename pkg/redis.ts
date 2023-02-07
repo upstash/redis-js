@@ -40,6 +40,27 @@ import {
   IncrByCommand,
   IncrByFloatCommand,
   IncrCommand,
+  JsonArrAppendCommand,
+  JsonArrIndexCommand,
+  JsonArrInsertCommand,
+  JsonArrLenCommand,
+  JsonArrPopCommand,
+  JsonArrTrimCommand,
+  JsonClearCommand,
+  JsonDelCommand,
+  JsonForgetCommand,
+  JsonGetCommand,
+  JsonMGetCommand,
+  JsonNumIncrByCommand,
+  JsonNumMultByCommand,
+  JsonObjKeysCommand,
+  JsonObjLenCommand,
+  JsonRespCommand,
+  JsonSetCommand,
+  JsonStrAppendCommand,
+  JsonStrLenCommand,
+  JsonToggleCommand,
+  JsonTypeCommand,
   KeysCommand,
   LIndexCommand,
   LInsertCommand,
@@ -130,18 +151,7 @@ import type { CommandArgs } from "./types.ts";
 import { Script } from "./script.ts";
 import { ZMScoreCommand } from "./commands/zmscore.ts";
 import { ZDiffStoreCommand } from "./commands/zdiffstore.ts";
-import { Telemetry } from "./types.ts";
-
-export type RedisOptions = {
-  /**
-   * Automatically try to deserialize the returned data from upstash using `JSON.deserialize`
-   *
-   * @default true
-   */
-  automaticDeserialization?: boolean;
-
-  enableTelemetry?: boolean;
-};
+import { RedisOptions, Telemetry } from "./types.ts";
 
 /**
  * Serverless redis client for upstash.
@@ -168,6 +178,135 @@ export class Redis {
     this.enableTelemetry = opts?.enableTelemetry ?? true;
   }
 
+  get json() {
+    return {
+      /**
+       * @see https://redis.io/commands/json.arrappend
+       */
+      arrappend: (...args: CommandArgs<typeof JsonArrAppendCommand>) =>
+        new JsonArrAppendCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.arrindex
+       */
+      arrindex: (...args: CommandArgs<typeof JsonArrIndexCommand>) =>
+        new JsonArrIndexCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.arrinsert
+       */
+      arrinsert: (...args: CommandArgs<typeof JsonArrInsertCommand>) =>
+        new JsonArrInsertCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.arrlen
+       */
+      arrlen: (...args: CommandArgs<typeof JsonArrLenCommand>) =>
+        new JsonArrLenCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.arrpop
+       */
+      arrpop: (...args: CommandArgs<typeof JsonArrPopCommand>) =>
+        new JsonArrPopCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.arrtrim
+       */
+      arrtrim: (...args: CommandArgs<typeof JsonArrTrimCommand>) =>
+        new JsonArrTrimCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.clear
+       */
+      clear: (...args: CommandArgs<typeof JsonClearCommand>) =>
+        new JsonClearCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.del
+       */
+      del: (...args: CommandArgs<typeof JsonDelCommand>) =>
+        new JsonDelCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.forget
+       */
+      forget: (...args: CommandArgs<typeof JsonForgetCommand>) =>
+        new JsonForgetCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.get
+       */
+      get: (...args: CommandArgs<typeof JsonGetCommand>) =>
+        new JsonGetCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.mget
+       */
+      mget: (...args: CommandArgs<typeof JsonMGetCommand>) =>
+        new JsonMGetCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.numincrby
+       */
+      numincrby: (...args: CommandArgs<typeof JsonNumIncrByCommand>) =>
+        new JsonNumIncrByCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.nummultby
+       */
+      nummultby: (...args: CommandArgs<typeof JsonNumMultByCommand>) =>
+        new JsonNumMultByCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.objkeys
+       */
+      objkeys: (...args: CommandArgs<typeof JsonObjKeysCommand>) =>
+        new JsonObjKeysCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.objlen
+       */
+      objlen: (...args: CommandArgs<typeof JsonObjLenCommand>) =>
+        new JsonObjLenCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.resp
+       */
+      resp: (...args: CommandArgs<typeof JsonRespCommand>) =>
+        new JsonRespCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.set
+       */
+      set: (...args: CommandArgs<typeof JsonSetCommand>) =>
+        new JsonSetCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.strappend
+       */
+      strappend: (...args: CommandArgs<typeof JsonStrAppendCommand>) =>
+        new JsonStrAppendCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.strlen
+       */
+      strlen: (...args: CommandArgs<typeof JsonStrLenCommand>) =>
+        new JsonStrLenCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.toggle
+       */
+      toggle: (...args: CommandArgs<typeof JsonToggleCommand>) =>
+        new JsonToggleCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.type
+       */
+      type: (...args: CommandArgs<typeof JsonTypeCommand>) =>
+        new JsonTypeCommand(args, this.opts).exec(this.client),
+    };
+  }
   /**
    * Wrap a new middleware around the HTTP client.
    */

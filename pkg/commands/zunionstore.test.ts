@@ -16,7 +16,7 @@ Deno.test("command format", async (t) => {
       assertEquals(new ZUnionStoreCommand(["destination", 1, "key"]).command, [
         "zunionstore",
         "destination",
-        "1",
+        1,
         "key",
       ]);
     });
@@ -25,7 +25,7 @@ Deno.test("command format", async (t) => {
     await t.step("builds the correct command", () => {
       assertEquals(
         new ZUnionStoreCommand(["destination", 2, ["key1", "key2"]]).command,
-        ["zunionstore", "destination", "2", "key1", "key2"],
+        ["zunionstore", "destination", 2, "key1", "key2"],
       );
     });
   });
@@ -34,7 +34,7 @@ Deno.test("command format", async (t) => {
       assertEquals(
         new ZUnionStoreCommand(["destination", 1, "key", { weight: 4 }])
           .command,
-        ["zunionstore", "destination", "1", "key", "weights", "4"],
+        ["zunionstore", "destination", 1, "key", "weights", 4],
       );
     });
   });
@@ -47,12 +47,12 @@ Deno.test("command format", async (t) => {
         [
           "zunionstore",
           "destination",
-          "2",
+          2,
           "key1",
           "key2",
           "weights",
-          "2",
-          "3",
+          2,
+          3,
         ],
       );
     });
@@ -63,7 +63,7 @@ Deno.test("command format", async (t) => {
             new ZUnionStoreCommand(["destination", 1, "key", {
               aggregate: "sum",
             }]).command,
-            ["zunionstore", "destination", "1", "key", "aggregate", "sum"],
+            ["zunionstore", "destination", 1, "key", "aggregate", "sum"],
           );
         });
       });
@@ -73,7 +73,7 @@ Deno.test("command format", async (t) => {
             new ZUnionStoreCommand(["destination", 1, "key", {
               aggregate: "min",
             }]).command,
-            ["zunionstore", "destination", "1", "key", "aggregate", "min"],
+            ["zunionstore", "destination", 1, "key", "aggregate", "min"],
           );
         });
       });
@@ -83,7 +83,7 @@ Deno.test("command format", async (t) => {
             new ZUnionStoreCommand(["destination", 1, "key", {
               aggregate: "max",
             }]).command,
-            ["zunionstore", "destination", "1", "key", "aggregate", "max"],
+            ["zunionstore", "destination", 1, "key", "aggregate", "max"],
           );
         });
       });
@@ -98,12 +98,12 @@ Deno.test("command format", async (t) => {
           [
             "zunionstore",
             "destination",
-            "2",
+            2,
             "key1",
             "key2",
             "weights",
-            "4",
-            "2",
+            4,
+            2,
             "aggregate",
             "max",
           ],

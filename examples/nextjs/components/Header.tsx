@@ -8,9 +8,9 @@ export type HeaderProps = {
 
 export default function Header({ breadcrumbOptions }: HeaderProps) {
   return (
-    <header className="relative z-10 flex items-center bg-gray-900 py-4 px-6 text-gray-50">
+    <header className="relative z-10 flex items-center px-6 py-4 bg-gray-900 text-gray-50">
       <Breadcrumb {...breadcrumbOptions} />
-      <div className="ml-auto hidden sm:block">
+      <div className="hidden ml-auto sm:block">
         <StarButton {...[...breadcrumbOptions?.data].pop()} />
       </div>
     </header>

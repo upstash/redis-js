@@ -20,3 +20,14 @@ export type Telemetry = {
    */
   runtime?: string;
 };
+
+export type RedisOptions = {
+  /**
+   * Automatically try to deserialize the returned data from upstash using `JSON.deserialize`
+   *
+   * @default true
+   */
+  automaticDeserialization?: boolean;
+
+  enableTelemetry?: boolean;
+};

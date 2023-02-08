@@ -38,6 +38,27 @@ import {
   IncrByCommand,
   IncrByFloatCommand,
   IncrCommand,
+  JsonArrAppendCommand,
+  JsonArrIndexCommand,
+  JsonArrInsertCommand,
+  JsonArrLenCommand,
+  JsonArrPopCommand,
+  JsonArrTrimCommand,
+  JsonClearCommand,
+  JsonDelCommand,
+  JsonForgetCommand,
+  JsonGetCommand,
+  JsonMGetCommand,
+  JsonNumIncrByCommand,
+  JsonNumMultByCommand,
+  JsonObjKeysCommand,
+  JsonObjLenCommand,
+  JsonRespCommand,
+  JsonSetCommand,
+  JsonStrAppendCommand,
+  JsonStrLenCommand,
+  JsonToggleCommand,
+  JsonTypeCommand,
   KeysCommand,
   LIndexCommand,
   LInsertCommand,
@@ -130,6 +151,8 @@ import { CommandArgs } from "./types.ts";
 import { ZMScoreCommand } from "./commands/zmscore.ts";
 import { HRandFieldCommand } from "./commands/hrandfield.ts";
 import { ZDiffStoreCommand } from "./commands/zdiffstore.ts";
+
+type Chain = <T>(command: Command<any, T>) => Pipeline;
 
 /**
  * Upstash REST API supports command pipelining to send multiple commands in
@@ -1043,4 +1066,160 @@ export class Pipeline {
    */
   zunionstore = (...args: CommandArgs<typeof ZUnionStoreCommand>) =>
     this.chain(new ZUnionStoreCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/?group=json
+   */
+  get json(): {
+    arrappend: (...args: CommandArgs<typeof JsonArrAppendCommand>) => Pipeline;
+    arrindex: (...args: CommandArgs<typeof JsonArrIndexCommand>) => Pipeline;
+    arrinsert: (...args: CommandArgs<typeof JsonArrInsertCommand>) => Pipeline;
+    arrlen: (...args: CommandArgs<typeof JsonArrLenCommand>) => Pipeline;
+    arrpop: (...args: CommandArgs<typeof JsonArrPopCommand>) => Pipeline;
+    arrtrim: (...args: CommandArgs<typeof JsonArrTrimCommand>) => Pipeline;
+    clear: (...args: CommandArgs<typeof JsonClearCommand>) => Pipeline;
+    del: (...args: CommandArgs<typeof JsonDelCommand>) => Pipeline;
+    forget: (...args: CommandArgs<typeof JsonForgetCommand>) => Pipeline;
+    get: (...args: CommandArgs<typeof JsonGetCommand>) => Pipeline;
+    mget: (...args: CommandArgs<typeof JsonMGetCommand>) => Pipeline;
+    numincrby: (...args: CommandArgs<typeof JsonNumIncrByCommand>) => Pipeline;
+    nummultby: (...args: CommandArgs<typeof JsonNumMultByCommand>) => Pipeline;
+    objkeys: (...args: CommandArgs<typeof JsonObjKeysCommand>) => Pipeline;
+    objlen: (...args: CommandArgs<typeof JsonObjLenCommand>) => Pipeline;
+    resp: (...args: CommandArgs<typeof JsonRespCommand>) => Pipeline;
+    set: (...args: CommandArgs<typeof JsonSetCommand>) => Pipeline;
+    strappend: (...args: CommandArgs<typeof JsonStrAppendCommand>) => Pipeline;
+    strlen: (...args: CommandArgs<typeof JsonStrLenCommand>) => Pipeline;
+    toggle: (...args: CommandArgs<typeof JsonToggleCommand>) => Pipeline;
+    type: (...args: CommandArgs<typeof JsonTypeCommand>) => Pipeline;
+  } {
+    // For some reason we needed to define the types manually, otherwise Deno wouldn't build it
+    return {
+      /**
+       * @see https://redis.io/commands/json.arrappend
+       */
+      arrappend: (...args: CommandArgs<typeof JsonArrAppendCommand>) =>
+        this.chain(new JsonArrAppendCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.arrindex
+       */
+      arrindex: (...args: CommandArgs<typeof JsonArrIndexCommand>) =>
+        this.chain(new JsonArrIndexCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.arrinsert
+       */
+      arrinsert: (...args: CommandArgs<typeof JsonArrInsertCommand>) =>
+        this.chain(new JsonArrInsertCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.arrlen
+       */
+      arrlen: (...args: CommandArgs<typeof JsonArrLenCommand>) =>
+        this.chain(new JsonArrLenCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.arrpop
+       */
+      arrpop: (...args: CommandArgs<typeof JsonArrPopCommand>) =>
+        this.chain(new JsonArrPopCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.arrtrim
+       */
+      arrtrim: (...args: CommandArgs<typeof JsonArrTrimCommand>) =>
+        this.chain(new JsonArrTrimCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.clear
+       */
+      clear: (...args: CommandArgs<typeof JsonClearCommand>) =>
+        this.chain(new JsonClearCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.del
+       */
+      del: (...args: CommandArgs<typeof JsonDelCommand>) =>
+        this.chain(new JsonDelCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.forget
+       */
+      forget: (...args: CommandArgs<typeof JsonForgetCommand>) =>
+        this.chain(new JsonForgetCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.get
+       */
+      get: (...args: CommandArgs<typeof JsonGetCommand>) =>
+        this.chain(new JsonGetCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.mget
+       */
+      mget: (...args: CommandArgs<typeof JsonMGetCommand>) =>
+        this.chain(new JsonMGetCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.numincrby
+       */
+      numincrby: (...args: CommandArgs<typeof JsonNumIncrByCommand>) =>
+        this.chain(new JsonNumIncrByCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.nummultby
+       */
+      nummultby: (...args: CommandArgs<typeof JsonNumMultByCommand>) =>
+        this.chain(new JsonNumMultByCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.objkeys
+       */
+      objkeys: (...args: CommandArgs<typeof JsonObjKeysCommand>) =>
+        this.chain(new JsonObjKeysCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.objlen
+       */
+      objlen: (...args: CommandArgs<typeof JsonObjLenCommand>) =>
+        this.chain(new JsonObjLenCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.resp
+       */
+      resp: (...args: CommandArgs<typeof JsonRespCommand>) =>
+        this.chain(new JsonRespCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.set
+       */
+      set: (...args: CommandArgs<typeof JsonSetCommand>) =>
+        this.chain(new JsonSetCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.strappend
+       */
+      strappend: (...args: CommandArgs<typeof JsonStrAppendCommand>) =>
+        this.chain(new JsonStrAppendCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.strlen
+       */
+      strlen: (...args: CommandArgs<typeof JsonStrLenCommand>) =>
+        this.chain(new JsonStrLenCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.toggle
+       */
+      toggle: (...args: CommandArgs<typeof JsonToggleCommand>) =>
+        this.chain(new JsonToggleCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.type
+       */
+      type: (...args: CommandArgs<typeof JsonTypeCommand>) =>
+        this.chain(new JsonTypeCommand(args, this.commandOptions)),
+    };
+  }
 }

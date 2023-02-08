@@ -28,7 +28,7 @@ Deno.test("with rank", async (t) => {
       client,
     );
     const cmd = new LPosCommand([key, "c", { rank: 2 }]);
-    assertEquals(cmd.command, ["lpos", key, "c", "rank", "2"]);
+    assertEquals(cmd.command, ["lpos", key, "c", "rank", 2]);
     const res = await cmd.exec(client);
     assertEquals(res, 6);
   });

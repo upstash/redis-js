@@ -2,11 +2,20 @@ import { UpstashError } from "../error.ts";
 import { Requester } from "../http.ts";
 import { parseResponse } from "../util.ts";
 
-type Serialize = (data: unknown) => string;
+type Serialize = (data: unknown) => string | number | boolean;
 type Deserialize<TResult, TData> = (result: TResult) => TData;
 
-const defaultSerializer: Serialize = (c: unknown) =>
-  typeof c === "string" ? c : JSON.stringify(c);
+const defaultSerializer: Serialize = (c: unknown) => {
+  switch (typeof c) {
+    case "string":
+    case "number":
+    case "boolean":
+      return c;
+
+    default:
+      return JSON.stringify(c);
+  }
+};
 
 export type CommandOptions<TResult, TData> = {
   /**
@@ -27,7 +36,7 @@ export type CommandOptions<TResult, TData> = {
  * TResult is the raw data returned from upstash, which may need to be transformed or parsed.
  */
 export class Command<TResult, TData> {
-  public readonly command: string[];
+  public readonly command: (string | number | boolean)[];
   public readonly serialize: Serialize;
   public readonly deserialize: Deserialize<TResult, TData>;
   /**
@@ -36,7 +45,7 @@ export class Command<TResult, TData> {
    * You can define a custom `deserialize` function. By default we try to deserialize as json.
    */
   constructor(
-    command: (string | unknown)[],
+    command: (string | boolean | number | unknown)[],
     opts?: CommandOptions<TResult, TData>,
   ) {
     this.serialize = defaultSerializer;
@@ -45,7 +54,7 @@ export class Command<TResult, TData> {
       ? opts?.deserialize ?? parseResponse
       : (x) => x as unknown as TData;
 
-    this.command = command.map(this.serialize);
+    this.command = command.map((c) => this.serialize(c));
   }
 
   /**
@@ -59,7 +68,7 @@ export class Command<TResult, TData> {
       throw new UpstashError(error);
     }
     if (typeof result === "undefined") {
-      throw new Error(`Request did not return a result`);
+      throw new Error("Request did not return a result");
     }
 
     return this.deserialize(result);

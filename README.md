@@ -27,7 +27,7 @@ supported.
 
 ### Install
 
-#### npm
+#### Node.js
 
 ```bash
 npm install @upstash/redis

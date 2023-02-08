@@ -152,6 +152,8 @@ import { ZMScoreCommand } from "./commands/zmscore.ts";
 import { HRandFieldCommand } from "./commands/hrandfield.ts";
 import { ZDiffStoreCommand } from "./commands/zdiffstore.ts";
 
+type Chain = <T>(command: Command<any, T>) => Pipeline;
+
 /**
  * Upstash REST API supports command pipelining to send multiple commands in
  * batch, instead of sending each command one by one and waiting for a response.
@@ -1068,7 +1070,30 @@ export class Pipeline {
   /**
    * @see https://redis.io/commands/?group=json
    */
-  get json() {
+  get json(): {
+    arrappend: (...args: CommandArgs<typeof JsonArrAppendCommand>) => Pipeline;
+    arrindex: (...args: CommandArgs<typeof JsonArrIndexCommand>) => Pipeline;
+    arrinsert: (...args: CommandArgs<typeof JsonArrInsertCommand>) => Pipeline;
+    arrlen: (...args: CommandArgs<typeof JsonArrLenCommand>) => Pipeline;
+    arrpop: (...args: CommandArgs<typeof JsonArrPopCommand>) => Pipeline;
+    arrtrim: (...args: CommandArgs<typeof JsonArrTrimCommand>) => Pipeline;
+    clear: (...args: CommandArgs<typeof JsonClearCommand>) => Pipeline;
+    del: (...args: CommandArgs<typeof JsonDelCommand>) => Pipeline;
+    forget: (...args: CommandArgs<typeof JsonForgetCommand>) => Pipeline;
+    get: (...args: CommandArgs<typeof JsonGetCommand>) => Pipeline;
+    mget: (...args: CommandArgs<typeof JsonMGetCommand>) => Pipeline;
+    numincrby: (...args: CommandArgs<typeof JsonNumIncrByCommand>) => Pipeline;
+    nummultby: (...args: CommandArgs<typeof JsonNumMultByCommand>) => Pipeline;
+    objkeys: (...args: CommandArgs<typeof JsonObjKeysCommand>) => Pipeline;
+    objlen: (...args: CommandArgs<typeof JsonObjLenCommand>) => Pipeline;
+    resp: (...args: CommandArgs<typeof JsonRespCommand>) => Pipeline;
+    set: (...args: CommandArgs<typeof JsonSetCommand>) => Pipeline;
+    strappend: (...args: CommandArgs<typeof JsonStrAppendCommand>) => Pipeline;
+    strlen: (...args: CommandArgs<typeof JsonStrLenCommand>) => Pipeline;
+    toggle: (...args: CommandArgs<typeof JsonToggleCommand>) => Pipeline;
+    type: (...args: CommandArgs<typeof JsonTypeCommand>) => Pipeline;
+  } {
+    // For some reason we needed to define the types manually, otherwise Deno wouldn't build it
     return {
       /**
        * @see https://redis.io/commands/json.arrappend

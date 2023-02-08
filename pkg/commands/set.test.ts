@@ -57,12 +57,12 @@ Deno.test("exat", async (t) => {
     const value = randomID();
 
     const res = await new SetCommand([key, value, {
-      exat: Math.floor(Date.now() / 1000) + 1,
+      exat: Math.floor(Date.now() / 1000) + 2,
     }]).exec(client);
     assertEquals(res, "OK");
     const res2 = await new GetCommand([key]).exec(client);
     assertEquals(res2, value);
-    await new Promise((res) => setTimeout(res, 2000));
+    await new Promise((res) => setTimeout(res, 3000));
 
     const res3 = await new GetCommand([key]).exec(client);
 

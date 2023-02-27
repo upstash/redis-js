@@ -8,6 +8,6 @@ export class JsonForgetCommand extends Command<number, number> {
     cmd: [key: string, path?: string],
     opts?: CommandOptions<number, number>,
   ) {
-    super(["JSON.DEL", ...cmd], opts);
+    super(["JSON.FORGET", ...cmd], opts);
   }
 }

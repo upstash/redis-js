@@ -164,6 +164,7 @@ export class HttpClient implements Requester {
     req: UpstashRequest,
   ): Promise<UpstashResponse<TResult>> {
     const requestOptions: RequestInit & { backend?: string; agent?: any } = {
+      cache: "no-store",
       method: "POST",
       headers: this.headers,
       body: JSON.stringify(req.body),

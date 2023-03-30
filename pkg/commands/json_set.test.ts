@@ -5,9 +5,7 @@ import { JsonSetCommand } from "./json_set.ts";
 import { JsonGetCommand } from "./json_get.ts";
 import {
   assert,
-  assertArrayIncludes,
   assertEquals,
-  assertFalse,
 } from "https://deno.land/std@0.177.0/testing/asserts.ts";
 
 const client = newHttpClient();

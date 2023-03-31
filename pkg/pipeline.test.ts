@@ -195,7 +195,7 @@ Deno.test("use all the things", async (t) => {
       .touch(newKey())
       .ttl(newKey())
       .type(newKey())
-      .unlink()
+      .unlink(newKey())
       .zadd(newKey(), { score: 0, member: "member" })
       .zcard(newKey())
       .scriptExists(scriptHash)

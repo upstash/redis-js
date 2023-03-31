@@ -167,7 +167,11 @@ Deno.test("limit", async (t) => {
       ]).exec(client);
     }
 
-    const res = await new ZRangeCommand([key, 0, 7, { offset: 0, count: 2 }])
+    const res = await new ZRangeCommand([key, 0, 7, {
+      byScore: true,
+      offset: 0,
+      count: 2,
+    }])
       .exec(
         client,
       );

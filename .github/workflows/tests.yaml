@@ -695,6 +695,7 @@ jobs:
       - name: Install example
         working-directory: ./examples/fastly
         run: |
+          npm install --global npm@latest
           pnpm add @upstash/redis@${{needs.release.outputs.version}}
           curl -L https://github.com/fastly/cli/releases/download/v1.7.0/fastly_v1.7.0_linux-amd64.tar.gz > fastly.tar.gz
           tar -xf ./fastly.tar.gz

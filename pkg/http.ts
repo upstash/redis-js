@@ -1,6 +1,14 @@
 import { UpstashError } from "./error.ts";
 import { Telemetry } from "./types.ts";
 
+type CacheSetting =
+  | "default"
+  | "force-cache"
+  | "no-cache"
+  | "no-store"
+  | "only-if-cached"
+  | "reload";
+
 export type UpstashRequest = {
   path?: string[];
   /**
@@ -81,6 +89,7 @@ export type HttpClientConfig = {
   options?: Options;
   retry?: RetryConfig;
   agent?: any;
+  cache?: CacheSetting;
 } & RequesterConfig;
 
 export class HttpClient implements Requester {
@@ -90,6 +99,7 @@ export class HttpClient implements Requester {
     backend?: string;
     agent: any;
     responseEncoding?: false | "base64";
+    cache?: CacheSetting;
   };
 
   public readonly retry: {
@@ -102,6 +112,7 @@ export class HttpClient implements Requester {
       backend: config.options?.backend,
       agent: config.agent,
       responseEncoding: config.responseEncoding ?? "base64", // default to base64
+      cache: config.cache,
     };
 
     this.baseUrl = config.baseUrl.replace(/\/$/, "");
@@ -164,7 +175,7 @@ export class HttpClient implements Requester {
     req: UpstashRequest,
   ): Promise<UpstashResponse<TResult>> {
     const requestOptions: RequestInit & { backend?: string; agent?: any } = {
-      cache: "no-store",
+      cache: this.options.cache,
       method: "POST",
       headers: this.headers,
       body: JSON.stringify(req.body),

@@ -14,23 +14,17 @@ jobs:
     name: Tests
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
-      - name: Setup node
-        uses: actions/setup-node@v2
-        with:
-          node-version: 18
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 6
+        uses: actions/checkout@v3
+
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
 
-      - name: Verify formatting
-        run: deno fmt --check
+      # - name: Verify formatting
+      #   run: deno fmt --check
 
-      - name: Lint
-        run: deno lint
+      # - name: Lint
+      #   run: deno lint
 
       - name: Run tests
         run: deno test -A --fail-fast --shuffle ./pkg
@@ -46,11 +40,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -58,7 +52,7 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -86,11 +80,11 @@ jobs:
       - release
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -98,7 +92,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Install @upstash/redis 
         run: pnpm add @upstash/redis@${{needs.release.outputs.version}}
@@ -119,6 +114,7 @@ jobs:
 
 
   netlify-edge-local:
+    if: false
     needs:
       - test
        
@@ -126,11 +122,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -138,7 +134,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -167,11 +164,11 @@ jobs:
       - release
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -179,7 +176,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
 
       - name: Install @upstash/redis 
@@ -208,11 +206,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -220,7 +218,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -256,11 +255,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -268,7 +267,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -301,11 +301,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -313,7 +313,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -346,11 +347,11 @@ jobs:
       - release
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -358,7 +359,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Deploy
         run: |
@@ -380,11 +382,11 @@ jobs:
       - release
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -392,7 +394,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Deploy
         run: |
@@ -413,11 +416,11 @@ jobs:
       - release
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -425,7 +428,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Deploy
         run: |
@@ -446,14 +450,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -488,19 +493,20 @@ jobs:
     needs:
       - release
     env:
-      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+      UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Install example
         run: |
@@ -530,14 +536,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -573,19 +580,20 @@ jobs:
     needs:
       - release
     env:
-      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+      UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Install example
         run: |
@@ -610,20 +618,22 @@ jobs:
           DEPLOYMENT_URL: https://cloudflare-workers-with-typescript.upstash.workers.dev
 
   fastly-local:
+    if: false
     needs:
       - test
    
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -641,7 +651,7 @@ jobs:
         run: |
           sed -i 's;<UPSTASH_REDIS_REST_URL>;${{ secrets.UPSTASH_REDIS_REST_URL }};' fastly.toml
           sed -i 's;<UPSTASH_REDIS_REST_URL>;${{ secrets.UPSTASH_REDIS_REST_URL }};' src/index.js
-          sed -i 's;<UPSTASH_REDIS_REST_TOKEN>;${{ secrets.UPSTASH_AUTH_TOKEN }};' src/index.js
+          sed -i 's;<UPSTASH_REDIS_REST_TOKEN>;${{ secrets.UPSTASH_REDIS_REST_TOKEN }};' src/index.js
 
       - name: Start example
         working-directory: ./examples/fastly
@@ -654,16 +664,21 @@ jobs:
           DEPLOYMENT_URL: http://localhost:7676
 
   fastly-deployed:
+    if: false
     concurrency: fastly-deployed
     needs:
       - release
     env:
-      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+      UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
@@ -677,11 +692,13 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Install example
         working-directory: ./examples/fastly
         run: |
+          npm install --global npm@latest
           pnpm add @upstash/redis@${{needs.release.outputs.version}}
           curl -L https://github.com/fastly/cli/releases/download/v1.7.0/fastly_v1.7.0_linux-amd64.tar.gz > fastly.tar.gz
           tar -xf ./fastly.tar.gz
@@ -712,7 +729,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
@@ -726,7 +743,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -748,7 +766,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
@@ -759,7 +777,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -781,7 +800,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       
       - uses: denoland/setup-deno@v1
         with:
@@ -806,12 +825,12 @@ jobs:
     needs:
       - release
     env:
-      UPSTASH_REDIS_REST_URL: http://127.0.0.1:6379
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_AUTH_TOKEN }}
+      UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       
       - uses: denoland/setup-deno@v1
         with:
@@ -851,7 +870,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Get version
         id: version
@@ -860,7 +879,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:

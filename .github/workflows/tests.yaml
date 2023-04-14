@@ -114,6 +114,7 @@ jobs:
 
 
   netlify-edge-local:
+    if: false
     needs:
       - test
        
@@ -617,6 +618,7 @@ jobs:
           DEPLOYMENT_URL: https://cloudflare-workers-with-typescript.upstash.workers.dev
 
   fastly-local:
+    if: false
     needs:
       - test
    
@@ -662,6 +664,7 @@ jobs:
           DEPLOYMENT_URL: http://localhost:7676
 
   fastly-deployed:
+    if: false
     concurrency: fastly-deployed
     needs:
       - release

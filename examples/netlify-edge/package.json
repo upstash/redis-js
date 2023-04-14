@@ -9,10 +9,7 @@
   "keywords": [],
   "author": "Andreas Thomas",
   "license": "ISC",
-  "dependencies": {
-    "@netlify/functions": "^1.3.0",
-    "@upstash/redis": "latest"
-  },
+
   "devDependencies": {
     "netlify-cli": "^12.0.7"
   }

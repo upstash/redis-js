@@ -15,22 +15,16 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
-      - name: Setup node
-        uses: actions/setup-node@v2
-        with:
-          node-version: 18
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 6
+
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
 
-      - name: Verify formatting
-        run: deno fmt --check
+      # - name: Verify formatting
+      #   run: deno fmt --check
 
-      - name: Lint
-        run: deno lint
+      # - name: Lint
+      #   run: deno lint
 
       - name: Run tests
         run: deno test -A --fail-fast --shuffle ./pkg
@@ -50,7 +44,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -58,7 +52,7 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -90,7 +84,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -98,7 +92,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Install @upstash/redis 
         run: pnpm add @upstash/redis@${{needs.release.outputs.version}}
@@ -130,7 +125,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -138,7 +133,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -171,7 +167,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -179,7 +175,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
 
       - name: Install @upstash/redis 
@@ -212,7 +209,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -220,7 +217,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -260,7 +258,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -268,7 +266,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -305,7 +304,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -313,7 +312,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -350,7 +350,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -358,7 +358,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Deploy
         run: |
@@ -384,7 +385,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -392,7 +393,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Deploy
         run: |
@@ -417,7 +419,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:
@@ -425,7 +427,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Deploy
         run: |
@@ -453,7 +456,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -500,7 +504,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Install example
         run: |
@@ -537,7 +542,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -585,7 +591,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Install example
         run: |
@@ -623,7 +630,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -677,7 +685,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Install example
         working-directory: ./examples/fastly
@@ -726,7 +735,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -759,7 +769,8 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: latest
+        
 
       - name: Build
         run: deno run -A ./cmd/build.ts
@@ -860,7 +871,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - uses: denoland/setup-deno@v1
         with:

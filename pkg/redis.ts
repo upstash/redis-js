@@ -151,7 +151,11 @@ import type { CommandArgs } from "./types.ts";
 import { Script } from "./script.ts";
 import { ZMScoreCommand } from "./commands/zmscore.ts";
 import { ZDiffStoreCommand } from "./commands/zdiffstore.ts";
-import { RedisOptions, Telemetry } from "./types.ts";
+import type { RedisOptions, Telemetry } from "./types.ts";
+
+// See https://github.com/upstash/upstash-redis/issues/342
+// why we need this export
+export type { RedisOptions } from "./types.ts";
 
 /**
  * Serverless redis client for upstash.

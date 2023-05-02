@@ -5,7 +5,7 @@ import { Command, CommandOptions } from "./command.ts";
  */
 export class HDelCommand extends Command<"0" | "1", 0 | 1> {
   constructor(
-    cmd: [key: string, field: string],
+    cmd: [key: string, ...fields: string[]],
     opts?: CommandOptions<"0" | "1", 0 | 1>,
   ) {
     super(["hdel", ...cmd], opts);

@@ -114,7 +114,6 @@ jobs:
 
 
   netlify-edge-local:
-    if: false
     needs:
       - test
        
@@ -137,18 +136,14 @@ jobs:
           version: latest
         
 
-      - name: Build
-        run: deno run -A ./cmd/build.ts
 
+      - name: Install Dependencies
+        run: pnpm install
+        working-directory: ./examples/netlify
 
-      - name: Install example
+      - name: Start
         run: |
-          pnpm add @upstash/redis@../../dist
-          npm i -g netlify-cli
-        working-directory: ./examples/netlify-edge
-
-      - name: Start example
-        run:  netlify dev --port 15015 & sleep 10
+          npx netlify-cli dev --port 15015 & sleep 10
         working-directory: ./examples/netlify-edge
         
 
@@ -862,7 +857,7 @@ jobs:
       - nextjs-edge-local
       - netlify-local
       - deno-local
-      # - netlify-edge-local - not working in ci for some reason, local is fine
+      - netlify-edge-local 
       - cloudflare-workers-with-typescript-local
       - cloudflare-workers-local
 

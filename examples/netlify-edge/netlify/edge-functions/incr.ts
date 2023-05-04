@@ -1,8 +1,7 @@
-import type { Context } from "https://edge.netlify.com";
-import { Redis } from "https://deno.land/x/upstash_redis/mod.ts";
+import { Redis } from "../../../../mod.js";
 
 const redis = Redis.fromEnv();
-export default async (_req: Request, _ctx: Context) => {
+export default async (_req: Request) => {
   console.log("Hello");
   try {
     return new Response(JSON.stringify({
@@ -14,3 +13,5 @@ export default async (_req: Request, _ctx: Context) => {
     return new Response(err.message, { status: 500 });
   }
 };
+
+export const config = { path: "/incr" };

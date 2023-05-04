@@ -130,7 +130,9 @@ export class Redis extends core.Redis {
     });
 
     this.addTelemetry({
-      runtime: `node@${process.version}`,
+      runtime: typeof EdgeRuntime === "string"
+        ? "edge-light"
+        : `node@${process.version}`,
       platform: process.env.VERCEL
         ? "vercel"
         : process.env.AWS_REGION

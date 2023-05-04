@@ -857,7 +857,7 @@ jobs:
       - nextjs-edge-local
       - netlify-local
       - deno-local
-      - netlify-edge-local 
+      # - netlify-edge-local - their own cli doesn't work right now. I'll try again in a week
       - cloudflare-workers-with-typescript-local
       - cloudflare-workers-local
 

@@ -7,7 +7,7 @@ if (!deploymentURL) {
 
 Deno.test("works", async () => {
   console.log({ deploymentURL });
-  const url = `${deploymentURL}/handler`;
+  const url = `${deploymentURL}/incr`;
   console.log({ url });
   const res = await fetch(url);
   const body = await res.text();

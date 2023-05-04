@@ -36,3 +36,24 @@ Deno.test(
     assertEquals(res2, null);
   },
 );
+
+Deno.test(
+  "deletes multiple fields",
+  async () => {
+    const key = newKey();
+    const field1 = randomID();
+    const field2 = randomID();
+    await new HSetCommand([key, { [field1]: randomID(), [field2]: randomID() }])
+      .exec(
+        client,
+      );
+    const res = await new HDelCommand([key, field1, field2]).exec(client);
+
+    assertEquals(res, 2);
+    const res2 = await new HGetCommand([key, field1]).exec(client);
+    assertEquals(res2, null);
+
+    const res3 = await new HGetCommand([key, field2]).exec(client);
+    assertEquals(res3, null);
+  },
+);

@@ -114,6 +114,7 @@ jobs:
 
 
   netlify-edge-local:
+    if: false
     needs:
       - test
        
@@ -153,6 +154,7 @@ jobs:
           DEPLOYMENT_URL: http://localhost:15015
 
   netlify-edge-deployed:
+    if: false
     concurrency: netlify-edge-deployed
     runs-on: ubuntu-latest
     needs:

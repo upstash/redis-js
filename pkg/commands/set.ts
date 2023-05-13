@@ -1,8 +1,8 @@
 import { Command, CommandOptions } from "./command.ts";
 
 export type SetCommandOptions =
-  | { get: boolean }
-  | (
+  & { get: boolean }
+  & (
     | { ex: number; px?: never; exat?: never; pxat?: never; keepTtl?: never }
     | { ex?: never; px: number; exat?: never; pxat?: never; keepTtl?: never }
     | { ex?: never; px?: never; exat: number; pxat?: never; keepTtl?: never }
@@ -10,11 +10,11 @@ export type SetCommandOptions =
     | { ex?: never; px?: never; exat?: never; pxat?: never; keepTtl: true }
     | { ex?: never; px?: never; exat?: never; pxat?: never; keepTtl?: never }
   )
-    & (
-      | { nx: true; xx?: never }
-      | { xx: true; nx?: never }
-      | { xx?: never; nx?: never }
-    );
+  & (
+    | { nx: true; xx?: never }
+    | { xx: true; nx?: never }
+    | { xx?: never; nx?: never }
+  );
 
 /**
  * @see https://redis.io/commands/set

@@ -99,6 +99,19 @@ Deno.test("get", async (t) => {
     assertEquals(res, old);
   });
 });
+
+Deno.test("get with nx", async (t) => {
+  await t.step("gets the old value", async () => {
+    const key = newKey();
+    const old = randomID();
+    const value = randomID();
+    await new SetCommand([key, old]).exec(client);
+
+    const res = await new SetCommand([key, value, { get: true, nx: true }])
+      .exec(client);
+    assertEquals(res, old);
+  });
+});
 Deno.test("nx", async (t) => {
   await t.step("when key exists", async (t) => {
     await t.step("does nothing", async () => {

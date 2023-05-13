@@ -1,7 +1,7 @@
 import { Command, CommandOptions } from "./command.ts";
 
 export type SetCommandOptions =
-  & { get: boolean }
+  & { get?: boolean }
   & (
     | { ex: number; px?: never; exat?: never; pxat?: never; keepTtl?: never }
     | { ex?: never; px: number; exat?: never; pxat?: never; keepTtl?: never }

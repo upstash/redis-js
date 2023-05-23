@@ -152,7 +152,10 @@ import { ZMScoreCommand } from "./commands/zmscore.ts";
 import { HRandFieldCommand } from "./commands/hrandfield.ts";
 import { ZDiffStoreCommand } from "./commands/zdiffstore.ts";
 
-type Chain = <T>(command: Command<any, T>) => Pipeline;
+// Given a tuple of commands, returns a tuple of the response data of each command
+type InferResponseData<T extends unknown[]> = {
+  [K in keyof T]: T[K] extends Command<any, infer TData> ? TData : unknown;
+};
 
 /**
  * Upstash REST API supports command pipelining to send multiple commands in
@@ -182,7 +185,7 @@ type Chain = <T>(command: Command<any, T>) => Pipeline;
  * const res = await p.set("key","value").get("key").exec()
  * ```
  *
- * It's not possible to infer correct types with a dynamic pipeline, so you can
+ * Return types are inferred if all commands are chained, but you can still
  * override the response type manually:
  * ```ts
  *  redis.pipeline()
@@ -192,9 +195,9 @@ type Chain = <T>(command: Command<any, T>) => Pipeline;
  *
  * ```
  */
-export class Pipeline {
+export class Pipeline<TCommands extends Command<any, any>[] = []> {
   private client: Requester;
-  private commands: Command<unknown, unknown>[];
+  private commands: TCommands;
   private commandOptions?: CommandOptions<any, any>;
   private multiExec: boolean;
   constructor(opts: {
@@ -204,7 +207,7 @@ export class Pipeline {
   }) {
     this.client = opts.client;
 
-    this.commands = [];
+    this.commands = ([] as unknown) as TCommands; // the TCommands generic in the class definition is only used for carrying through chained command types and should never be explicitly set when instantiating the class
     this.commandOptions = opts.commandOptions;
     this.multiExec = opts.multiExec ?? false;
   }
@@ -214,13 +217,16 @@ export class Pipeline {
    *
    * Returns an array with the results of all pipelined commands.
    *
-   * You can define a return type manually to make working in typescript easier
+   * If all commands are statically chained from start to finish, types are inferred. You can still define a return type manually if necessary though:
    * ```ts
-   * redis.pipeline().get("key").exec<[{ greeting: string }]>()
+   * const p = redis.pipeline()
+   * p.get("key")
+   * const result = p.exec<[{ greeting: string }]>()
    * ```
    */
   exec = async <
-    TCommandResults extends unknown[] = unknown[],
+    TCommandResults extends unknown[] = [] extends TCommands ? unknown[]
+      : InferResponseData<TCommands>,
   >(): Promise<TCommandResults> => {
     if (this.commands.length === 0) {
       throw new Error("Pipeline is empty");
@@ -245,12 +251,14 @@ export class Pipeline {
   };
 
   /**
-   * Pushes a command into the pipelien and returns a chainable instance of the
+   * Pushes a command into the pipeline and returns a chainable instance of the
    * pipeline
    */
-  private chain<T>(command: Command<any, T>): this {
+  private chain<T>(
+    command: Command<any, T>,
+  ): Pipeline<[...TCommands, Command<any, T>]> {
     this.commands.push(command);
-    return this;
+    return this as any; // TS thinks we're returning Pipeline<[]> here, because we're not creating a new instance of the class, hence the cast
   }
 
   /**
@@ -274,14 +282,18 @@ export class Pipeline {
       destinationKey: string,
       sourceKey: string,
       ...sourceKeys: string[]
-    ): Pipeline;
-    (op: "not", destinationKey: string, sourceKey: string): Pipeline;
+    ): Pipeline<[...TCommands, BitOpCommand]>;
+    (
+      op: "not",
+      destinationKey: string,
+      sourceKey: string,
+    ): Pipeline<[...TCommands, BitOpCommand]>;
   } = (
     op: "and" | "or" | "xor" | "not",
     destinationKey: string,
     sourceKey: string,
     ...sourceKeys: string[]
-  ): Pipeline =>
+  ) =>
     this.chain(
       new BitOpCommand(
         [op as any, destinationKey, sourceKey, ...sourceKeys],
@@ -549,7 +561,7 @@ export class Pipeline {
     direction: "before" | "after",
     pivot: TData,
     value: TData,
-  ): Pipeline =>
+  ) =>
     this.chain(
       new LInsertCommand<TData>(
         [key, direction, pivot, value],
@@ -1070,30 +1082,7 @@ export class Pipeline {
   /**
    * @see https://redis.io/commands/?group=json
    */
-  get json(): {
-    arrappend: (...args: CommandArgs<typeof JsonArrAppendCommand>) => Pipeline;
-    arrindex: (...args: CommandArgs<typeof JsonArrIndexCommand>) => Pipeline;
-    arrinsert: (...args: CommandArgs<typeof JsonArrInsertCommand>) => Pipeline;
-    arrlen: (...args: CommandArgs<typeof JsonArrLenCommand>) => Pipeline;
-    arrpop: (...args: CommandArgs<typeof JsonArrPopCommand>) => Pipeline;
-    arrtrim: (...args: CommandArgs<typeof JsonArrTrimCommand>) => Pipeline;
-    clear: (...args: CommandArgs<typeof JsonClearCommand>) => Pipeline;
-    del: (...args: CommandArgs<typeof JsonDelCommand>) => Pipeline;
-    forget: (...args: CommandArgs<typeof JsonForgetCommand>) => Pipeline;
-    get: (...args: CommandArgs<typeof JsonGetCommand>) => Pipeline;
-    mget: (...args: CommandArgs<typeof JsonMGetCommand>) => Pipeline;
-    numincrby: (...args: CommandArgs<typeof JsonNumIncrByCommand>) => Pipeline;
-    nummultby: (...args: CommandArgs<typeof JsonNumMultByCommand>) => Pipeline;
-    objkeys: (...args: CommandArgs<typeof JsonObjKeysCommand>) => Pipeline;
-    objlen: (...args: CommandArgs<typeof JsonObjLenCommand>) => Pipeline;
-    resp: (...args: CommandArgs<typeof JsonRespCommand>) => Pipeline;
-    set: (...args: CommandArgs<typeof JsonSetCommand>) => Pipeline;
-    strappend: (...args: CommandArgs<typeof JsonStrAppendCommand>) => Pipeline;
-    strlen: (...args: CommandArgs<typeof JsonStrLenCommand>) => Pipeline;
-    toggle: (...args: CommandArgs<typeof JsonToggleCommand>) => Pipeline;
-    type: (...args: CommandArgs<typeof JsonTypeCommand>) => Pipeline;
-  } {
-    // For some reason we needed to define the types manually, otherwise Deno wouldn't build it
+  get json() {
     return {
       /**
        * @see https://redis.io/commands/json.arrappend

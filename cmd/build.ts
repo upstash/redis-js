@@ -5,7 +5,7 @@ const outDir = "./dist";
 
 await dnt.emptyDir(outDir);
 
-const version = Deno.args.length > 0 ? Deno.args[0] : "development";
+const version = Deno.args.length > 0 ? Deno.args[0] : "v0.0.0";
 Deno.writeFileSync(
   "version.ts",
   new TextEncoder().encode(`export const VERSION = "${version}"`),

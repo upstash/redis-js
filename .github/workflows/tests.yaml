@@ -1,5 +1,8 @@
 name: Tests
 on:
+  push:
+      branches:
+          - main
   pull_request:
   schedule:
     - cron: "0 0 * * *" # daily
@@ -466,8 +469,12 @@ jobs:
           pnpm add -g wrangler
         working-directory: examples/cloudflare-workers
 
-      - name: Add account ID
-        run: echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
+      - name: Add environment
+        run: |
+          echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
+          echo '[vars]' >> wrangler.toml
+          echo 'UPSTASH_REDIS_REST_URL = "${{ secrets.UPSTASH_REDIS_REST_URL }}"' >> ./wrangler.toml
+          echo 'UPSTASH_REDIS_REST_TOKEN = "${{ secrets.UPSTASH_REDIS_REST_TOKEN }}"' >> ./wrangler.toml
         working-directory: examples/cloudflare-workers
 
       - name: Start example
@@ -554,8 +561,12 @@ jobs:
 
         working-directory: examples/cloudflare-workers-with-typescript
 
-      - name: Add account ID
-        run: echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
+      - name: Add environment
+        run: |
+            echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
+            echo '[vars]' >> wrangler.toml
+            echo 'UPSTASH_REDIS_REST_URL = "${{ secrets.UPSTASH_REDIS_REST_URL }}"' >> ./wrangler.toml
+            echo 'UPSTASH_REDIS_REST_TOKEN = "${{ secrets.UPSTASH_REDIS_REST_TOKEN }}"' >> ./wrangler.toml
         working-directory: examples/cloudflare-workers-with-typescript
 
       - name: Start example

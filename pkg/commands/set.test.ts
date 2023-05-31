@@ -107,7 +107,8 @@ Deno.test("get with xx", async (t) => {
     const value = randomID();
     await new SetCommand([key, old]).exec(client);
 
-    const res = await new SetCommand([key, value, { get: true, xx: true }]).exec(client);
+    const res = await new SetCommand([key, value, { get: true, xx: true }])
+      .exec(client);
     assertEquals(res, old);
   });
 });

@@ -13,5 +13,4 @@ Deno.test("works", async () => {
   assertEquals(res.status, 200);
   const { counter } = await res.json() as { counter: number };
   assertEquals("number", typeof counter);
-  assertEquals("OK", await res.text());
 });

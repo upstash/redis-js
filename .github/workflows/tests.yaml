@@ -13,6 +13,7 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    concurrency: test
 
     name: Tests
     steps:

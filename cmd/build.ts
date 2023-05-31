@@ -68,10 +68,10 @@ await dnt.build({
      */
     typesVersions: {
       "*": {
-        nodejs: "./types/platforms/nodejs.d.ts",
-        cloudflare: "./types/platforms/cloudflare.d.ts",
-        fastly: "./types/platforms/fastly.d.ts",
-        "with-fetch": "./types/platforms/node_with_fetch.d.ts",
+        nodejs: ["./types/platforms/nodejs.d.ts"],
+        cloudflare: ["./types/platforms/cloudflare.d.ts"],
+        fastly: ["./types/platforms/fastly.d.ts"],
+        "with-fetch": ["./types/platforms/node_with_fetch.d.ts"],
       },
     },
   },

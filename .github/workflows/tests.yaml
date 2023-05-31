@@ -560,9 +560,7 @@ jobs:
 
       - name: Add environment
         run: |
-          echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
-          - name: add environment
-          run: |
+            echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
             echo '[vars]' >> wrangler.toml
             echo 'UPSTASH_REDIS_REST_URL = "${{ secrets.UPSTASH_REDIS_REST_URL }}"' >> ./wrangler.toml
             echo 'UPSTASH_REDIS_REST_TOKEN = "${{ secrets.UPSTASH_REDIS_REST_TOKEN }}"' >> ./wrangler.toml

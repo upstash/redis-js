@@ -11,6 +11,6 @@
   "license": "ISC",
 
   "devDependencies": {
-    "netlify-cli": "^12.0.7"
+    "netlify-cli": "^15.4.2"
   }
 }

@@ -121,7 +121,7 @@ export class Redis extends core.Redis {
       headers: { authorization: `Bearer ${configOrRequester.token}` },
       agent: configOrRequester.agent,
       responseEncoding: configOrRequester.responseEncoding,
-      cache: configOrRequester.cache || 'no-store',
+      cache: configOrRequester.cache || "no-store",
     });
 
     super(client, {

@@ -81,6 +81,12 @@ export type RequesterConfig = {
    * @default "base64"
    */
   responseEncoding?: false | "base64";
+
+  /**
+   * Configure the cache behaviour
+   * @default "no-store"
+   */
+  cache?: CacheSetting;
 };
 
 export type HttpClientConfig = {
@@ -89,7 +95,6 @@ export type HttpClientConfig = {
   options?: Options;
   retry?: RetryConfig;
   agent?: any;
-  cache?: CacheSetting;
 } & RequesterConfig;
 
 export class HttpClient implements Requester {

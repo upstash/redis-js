@@ -16,6 +16,7 @@ import {
   ExpireCommand,
   FlushAllCommand,
   FlushDBCommand,
+  GeoAddCommand,
   GetBitCommand,
   GetCommand,
   GetDelCommand,
@@ -239,6 +240,12 @@ export class Redis {
         new JsonForgetCommand(args, this.opts).exec(this.client),
 
       /**
+       * @see https://redis.io/commands/geoadd
+       */
+      geoadd: (...args: CommandArgs<typeof GeoAddCommand>) =>
+        new GeoAddCommand(args, this.opts).exec(this.client),
+
+      /**
        * @see https://redis.io/commands/json.get
        */
       get: (...args: CommandArgs<typeof JsonGetCommand>) =>
@@ -318,9 +325,9 @@ export class Redis {
     middleware: (
       r: UpstashRequest,
       next: <TResult = unknown>(
-        req: UpstashRequest,
-      ) => Promise<UpstashResponse<TResult>>,
-    ) => Promise<UpstashResponse<TResult>>,
+        req: UpstashRequest
+      ) => Promise<UpstashResponse<TResult>>
+    ) => Promise<UpstashResponse<TResult>>
   ) => {
     const makeRequest = this.client.request.bind(this.client);
     this.client.request = (req: UpstashRequest) =>
@@ -405,7 +412,7 @@ export class Redis {
   ) =>
     new BitOpCommand(
       [op as any, destinationKey, sourceKey, ...sourceKeys],
-      this.opts,
+      this.opts
     ).exec(this.client);
 
   /**
@@ -587,15 +594,17 @@ export class Redis {
     <TData extends Record<string, unknown>>(
       key: string,
       count: number,
-      withValues: boolean,
+      withValues: boolean
     ): Promise<Partial<TData>>;
   } = <TData extends string | string[] | Record<string, unknown>>(
     key: string,
     count?: number,
-    withValues?: boolean,
+    withValues?: boolean
   ) =>
-    new HRandFieldCommand<TData>([key, count, withValues] as any, this.opts)
-      .exec(this.client);
+    new HRandFieldCommand<TData>(
+      [key, count, withValues] as any,
+      this.opts
+    ).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hscan
@@ -664,10 +673,10 @@ export class Redis {
     key: string,
     direction: "before" | "after",
     pivot: TData,
-    value: TData,
+    value: TData
   ) =>
     new LInsertCommand<TData>([key, direction, pivot, value], this.opts).exec(
-      this.client,
+      this.client
     );
 
   /**
@@ -925,7 +934,7 @@ export class Redis {
    */
   smismember = <TMembers extends unknown[]>(key: string, members: TMembers) =>
     new SMIsMemberCommand<TMembers>([key, members], this.opts).exec(
-      this.client,
+      this.client
     );
 
   /**
@@ -940,7 +949,7 @@ export class Redis {
    */
   smove = <TData>(source: string, destination: string, member: TData) =>
     new SMoveCommand<TData>([source, destination, member], this.opts).exec(
-      this.client,
+      this.client
     );
 
   /**
@@ -1020,26 +1029,26 @@ export class Redis {
   zadd = <TData>(
     ...args:
       | [
-        key: string,
-        scoreMember: ScoreMember<TData>,
-        ...scoreMemberPairs: ScoreMember<TData>[],
-      ]
+          key: string,
+          scoreMember: ScoreMember<TData>,
+          ...scoreMemberPairs: ScoreMember<TData>[]
+        ]
       | [
-        key: string,
-        opts: ZAddCommandOptions | ZAddCommandOptionsWithIncr,
-        ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]],
-      ]
+          key: string,
+          opts: ZAddCommandOptions | ZAddCommandOptionsWithIncr,
+          ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]]
+        ]
   ) => {
     if ("score" in args[1]) {
       return new ZAddCommand<TData>(
         [args[0], args[1] as ScoreMember<TData>, ...(args.slice(2) as any)],
-        this.opts,
+        this.opts
       ).exec(this.client);
     }
 
     return new ZAddCommand<TData>(
       [args[0], args[1] as any, ...(args.slice(2) as any)],
-      this.opts,
+      this.opts
     ).exec(this.client);
   };
   /**
@@ -1065,7 +1074,7 @@ export class Redis {
    */
   zincrby = <TData>(key: string, increment: number, member: TData) =>
     new ZIncrByCommand<TData>([key, increment, member], this.opts).exec(
-      this.client,
+      this.client
     );
 
   /**
@@ -1105,17 +1114,17 @@ export class Redis {
     ...args:
       | [key: string, min: number, max: number, opts?: ZRangeCommandOptions]
       | [
-        key: string,
-        min: `(${string}` | `[${string}` | "-" | "+",
-        max: `(${string}` | `[${string}` | "-" | "+",
-        opts: { byLex: true } & ZRangeCommandOptions,
-      ]
+          key: string,
+          min: `(${string}` | `[${string}` | "-" | "+",
+          max: `(${string}` | `[${string}` | "-" | "+",
+          opts: { byLex: true } & ZRangeCommandOptions
+        ]
       | [
-        key: string,
-        min: number | `(${number}` | "-inf" | "+inf",
-        max: number | `(${number}` | "-inf" | "+inf",
-        opts: { byScore: true } & ZRangeCommandOptions,
-      ]
+          key: string,
+          min: number | `(${number}` | "-inf" | "+inf",
+          max: number | `(${number}` | "-inf" | "+inf",
+          opts: { byScore: true } & ZRangeCommandOptions
+        ]
   ) => new ZRangeCommand<TData>(args as any, this.opts).exec(this.client);
 
   /**

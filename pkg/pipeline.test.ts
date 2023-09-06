@@ -217,9 +217,10 @@ Deno.test("use all the things", async (t) => {
       .zscan(newKey(), 0)
       .zscore(newKey(), "member")
       .zunionstore(newKey(), 1, [newKey()])
+      .zunion(1, [newKey()])
       .json.set(newKey(), "$", { hello: "world" });
 
     const res = await p.exec();
-    assertEquals(res.length, 120);
+    assertEquals(res.length, 121);
   });
 });

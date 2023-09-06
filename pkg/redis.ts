@@ -143,6 +143,7 @@ import {
   ZRevRankCommand,
   ZScanCommand,
   ZScoreCommand,
+  ZUnionCommand,
   ZUnionStoreCommand,
 } from "./commands/mod.ts";
 import { Requester, UpstashRequest, UpstashResponse } from "./http.ts";
@@ -1165,6 +1166,12 @@ export class Redis {
    */
   zscore = <TData>(key: string, member: TData) =>
     new ZScoreCommand<TData>([key, member], this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/zunion
+   */
+  zunion = (...args: CommandArgs<typeof ZUnionCommand>) =>
+    new ZUnionCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zunionstore

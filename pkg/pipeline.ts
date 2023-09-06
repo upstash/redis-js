@@ -141,6 +141,7 @@ import {
   ZRevRankCommand,
   ZScanCommand,
   ZScoreCommand,
+  ZUnionCommand,
   ZUnionStoreCommand,
 } from "./commands/mod.ts";
 import { Command, CommandOptions } from "./commands/command.ts";
@@ -1078,6 +1079,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   zunionstore = (...args: CommandArgs<typeof ZUnionStoreCommand>) =>
     this.chain(new ZUnionStoreCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/zunion
+   */
+  zunion = (...args: CommandArgs<typeof ZUnionCommand>) =>
+    this.chain(new ZUnionCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/?group=json

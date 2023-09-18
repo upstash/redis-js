@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.108",
-    "@types/node": "^18.11.2",
+    "@types/node": "^20.6.2",
     "chai": "^4.3.6",
     "esbuild": "^0.15.12",
     "mocha": "^10.0.0",

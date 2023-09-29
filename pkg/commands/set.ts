@@ -46,7 +46,7 @@ export class SetCommand<TData, TResult = TData | "OK" | null>
       } else if ("pxat" in opts && typeof opts.pxat === "number") {
         command.push("pxat", opts.pxat);
       } else if ("keepTtl" in opts && opts.keepTtl) {
-        command.push("keepTtl", opts.keepTtl);
+        command.push("keepTtl");
       }
     }
     super(command, cmdOpts);

@@ -213,11 +213,21 @@ export class HttpClient implements Requester {
 
     const body = (await res.json()) as UpstashResponse<string>;
     if (!res.ok) {
-      throw new UpstashError(body.error!);
+      throw new UpstashError(
+        `${body.error}, command was: ${JSON.stringify(req.body)}`,
+      );
     }
 
     if (this.options?.responseEncoding === "base64") {
-      return Array.isArray(body) ? body.map(decode) : decode(body) as any;
+      if (Array.isArray(body)) {
+        return body.map(({ result, error }) => ({
+          result: decode(result),
+          error,
+        })) as UpstashResponse<TResult>;
+      }
+
+      const result = decode(body.result) as any;
+      return { result, error: body.error };
     }
     return body as UpstashResponse<TResult>;
   }
@@ -247,23 +257,23 @@ function base64decode(b64: string): string {
   // }
 }
 
-function decode(raw: ResultError): ResultError {
+function decode(raw: ResultError["result"]): ResultError["result"] {
   let result: any = undefined;
-  switch (typeof raw.result) {
+  switch (typeof raw) {
     case "undefined":
       return raw;
 
     case "number": {
-      result = raw.result;
+      result = raw;
       break;
     }
     case "object": {
-      if (Array.isArray(raw.result)) {
-        result = raw.result.map((v) =>
+      if (Array.isArray(raw)) {
+        result = raw.map((v) =>
           typeof v === "string"
             ? base64decode(v)
             : Array.isArray(v)
-            ? v.map(base64decode)
+            ? v.map(decode)
             : v
         );
       } else {
@@ -275,7 +285,7 @@ function decode(raw: ResultError): ResultError {
     }
 
     case "string": {
-      result = raw.result === "OK" ? "OK" : base64decode(raw.result);
+      result = raw === "OK" ? "OK" : base64decode(raw);
       break;
     }
 
@@ -283,5 +293,5 @@ function decode(raw: ResultError): ResultError {
       break;
   }
 
-  return { result, error: raw.error };
+  return result;
 }

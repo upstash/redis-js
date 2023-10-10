@@ -120,7 +120,7 @@ export * from "./touch.ts";
 export * from "./ttl.ts";
 export * from "./type.ts";
 export * from "./unlink.ts";
-export * from "./xadd.ts"
+export * from "./xadd.ts";
 export * from "./zadd.ts";
 export * from "./zcard.ts";
 export * from "./zcount.ts";

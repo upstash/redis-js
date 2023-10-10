@@ -237,6 +237,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
       body: Object.values(this.commands).map((c) => c.command),
     })) as UpstashResponse<any>[];
 
+    console.log("after req", { res });
     return res.map(({ error, result }, i) => {
       if (error) {
         throw new UpstashError(

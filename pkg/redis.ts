@@ -123,6 +123,7 @@ import {
   TtlCommand,
   TypeCommand,
   UnlinkCommand,
+  XAddCommand,
   ZAddCommand,
   ZAddCommandOptions,
   ZAddCommandOptionsWithIncr,
@@ -144,7 +145,6 @@ import {
   ZScanCommand,
   ZScoreCommand,
   ZUnionStoreCommand,
-  XAddCommand
 } from "./commands/mod.ts";
 import { Requester, UpstashRequest, UpstashResponse } from "./http.ts";
 import { Pipeline } from "./pipeline.ts";
@@ -1015,13 +1015,10 @@ export class Redis {
   unlink = (...args: CommandArgs<typeof UnlinkCommand>) =>
     new UnlinkCommand(args, this.opts).exec(this.client);
 
-
-
-    
   // /**
   //  * @see https://redis.io/commands/xadd
   //  */
-  // xadd = 
+  // xadd =
 
   /**
    * @see https://redis.io/commands/zadd
@@ -1181,5 +1178,3 @@ export class Redis {
   zunionstore = (...args: CommandArgs<typeof ZUnionStoreCommand>) =>
     new ZUnionStoreCommand(args, this.opts).exec(this.client);
 }
-
-

@@ -17,9 +17,9 @@ export class XAddCommand extends Command<string, string> {
           threshold: number;
           limit?: number;
         };
-      }
+      },
     ],
-    commandOptions?: CommandOptions<string, string>
+    commandOptions?: CommandOptions<string, string>,
   ) {
     const command: unknown[] = ["XADD", key];
 

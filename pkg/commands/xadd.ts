@@ -1,5 +1,30 @@
 import { Command, CommandOptions } from "./command.ts";
 
+type XAddCommandOptions = {
+  nomkStream?: boolean;
+  trim?:
+    & (
+      | {
+        type: "MAXLEN" | "maxlen";
+        threshold: number;
+      }
+      | {
+        type: "MINID" | "minid";
+        threshold: string;
+      }
+    )
+    & (
+      | {
+        comparison: "~";
+        limit?: number;
+      }
+      | {
+        comparison: "=";
+        limit?: never;
+      }
+    );
+};
+
 /**
  * @see https://redis.io/commands/xadd
  */
@@ -9,21 +34,12 @@ export class XAddCommand extends Command<string, string> {
       key: string,
       id: "*" | string,
       entries: { [field: string]: unknown },
-      opts?: {
-        nomkStream?: "*" | string;
-        trim?: {
-          type: "MINID" | "MAXLEN" | "minid" | "maxlen";
-          comparison: "=" | "~";
-          threshold: number;
-          limit?: number;
-        };
-      },
+      opts?: XAddCommandOptions,
     ],
     commandOptions?: CommandOptions<string, string>,
   ) {
     const command: unknown[] = ["XADD", key];
 
-    // opts
     if (opts) {
       if (opts.nomkStream) {
         command.push("NOMKSTREAM");

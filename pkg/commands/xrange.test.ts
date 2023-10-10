@@ -19,7 +19,8 @@ Deno.test("without options", async (t) => {
     const field2 = "field2";
     const member2 = randomID();
 
-    await new XAddCommand([key, "*", { [field1]: member1, [field2]: member2 }]).exec(client);
+    await new XAddCommand([key, "*", { [field1]: member1, [field2]: member2 }])
+      .exec(client);
 
     const res = await new XRangeCommand([key, "-", "+"]).exec(client);
     assertEquals(Object.keys(res).length, 1);

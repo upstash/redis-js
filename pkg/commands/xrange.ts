@@ -1,27 +1,26 @@
 import { Command, CommandOptions } from "./command.ts";
 
 function deserialize<TData extends Record<string, Record<string, unknown>>>(
-  result: (string | string[])[],
+  result: [string, string[]][],
 ): TData {
-  if (result.length === 0) {
-    return {} as TData;
-  }
   const obj: Record<string, Record<string, unknown>> = {};
-  while (result.length >= 2) {
-    const streamId = result.shift() as string;
-    const entries = result.shift()!;
+  for (const e of result) {
+    while (e.length >= 2) {
+      const streamId = e.shift() as string;
+      const entries = e.shift()!;
 
-    if (!(streamId in obj)) {
-      obj[streamId] = {};
-    }
-    while (entries.length >= 2) {
-      const field = (entries as string[]).shift()! as string;
-      const value = (entries as string[]).shift()! as string;
+      if (!(streamId in obj)) {
+        obj[streamId] = {};
+      }
+      while (entries.length >= 2) {
+        const field = (entries as string[]).shift()! as string;
+        const value = (entries as string[]).shift()! as string;
 
-      try {
-        obj[streamId][field] = JSON.parse(value);
-      } catch {
-        obj[streamId][field] = value;
+        try {
+          obj[streamId][field] = JSON.parse(value);
+        } catch {
+          obj[streamId][field] = value;
+        }
       }
     }
   }
@@ -48,7 +47,7 @@ export class XRangeCommand<
       command.push("COUNT", count);
     }
     super(command, {
-      deserialize: (result) => deserialize<any>(result[0] as any),
+      deserialize: (result) => deserialize<any>(result as any),
       ...opts,
     });
   }

@@ -20,6 +20,6 @@ Deno.test("Return the value at path in JSON serialized form", async () => {
   assertEquals(res1, "OK");
   const res2 = await new JsonGetCommand([key, "$..b"]).exec(client);
   assertEquals(res2, [null, 3]);
-  const res3 = await new JsonGetCommand([key, "..a", "$..b"]).exec(client);
-  assertEquals(res3, { "$..b": [null, 3], "..a": [4, 2] });
+  const res3 = await new JsonGetCommand([key, "$..a", "$..b"]).exec(client);
+  assertEquals(res3, { "$..b": [null, 3], "$..a": [4, 2] });
 });

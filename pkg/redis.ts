@@ -123,6 +123,7 @@ import {
   TtlCommand,
   TypeCommand,
   UnlinkCommand,
+  XAddCommand,
   ZAddCommand,
   ZAddCommandOptions,
   ZAddCommandOptionsWithIncr,
@@ -1013,6 +1014,11 @@ export class Redis {
    */
   unlink = (...args: CommandArgs<typeof UnlinkCommand>) =>
     new UnlinkCommand(args, this.opts).exec(this.client);
+
+  // /**
+  //  * @see https://redis.io/commands/xadd
+  //  */
+  // xadd =
 
   /**
    * @see https://redis.io/commands/zadd

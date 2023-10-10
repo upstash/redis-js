@@ -19,11 +19,9 @@ Deno.test("without options", async (t) => {
     const field2 = "field2";
     const member2 = randomID();
 
-    await new XAddCommand([key, "*", { [field1]: member1, [field2]: member2 }])
-      .exec(client);
+    await new XAddCommand([key, "*", { [field1]: member1, [field2]: member2 }]).exec(client);
 
     const res = await new XRangeCommand([key, "-", "+"]).exec(client);
-    console.log(res);
     assertEquals(Object.keys(res).length, 1);
     assertEquals(Object.values(res)[0], {
       [field1]: member1,
@@ -32,23 +30,22 @@ Deno.test("without options", async (t) => {
   });
 });
 
-// Deno.test("limit", async (t) => {
-//   await t.step("returns only the first 2", async () => {
-//     const key = newKey();
-//     for (let i = 0; i < 10; i++) {
-//       await new ZAddCommand([key, { score: i, member: randomID() }]).exec(client);
-//     }
+Deno.test("limit", async (t) => {
+  await t.step("returns the only the first one", async () => {
+    const key = newKey();
+    const field1 = "field1";
+    const member1 = randomID();
 
-//     const res = await new ZRangeCommand([
-//       key,
-//       0,
-//       7,
-//       {
-//         byScore: true,
-//         offset: 0,
-//         count: 2,
-//       },
-//     ]).exec(client);
-//     assertEquals(res.length, 2);
-//   });
-// });
+    const field2 = "field2";
+    const member2 = randomID();
+
+    await new XAddCommand([key, "*", { [field1]: member1 }]).exec(client);
+    await new XAddCommand([key, "*", { [field2]: member2 }]).exec(client);
+
+    const res = await new XRangeCommand([key, "-", "+", 1]).exec(client);
+    assertEquals(Object.keys(res).length, 1);
+    assertEquals(Object.values(res)[0], {
+      [field1]: member1,
+    });
+  });
+});

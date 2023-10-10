@@ -1,4 +1,7 @@
-import { assert } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import {
+  assert,
+  assertEquals,
+} from "https://deno.land/std@0.177.0/testing/asserts.ts";
 import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
 import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
@@ -120,6 +123,6 @@ Deno.test("with threshold", async (t) => {
     ]).exec(client);
 
     const xrangeRes = await new XRangeCommand([key, "-", "+"]).exec(client);
-    assert(Object.keys(xrangeRes).length === 1);
+    assertEquals(Object.keys(xrangeRes).length, 2);
   });
 });

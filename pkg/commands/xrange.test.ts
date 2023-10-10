@@ -50,3 +50,26 @@ Deno.test("limit", async (t) => {
     });
   });
 });
+
+Deno.test("many fields", async (t) => {
+  await t.step("returns all fields", async () => {
+    const key = newKey();
+
+    const fields: Record<string, string> = {};
+
+    for (let i = 1; i <= 10; i++) {
+      const field = randomID();
+      const value = randomID();
+      fields[field] = value;
+      const id = await new XAddCommand([
+        key,
+        "*",
+        fields,
+      ]).exec(client);
+
+      const res = await new XRangeCommand([key, "-", "+"]).exec(client);
+      assertEquals(Object.keys(res).length, i);
+      assertEquals(res[id], fields);
+    }
+  });
+});

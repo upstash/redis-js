@@ -124,6 +124,7 @@ import {
   TypeCommand,
   UnlinkCommand,
   XAddCommand,
+  XRangeCommand,
   ZAddCommand,
   ZAddCommandOptions,
   ZAddCommandOptionsWithIncr,
@@ -407,7 +408,9 @@ export class Redis {
     new BitOpCommand(
       [op as any, destinationKey, sourceKey, ...sourceKeys],
       this.opts,
-    ).exec(this.client);
+    ).exec(
+      this.client,
+    );
 
   /**
    * @see https://redis.io/commands/bitpos
@@ -1015,10 +1018,17 @@ export class Redis {
   unlink = (...args: CommandArgs<typeof UnlinkCommand>) =>
     new UnlinkCommand(args, this.opts).exec(this.client);
 
-  // /**
-  //  * @see https://redis.io/commands/xadd
-  //  */
-  // xadd =
+  /**
+   * @see https://redis.io/commands/xadd
+   */
+  xadd = (...args: CommandArgs<typeof XAddCommand>) =>
+    new XAddCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xrange
+   */
+  xrange = (...args: CommandArgs<typeof XRangeCommand>) =>
+    new XRangeCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zadd

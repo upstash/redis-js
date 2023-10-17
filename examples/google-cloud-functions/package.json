@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.3.0",
+    "@upstash/redis": "^1.23.3"
+  },
+  "scripts": {
+    "start": "npx @google-cloud/functions-framework --target=helloWorld"
+  }
+}

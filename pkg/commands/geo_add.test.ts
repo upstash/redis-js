@@ -101,7 +101,7 @@ Deno.test("xx", async (t) => {
 
       // Create member.
       await new GeoAddCommand<Record<string, number>>([key, member]).exec(
-        client
+        client,
       );
 
       const updatedMember = { ...generateRandomPoint(), member: member.member };
@@ -144,7 +144,7 @@ Deno.test("nx", async (t) => {
 
       // Create member.
       await new GeoAddCommand<Record<string, number>>([key, member]).exec(
-        client
+        client,
       );
 
       // Get member position

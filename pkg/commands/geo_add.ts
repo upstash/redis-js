@@ -2,13 +2,13 @@ import { Command, CommandOptions } from "./command.ts";
 
 export type GeoAddCommandOptions =
   | {
-      nx?: boolean;
-      xx?: never;
-    }
+    nx?: boolean;
+    xx?: never;
+  }
   | ({
-      nx?: never;
-      xx?: boolean;
-    } & { ch?: boolean });
+    nx?: never;
+    xx?: boolean;
+  } & { ch?: boolean });
 
 export interface GeoMember<TMemberType> {
   latitude: number;
@@ -34,9 +34,9 @@ export class GeoAddCommand<TMemberType = string> extends Command<
     [key, arg1, ...arg2]: [
       string,
       Arg2<TMemberType>,
-      ...GeoMember<TMemberType>[]
+      ...GeoMember<TMemberType>[],
     ],
-    opts?: CommandOptions<number | null, number | null>
+    opts?: CommandOptions<number | null, number | null>,
   ) {
     const command: unknown[] = ["geoadd", key];
 
@@ -59,7 +59,7 @@ export class GeoAddCommand<TMemberType = string> extends Command<
         longitude,
         latitude,
         member,
-      ])
+      ]),
     );
 
     super(command, opts);

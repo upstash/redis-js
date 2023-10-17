@@ -67,6 +67,27 @@ Deno.test("when no commands were added", async (t) => {
   });
 });
 
+Deno.test("when length called", async (t) => {
+  await t.step("before exec()", () => {
+    const key = newKey();
+    const p = new Pipeline({ client });
+    for (let i = 0; i < 10; i++) {
+      p.set(key, randomID());
+    }
+    assertEquals(p.length(), 10);
+  });
+
+  await t.step("after exec()", async () => {
+    const key = newKey();
+    const p = new Pipeline({ client });
+    for (let i = 0; i < 10; i++) {
+      p.set(key, randomID());
+    }
+    await p.exec();
+    assertEquals(p.length(), 10);
+  });
+});
+
 Deno.test("when one command throws an error", async (t) => {
   await t.step("throws", async () => {
     const p = new Pipeline({ client }).set("key", "value").hget("key", "field");

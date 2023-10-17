@@ -16,6 +16,7 @@ import {
   ExpireCommand,
   FlushAllCommand,
   FlushDBCommand,
+  GeoAddCommand,
   GetBitCommand,
   GetCommand,
   GetDelCommand,
@@ -241,6 +242,12 @@ export class Redis {
         new JsonForgetCommand(args, this.opts).exec(this.client),
 
       /**
+       * @see https://redis.io/commands/geoadd
+       */
+      geoadd: (...args: CommandArgs<typeof GeoAddCommand>) =>
+        new GeoAddCommand(args, this.opts).exec(this.client),
+
+      /**
        * @see https://redis.io/commands/json.get
        */
       get: (...args: CommandArgs<typeof JsonGetCommand>) =>
@@ -408,9 +415,7 @@ export class Redis {
     new BitOpCommand(
       [op as any, destinationKey, sourceKey, ...sourceKeys],
       this.opts,
-    ).exec(
-      this.client,
-    );
+    ).exec(this.client);
 
   /**
    * @see https://redis.io/commands/bitpos
@@ -598,8 +603,10 @@ export class Redis {
     count?: number,
     withValues?: boolean,
   ) =>
-    new HRandFieldCommand<TData>([key, count, withValues] as any, this.opts)
-      .exec(this.client);
+    new HRandFieldCommand<TData>(
+      [key, count, withValues] as any,
+      this.opts,
+    ).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hscan

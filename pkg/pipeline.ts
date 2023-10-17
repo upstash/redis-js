@@ -208,7 +208,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   }) {
     this.client = opts.client;
 
-    this.commands = ([] as unknown) as TCommands; // the TCommands generic in the class definition is only used for carrying through chained command types and should never be explicitly set when instantiating the class
+    this.commands = [] as unknown as TCommands; // the TCommands generic in the class definition is only used for carrying through chained command types and should never be explicitly set when instantiating the class
     this.commandOptions = opts.commandOptions;
     this.multiExec = opts.multiExec ?? false;
   }
@@ -250,6 +250,13 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
       return this.commands[i].deserialize(result);
     }) as TCommandResults;
   };
+
+  /**
+   * Returns the length of pipeline before the execution
+   */
+  length(): number {
+    return this.commands.length;
+  }
 
   /**
    * Pushes a command into the pipeline and returns a chainable instance of the

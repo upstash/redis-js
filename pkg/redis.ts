@@ -16,6 +16,7 @@ import {
   ExpireCommand,
   FlushAllCommand,
   FlushDBCommand,
+  GeoAddCommand,
   GetBitCommand,
   GetCommand,
   GetDelCommand,
@@ -123,6 +124,8 @@ import {
   TtlCommand,
   TypeCommand,
   UnlinkCommand,
+  XAddCommand,
+  XRangeCommand,
   ZAddCommand,
   ZAddCommandOptions,
   ZAddCommandOptionsWithIncr,
@@ -238,6 +241,12 @@ export class Redis {
        */
       forget: (...args: CommandArgs<typeof JsonForgetCommand>) =>
         new JsonForgetCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/geoadd
+       */
+      geoadd: (...args: CommandArgs<typeof GeoAddCommand>) =>
+        new GeoAddCommand(args, this.opts).exec(this.client),
 
       /**
        * @see https://redis.io/commands/json.get
@@ -595,8 +604,10 @@ export class Redis {
     count?: number,
     withValues?: boolean,
   ) =>
-    new HRandFieldCommand<TData>([key, count, withValues] as any, this.opts)
-      .exec(this.client);
+    new HRandFieldCommand<TData>(
+      [key, count, withValues] as any,
+      this.opts,
+    ).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hscan
@@ -1014,6 +1025,18 @@ export class Redis {
    */
   unlink = (...args: CommandArgs<typeof UnlinkCommand>) =>
     new UnlinkCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xadd
+   */
+  xadd = (...args: CommandArgs<typeof XAddCommand>) =>
+    new XAddCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xrange
+   */
+  xrange = (...args: CommandArgs<typeof XRangeCommand>) =>
+    new XRangeCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zadd

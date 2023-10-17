@@ -416,7 +416,9 @@ export class Redis {
     new BitOpCommand(
       [op as any, destinationKey, sourceKey, ...sourceKeys],
       this.opts,
-    ).exec(this.client);
+    ).exec(
+      this.client,
+    );
 
   /**
    * @see https://redis.io/commands/bitpos
@@ -604,10 +606,8 @@ export class Redis {
     count?: number,
     withValues?: boolean,
   ) =>
-    new HRandFieldCommand<TData>(
-      [key, count, withValues] as any,
-      this.opts,
-    ).exec(this.client);
+    new HRandFieldCommand<TData>([key, count, withValues] as any, this.opts)
+      .exec(this.client);
 
   /**
    * @see https://redis.io/commands/hscan
@@ -745,8 +745,14 @@ export class Redis {
   /**
    * @see https://redis.io/commands/mget
    */
-  mget = <TData extends unknown[]>(...args: CommandArgs<typeof MGetCommand>) =>
-    new MGetCommand<TData>(args, this.opts).exec(this.client);
+  mget = <TData extends unknown[]>(
+    ...args: (string | string[])[]
+  ): Promise<TData> => {
+    const queries = Array.isArray(args[0])
+      ? (args[0] as string[])
+      : (args as string[]);
+    return new MGetCommand<TData>(queries, this.opts).exec(this.client);
+  };
 
   /**
    * @see https://redis.io/commands/mset

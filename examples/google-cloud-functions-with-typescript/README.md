@@ -1,4 +1,4 @@
-# Google Cloud Functions Example
+# Google Cloud Functions Example with Typescript
 
 ## How to use
 

@@ -138,6 +138,7 @@ export * from "./zremrangebyscore.ts";
 export * from "./zrevrank.ts";
 export * from "./zscan.ts";
 export * from "./zscore.ts";
+export * from "./zunion.ts";
 export * from "./zunionstore.ts";
 export * from "./xadd.ts";
 export * from "./xrange.ts";

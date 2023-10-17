@@ -17,13 +17,6 @@ export interface GeoMember<TMemberType> {
 }
 
 /**
- * This type is defined up here because otherwise it would be automatically formatted into
- * multiple lines by Deno. As a result of that, Deno will add a comma to the end and then
- * complain about the comma being there...
- */
-type Arg2<TMemberType> = GeoMember<TMemberType> | GeoAddCommandOptions;
-
-/**
  * @see https://redis.io/commands/geoadd
  */
 export class GeoAddCommand<TMemberType = string> extends Command<
@@ -33,7 +26,7 @@ export class GeoAddCommand<TMemberType = string> extends Command<
   constructor(
     [key, arg1, ...arg2]: [
       string,
-      Arg2<TMemberType>,
+      GeoMember<TMemberType> | GeoAddCommandOptions,
       ...GeoMember<TMemberType>[],
     ],
     opts?: CommandOptions<number | null, number | null>,

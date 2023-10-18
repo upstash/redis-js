@@ -14,6 +14,11 @@ export function randomID(): string {
   }
   return btoa(s.join(""));
 }
+export const randomUnsafeIntegerString = () => {
+  const max = Number.MAX_SAFE_INTEGER + Math.floor(Math.random() * 100);
+  const min = Number.MIN_SAFE_INTEGER - Math.floor(Math.random() * 100);
+  return String(Math.floor(Math.random() * (max - min) + min));
+};
 export const newHttpClient = () => {
   const url = Deno.env.get("UPSTASH_REDIS_REST_URL");
   if (!url) {

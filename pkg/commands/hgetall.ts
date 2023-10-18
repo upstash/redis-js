@@ -11,7 +11,14 @@ function deserialize<TData extends Record<string, unknown>>(
     const key = result.shift()!;
     const value = result.shift()!;
     try {
-      obj[key] = JSON.parse(value);
+      // handle unsafe integer
+      const valueIsNumberAndNotSafeInteger = !isNaN(Number(value)) &&
+        !Number.isSafeInteger(value);
+      if (valueIsNumberAndNotSafeInteger) {
+        obj[key] = value;
+      } else {
+        obj[key] = JSON.parse(value);
+      }
     } catch {
       obj[key] = value;
     }

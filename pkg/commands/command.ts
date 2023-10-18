@@ -9,6 +9,7 @@ const defaultSerializer: Serialize = (c: unknown) => {
   switch (typeof c) {
     case "string":
     case "number":
+    case "bigint":
     case "boolean":
       return c;
 

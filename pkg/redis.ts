@@ -745,11 +745,8 @@ export class Redis {
   /**
    * @see https://redis.io/commands/mget
    */
-  mget = <TData extends unknown[]>(
-    ...args: CommandArgs<typeof MGetCommand>
-  ): Promise<TData> => {
-    return new MGetCommand<TData>(args, this.opts).exec(this.client);
-  };
+  mget = <TData extends unknown[]>(...args: CommandArgs<typeof MGetCommand>) =>
+    new MGetCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/mset

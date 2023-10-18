@@ -746,12 +746,9 @@ export class Redis {
    * @see https://redis.io/commands/mget
    */
   mget = <TData extends unknown[]>(
-    ...args: (string | string[])[]
+    ...args: CommandArgs<typeof MGetCommand>
   ): Promise<TData> => {
-    const queries = Array.isArray(args[0])
-      ? (args[0] as string[])
-      : (args as string[]);
-    return new MGetCommand<TData>(queries, this.opts).exec(this.client);
+    return new MGetCommand<TData>(args, this.opts).exec(this.client);
   };
 
   /**

@@ -156,6 +156,7 @@ import { Script } from "./script.ts";
 import { ZMScoreCommand } from "./commands/zmscore.ts";
 import { ZDiffStoreCommand } from "./commands/zdiffstore.ts";
 import type { RedisOptions, Telemetry } from "./types.ts";
+import { GeoHashCommand } from "./commands/geo_hash.ts";
 
 // See https://github.com/upstash/upstash-redis/issues/342
 // why we need this export
@@ -247,6 +248,12 @@ export class Redis {
        */
       geoadd: (...args: CommandArgs<typeof GeoAddCommand>) =>
         new GeoAddCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/geohash
+       */
+      geohash: (...args: CommandArgs<typeof GeoHashCommand>) =>
+        new GeoHashCommand(args, this.opts).exec(this.client),
 
       /**
        * @see https://redis.io/commands/json.get
@@ -416,7 +423,9 @@ export class Redis {
     new BitOpCommand(
       [op as any, destinationKey, sourceKey, ...sourceKeys],
       this.opts,
-    ).exec(this.client);
+    ).exec(
+      this.client,
+    );
 
   /**
    * @see https://redis.io/commands/bitpos
@@ -604,10 +613,8 @@ export class Redis {
     count?: number,
     withValues?: boolean,
   ) =>
-    new HRandFieldCommand<TData>(
-      [key, count, withValues] as any,
-      this.opts,
-    ).exec(this.client);
+    new HRandFieldCommand<TData>([key, count, withValues] as any, this.opts)
+      .exec(this.client);
 
   /**
    * @see https://redis.io/commands/hscan

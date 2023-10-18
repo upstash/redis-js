@@ -20,7 +20,7 @@ Deno.test("returns all fields", async () => {
   const value1 = false;
   const value2 = randomID();
   await new HSetCommand([key, { [field1]: value1, [field2]: value2 }]).exec(
-    client
+    client,
   );
 
   const res = await new HGetAllCommand([key]).exec(client);

@@ -18,5 +18,5 @@ Deno.test(
   () => {
     const result = randomUnsafeIntegerString();
     assertFalse(Number.isSafeInteger(Number(result)));
-  }
+  },
 );

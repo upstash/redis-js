@@ -14,6 +14,13 @@ export function randomID(): string {
   }
   return btoa(s.join(""));
 }
+export const randomUnsafeIntegerString = (): string => {
+  const buffer = new Uint8Array(8);
+  crypto.getRandomValues(buffer);
+  const dataView = new DataView(buffer.buffer);
+  const unsafeInteger = dataView.getBigInt64(0, true); // true for little-endian
+  return unsafeInteger.toString();
+};
 export const newHttpClient = () => {
   const url = Deno.env.get("UPSTASH_REDIS_REST_URL");
   if (!url) {

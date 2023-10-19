@@ -20,6 +20,11 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v3
 
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+
       - name: Install bun
         run: npm install -g bun
      
@@ -27,7 +32,7 @@ jobs:
         run: bun run fmt
 
       - name: Run tests
-        run: bun test pkg
+        run: bun test pkg --bail
       
       - name: Build
         run: bun run build

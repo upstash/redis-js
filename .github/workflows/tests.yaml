@@ -407,19 +407,18 @@ jobs:
           node-version: 18
       - name: Install bun
         run: npm install -g bun
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: latest
-        
-
+      
+      - name: Install Dependencies
+        run: bun install
+          
       - name: Build
         run: bun run build
 
       - name: Install example
         run: |
-          pnpm add @upstash/redis@../../dist
-          pnpm add -g wrangler
+          bun install
+          bun add @upstash/redis@../../dist
+          npm install -g wrangler
         working-directory: examples/cloudflare-workers
 
       - name: Add environment
@@ -440,7 +439,7 @@ jobs:
 
 
       - name: Test
-        run: deno test -A ./test.ts
+        run: bun test test.ts
         working-directory: examples/cloudflare-workers
         env:
           DEPLOYMENT_URL: http://localhost:8787
@@ -502,20 +501,18 @@ jobs:
           
       - name: Install bun
         run: npm install -g bun
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: latest
-        
-
+      
+      - name: Install Dependencies
+        run: bun install
+          
       - name: Build
         run: bun run build
 
-
       - name: Install example
         run: |
-          pnpm add @upstash/redis@../../dist
-          pnpm add -g wrangler 
+          bun install
+          bun add @upstash/redis@../../dist
+          npm install -g wrangler 
 
         working-directory: examples/cloudflare-workers-with-typescript
 
@@ -536,7 +533,7 @@ jobs:
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 
       - name: Test
-        run: deno test -A ./test.ts
+        run: bun test test.ts
         working-directory: examples/cloudflare-workers-with-typescript
         env:
           DEPLOYMENT_URL: http://localhost:8787
@@ -609,14 +606,20 @@ jobs:
           version: latest
         
 
+      - name: Install bun
+        run: npm install -g bun
+        
+      - name: Install Dependencies
+        run: bun install
+            
       - name: Build
         run: bun run build
-
-
+  
       - name: Install example
         working-directory: ./examples/fastly
         run: |
-          pnpm add @upstash/redis@../../dist
+          bun install
+          bun add @upstash/redis@../../dist
           curl -L https://github.com/fastly/cli/releases/download/v1.7.0/fastly_v1.7.0_linux-amd64.tar.gz > fastly.tar.gz
           tar -xf ./fastly.tar.gz
 
@@ -633,7 +636,7 @@ jobs:
 
 
       - name: Test
-        run: deno test -A ./examples/fastly/test.ts
+        run: bun test examples/fastly/test.ts
         env:
           DEPLOYMENT_URL: http://localhost:7676
 

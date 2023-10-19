@@ -17,6 +17,7 @@ export * from "./flushall.ts";
 export * from "./flushdb.ts";
 export * from "./geo_add.ts";
 export * from "./geo_pos.ts";
+export * from "./geo_dist.ts";
 export * from "./get.ts";
 export * from "./getbit.ts";
 export * from "./getdel.ts";

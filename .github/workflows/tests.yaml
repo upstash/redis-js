@@ -729,60 +729,6 @@ jobs:
         
 
 
-  deno-local:
-    # needs:
-    #   - test
-    
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup repo
-        uses: actions/checkout@v3
-      
-      - name: Install bun
-        run: npm install -g bun
-
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
-
-      - name: Run example
-        run: deno run -A ./main.ts & sleep 5
-        working-directory: examples/deno
-        
-
-      - name: Test
-        run: deno test -A ./main.test.ts
-        working-directory: examples/deno
-        env:
-          DEPLOYMENT_URL: http://localhost:8000
-
-      
-  deno-deployed:
-    concurrency: deno-deployed
-    needs:
-      - release
-    env:
-      UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup repo
-        uses: actions/checkout@v3
-      
-      - name: Install bun
-        run: npm install -g bun
-
-      - name: Deploy
-        run: deno run -A https://deno.land/x/deploy/deployctl.ts deploy --project=upstash-redis ./main.ts
-        working-directory: examples/deno
-        env:
-          DENO_DEPLOY_TOKEN: ${{ secrets.DENO_DEPLOY_TOKEN }}
-
-      - name: Test
-        run: deno test -A ./main.test.ts
-        working-directory: examples/deno
-        env:
-          DEPLOYMENT_URL: https://upstash-redis-70jbfgxwz310.deno.dev
 
 
   release:
@@ -795,7 +741,6 @@ jobs:
       - nextjs-local
       - nextjs-edge-local
       - netlify-local
-      - deno-local
       # - netlify-edge-local - their own cli doesn't work right now. I'll try again in a week
       - cloudflare-workers-with-typescript-local
       - cloudflare-workers-local

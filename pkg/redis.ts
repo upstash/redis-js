@@ -416,7 +416,9 @@ export class Redis {
     new BitOpCommand(
       [op as any, destinationKey, sourceKey, ...sourceKeys],
       this.opts,
-    ).exec(this.client);
+    ).exec(
+      this.client,
+    );
 
   /**
    * @see https://redis.io/commands/bitpos
@@ -604,10 +606,8 @@ export class Redis {
     count?: number,
     withValues?: boolean,
   ) =>
-    new HRandFieldCommand<TData>(
-      [key, count, withValues] as any,
-      this.opts,
-    ).exec(this.client);
+    new HRandFieldCommand<TData>([key, count, withValues] as any, this.opts)
+      .exec(this.client);
 
   /**
    * @see https://redis.io/commands/hscan

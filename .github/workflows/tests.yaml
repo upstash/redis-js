@@ -78,7 +78,7 @@ jobs:
       - name: Test
         run: bun test examples/netlify/ci.test.ts
         env:
-          DEPLOYMENT_URL: http://localhost:15015
+          DEPLOYMENT_URL: http://127.0.0.1:15015
 
   netlify-deployed:
     concurrency: netlify-deployed
@@ -503,7 +503,7 @@ jobs:
       - name: Test
         run: bun test examples/cloudflare-workers-with-typescript/ci.test.ts
         env:
-          DEPLOYMENT_URL: http://localhost:8787
+          DEPLOYMENT_URL: http://127.0.0.1:8787
 
   cloudflare-workers-with-typescript-deployed:
     concurrency: cloudflare-workers-with-typescript-deployed

@@ -37,6 +37,29 @@ Deno.test("when storing base64 data", async (t) => {
   });
 });
 
+Deno.test("mget", async (t) => {
+  const key = newKey();
+  const key1 = newKey();
+  const value = "foobar";
+  const value1 = "foobar1";
+  const redis = new Redis(client);
+  const queries = [key, key1];
+
+  await t.step("mget with array", async () => {
+    await redis.mset({ key: value, key1: value1 });
+    const res = await redis.mget(queries);
+
+    assertEquals(res.length, 2);
+  });
+
+  await t.step("mget with spreaded array", async () => {
+    await redis.mset({ key: value, key1: value1 });
+    const res = await redis.mget(...queries);
+
+    assertEquals(res.length, 2);
+  });
+});
+
 Deno.test("when destructuring the redis class", async (t) => {
   await t.step("correctly binds this", async () => {
     const { get, set } = new Redis(client);

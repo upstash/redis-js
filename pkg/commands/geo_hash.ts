@@ -3,11 +3,11 @@ import { Command, CommandOptions } from "./command.ts";
 /**
  * @see https://redis.io/commands/geohash
  */
-export class GeoHashCommand<TData extends string[]>
-  extends Command<(string | null)[], TData> {
+export class GeoHashCommand<TMember = string>
+  extends Command<(string | null)[], (string | null)[]> {
   constructor(
-    cmd: [string, ...string[]] | [string, string[]],
-    opts?: CommandOptions<(string | null)[], TData>,
+    cmd: [string, ...TMember[] | TMember[]],
+    opts?: CommandOptions<(string | null)[], (string | null)[]>,
   ) {
     const [key] = cmd;
     // Check if the second argument is an array of strings (members).

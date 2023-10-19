@@ -8,10 +8,11 @@ type Coordinates = {
 /**
  * @see https://redis.io/commands/geopos
  */
-export class GeoPosCommand<TMember = string> extends Command<(string | null)[][], Coordinates[]> {
+export class GeoPosCommand<TMember = string>
+  extends Command<(string | null)[][], Coordinates[]> {
   constructor(
     cmd: [string, ...(TMember[] | TMember[])],
-    opts?: CommandOptions<(string | null)[][], Coordinates[]>
+    opts?: CommandOptions<(string | null)[][], Coordinates[]>,
   ) {
     const [key] = cmd;
     // Check if the second argument is an array of strings (members).

@@ -15,8 +15,9 @@ import {
   ExpireCommand,
   FlushAllCommand,
   FlushDBCommand,
-  GeoPosCommand,
   GeoAddCommand,
+  GeoDistCommand,
+  GeoPosCommand,
   GetBitCommand,
   GetCommand,
   GetDelCommand,
@@ -154,7 +155,6 @@ import { CommandArgs } from "./types.ts";
 import { ZMScoreCommand } from "./commands/zmscore.ts";
 import { HRandFieldCommand } from "./commands/hrandfield.ts";
 import { ZDiffStoreCommand } from "./commands/zdiffstore.ts";
-import { GeoDistCommand } from "./commands/geo_dist.ts";
 
 // Given a tuple of commands, returns a tuple of the response data of each command
 type InferResponseData<T extends unknown[]> = {
@@ -229,9 +229,8 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    * ```
    */
   exec = async <
-    TCommandResults extends unknown[] = [] extends TCommands
-      ? unknown[]
-      : InferResponseData<TCommands>
+    TCommandResults extends unknown[] = [] extends TCommands ? unknown[]
+      : InferResponseData<TCommands>,
   >(): Promise<TCommandResults> => {
     if (this.commands.length === 0) {
       throw new Error("Pipeline is empty");
@@ -245,7 +244,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
     return res.map(({ error, result }, i) => {
       if (error) {
         throw new UpstashError(
-          `Command ${i + 1} [ ${this.commands[i].command[0]} ] failed: ${error}`
+          `Command ${i + 1} [ ${
+            this.commands[i].command[0]
+          } ] failed: ${error}`,
         );
       }
 
@@ -264,7 +265,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    * Pushes a command into the pipeline and returns a chainable instance of the
    * pipeline
    */
-  private chain<T>(command: Command<any, T>): Pipeline<[...TCommands, Command<any, T>]> {
+  private chain<T>(
+    command: Command<any, T>,
+  ): Pipeline<[...TCommands, Command<any, T>]> {
     this.commands.push(command);
     return this as any; // TS thinks we're returning Pipeline<[]> here, because we're not creating a new instance of the class, hence the cast
   }
@@ -291,7 +294,11 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
       sourceKey: string,
       ...sourceKeys: string[]
     ): Pipeline<[...TCommands, BitOpCommand]>;
-    (op: "not", destinationKey: string, sourceKey: string): Pipeline<[...TCommands, BitOpCommand]>;
+    (
+      op: "not",
+      destinationKey: string,
+      sourceKey: string,
+    ): Pipeline<[...TCommands, BitOpCommand]>;
   } = (
     op: "and" | "or" | "xor" | "not",
     destinationKey: string,
@@ -299,7 +306,10 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
     ...sourceKeys: string[]
   ) =>
     this.chain(
-      new BitOpCommand([op as any, destinationKey, sourceKey, ...sourceKeys], this.commandOptions)
+      new BitOpCommand(
+        [op as any, destinationKey, sourceKey, ...sourceKeys],
+        this.commandOptions,
+      ),
     );
 
   /**
@@ -436,8 +446,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/hgetall
    */
-  hgetall = <TData extends Record<string, unknown>>(...args: CommandArgs<typeof HGetAllCommand>) =>
-    this.chain(new HGetAllCommand<TData>(args, this.commandOptions));
+  hgetall = <TData extends Record<string, unknown>>(
+    ...args: CommandArgs<typeof HGetAllCommand>
+  ) => this.chain(new HGetAllCommand<TData>(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/hincrby
@@ -466,8 +477,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/hmget
    */
-  hmget = <TData extends Record<string, unknown>>(...args: CommandArgs<typeof HMGetCommand>) =>
-    this.chain(new HMGetCommand<TData>(args, this.commandOptions));
+  hmget = <TData extends Record<string, unknown>>(
+    ...args: CommandArgs<typeof HMGetCommand>
+  ) => this.chain(new HMGetCommand<TData>(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/hmset
@@ -481,9 +493,14 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   hrandfield = <TData extends string | string[] | Record<string, unknown>>(
     key: string,
     count?: number,
-    withValues?: boolean
+    withValues?: boolean,
   ) =>
-    this.chain(new HRandFieldCommand<TData>([key, count, withValues] as any, this.commandOptions));
+    this.chain(
+      new HRandFieldCommand<TData>(
+        [key, count, withValues] as any,
+        this.commandOptions,
+      ),
+    );
 
   /**
    * @see https://redis.io/commands/hscan
@@ -501,7 +518,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    * @see https://redis.io/commands/hsetnx
    */
   hsetnx = <TData>(key: string, field: string, value: TData) =>
-    this.chain(new HSetNXCommand<TData>([key, field, value], this.commandOptions));
+    this.chain(
+      new HSetNXCommand<TData>([key, field, value], this.commandOptions),
+    );
 
   /**
    * @see https://redis.io/commands/hstrlen
@@ -548,8 +567,18 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/linsert
    */
-  linsert = <TData>(key: string, direction: "before" | "after", pivot: TData, value: TData) =>
-    this.chain(new LInsertCommand<TData>([key, direction, pivot, value], this.commandOptions));
+  linsert = <TData>(
+    key: string,
+    direction: "before" | "after",
+    pivot: TData,
+    value: TData,
+  ) =>
+    this.chain(
+      new LInsertCommand<TData>(
+        [key, direction, pivot, value],
+        this.commandOptions,
+      ),
+    );
 
   /**
    * @see https://redis.io/commands/llen
@@ -579,13 +608,17 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    * @see https://redis.io/commands/lpush
    */
   lpush = <TData>(key: string, ...elements: TData[]) =>
-    this.chain(new LPushCommand<TData>([key, ...elements], this.commandOptions));
+    this.chain(
+      new LPushCommand<TData>([key, ...elements], this.commandOptions),
+    );
 
   /**
    * @see https://redis.io/commands/lpushx
    */
   lpushx = <TData>(key: string, ...elements: TData[]) =>
-    this.chain(new LPushXCommand<TData>([key, ...elements], this.commandOptions));
+    this.chain(
+      new LPushXCommand<TData>([key, ...elements], this.commandOptions),
+    );
 
   /**
    * @see https://redis.io/commands/lrange
@@ -657,7 +690,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    * @see https://redis.io/commands/psetex
    */
   psetex = <TData>(key: string, ttl: number, value: TData) =>
-    this.chain(new PSetEXCommand<TData>([key, ttl, value], this.commandOptions));
+    this.chain(
+      new PSetEXCommand<TData>([key, ttl, value], this.commandOptions),
+    );
 
   /**
    * @see https://redis.io/commands/pttl
@@ -804,20 +839,28 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/smembers
    */
-  smembers = <TData extends unknown[] = string[]>(...args: CommandArgs<typeof SMembersCommand>) =>
-    this.chain(new SMembersCommand<TData>(args, this.commandOptions));
+  smembers = <TData extends unknown[] = string[]>(
+    ...args: CommandArgs<typeof SMembersCommand>
+  ) => this.chain(new SMembersCommand<TData>(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/smismember
    */
   smismember = <TMembers extends unknown[]>(key: string, members: TMembers) =>
-    this.chain(new SMIsMemberCommand<TMembers>([key, members], this.commandOptions));
+    this.chain(
+      new SMIsMemberCommand<TMembers>([key, members], this.commandOptions),
+    );
 
   /**
    * @see https://redis.io/commands/smove
    */
   smove = <TData>(source: string, destination: string, member: TData) =>
-    this.chain(new SMoveCommand<TData>([source, destination, member], this.commandOptions));
+    this.chain(
+      new SMoveCommand<TData>(
+        [source, destination, member],
+        this.commandOptions,
+      ),
+    );
 
   /**
    * @see https://redis.io/commands/spop
@@ -895,27 +938,31 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   zadd = <TData>(
     ...args:
-      | [key: string, scoreMember: ScoreMember<TData>, ...scoreMemberPairs: ScoreMember<TData>[]]
       | [
-          key: string,
-          opts: ZAddCommandOptions | ZAddCommandOptionsWithIncr,
-          ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]]
-        ]
+        key: string,
+        scoreMember: ScoreMember<TData>,
+        ...scoreMemberPairs: ScoreMember<TData>[],
+      ]
+      | [
+        key: string,
+        opts: ZAddCommandOptions | ZAddCommandOptionsWithIncr,
+        ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]],
+      ]
   ) => {
     if ("score" in args[1]) {
       return this.chain(
         new ZAddCommand<TData>(
           [args[0], args[1] as ScoreMember<TData>, ...(args.slice(2) as any)],
-          this.commandOptions
-        )
+          this.commandOptions,
+        ),
       );
     }
 
     return this.chain(
       new ZAddCommand<TData>(
         [args[0], args[1] as any, ...(args.slice(2) as any)],
-        this.commandOptions
-      )
+        this.commandOptions,
+      ),
     );
   };
 
@@ -935,7 +982,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    * @see https://redis.io/commands/zincrby
    */
   zincrby = <TData>(key: string, increment: number, member: TData) =>
-    this.chain(new ZIncrByCommand<TData>([key, increment, member], this.commandOptions));
+    this.chain(
+      new ZIncrByCommand<TData>([key, increment, member], this.commandOptions),
+    );
 
   /**
    * @see https://redis.io/commands/zinterstore
@@ -974,17 +1023,17 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
     ...args:
       | [key: string, min: number, max: number, opts?: ZRangeCommandOptions]
       | [
-          key: string,
-          min: `(${string}` | `[${string}` | "-" | "+",
-          max: `(${string}` | `[${string}` | "-" | "+",
-          opts: { byLex: true } & ZRangeCommandOptions
-        ]
+        key: string,
+        min: `(${string}` | `[${string}` | "-" | "+",
+        max: `(${string}` | `[${string}` | "-" | "+",
+        opts: { byLex: true } & ZRangeCommandOptions,
+      ]
       | [
-          key: string,
-          min: number | `(${number}` | "-inf" | "+inf",
-          max: number | `(${number}` | "-inf" | "+inf",
-          opts: { byScore: true } & ZRangeCommandOptions
-        ]
+        key: string,
+        min: number | `(${number}` | "-inf" | "+inf",
+        max: number | `(${number}` | "-inf" | "+inf",
+        opts: { byScore: true } & ZRangeCommandOptions,
+      ]
   ) => this.chain(new ZRangeCommand<TData>(args as any, this.commandOptions));
 
   /**

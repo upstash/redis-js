@@ -20,50 +20,42 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v3
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
-
-      # - name: Verify formatting
-      #   run: deno fmt --check
-
-      # - name: Lint
-      #   run: deno lint
+      - name: Install bun
+        run: npm install -g bun
+     
+      - name: Lint
+        run: bun run fmt
 
       - name: Run tests
-        run: deno test -A --fail-fast --shuffle ./pkg
+        run: bun run test
       
       - name: Build
-        run: deno run -A ./cmd/build.ts
+        run: bun run build
 
   netlify-local:
     needs:
       - test
-        
-
+      
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
-      - name: Setup node
+      
+      - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: 18
+          node-version: lts/*
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: latest
-
+      - name: Install bun
+        run: npm install -g bun
+  
+          
       - name: Build
-        run: deno run -A ./cmd/build.ts
+        run: bun run build
 
       - name: Install example
         run: |
-          pnpm add @upstash/redis@../../dist
+          bun add @upstash/redis@../../dist
           npm i -g netlify-cli
         working-directory: ./examples/netlify
 
@@ -73,7 +65,7 @@ jobs:
         
 
       - name: Test
-        run: deno test --allow-net --allow-env ./examples/netlify/test.ts
+        run: bun test examples/netlify/test.ts
         env:
           DEPLOYMENT_URL: http://localhost:15015
 
@@ -85,18 +77,17 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
-      - name: Setup node
+      - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: 18
+          node-version: lts/*
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: latest
+      - name: Install bun
+        run: npm install -g bun
+          
+          
+      - name: Build
+        run: bun run build
         
 
       - name: Install @upstash/redis 
@@ -114,7 +105,7 @@ jobs:
         
 
       - name: Test
-        run: deno test --allow-net --allow-env ./examples/netlify/test.ts
+        run: bun test examples/netlify/test.ts
 
 
   netlify-edge-local:
@@ -127,19 +118,18 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
-      - name: Setup node
+      
+      - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: 18
+          node-version: lts/*
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: latest
-        
+      - name: Install bun
+        run: npm install -g bun
+          
+          
+      - name: Build
+        run: bun run build
 
 
       - name: Install Dependencies
@@ -153,7 +143,7 @@ jobs:
         
 
       - name: Test
-        run: deno test --allow-net --allow-env ./examples/netlify-edge/test.ts
+        run: bun test examples/netlify-edge/test.ts
         env:
           DEPLOYMENT_URL: http://localhost:15015
 
@@ -171,9 +161,8 @@ jobs:
         with:
           node-version: 18
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
+      - name: Install bun
+        run: npm install -g bun
 
       - uses: pnpm/action-setup@v2
         with:
@@ -195,7 +184,7 @@ jobs:
           NETLIFY_SITE_ID: c3fbfe63-06ee-4aca-8e38-14ba73cb035e
 
       - name: Test
-        run: deno test --allow-net --allow-env ./examples/netlify-edge/test.ts
+        run: bun test examples/netlify-edge/test.ts
 
         
 
@@ -213,9 +202,8 @@ jobs:
         with:
           node-version: 18
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
+      - name: Install bun
+        run: npm install -g bun
 
       - uses: pnpm/action-setup@v2
         with:
@@ -223,7 +211,7 @@ jobs:
         
 
       - name: Build
-        run: deno run -A ./cmd/build.ts
+        run: bun run build
 
 
       - name: Install example
@@ -242,7 +230,7 @@ jobs:
           NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 
       - name: Test
-        run: deno test --allow-net --allow-env ./examples/nextjs/test.ts
+        run: bun test examples/nextjs/test.ts
         env:
           DEPLOYMENT_URL: http://localhost:3000
 
@@ -262,9 +250,8 @@ jobs:
         with:
           node-version: 18
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
+      - name: Install bun
+        run: npm install -g bun
 
       - uses: pnpm/action-setup@v2
         with:
@@ -272,7 +259,7 @@ jobs:
         
 
       - name: Build
-        run: deno run -A ./cmd/build.ts
+        run: bun run build
 
       - name: Install example
         run: pnpm add @upstash/redis@../../dist
@@ -290,7 +277,7 @@ jobs:
           NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 
       - name: Test
-        run: deno test --allow-net --allow-env ./examples/nextjs_export/test.ts
+        run: bun test examples/nextjs_export/test.ts
         env:
           DEPLOYMENT_URL: http://localhost:3000
 
@@ -308,9 +295,8 @@ jobs:
         with:
           node-version: 18
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
+      - name: Install bun
+        run: npm install -g bun
 
       - uses: pnpm/action-setup@v2
         with:
@@ -318,7 +304,7 @@ jobs:
         
 
       - name: Build
-        run: deno run -A ./cmd/build.ts
+        run: bun run build
 
 
       - name: Install example
@@ -337,7 +323,7 @@ jobs:
           NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 
       - name: Test
-        run: deno test --allow-net --allow-env ./examples/nextjs_edge/test.ts
+        run: bun test examples/nextjs_edge/test.ts
         env:
           DEPLOYMENT_URL: http://localhost:3000
 
@@ -354,9 +340,8 @@ jobs:
         with:
           node-version: 18
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
+      - name: Install bun
+        run: npm install -g bun
 
       - uses: pnpm/action-setup@v2
         with:
@@ -373,7 +358,7 @@ jobs:
           VERCEL_PROJECT_ID: "prj_pFFK1XgNIlnW014iiuqAIQmBBuZA"
 
       - name: Test
-        run: deno test --allow-net --allow-env ./test.ts
+        run: bun test test.ts
         working-directory: examples/nextjs
 
   nextjs-export-deployed:
@@ -389,9 +374,8 @@ jobs:
         with:
           node-version: 18
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
+      - name: Install bun
+        run: npm install -g bun
 
       - uses: pnpm/action-setup@v2
         with:
@@ -408,7 +392,7 @@ jobs:
           VERCEL_PROJECT_ID: "prj_O4xbovmJKQ2xLtjhwrtxA3sKpPAY"
 
       - name: Test
-        run: deno test --allow-net --allow-env ./examples/nextjs/test.ts
+        run: bun test examples/nextjs/test.ts
 
   nextjs-edge-deployed:
     concurrency: nextjs-edge-deployed
@@ -423,9 +407,8 @@ jobs:
         with:
           node-version: 18
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
+      - name: Install bun
+        run: npm install -g bun
 
       - uses: pnpm/action-setup@v2
         with:
@@ -442,7 +425,7 @@ jobs:
           VERCEL_PROJECT_ID: "prj_bc5kMFz6ifbAaA7U3N86YSYqUUUI"
 
       - name: Test
-        run: deno test --allow-net --allow-env ./examples/nextjs_edge/test.ts
+        run: bun test examples/nextjs_edge/test.ts
 
   cloudflare-workers-local:
     needs:
@@ -452,9 +435,12 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
-      - uses: denoland/setup-deno@v1
+      - name: Setup nodejs
+        uses: actions/setup-node@v2
         with:
-          deno-version: v1.x
+          node-version: 18
+      - name: Install bun
+        run: npm install -g bun
 
       - uses: pnpm/action-setup@v2
         with:
@@ -462,7 +448,7 @@ jobs:
         
 
       - name: Build
-        run: deno run -A ./cmd/build.ts
+        run: bun run build
 
       - name: Install example
         run: |
@@ -504,19 +490,20 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
-      - uses: denoland/setup-deno@v1
+      - name: Setup nodejs
+        uses: actions/setup-node@v2
         with:
-          deno-version: v1.x
+          node-version: 18
+          
+      - name: Install bun
+        run: npm install -g bun
 
-      - uses: pnpm/action-setup@v2
-        with:
-          version: latest
-        
+    
 
       - name: Install example
         run: |
-          pnpm add @upstash/redis@${{needs.release.outputs.version}}
-          pnpm add -g wrangler 
+          bun add @upstash/redis@${{needs.release.outputs.version}}
+          bun add -g wrangler 
         working-directory: examples/cloudflare-workers
 
       - name: Add account ID
@@ -530,7 +517,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{secrets.CF_API_TOKEN}}
 
       - name: Test
-        run: deno test -A ./test.ts
+        run: bun test ./test.ts
         working-directory: examples/cloudflare-workers
         env:
           DEPLOYMENT_URL: https://upstash-redis.upstash.workers.dev
@@ -542,9 +529,13 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
-      - uses: denoland/setup-deno@v1
+      - name: Setup nodejs
+        uses: actions/setup-node@v2
         with:
-          deno-version: v1.x
+          node-version: 18
+          
+      - name: Install bun
+        run: npm install -g bun
 
       - uses: pnpm/action-setup@v2
         with:
@@ -552,7 +543,7 @@ jobs:
         
 
       - name: Build
-        run: deno run -A ./cmd/build.ts
+        run: bun run build
 
 
       - name: Install example
@@ -595,9 +586,13 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
-      - uses: denoland/setup-deno@v1
+      - name: Setup nodejs
+        uses: actions/setup-node@v2
         with:
-          deno-version: v1.x
+          node-version: 18
+          
+      - name: Install bun
+        run: npm install -g bun
 
       - uses: pnpm/action-setup@v2
         with:
@@ -635,9 +630,13 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
-      - uses: denoland/setup-deno@v1
+      - name: Setup nodejs
+        uses: actions/setup-node@v2
         with:
-          deno-version: v1.x
+          node-version: 18
+          
+      - name: Install bun
+        run: npm install -g bun
 
       - uses: pnpm/action-setup@v2
         with:
@@ -645,7 +644,7 @@ jobs:
         
 
       - name: Build
-        run: deno run -A ./cmd/build.ts
+        run: bun run build
 
 
       - name: Install example
@@ -688,9 +687,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 18
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
+      - name: Install bun
+        run: npm install -g bun
       - name: Cache pnpm modules
         uses: actions/cache@v2
         with:
@@ -739,9 +737,13 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
-      - uses: denoland/setup-deno@v1
+      - name: Setup nodejs
+        uses: actions/setup-node@v2
         with:
-          deno-version: v1.x
+          node-version: 18
+          
+      - name: Install bun
+        run: npm install -g bun
       - name: Cache pnpm modules
         uses: actions/cache@v2
         with:
@@ -756,7 +758,7 @@ jobs:
         
 
       - name: Build
-        run: deno run -A ./cmd/build.ts
+        run: bun run build
 
       
       - name: Install example
@@ -780,9 +782,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 18
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
+      - name: Install bun
+        run: npm install -g bun
 
       - uses: pnpm/action-setup@v2
         with:
@@ -790,7 +791,7 @@ jobs:
         
 
       - name: Build
-        run: deno run -A ./cmd/build.ts
+        run: bun run build
 
 
       - name: Install example
@@ -811,9 +812,8 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v3
       
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
+      - name: Install bun
+        run: npm install -g bun
 
      
 
@@ -841,9 +841,8 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v3
       
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
+      - name: Install bun
+        run: npm install -g bun
 
       - name: Deploy
         run: deno run -A https://deno.land/x/deploy/deployctl.ts deploy --project=upstash-redis ./main.ts
@@ -890,12 +889,11 @@ jobs:
         with:
           node-version: 18
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
+      - name: Install bun
+        run: npm install -g bun
 
       - name: Build
-        run: deno run -A ./cmd/build.ts ${{ steps.version.outputs.version }}
+        run: bun run build
 
       - name: Publish ci version
         working-directory: ./dist

@@ -21,12 +21,16 @@ jobs:
         with:
           node-version: lts/*
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
-
+      - name: Install bun
+        run: curl -fsSL https://bun.sh/install | bash
+           
+      - name: Set package version
+        run: |
+          ~/.bun/bin/bun ./scripts/set-version.js . ${{ env.VERSION }}
+          echo "export const VERSION='${{ env.VERSION }}'" > ./src/version.ts
+          
       - name: Build
-        run: deno run -A ./cmd/build.ts $VERSION
+        run: ~/.bun/bin/bun run build
 
       - name: Publish
         if: "!github.event.release.prerelease"

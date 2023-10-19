@@ -1,6 +1,6 @@
+import Hex from "crypto-js/enc-hex";
+import sha1 from "crypto-js/sha1";
 import { Redis } from "./redis";
-import sha1 from 'crypto-js/sha1';
-import Hex from 'crypto-js/enc-hex';
 /**
  * Creates a new script.
  *
@@ -62,6 +62,6 @@ export class Script<TResult = unknown> {
    * Compute the sha1 hash of the script and return its hex representation.
    */
   private digest(s: string): string {
-    return Hex.stringify(sha1(s))
+    return Hex.stringify(sha1(s));
   }
 }

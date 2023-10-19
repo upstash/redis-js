@@ -12,18 +12,24 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
-   
+      - name: Set env
+        run: echo "VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
           node-version: lts/*
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
-
+      - name: Install bun
+        run: curl -fsSL https://bun.sh/install | bash
+           
+      - name: Set package version
+        run: |
+          ~/.bun/bin/bun ./scripts/set-version.js . ${{ env.VERSION }}
+          echo "export const VERSION='${{ env.VERSION }}'" > ./src/version.ts
+          
       - name: Build
-        run: deno run -A ./cmd/build.ts
+        run: ~/.bun/bin/bun run build
 
       - name: Release
         env:

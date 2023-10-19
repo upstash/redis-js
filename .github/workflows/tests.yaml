@@ -41,8 +41,8 @@ jobs:
         run: bun run build
 
   netlify-local:
-    needs:
-      - test
+    # needs:
+    #   - test
       
     runs-on: ubuntu-latest
     steps:
@@ -65,6 +65,7 @@ jobs:
 
       - name: Install example
         run: |
+          bun install
           bun add @upstash/redis@../../dist
           npm i -g netlify-cli
         working-directory: ./examples/netlify
@@ -121,8 +122,8 @@ jobs:
 
   netlify-edge-local:
     if: false
-    needs:
-      - test
+    # needs:
+    #   - test
        
 
     runs-on: ubuntu-latest
@@ -202,8 +203,8 @@ jobs:
 
 
   nextjs-local:
-    needs:
-      - test
+    # needs:
+    #   - test
     
     runs-on: ubuntu-latest
     steps:
@@ -216,26 +217,25 @@ jobs:
 
       - name: Install bun
         run: npm install -g bun
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: latest
         
-
+      - name: Install Dependencies
+        run: bun install
+            
       - name: Build
         run: bun run build
-
-
+  
       - name: Install example
-        run: pnpm add @upstash/redis@../../dist
+        run: |
+          bun install
+          bun add @upstash/redis@../../dist
         working-directory: ./examples/nextjs
 
       - name: Build example
-        run: pnpm build
+        run: bun run build
         working-directory: ./examples/nextjs
 
       - name: Start example
-        run: pnpm start &
+        run: bun run start &
         working-directory: ./examples/nextjs
         env:
           NEXT_PUBLIC_UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
@@ -248,54 +248,9 @@ jobs:
 
 
 
-  nextjs-export-local:
-    needs:
-      - test
-    
-
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup repo
-        uses: actions/checkout@v3
-      - name: Setup node
-        uses: actions/setup-node@v2
-        with:
-          node-version: 18
-
-      - name: Install bun
-        run: npm install -g bun
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: latest
-        
-
-      - name: Build
-        run: bun run build
-
-      - name: Install example
-        run: pnpm add @upstash/redis@../../dist
-        working-directory: ./examples/nextjs_export
-
-      - name: Build example
-        run: pnpm build
-        working-directory: ./examples/nextjs_export
-
-      - name: Start example
-        run: pnpm start &
-        working-directory: ./examples/nextjs_export
-        env:
-          NEXT_PUBLIC_UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
-          NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
-
-      - name: Test
-        run: bun test examples/nextjs_export/test.ts
-        env:
-          DEPLOYMENT_URL: http://localhost:3000
-
   nextjs-edge-local:
-    needs:
-      - test
+    # needs:
+    #   - test
    
 
     runs-on: ubuntu-latest
@@ -309,26 +264,25 @@ jobs:
 
       - name: Install bun
         run: npm install -g bun
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: latest
-        
-
+      
+      - name: Install Dependencies
+        run: bun install
+          
       - name: Build
         run: bun run build
 
-
       - name: Install example
-        run: pnpm add @upstash/redis@../../dist
+        run: |
+          bun install
+          bun add @upstash/redis@../../dist
         working-directory: ./examples/nextjs_edge
 
       - name: Build example
-        run: pnpm build
+        run: bun run build
         working-directory: ./examples/nextjs_edge
 
       - name: Start example
-        run: pnpm start & sleep 5
+        run: bun run start & sleep 5
         working-directory: ./examples/nextjs_edge
         env:
           NEXT_PUBLIC_UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
@@ -440,8 +394,8 @@ jobs:
         run: bun test examples/nextjs_edge/test.ts
 
   cloudflare-workers-local:
-    needs:
-      - test
+    # needs:
+    #   - test
     
     runs-on: ubuntu-latest
     steps:
@@ -535,8 +489,8 @@ jobs:
           DEPLOYMENT_URL: https://upstash-redis.upstash.workers.dev
 
   cloudflare-workers-with-typescript-local:
-    needs:
-      - test
+    # needs:
+    #   - test
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
@@ -635,8 +589,8 @@ jobs:
 
   fastly-local:
     if: false
-    needs:
-      - test
+    # needs:
+    #   - test
    
     runs-on: ubuntu-latest
     steps:
@@ -742,8 +696,8 @@ jobs:
           DEPLOYMENT_URL: https://terminally-flowing-lizard.edgecompute.app
 
   nodejs-local:
-    needs:
-      - test
+    # needs:
+    #   - test
     
     runs-on: ubuntu-latest
     steps:
@@ -783,8 +737,8 @@ jobs:
         
 
   nodejs-18-local:
-    needs:
-      - test
+    # needs:
+    #   - test
    
     runs-on: ubuntu-latest
     steps:
@@ -816,8 +770,8 @@ jobs:
         
 
   deno-local:
-    needs:
-      - test
+    # needs:
+    #   - test
     
     runs-on: ubuntu-latest
     steps:

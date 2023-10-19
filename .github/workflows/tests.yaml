@@ -765,8 +765,8 @@ jobs:
 
       - name: Set package version
         run: |
-          bun run ./scripts/set-version.js . ${{ env.VERSION }}
-          echo "export const VERSION='${{ env.VERSION }}'" > ./version.ts
+          bun run ./scripts/set-version.js . ${{ steps.version.outputs.version }}
+          echo "export const VERSION='${{ steps.version.outputs.version }}'" > ./version.ts
 
       - name: Install Dependencies
         run: bun install

@@ -37,7 +37,30 @@ describe("when storing base64 data", () => {
   });
 });
 
-test("when destructuring the redis class", () => {
+describe("mget", async () => {
+  const key = newKey();
+  const key1 = newKey();
+  const value = "foobar";
+  const value1 = "foobar1";
+  const redis = new Redis(client);
+  const queries = [key, key1];
+
+  test("mget with array", async () => {
+    await redis.mset({ key: value, key1: value1 });
+    const res = await redis.mget(queries);
+
+    expect(res.length).toEqual(2);
+  });
+
+  test("mget with spreaded array", async () => {
+    await redis.mset({ key: value, key1: value1 });
+    const res = await redis.mget(...queries);
+
+    expect(res.length).toEqual(2);
+  });
+});
+
+describe("when destructuring the redis class", () => {
   test("correctly binds this", async () => {
     const { get, set } = new Redis(client);
     const key = newKey();

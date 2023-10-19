@@ -22,15 +22,18 @@ jobs:
           node-version: lts/*
 
       - name: Install bun
-        run: curl -fsSL https://bun.sh/install | bash
+        run: npm i -g bun
            
       - name: Set package version
         run: |
-          ~/.bun/bin/bun ./scripts/set-version.js . ${{ env.VERSION }}
+          bun ./scripts/set-version.js . ${{ env.VERSION }}
           echo "export const VERSION='${{ env.VERSION }}'" > ./src/version.ts
           
+      - name: Install Dependencies
+        run: bun install
+        
       - name: Build
-        run: ~/.bun/bin/bun run build
+        run: bun run build
 
       - name: Publish
         if: "!github.event.release.prerelease"

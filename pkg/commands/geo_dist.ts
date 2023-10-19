@@ -3,7 +3,8 @@ import { Command, CommandOptions } from "./command.ts";
 /**
  * @see https://redis.io/commands/geodist
  */
-export class GeoDistCommand<TMemberType = string> extends Command<number | null, number | null> {
+export class GeoDistCommand<TMemberType = string>
+  extends Command<number | null, number | null> {
   constructor(
     [key, member1, member2, unit = "M"]: [
       key: string,
@@ -13,12 +14,6 @@ export class GeoDistCommand<TMemberType = string> extends Command<number | null,
     ],
     opts?: CommandOptions<number | null, number | null>,
   ) {
-    const command: unknown[] = ["GEODIST", key];
-    command.push(member1, member2, unit);
-
-    super(command, opts);
+    super(["GEODIST", key, member1, member2, unit], opts);
   }
 }
-
-
-

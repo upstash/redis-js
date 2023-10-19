@@ -27,6 +27,9 @@ jobs:
 
       - name: Install bun
         run: npm install -g bun
+
+      - name: Install Dependencies
+        run: bun install
      
       - name: Lint
         run: bun run fmt

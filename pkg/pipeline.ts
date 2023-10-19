@@ -15,6 +15,8 @@ import {
   ExpireCommand,
   FlushAllCommand,
   FlushDBCommand,
+  GeoAddCommand,
+  GeoDistCommand,
   GetBitCommand,
   GetCommand,
   GetDelCommand,
@@ -1151,6 +1153,18 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
        */
       forget: (...args: CommandArgs<typeof JsonForgetCommand>) =>
         this.chain(new JsonForgetCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/geoadd
+       */
+      geoadd: (...args: CommandArgs<typeof GeoAddCommand>) =>
+        new GeoAddCommand(args, this.commandOptions).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/geodist
+       */
+      geodist: (...args: CommandArgs<typeof GeoDistCommand>) =>
+        new GeoDistCommand(args, this.commandOptions).exec(this.client),
 
       /**
        * @see https://redis.io/commands/json.get

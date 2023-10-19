@@ -741,7 +741,9 @@ jobs:
       - name: Install bun
         run: npm install -g bun
 
-     
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
 
       - name: Run example
         run: deno run -A ./main.ts & sleep 5

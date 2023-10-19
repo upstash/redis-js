@@ -5,7 +5,7 @@ import { Command, CommandOptions } from "./command.ts";
 export class MGetCommand<TData extends unknown[]>
   extends Command<(string | null)[], TData> {
   constructor(
-    cmd: [...keys: (string | string[])[]],
+    cmd: [string[]] | [...string[] | string[]],
     opts?: CommandOptions<(string | null)[], TData>,
   ) {
     const keys = Array.isArray(cmd[0])

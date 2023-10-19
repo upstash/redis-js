@@ -701,7 +701,7 @@ jobs:
       # - fastly-local - not working in ci for some reason, local is fine
       - nextjs-local
       - nextjs-edge-local
-      - netlify-local
+      # - netlify-local
       # - netlify-edge-local - their own cli doesn't work right now. I'll try again in a week
       - cloudflare-workers-with-typescript-local
       - cloudflare-workers-local

@@ -27,7 +27,7 @@ jobs:
         run: bun run fmt
 
       - name: Run tests
-        run: bun run test
+        run: bun test pkg
       
       - name: Build
         run: bun run build

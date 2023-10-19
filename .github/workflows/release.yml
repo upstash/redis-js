@@ -26,7 +26,7 @@ jobs:
            
       - name: Set package version
         run: |
-          bun ./scripts/set-version.js . ${{ env.VERSION }}
+          node ./scripts/set-version.js . ${{ env.VERSION }}
           echo "export const VERSION='${{ env.VERSION }}'" > ./src/version.ts
           
       - name: Install Dependencies

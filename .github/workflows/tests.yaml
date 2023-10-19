@@ -400,7 +400,7 @@ jobs:
         working-directory: examples/cloudflare-workers
 
       - name: Start example
-        run: wrangler dev & sleep 5
+        run: wrangler dev & sleep 10
         working-directory: examples/cloudflare-workers
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -411,7 +411,7 @@ jobs:
       - name: Test
         run: bun test examples/cloudflare-workers/ci.test.ts
         env:
-          DEPLOYMENT_URL: http://localhost:8787
+          DEPLOYMENT_URL: http://127.0.0.1:8787
 
   cloudflare-workers-deployed:  
     concurrency: cloudflare-workers-deployed

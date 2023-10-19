@@ -1,4 +1,4 @@
-import { expect } from "https://deno.land/std/testing/asserts";
+import { expect, test } from "bun:test";
 
 const deploymentURL = process.env.DEPLOYMENT_URL;
 if (!deploymentURL) {
@@ -11,7 +11,7 @@ test("works", async () => {
   console.log({ url });
 
   const res = await fetch(url);
-  expect(res.status, 200);
+  expect(res.status).toEqual(200);
   const json = (await res.json()) as { counter: number };
-  expect(typeof json.counter, "number");
+  expect(typeof json.counter).toEqual("number");
 });

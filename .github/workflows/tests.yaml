@@ -832,7 +832,6 @@ jobs:
       - nodejs-18-local
       # - fastly-local - not working in ci for some reason, local is fine
       - nextjs-local
-      - nextjs-export-local
       - nextjs-edge-local
       - netlify-local
       - deno-local

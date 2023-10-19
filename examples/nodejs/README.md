@@ -1,4 +1,6 @@
-# Nodejs Example
+# Nodejs v18 Example
+
+This example uses the now native fetch api, and does not require a polyfill.
 
 ## How to use
 
@@ -6,7 +8,7 @@
 
 ```bash
 git clone https://github.com/upstash/upstash-redis.git
-cd upstash-redis/examples/nodejs
+cd upstash-redis/examples/nodejs-18
 npm install
 ```
 

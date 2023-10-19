@@ -41,8 +41,8 @@ jobs:
         run: bun run build
 
   netlify-local:
-    # needs:
-    #   - test
+    needs:
+      - test
       
     runs-on: ubuntu-latest
     steps:
@@ -122,8 +122,8 @@ jobs:
 
   netlify-edge-local:
     if: false
-    # needs:
-    #   - test
+    needs:
+      - test
        
 
     runs-on: ubuntu-latest
@@ -203,8 +203,8 @@ jobs:
 
 
   nextjs-local:
-    # needs:
-    #   - test
+    needs:
+      - test
     
     runs-on: ubuntu-latest
     steps:
@@ -249,8 +249,8 @@ jobs:
 
 
   nextjs-edge-local:
-    # needs:
-    #   - test
+    needs:
+      - test
    
 
     runs-on: ubuntu-latest
@@ -394,8 +394,8 @@ jobs:
         run: bun test examples/nextjs_edge/test.ts
 
   cloudflare-workers-local:
-    # needs:
-    #   - test
+    needs:
+      - test
     
     runs-on: ubuntu-latest
     steps:
@@ -468,7 +468,7 @@ jobs:
       - name: Install example
         run: |
           bun add @upstash/redis@${{needs.release.outputs.version}}
-          bun add -g wrangler 
+          npm i -g wrangler 
         working-directory: examples/cloudflare-workers
 
       - name: Add account ID
@@ -488,8 +488,8 @@ jobs:
           DEPLOYMENT_URL: https://upstash-redis.upstash.workers.dev
 
   cloudflare-workers-with-typescript-local:
-    # needs:
-    #   - test
+    needs:
+      - test
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
@@ -586,8 +586,8 @@ jobs:
 
   fastly-local:
     if: false
-    # needs:
-    #   - test
+    needs:
+      - test
    
     runs-on: ubuntu-latest
     steps:
@@ -699,8 +699,8 @@ jobs:
           DEPLOYMENT_URL: https://terminally-flowing-lizard.edgecompute.app
 
   nodejs-local:
-    # needs:
-    #   - test
+    needs:
+      - test
     
     runs-on: ubuntu-latest
     steps:

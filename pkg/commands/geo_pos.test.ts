@@ -48,3 +48,22 @@ Deno.test("should return empty array due to null value FooBar", async () => {
   const response = await new GeoPosCommand([key, "FooBar"]).exec(client);
   assertEquals(response, []);
 });
+
+Deno.test("should work with object members", async () => {
+  const key = "Sicily";
+  const members = [
+    { name: "Palermo" },
+    { name: "Catania" },
+    { name: "Marsala" },
+  ];
+  await new GeoAddCommand([
+    key,
+    { longitude: 13.361389, latitude: 38.115556, member: members[0] },
+    { longitude: 15.087269, latitude: 37.502669, member: members[1] },
+    { longitude: 12.4372, latitude: 37.7981, member: members[2] },
+  ]).exec(client);
+  const response = await new GeoPosCommand([key, [...members, "FooBar"]]).exec(
+    client,
+  );
+  assertEquals(response.length, 3);
+});

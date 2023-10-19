@@ -1,79 +1,79 @@
-import { Redis } from "./redis.ts";
-import { keygen, newHttpClient, randomID } from "./test-utils.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
-import { afterEach } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { HttpClient } from "./http.ts";
+import { Redis } from "./redis";
+import { keygen, newHttpClient, randomID } from "./test-utils";
+
+import { afterEach, describe, expect, test } from "bun:test";
+import { HttpClient } from "./http";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterEach(cleanup);
 
-Deno.test("when storing base64 data", async (t) => {
-  await t.step("general", async () => {
+describe("when storing base64 data", () => {
+  test("general", async () => {
     const redis = new Redis(client);
     const key = newKey();
     const value = "VXBzdGFzaCBpcyByZWFsbHkgY29vbA";
     await redis.set(key, value);
     const res = await redis.get(key);
-    assertEquals(res, value);
+    expect(res).toEqual(value);
   });
 
   // decode("OK") => 8
-  await t.step("getting '8'", async () => {
+  test("getting '8'", async () => {
     const redis = new Redis(client);
     const key = newKey();
     const value = 8;
     await redis.set(key, value);
     const res = await redis.get(key);
-    assertEquals(res, value);
+    expect(res).toEqual(value);
   });
-  await t.step("getting 'OK'", async () => {
+  test("getting 'OK'", async () => {
     const redis = new Redis(client);
     const key = newKey();
     const value = "OK";
     await redis.set(key, value);
     const res = await redis.get(key);
-    assertEquals(res, value);
+    expect(res).toEqual(value);
   });
 });
 
-Deno.test("when destructuring the redis class", async (t) => {
-  await t.step("correctly binds this", async () => {
+test("when destructuring the redis class", () => {
+  test("correctly binds this", async () => {
     const { get, set } = new Redis(client);
     const key = newKey();
     const value = randomID();
     await set(key, value);
     const res = await get(key);
-    assertEquals(res, value);
+    expect(res).toEqual(value);
   });
 });
 
-Deno.test("zadd", async (t) => {
-  await t.step("adds the set", async () => {
+test("zadd", () => {
+  test("adds the set", async () => {
     const key = newKey();
     const score = 1;
     const member = randomID();
 
     const res = await new Redis(client).zadd(key, { score, member });
-    assertEquals(res, 1);
+    expect(res).toEqual(1);
   });
 });
 
-Deno.test("zrange", async (t) => {
-  await t.step("returns the range", async () => {
+test("zrange", () => {
+  test("returns the range", async () => {
     const key = newKey();
     const score = 1;
     const member = randomID();
     const redis = new Redis(client);
     await redis.zadd(key, { score, member });
     const res = await redis.zrange(key, 0, 2);
-    assertEquals(res, [member]);
+    expect(res).toEqual([member]);
   });
 });
 
-Deno.test("middleware", async (t) => {
+test("middleware", () => {
   let state = false;
-  await t.step("before", async () => {
+  test("before", async () => {
     const r = new Redis(client);
     r.use(async (req, next) => {
       state = true;
@@ -83,10 +83,10 @@ Deno.test("middleware", async (t) => {
 
     await r.incr(newKey());
 
-    assertEquals(state, true);
+    expect(state).toEqual(true);
   });
 
-  await t.step("after", async () => {
+  test("after", async () => {
     let state = false;
     const r = new Redis(client);
     r.use(async (req, next) => {
@@ -97,76 +97,76 @@ Deno.test("middleware", async (t) => {
 
     await r.incr(newKey());
 
-    assertEquals(state, true);
+    expect(state).toEqual(true);
   });
 });
 
-Deno.test("special data", async (t) => {
-  await t.step("with %", async () => {
+test("special data", () => {
+  test("with %", async () => {
     const key = newKey();
     const value = "%%12";
     const redis = new Redis(client);
     await redis.set(key, value);
     const res = await redis.get<string>(key);
 
-    assertEquals(res!, value);
+    expect(res!).toEqual(value);
   });
-  await t.step("empty string", async () => {
+  test("empty string", async () => {
     const key = newKey();
     const value = "";
     const redis = new Redis(client);
     await redis.set(key, value);
     const res = await redis.get<string>(key);
 
-    assertEquals(res!, value);
+    expect(res!).toEqual(value);
   });
 
-  await t.step("not found key", async () => {
+  test("not found key", async () => {
     const redis = new Redis(client);
     const res = await redis.get<string>(newKey());
 
-    assertEquals(res!, null);
+    expect(res!).toEqual(null);
   });
 
-  await t.step("with encodeURIComponent", async () => {
+  test("with encodeURIComponent", async () => {
     const key = newKey();
     const value = "😀";
     const redis = new Redis(client);
     await redis.set(key, encodeURIComponent(value));
     const res = await redis.get<string>(key);
 
-    assertEquals(decodeURIComponent(res!), value);
+    expect(decodeURIComponent(res!)).toEqual(value);
   });
 
-  await t.step("without encodeURIComponent", async () => {
+  test("without encodeURIComponent", async () => {
     const key = newKey();
     const value = "😀";
     const redis = new Redis(client);
     await redis.set(key, value);
     const res = await redis.get<string>(key);
 
-    assertEquals(res!, value);
+    expect(res!).toEqual(value);
   });
-  await t.step("emojis", async () => {
+  test("emojis", async () => {
     const key = newKey();
     const value = "😀";
     const redis = new Redis(client);
     await redis.set(key, value);
     const res = await redis.get(key);
 
-    assertEquals(res, value);
+    expect(res).toEqual(value);
   });
 });
 
-Deno.test("disable base64 encoding", async (t) => {
-  await t.step("emojis", async () => {
+test("disable base64 encoding", () => {
+  test("emojis", async () => {
     const key = newKey();
     const value = "😀";
-    const url = Deno.env.get("UPSTASH_REDIS_REST_URL");
+    const url = process.env.UPSTASH_REDIS_REST_URL;
     if (!url) {
       throw new Error("Could not find url");
     }
-    const token = Deno.env.get("UPSTASH_REDIS_REST_TOKEN");
+    const token = process.env.UPSTASH_REDIS_REST_TOKEN;
     if (!token) {
       throw new Error("Could not find token");
     }
@@ -180,17 +180,17 @@ Deno.test("disable base64 encoding", async (t) => {
     await redis.set(key, value);
     const res = await redis.get(key);
 
-    assertEquals(res, value);
+    expect(res).toEqual(value);
   });
 
-  await t.step("random bytes", async () => {
+  test("random bytes", async () => {
     const key = newKey();
     const value = crypto.getRandomValues(new Uint8Array(2 ** 8)).toString();
-    const url = Deno.env.get("UPSTASH_REDIS_REST_URL");
+    const url = process.env.UPSTASH_REDIS_REST_URL;
     if (!url) {
       throw new Error("Could not find url");
     }
-    const token = Deno.env.get("UPSTASH_REDIS_REST_TOKEN");
+    const token = process.env.UPSTASH_REDIS_REST_TOKEN;
     if (!token) {
       throw new Error("Could not find token");
     }
@@ -208,6 +208,6 @@ Deno.test("disable base64 encoding", async (t) => {
     await redis.set(key, value);
     const res = await redis.get(key);
 
-    assertEquals(res, value);
+    expect(res).toEqual(value);
   });
 });

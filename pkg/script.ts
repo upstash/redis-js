@@ -1,6 +1,6 @@
-import { Redis } from "./redis.ts";
-import { sha1 as digest } from "https://deno.land/x/sha1@v1.0.3/mod.ts";
-
+import { Redis } from "./redis";
+import sha1 from 'crypto-js/sha1';
+import Hex from 'crypto-js/enc-hex';
 /**
  * Creates a new script.
  *
@@ -14,7 +14,7 @@ import { sha1 as digest } from "https://deno.land/x/sha1@v1.0.3/mod.ts";
  *
  * const script = redis.createScript<string>("return ARGV[1];")
  * const arg1 = await script.eval([], ["Hello World"])
- * assertEquals(arg1, "Hello World")
+ * expect(arg1, "Hello World")
  * ```
  */
 export class Script<TResult = unknown> {
@@ -49,17 +49,12 @@ export class Script<TResult = unknown> {
    * Following calls will be able to use the cached script
    */
   public async exec(keys: string[], args: string[]): Promise<TResult> {
-    const res = await this.redis.evalsha(this.sha1, keys, args).catch(
-      async (err) => {
-        if (
-          err instanceof Error &&
-          err.message.toLowerCase().includes("noscript")
-        ) {
-          return await this.redis.eval(this.script, keys, args);
-        }
-        throw err;
-      },
-    );
+    const res = await this.redis.evalsha(this.sha1, keys, args).catch(async (err) => {
+      if (err instanceof Error && err.message.toLowerCase().includes("noscript")) {
+        return await this.redis.eval(this.script, keys, args);
+      }
+      throw err;
+    });
     return res as TResult;
   }
 
@@ -67,7 +62,6 @@ export class Script<TResult = unknown> {
    * Compute the sha1 hash of the script and return its hex representation.
    */
   private digest(s: string): string {
-    const hash = digest(s, "utf8", "hex");
-    return typeof hash === "string" ? hash : new TextDecoder().decode(hash);
+    return Hex.stringify(sha1(s))
   }
 }

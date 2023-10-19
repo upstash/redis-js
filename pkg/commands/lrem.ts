@@ -1,4 +1,4 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 export class LRemCommand<TData> extends Command<number, number> {
   constructor(
     cmd: [key: string, count: number, value: TData],

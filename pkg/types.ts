@@ -1,6 +1,3 @@
-export type CommandArgs<TCommand extends new (...args: any) => any> =
-  ConstructorParameters<TCommand>[0];
-
 export type Telemetry = {
   /**
    * Upstash-Telemetry-Sdk

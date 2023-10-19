@@ -1,20 +1,18 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 
 /**
  * @see https://redis.io/commands/json.get
  */
 export class JsonGetCommand<
-  TData extends
-    | (unknown | Record<string, unknown>)
-    | (unknown | Record<string, unknown>)[],
+  TData extends (unknown | Record<string, unknown>) | (unknown | Record<string, unknown>)[],
 > extends Command<TData | null, TData | null> {
   constructor(
     cmd:
       | [
-        key: string,
-        opts?: { indent?: string; newline?: string; space?: string },
-        ...path: string[],
-      ]
+          key: string,
+          opts?: { indent?: string; newline?: string; space?: string },
+          ...path: string[],
+        ]
       | [key: string, ...path: string[]],
     opts?: CommandOptions<TData | null, TData | null>,
   ) {

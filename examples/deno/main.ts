@@ -1,5 +1,5 @@
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { Redis } from "https://deno.land/x/upstash_redis/mod.ts";
+import { serve } from "https://deno.land/std@0.177.0/http/server";
+import { Redis } from "https://deno.land/x/upstash_redis/mod";
 
 serve(async (_req: Request) => {
   const redis = Redis.fromEnv();

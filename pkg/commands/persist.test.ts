@@ -1,26 +1,22 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { SetCommand } from "./set.ts";
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { PersistCommand } from "./persist.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { afterAll, expect, test } from "bun:test";
+import { PersistCommand } from "./persist";
+import { SetCommand } from "./set";
 
-import { GetCommand } from "./get.ts";
+import { GetCommand } from "./get";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
-Deno.test(
-  "persists the key",
-  async () => {
-    const key = newKey();
-    const value = randomID();
-    await new SetCommand([key, value, { ex: 2 }]).exec(client);
-    const res = await new PersistCommand([key]).exec(client);
-    assertEquals(res, 1);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    const res2 = await new GetCommand([key]).exec(client);
+test("persists the key", async () => {
+  const key = newKey();
+  const value = randomID();
+  await new SetCommand([key, value, { ex: 2 }]).exec(client);
+  const res = await new PersistCommand([key]).exec(client);
+  expect(res).toEqual(1);
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  const res2 = await new GetCommand([key]).exec(client);
 
-    assertEquals(res2, value);
-  },
-);
+  expect(res2).toEqual(value);
+});

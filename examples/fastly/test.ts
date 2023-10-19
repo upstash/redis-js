@@ -1,14 +1,14 @@
-import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
+import { expect } from "https://deno.land/std/testing/asserts";
 
 const deploymentURL = Deno.env.get("DEPLOYMENT_URL");
 if (!deploymentURL) {
   throw new Error("DEPLOYMENT_URL not set");
 }
 
-Deno.test("works", async () => {
+test("works", async () => {
   console.log({ deploymentURL });
   const res = await fetch(deploymentURL);
-  assertEquals(res.status, 200);
+  expect(res.status, 200);
   const json = (await res.json()) as { count: number };
-  assertEquals(typeof json.count, "number");
+  expect(typeof json.count, "number");
 });

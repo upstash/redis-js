@@ -1,0 +1,53 @@
+{
+  "name": "@upstash/redis",
+  "version": "0.0.0-canary.2",
+  "main": "./nodejs.js",
+  "types": "./nodejs.d.ts",
+  "description": "An HTTP/REST based Redis client built on top of Upstash REST API.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/upstash/upstash-redis.git"
+  },
+  "keywords": [
+    "redis",
+    "database",
+    "serverless",
+    "edge",
+    "upstash"
+  ],
+  "files": [
+    "./**"
+  ],
+  "scripts": {
+    "build": "tsup && cp README.md ./dist/ && cp package.json ./dist/",
+    "test": "bun test pkg --coverage",
+    "fmt": "bunx @biomejs/biome check --apply ./pkg"
+  },
+  "author": "Andreas Thomas <dev@chronark.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/upstash/upstash-redis/issues"
+  },
+  "homepage": "https://github.com/upstash/upstash-redis#readme",
+  "typesVersions": {
+    "*": {
+      "nodejs": [
+        "./nodejs.d.ts"
+      ],
+      "cloudflare": [
+        "./cloudflare.d.ts"
+      ],
+      "fastly": [
+        "./fastly.d.ts"
+      ]
+    }
+  },
+  "devDependencies": {
+    "bun-types": "^1.0.6",
+    "tsup": "^7.2.0"
+  },
+  "dependencies": {
+    "@biomejs/biome": "^1.3.0",
+    "crypto-js": "^4.1.1"
+  }
+}

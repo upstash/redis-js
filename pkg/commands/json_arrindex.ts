@@ -1,18 +1,11 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 
 /**
  * @see https://redis.io/commands/json.arrindex
  */
-export class JsonArrIndexCommand<TValue extends unknown>
-  extends Command<(null | string)[], (null | number)[]> {
+export class JsonArrIndexCommand<TValue> extends Command<(null | string)[], (null | number)[]> {
   constructor(
-    cmd: [
-      key: string,
-      path: string,
-      value: TValue,
-      start?: number,
-      stop?: number,
-    ],
+    cmd: [key: string, path: string, value: TValue, start?: number, stop?: number],
     opts?: CommandOptions<(null | string)[], (null | number)[]>,
   ) {
     super(["JSON.ARRINDEX", ...cmd], opts);

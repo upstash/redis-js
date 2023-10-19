@@ -1,4 +1,4 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 
 function deserialize<TData extends Record<string, unknown>>(
   fields: string[],
@@ -29,9 +29,10 @@ function deserialize<TData extends Record<string, unknown>>(
  *
  * @see https://redis.io/commands/hmget
  */
-export class HMGetCommand<
-  TData extends Record<string, unknown>,
-> extends Command<(string | null)[], TData | null> {
+export class HMGetCommand<TData extends Record<string, unknown>,> extends Command<
+  (string | null)[],
+  TData | null
+> {
   constructor(
     [key, ...fields]: [key: string, ...fields: string[]],
     opts?: CommandOptions<(string | null)[], TData | null>,

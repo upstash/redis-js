@@ -36,7 +36,7 @@ npm install @upstash/redis
 #### Deno
 
 ```ts
-import { Redis } from "https://deno.land/x/upstash_redis/mod.ts";
+import { Redis } from "https://deno.land/x/upstash_redis/mod";
 ```
 
 ### Create database

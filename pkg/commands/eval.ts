@@ -1,12 +1,9 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 
 /**
  * @see https://redis.io/commands/eval
  */
-export class EvalCommand<TArgs extends unknown[], TData> extends Command<
-  unknown,
-  TData
-> {
+export class EvalCommand<TArgs extends unknown[], TData> extends Command<unknown, TData> {
   constructor(
     [script, keys, args]: [script: string, keys: string[], args: TArgs],
     opts?: CommandOptions<unknown, TData>,

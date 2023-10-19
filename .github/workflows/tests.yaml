@@ -103,7 +103,7 @@ jobs:
         
 
       - name: Install @upstash/redis 
-        run: pnpm add @upstash/redis@${{needs.release.outputs.version}}
+        run: bun add @upstash/redis@${{needs.release.outputs.version}}
         working-directory: ./examples/netlify
 
       - name: Deploy
@@ -774,4 +774,4 @@ jobs:
         working-directory: ./dist
         run: |
           echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
-          npm publish --access public --tag=canary
+          npm publish --tag=ci

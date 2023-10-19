@@ -21,6 +21,21 @@ Deno.test("should return distance successfully in meters", async () => {
   assertEquals(res, 166274.1516);
 });
 
+Deno.test("should return distance for object members", async () => {
+  await new GeoAddCommand([
+    "Sicily",
+    { longitude: 13.361389, latitude: 38.115556, member: { name: "Palermo" } },
+    { longitude: 15.087269, latitude: 37.502669, member: { name: "Catania" } },
+  ]).exec(client);
+
+  const res = await new GeoDistCommand(["Sicily", { name: "Palermo" }, { name: "Catania" }]).exec(
+    client,
+  );
+
+  assertEquals(res, 166274.1516);
+});
+
+
 Deno.test("should return distance successfully in kilometers", async () => {
   await new GeoAddCommand([
     "Sicily",

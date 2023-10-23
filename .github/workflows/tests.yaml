@@ -30,21 +30,21 @@ jobs:
 
       - name: Install Dependencies
         run: bun install
-     
+
       - name: Lint
         run: bun run fmt
 
       - name: Run tests
         run: bun test pkg --bail
-      
+
       - name: Build
         run: bun run build
 
- 
+
   nextjs-local:
     needs:
       - test
-    
+
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
@@ -56,13 +56,13 @@ jobs:
 
       - name: Install bun
         run: npm install -g bun
-        
+
       - name: Install Dependencies
         run: bun install
-            
+
       - name: Build
         run: bun run build
-  
+
       - name: Install example
         run: |
           bun install
@@ -90,7 +90,7 @@ jobs:
   nextjs-edge-local:
     needs:
       - test
-   
+
 
     runs-on: ubuntu-latest
     steps:
@@ -103,10 +103,10 @@ jobs:
 
       - name: Install bun
         run: npm install -g bun
-      
+
       - name: Install Dependencies
         run: bun install
-          
+
       - name: Build
         run: bun run build
 
@@ -151,7 +151,7 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: latest
-        
+
 
       - name: Deploy
         run: |
@@ -166,7 +166,7 @@ jobs:
         run: bun test examples/nextjs/ci.test.ts
         working-directory: examples/nextjs
 
- 
+
   nextjs-edge-deployed:
     concurrency: nextjs-edge-deployed
     runs-on: ubuntu-latest
@@ -186,7 +186,7 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: latest
-        
+
 
       - name: Deploy
         run: |
@@ -212,13 +212,13 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
-      
+
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
 
       - name: Install @upstash/redis canary version
-        run: sed -i 's;@upstash/redis@latest;@upstash/redis@${{needs.release.outputs.version}};' ./examples/deno/main.ts   
+        run: sed -i 's;@upstash/redis@latest;@upstash/redis@${{needs.release.outputs.version}};' ./examples/deno/main.ts
 
       - name: Deploy
         run: deno run -A https://deno.land/x/deploy/deployctl.ts deploy --project=upstash-redis ./main.ts
@@ -226,18 +226,18 @@ jobs:
         env:
           DENO_DEPLOY_TOKEN: ${{ secrets.DENO_DEPLOY_TOKEN }}
 
-      
+
       - name: Test
         run: deno test -A ./main.test.ts
         working-directory: examples/deno
         env:
           DEPLOYMENT_URL: https://upstash-redis-70jbfgxwz310.deno.dev
 
-    
+
   cloudflare-workers-local:
     needs:
       - test
-    
+
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
@@ -248,10 +248,10 @@ jobs:
           node-version: 18
       - name: Install bun
         run: npm install -g bun
-      
+
       - name: Install Dependencies
         run: bun install
-          
+
       - name: Build
         run: bun run build
 
@@ -284,7 +284,7 @@ jobs:
         env:
           DEPLOYMENT_URL: http://127.0.0.1:8787
 
-  cloudflare-workers-deployed:  
+  cloudflare-workers-deployed:
     concurrency: cloudflare-workers-deployed
     needs:
       - release
@@ -299,16 +299,16 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 18
-          
+
       - name: Install bun
         run: npm install -g bun
 
-    
+
 
       - name: Install example
         run: |
           bun add @upstash/redis@${{needs.release.outputs.version}}
-          npm i -g wrangler 
+          npm i -g wrangler
         working-directory: examples/cloudflare-workers
 
       - name: Add account ID
@@ -337,13 +337,13 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 18
-          
+
       - name: Install bun
         run: npm install -g bun
-      
+
       - name: Install Dependencies
         run: bun install
-          
+
       - name: Build
         run: bun run build
 
@@ -351,7 +351,7 @@ jobs:
         run: |
           bun install
           bun add @upstash/redis@../../dist
-          npm install -g wrangler 
+          npm install -g wrangler
 
         working-directory: examples/cloudflare-workers-with-typescript
 
@@ -391,7 +391,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 18
-          
+
       - name: Install bun
         run: npm install -g bun
 
@@ -420,7 +420,7 @@ jobs:
     if: false
     needs:
       - test
-   
+
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
@@ -429,24 +429,24 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 18
-          
+
       - name: Install bun
         run: npm install -g bun
 
       - uses: pnpm/action-setup@v2
         with:
           version: latest
-        
+
 
       - name: Install bun
         run: npm install -g bun
-        
+
       - name: Install Dependencies
         run: bun install
-            
+
       - name: Build
         run: bun run build
-  
+
       - name: Install example
         working-directory: ./examples/fastly
         run: |
@@ -501,7 +501,7 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: latest
-        
+
 
       - name: Install example
         working-directory: ./examples/fastly
@@ -533,7 +533,7 @@ jobs:
   nodejs-local:
     needs:
       - test
-    
+
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
@@ -542,7 +542,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 18
-          
+
       - name: Install bun
         run: npm install -g bun
       - name: Install Dependencies
@@ -550,7 +550,7 @@ jobs:
 
       - name: Build
         run: bun run build
-      
+
       - name: Install example
         run: bun add @upstash/redis@../../dist
         working-directory: examples/nodejs
@@ -558,7 +558,7 @@ jobs:
       - name: Run example
         run: node ./index.js
         working-directory: examples/nodejs
-        
+
 
 
 
@@ -600,16 +600,16 @@ jobs:
 
       - name: Install Dependencies
         run: bun install
-      
-       
+
+
       - name: Build
         run: bun run build
 
-    
+
 
 
       - name: Publish ci version
         working-directory: ./dist
         run: |
           echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
-          npm publish --tag=ci
+          npm publish --tag=ci --verbose

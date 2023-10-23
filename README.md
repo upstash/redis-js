@@ -105,8 +105,15 @@ the url and token
 ### Running tests
 
 ```sh
-UPSTASH_REDIS_REST_URL=".." UPSTASH_REDIS_REST_TOKEN=".." bun run test 
+bun run test 
 ```
+
+### Building
+
+```sh
+bun run build
+```
+
 
 ### Telemetry
 

@@ -36,7 +36,7 @@ npm install @upstash/redis
 #### Deno
 
 ```ts
-import { Redis } from "https://deno.land/x/upstash_redis/mod";
+import { Redis } from "https://esm.sh/@upstash/redis";
 ```
 
 ### Create database
@@ -95,7 +95,7 @@ details.
 
 ## Contributing
 
-### [Install Deno](https://deno.land/#installation)
+### [Install Bun](https://bun.sh/docs/installation)
 
 ### Database
 
@@ -105,7 +105,7 @@ the url and token
 ### Running tests
 
 ```sh
-UPSTASH_REDIS_REST_URL=".." UPSTASH_REDIS_REST_TOKEN=".." deno test -A
+UPSTASH_REDIS_REST_URL=".." UPSTASH_REDIS_REST_TOKEN=".." bun run test 
 ```
 
 ### Telemetry

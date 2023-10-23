@@ -603,7 +603,13 @@ jobs:
       
        
       - name: Build
-        run: bun run build
+        run: |
+          bun run build
+          cp README.md dist/
+          cp LICENSE dist/
+          cp package.json dist/
+    
+
 
       - name: Publish ci version
         working-directory: ./dist

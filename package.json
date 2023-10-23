@@ -19,7 +19,7 @@
     "./**"
   ],
   "scripts": {
-    "build": "tsup && cp README.md ./dist/ && cp package.json ./dist/",
+    "build": "tsup",
     "test": "bun test pkg --coverage",
     "fmt": "bunx @biomejs/biome check --apply ./pkg"
   },

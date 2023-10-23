@@ -29,8 +29,12 @@ jobs:
           echo "export const VERSION='${{ env.VERSION }}'" > ./src/version.ts
           
       - name: Build
-        run: ~/.bun/bin/bun run build
-
+        run: |
+          ~/.bun/bin/bun run build
+          cp README.md dist/
+          cp LICENSE dist/
+          cp package.json dist/
+          
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

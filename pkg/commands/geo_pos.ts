@@ -1,18 +1,17 @@
 import { Command, CommandOptions } from "./command.ts";
 
 type Coordinates = {
-  lng: string;
-  lat: string;
+  lng: number;
+  lat: number;
 };
 
 /**
  * @see https://redis.io/commands/geopos
  */
-export class GeoPosCommand<TMember = string>
-  extends Command<(string | null)[][], Coordinates[]> {
+export class GeoPosCommand<TMember = string> extends Command<(string | null)[][], Coordinates[]> {
   constructor(
     cmd: [string, ...(TMember[] | TMember[])],
-    opts?: CommandOptions<(string | null)[][], Coordinates[]>,
+    opts?: CommandOptions<(string | null)[][], Coordinates[]>
   ) {
     const [key] = cmd;
     // Check if the second argument is an array of strings (members).
@@ -31,7 +30,7 @@ function transform(result: (string | null)[][]): Coordinates[] {
   const final: Coordinates[] = [];
   for (const pos of result) {
     if (!pos?.[0] || !pos?.[1]) continue;
-    final.push({ lng: pos[0], lat: pos[1] });
+    final.push({ lng: parseFloat(pos[0]), lat: parseFloat(pos[1]) });
   }
   return final;
 }

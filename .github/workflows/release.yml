@@ -33,11 +33,7 @@ jobs:
         run: bun install
         
       - name: Build
-        run: |
-          bun run build
-          cp README.md dist/
-          cp LICENSE dist/
-          cp package.json dist/
+        run: bun run build
 
       - name: Publish
         if: "!github.event.release.prerelease"

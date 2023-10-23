@@ -603,11 +603,8 @@ jobs:
       
        
       - name: Build
-        run: |
-          bun run build
-          cp README.md dist/
-          cp LICENSE dist/
-          cp package.json dist/
+        run: bun run build
+
     
 
 

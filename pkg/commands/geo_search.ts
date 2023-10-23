@@ -26,23 +26,21 @@ type GeoSearchCommandOptions = {
   withHash?: boolean;
 };
 
-type GeoSearchOptions<TOptions> = TOptions extends {
-  withHash: true;
-  withCoord: true;
-  withDist: true;
-} ? { hash: string; coord: { long: number; lat: number }; dist: number }
-  : TOptions extends { withHash: true; withCoord: true }
-    ? { hash: string; coord: { long: number; lat: number } }
-  : TOptions extends { withHash: true; withDist: true }
-    ? { hash: string; dist: number }
-  : TOptions extends { withCoord: true; withDist: true }
-    ? { coord: { long: number; lat: number }; dist: number }
-  : TOptions extends { withCoord: true }
-    ? { coord: { long: number; lat: number } }
-  : TOptions extends { withDist: true } ? { dist: number }
-  : TOptions extends { withHash: true } ? { hash: string }
-  // deno-lint-ignore ban-types
-  : {};
+type OptionMappings = {
+  withHash: "hash";
+  withCoord: "coord";
+  withDist: "dist";
+};
+
+type GeoSearchOptions<TOptions> = {
+  [
+    K in keyof TOptions as K extends keyof OptionMappings ? OptionMappings[K]
+      : never
+  ]: K extends "withHash" ? string
+    : K extends "withCoord" ? { long: number; lat: number }
+    : K extends "withDist" ? number
+    : never;
+};
 
 type GeoSearchResponse<TOptions, TMemberType> = ({
   member: TMemberType;

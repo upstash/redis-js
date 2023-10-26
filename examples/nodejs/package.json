@@ -1,11 +1,10 @@
 {
-  "name": "nodejs",
+  "name": "nodejs-18",
   "version": "1.0.0",
   "type": "module",
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "@upstash/redis": "latest",
-    "dotenv": "^16.0.3"
+    "@upstash/redis": "latest"
   }
 }

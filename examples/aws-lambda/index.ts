@@ -1,9 +1,5 @@
 const { Redis } = require("@upstash/redis/with-fetch");
-import type {
-  APIGatewayEvent,
-  APIGatewayProxyResult,
-  Context,
-} from "aws-lambda";
+import type { APIGatewayEvent, APIGatewayProxyResult, Context } from "aws-lambda";
 
 export const handler = async (
   _event: APIGatewayEvent,

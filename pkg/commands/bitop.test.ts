@@ -1,26 +1,25 @@
-import { BitOpCommand } from "./bitop.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { BitOpCommand } from "./bitop";
 
-import { keygen, newHttpClient } from "../test-utils.ts";
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { SetCommand } from "./set.ts";
+import { afterAll, describe, expect, test } from "bun:test";
+import { keygen, newHttpClient } from "../test-utils";
+import { SetCommand } from "./set";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("when key is not set", async (t) => {
-  await t.step("returns 0", async () => {
+describe("when key is not set", () => {
+  test("returns 0", async () => {
     const source = newKey();
     const dest = newKey();
     const res = await new BitOpCommand(["and", dest, source]).exec(client);
-    assertEquals(res, 0);
+    expect(res).toEqual(0);
   });
 });
 
-Deno.test("when key is set", async (t) => {
-  await t.step("not", async (t) => {
-    await t.step("inverts all bits", async () => {
+describe("when key is set", () => {
+  describe("not", () => {
+    test("inverts all bits", async () => {
       const source = newKey();
       const sourcevalue = "Hello World";
       const dest = newKey();
@@ -28,11 +27,11 @@ Deno.test("when key is set", async (t) => {
       await new SetCommand([source, sourcevalue]).exec(client);
       await new SetCommand([dest, destValue]).exec(client);
       const res = await new BitOpCommand(["not", dest, source]).exec(client);
-      assertEquals(res, 11);
+      expect(res).toEqual(11);
     });
   });
-  await t.step("and", async (t) => {
-    await t.step("works", async () => {
+  describe("and", () => {
+    test("works", async () => {
       const source = newKey();
       const sourcevalue = "Hello World";
       const dest = newKey();
@@ -40,7 +39,7 @@ Deno.test("when key is set", async (t) => {
       await new SetCommand([source, sourcevalue]).exec(client);
       await new SetCommand([dest, destValue]).exec(client);
       const res = await new BitOpCommand(["and", dest, source]).exec(client);
-      assertEquals(res, 11);
+      expect(res).toEqual(11);
     });
   });
 });

@@ -1,27 +1,26 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 
 type XAddCommandOptions = {
   nomkStream?: boolean;
-  trim?:
-    & (
-      | {
+  trim?: (
+    | {
         type: "MAXLEN" | "maxlen";
         threshold: number;
       }
-      | {
+    | {
         type: "MINID" | "minid";
         threshold: string;
       }
-    )
-    & (
+  ) &
+    (
       | {
-        comparison: "~";
-        limit?: number;
-      }
+          comparison: "~";
+          limit?: number;
+        }
       | {
-        comparison: "=";
-        limit?: never;
-      }
+          comparison: "=";
+          limit?: never;
+        }
     );
 };
 
@@ -55,9 +54,9 @@ export class XAddCommand extends Command<string, string> {
     command.push(id);
 
     // entries
-    Object.entries(entries).forEach(([k, v]) => {
+    for (const [k, v] of Object.entries(entries)) {
       command.push(k, v);
-    });
+    }
 
     super(command, commandOptions);
   }

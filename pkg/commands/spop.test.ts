@@ -1,39 +1,36 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { SAddCommand } from "./sadd.ts";
-import { SPopCommand } from "./spop.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { afterAll, expect, test } from "bun:test";
+import { SAddCommand } from "./sadd";
+import { SPopCommand } from "./spop";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("without count", async (t) => {
-  await t.step("returns the first element", async () => {
+test("without count", () => {
+  test("returns the first element", async () => {
     const key = newKey();
     const member = randomID();
     await new SAddCommand([key, member]).exec(client);
     const res = await new SPopCommand([key]).exec(client);
-    assertEquals(res, member);
+    expect(res).toEqual(member);
   });
 });
 
-Deno.test("with count", async (t) => {
-  await t.step("returns n elements", async () => {
+test("with count", () => {
+  test("returns n elements", async () => {
     const key = newKey();
     const member1 = randomID();
     const member2 = randomID();
     const member3 = randomID();
     const member4 = randomID();
-    await new SAddCommand([key, member1, member2, member3, member4]).exec(
-      client,
-    );
+    await new SAddCommand([key, member1, member2, member3, member4]).exec(client);
     const res = await new SPopCommand<string[]>([key, 2]).exec(client);
 
-    assertEquals(res?.length, 2);
-    assertEquals([member1, member2, member3, member4].includes(res![0]), true);
-    assertEquals([member1, member2, member3, member4].includes(res![1]), true);
+    expect(res?.length, 2);
+    expect([member1, member2, member3, member4].includes(res![0]), true);
+    expect([member1, member2, member3, member4].includes(res![1]), true);
   });
 });

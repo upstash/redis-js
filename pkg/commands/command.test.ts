@@ -1,16 +1,15 @@
-import { Command } from "./command.ts";
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
+import { Command } from "./command";
 
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
+import { afterAll, describe, expect, test } from "bun:test";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("deserialize large numbers", async (t) => {
-  await t.step("returns the correct number", async () => {
+describe("deserialize large numbers", () => {
+  test("returns the correct number", async () => {
     const key = newKey();
     const field = randomID();
     const value = "101600000000150081467";
@@ -18,6 +17,6 @@ Deno.test("deserialize large numbers", async (t) => {
     await new Command(["hset", key, field, value]).exec(client);
 
     const res = await new Command(["hget", key, field]).exec(client);
-    assertEquals(res, value);
+    expect(res).toEqual(value);
   });
 });

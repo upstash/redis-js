@@ -6,11 +6,7 @@ export interface Env {
 }
 
 export default {
-  async fetch(
-    _request: Request,
-    env: Env,
-    _ctx: ExecutionContext,
-  ): Promise<Response> {
+  async fetch(_request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
     const redis = Redis.fromEnv(env);
 
     const count = await redis.incr("cloudflare-workers-with-typescript-count");

@@ -3,10 +3,7 @@ import { Redis } from "@upstash/redis";
 // import http from "http";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-export default async function handler(
-  _req: NextApiRequest,
-  res: NextApiResponse,
-) {
+export default async function handler(_req: NextApiRequest, res: NextApiResponse) {
   const redis = Redis.fromEnv();
 
   /**

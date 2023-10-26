@@ -1,12 +1,10 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 
-export type ZAddCommandOptions =
-  & (
-    | { nx: true; xx?: never }
-    | { nx?: never; xx: true }
-    | { nx?: never; xx?: never }
-  )
-  & { ch?: true };
+export type ZAddCommandOptions = (
+  | { nx: true; xx?: never }
+  | { nx?: never; xx: true }
+  | { nx?: never; xx?: never }
+) & { ch?: true };
 
 export type ZAddCommandOptionsWithIncr = ZAddCommandOptions & { incr: true };
 
@@ -15,24 +13,14 @@ export type ZAddCommandOptionsWithIncr = ZAddCommandOptions & { incr: true };
  * multiple lines by Deno. As a result of that, Deno will add a comma to the end and then
  * complain about the comma being there...
  */
-type Arg2<TData> =
-  | ScoreMember<TData>
-  | ZAddCommandOptions
-  | ZAddCommandOptionsWithIncr;
+type Arg2<TData> = ScoreMember<TData> | ZAddCommandOptions | ZAddCommandOptionsWithIncr;
 export type ScoreMember<TData> = { score: number; member: TData };
 /**
  * @see https://redis.io/commands/zadd
  */
-export class ZAddCommand<TData = string> extends Command<
-  number | null,
-  number | null
-> {
+export class ZAddCommand<TData = string> extends Command<number | null, number | null> {
   constructor(
-    cmd: [
-      key: string,
-      scoreMember: ScoreMember<TData>,
-      ...scoreMemberPairs: ScoreMember<TData>[],
-    ],
+    cmd: [key: string, scoreMember: ScoreMember<TData>, ...scoreMemberPairs: ScoreMember<TData>[]],
     opts?: CommandOptions<number | null, number | null>,
   );
   constructor(

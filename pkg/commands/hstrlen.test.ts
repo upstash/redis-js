@@ -1,28 +1,24 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { afterAll, expect, test } from "bun:test";
 
-import { HStrLenCommand } from "./hstrlen.ts";
-import { HSetCommand } from "./hset.ts";
+import { HSetCommand } from "./hset";
+import { HStrLenCommand } from "./hstrlen";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
-Deno.test(
-  "returns correct length",
-  async () => {
-    const key = newKey();
-    const field = randomID();
-    const value = randomID();
+test("returns correct length", async () => {
+  const key = newKey();
+  const field = randomID();
+  const value = randomID();
 
-    const res = await new HStrLenCommand([key, field]).exec(client);
-    assertEquals(res, 0);
-    await new HSetCommand([key, { [field]: value }]).exec(client);
+  const res = await new HStrLenCommand([key, field]).exec(client);
+  expect(res).toEqual(0);
+  await new HSetCommand([key, { [field]: value }]).exec(client);
 
-    const res2 = await new HStrLenCommand([key, field]).exec(client);
+  const res2 = await new HStrLenCommand([key, field]).exec(client);
 
-    assertEquals(res2, value.length);
-  },
-);
+  expect(res2).toEqual(value.length);
+});

@@ -12,11 +12,7 @@ export default async function middleware(_request: Request) {
    * We're prefixing the key for our automated tests.
    * This is to avoid collisions with other tests.
    */
-  const key = [
-    "vercel",
-    process.env.VERCEL_GIT_COMMIT_SHA,
-    "middleware_counter",
-  ].join("_");
+  const key = ["vercel", process.env.VERCEL_GIT_COMMIT_SHA, "middleware_counter"].join("_");
   const value = await incr(key);
   console.log("mw", { value });
   return NextResponse.next();

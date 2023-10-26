@@ -1,15 +1,14 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { SAddCommand } from "./sadd.ts";
-import { SUnionCommand } from "./sunion.ts";
+import { afterAll, expect, test } from "bun:test";
+import { SAddCommand } from "./sadd";
+import { SUnionCommand } from "./sunion";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("returns the union", async () => {
+test("returns the union", async () => {
   const key1 = newKey();
   const key2 = newKey();
 
@@ -19,5 +18,5 @@ Deno.test("returns the union", async () => {
   await new SAddCommand([key1, member1]).exec(client);
   await new SAddCommand([key2, member2]).exec(client);
   const res = await new SUnionCommand([key1, key2]).exec(client);
-  assertEquals(res?.sort(), [member1, member2].sort());
+  expect(res?.sort(), [member1, member2].sort());
 });

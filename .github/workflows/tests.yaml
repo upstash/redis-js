@@ -213,6 +213,12 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v3
 
+      - name: Install bun
+        run: npm install -g bun
+
+      - name: Install Dependencies
+        run: bun install
+
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
@@ -228,7 +234,7 @@ jobs:
 
 
       - name: Test
-        run: deno test -A ./main.test.ts
+        run: bun test main.test.ts
         working-directory: examples/deno
         env:
           DEPLOYMENT_URL: https://upstash-redis-70jbfgxwz310.deno.dev

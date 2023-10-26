@@ -144,16 +144,16 @@ export class Redis extends core.Redis {
     // @ts-ignore process will be defined in node
     if (typeof process?.env === "undefined") {
       throw new Error(
-        'Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please import from "@upstash/redis/cloudflare" instead',
+        'Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please import from "@upstash/redis/cloudflare" instead'
       );
     }
     // @ts-ignore process will be defined in node
-    const url = process?.env["UPSTASH_REDIS_REST_URL"];
+    const url = process?.env.UPSTASH_REDIS_REST_URL;
     if (!url) {
       throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_URL`");
     }
     // @ts-ignore process will be defined in node
-    const token = process?.env["UPSTASH_REDIS_REST_TOKEN"];
+    const token = process?.env.UPSTASH_REDIS_REST_TOKEN;
     if (!token) {
       throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`");
     }

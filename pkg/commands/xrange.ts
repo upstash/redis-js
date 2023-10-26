@@ -1,4 +1,4 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 
 function deserialize<TData extends Record<string, Record<string, unknown>>>(
   result: [string, string[]][],
@@ -27,19 +27,12 @@ function deserialize<TData extends Record<string, Record<string, unknown>>>(
   return obj as TData;
 }
 
-export class XRangeCommand<
-  TData extends Record<string, Record<string, unknown>>,
-> extends Command<
+export class XRangeCommand<TData extends Record<string, Record<string, unknown>>,> extends Command<
   string[][],
   TData
 > {
   constructor(
-    [key, start, end, count]: [
-      key: string,
-      start: string,
-      end: string,
-      count?: number,
-    ],
+    [key, start, end, count]: [key: string, start: string, end: string, count?: number],
     opts?: CommandOptions<unknown[], TData[]>,
   ) {
     const command: unknown[] = ["XRANGE", key, start, end];

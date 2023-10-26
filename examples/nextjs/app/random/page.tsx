@@ -8,9 +8,5 @@ export default async function Page() {
 
   const random = await redis.srandmember<string>("random");
 
-  return (
-    <div>
-      {random}
-    </div>
-  );
+  return <div>{random}</div>;
 }

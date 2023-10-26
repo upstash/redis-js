@@ -1,17 +1,16 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { ZAddCommand } from "./zadd.ts";
-import { ZPopMinCommand } from "./zpopmin.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { afterAll, expect, test } from "bun:test";
+import { ZAddCommand } from "./zadd";
+import { ZPopMinCommand } from "./zpopmin";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("without options", async (t) => {
-  await t.step("returns the popped elements", async () => {
+test("without options", () => {
+  test("returns the popped elements", async () => {
     const key = newKey();
     const score1 = 1;
     const member1 = randomID();
@@ -26,12 +25,12 @@ Deno.test("without options", async (t) => {
       { score: score3, member: member3 },
     ]).exec(client);
     const res = await new ZPopMinCommand([key]).exec(client);
-    assertEquals(res, [member1, score1]);
+    expect(res).toEqual([member1, score1]);
   });
 });
 
-Deno.test("with count", async (t) => {
-  await t.step("returns the popped elements", async () => {
+test("with count", () => {
+  test("returns the popped elements", async () => {
     const key = newKey();
     const score1 = 1;
     const member1 = randomID();
@@ -46,6 +45,6 @@ Deno.test("with count", async (t) => {
       { score: score3, member: member3 },
     ]).exec(client);
     const res = await new ZPopMinCommand([key, 2]).exec(client);
-    assertEquals(res, [member1, score1, member2, score2]);
+    expect(res).toEqual([member1, score1, member2, score2]);
   });
 });

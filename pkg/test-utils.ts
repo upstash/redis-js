@@ -1,5 +1,5 @@
-import { DelCommand } from "./commands/del.ts";
-import { HttpClient } from "./http.ts";
+import { DelCommand } from "./commands/del";
+import { HttpClient } from "./http";
 
 /**
  * crypto.randomUUID() is not available in dnt crypto shim
@@ -22,11 +22,11 @@ export const randomUnsafeIntegerString = (): string => {
   return unsafeInteger.toString();
 };
 export const newHttpClient = () => {
-  const url = Deno.env.get("UPSTASH_REDIS_REST_URL");
+  const url = process.env.UPSTASH_REDIS_REST_URL;
   if (!url) {
     throw new Error("Could not find url");
   }
-  const token = Deno.env.get("UPSTASH_REDIS_REST_TOKEN");
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!token) {
     throw new Error("Could not find token");
   }

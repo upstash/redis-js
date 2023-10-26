@@ -1,18 +1,11 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 
 /**
  * @see https://redis.io/commands/lpos
  */
-export class LPosCommand<TData = number> extends Command<
-  TData,
-  TData
-> {
+export class LPosCommand<TData = number> extends Command<TData, TData> {
   constructor(
-    cmd: [
-      key: string,
-      element: unknown,
-      opts?: { rank?: number; count?: number; maxLen?: number },
-    ],
+    cmd: [key: string, element: unknown, opts?: { rank?: number; count?: number; maxLen?: number }],
     opts?: CommandOptions<TData, TData>,
   ) {
     const args = ["lpos", cmd[0], cmd[1]];

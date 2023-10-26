@@ -1,12 +1,9 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 
 /**
  * @see https://redis.io/commands/zmscore
  */
-export class ZMScoreCommand<TData> extends Command<
-  string[] | null,
-  number[] | null
-> {
+export class ZMScoreCommand<TData> extends Command<string[] | null, number[] | null> {
   constructor(
     cmd: [key: string, members: TData[]],
     opts?: CommandOptions<string[] | null, number[] | null>,

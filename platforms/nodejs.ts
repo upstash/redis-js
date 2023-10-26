@@ -1,14 +1,14 @@
 // deno-lint-ignore-file
 
-import * as core from "../pkg/redis.ts";
 import {
   HttpClient,
   Requester,
   RequesterConfig,
   UpstashRequest,
   UpstashResponse,
-} from "../pkg/http.ts";
-import { VERSION } from "../version.ts";
+} from "../pkg/http";
+import * as core from "../pkg/redis";
+import { VERSION } from "../version";
 
 /**
  * Workaround for nodejs 14, where atob is not included in the standardlib
@@ -25,36 +25,34 @@ export type { Requester, UpstashRequest, UpstashResponse };
  * Connection credentials for upstash redis.
  * Get them from https://console.upstash.com/redis/<uuid>
  */
-export type RedisConfigNodejs =
-  & {
-    /**
-     * UPSTASH_REDIS_REST_URL
-     */
-    url: string;
-    /**
-     * UPSTASH_REDIS_REST_TOKEN
-     */
-    token: string;
+export type RedisConfigNodejs = {
+  /**
+   * UPSTASH_REDIS_REST_URL
+   */
+  url: string;
+  /**
+   * UPSTASH_REDIS_REST_TOKEN
+   */
+  token: string;
 
-    /**
-     * An agent allows you to reuse connections to reduce latency for multiple sequential requests.
-     *
-     * This is a node specific implementation and is not supported in various runtimes like Vercel
-     * edge functions.
-     *
-     * @example
-     * ```ts
-     * import https from "https"
-     *
-     * const options: RedisConfigNodejs = {
-     *  agent: new https.Agent({ keepAlive: true })
-     * }
-     * ```
-     */
-    agent?: any;
-  }
-  & core.RedisOptions
-  & RequesterConfig;
+  /**
+   * An agent allows you to reuse connections to reduce latency for multiple sequential requests.
+   *
+   * This is a node specific implementation and is not supported in various runtimes like Vercel
+   * edge functions.
+   *
+   * @example
+   * ```ts
+   * import https from "https"
+   *
+   * const options: RedisConfigNodejs = {
+   *  agent: new https.Agent({ keepAlive: true })
+   * }
+   * ```
+   */
+  agent?: any;
+} & core.RedisOptions &
+  RequesterConfig;
 
 /**
  * Serverless redis client for upstash.
@@ -101,18 +99,14 @@ export class Redis extends core.Redis {
       configOrRequester.url.endsWith(" ") ||
       /\r|\n/.test(configOrRequester.url)
     ) {
-      console.warn(
-        "The redis url contains whitespace or newline, which can cause errors!",
-      );
+      console.warn("The redis url contains whitespace or newline, which can cause errors!");
     }
     if (
       configOrRequester.token.startsWith(" ") ||
       configOrRequester.token.endsWith(" ") ||
       /\r|\n/.test(configOrRequester.token)
     ) {
-      console.warn(
-        "The redis token contains whitespace or newline, which can cause errors!",
-      );
+      console.warn("The redis token contains whitespace or newline, which can cause errors!");
     }
 
     const client = new HttpClient({
@@ -130,14 +124,9 @@ export class Redis extends core.Redis {
     });
 
     this.addTelemetry({
-      runtime: typeof EdgeRuntime === "string"
-        ? "edge-light"
-        : `node@${process.version}`,
-      platform: process.env.VERCEL
-        ? "vercel"
-        : process.env.AWS_REGION
-        ? "aws"
-        : "unknown",
+      // @ts-ignore
+      runtime: typeof EdgeRuntime === "string" ? "edge-light" : `node@${process.version}`,
+      platform: process.env.VERCEL ? "vercel" : process.env.AWS_REGION ? "aws" : "unknown",
       sdk: `@upstash/redis@${VERSION}`,
     });
   }
@@ -161,16 +150,12 @@ export class Redis extends core.Redis {
     // @ts-ignore process will be defined in node
     const url = process?.env["UPSTASH_REDIS_REST_URL"];
     if (!url) {
-      throw new Error(
-        "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`",
-      );
+      throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_URL`");
     }
     // @ts-ignore process will be defined in node
     const token = process?.env["UPSTASH_REDIS_REST_TOKEN"];
     if (!token) {
-      throw new Error(
-        "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`",
-      );
+      throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`");
     }
     return new Redis({ ...config, url, token });
   }

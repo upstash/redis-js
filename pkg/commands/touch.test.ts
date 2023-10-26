@@ -1,25 +1,21 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { MSetCommand } from "./mset.ts";
-import { TouchCommand } from "./touch.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { afterAll, expect, test } from "bun:test";
+import { MSetCommand } from "./mset";
+import { TouchCommand } from "./touch";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test(
-  "returns the number of touched keys",
-  async () => {
-    const key1 = newKey();
-    const key2 = newKey();
-    const kv: Record<string, string> = {};
-    kv[key1] = randomID();
-    kv[key2] = randomID();
-    await new MSetCommand([kv]).exec(client);
-    const res = await new TouchCommand([key1, key2]).exec(client);
-    assertEquals(res, 2);
-  },
-);
+test("returns the number of touched keys", async () => {
+  const key1 = newKey();
+  const key2 = newKey();
+  const kv: Record<string, string> = {};
+  kv[key1] = randomID();
+  kv[key2] = randomID();
+  await new MSetCommand([kv]).exec(client);
+  const res = await new TouchCommand([key1, key2]).exec(client);
+  expect(res).toEqual(2);
+});

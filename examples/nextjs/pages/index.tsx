@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { Redis } from "@upstash/redis";
+import { useState } from "react";
 
 const Home = ({ count }: { count: number }) => {
   const [cacheCount, setCacheCount] = useState(count);
@@ -24,8 +24,7 @@ const Home = ({ count }: { count: number }) => {
           </h1>
 
           <p className="mt-4">
-            This is an example of how you can use Upstash redis in a nextjs
-            application
+            This is an example of how you can use Upstash redis in a nextjs application
           </p>
         </header>
 

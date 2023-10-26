@@ -1,8 +1,6 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 
-function deserialize<TData extends Record<string, unknown>>(
-  result: string[],
-): TData | null {
+function deserialize<TData extends Record<string, unknown>>(result: string[]): TData | null {
   if (result.length === 0) {
     return null;
   }
@@ -12,8 +10,8 @@ function deserialize<TData extends Record<string, unknown>>(
     const value = result.shift()!;
     try {
       // handle unsafe integer
-      const valueIsNumberAndNotSafeInteger = !isNaN(Number(value)) &&
-        !Number.isSafeInteger(value);
+      const valueIsNumberAndNotSafeInteger =
+        !Number.isNaN(Number(value)) && !Number.isSafeInteger(value);
       if (valueIsNumberAndNotSafeInteger) {
         obj[key] = value;
       } else {
@@ -29,13 +27,11 @@ function deserialize<TData extends Record<string, unknown>>(
 /**
  * @see https://redis.io/commands/hgetall
  */
-export class HGetAllCommand<
-  TData extends Record<string, unknown>,
-> extends Command<unknown | null, TData | null> {
-  constructor(
-    cmd: [key: string],
-    opts?: CommandOptions<unknown | null, TData | null>,
-  ) {
+export class HGetAllCommand<TData extends Record<string, unknown>,> extends Command<
+  unknown | null,
+  TData | null
+> {
+  constructor(cmd: [key: string], opts?: CommandOptions<unknown | null, TData | null>) {
     super(["hgetall", ...cmd], {
       deserialize: (result) => deserialize<TData>(result as string[]),
       ...opts,

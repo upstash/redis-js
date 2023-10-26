@@ -1,4 +1,4 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 
 export type Type = "string" | "list" | "set" | "zset" | "hash" | "none";
 /**

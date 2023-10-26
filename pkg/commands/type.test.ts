@@ -1,109 +1,72 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { SetCommand } from "./set.ts";
-import { TypeCommand } from "./type.ts";
-import { LPushCommand } from "./lpush.ts";
-import { HSetCommand } from "./hset.ts";
-import { SAddCommand } from "./sadd.ts";
-import { ZAddCommand } from "./zadd.ts";
+import { afterAll, expect, test } from "bun:test";
+import { HSetCommand } from "./hset";
+import { LPushCommand } from "./lpush";
+import { SAddCommand } from "./sadd";
+import { SetCommand } from "./set";
+import { TypeCommand } from "./type";
+import { ZAddCommand } from "./zadd";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test(
-  "string",
-  async (t) => {
-    await t.step(
-      "returns the correct type",
-      async () => {
-        const key = newKey();
-        const value = randomID();
-        await new SetCommand([key, value]).exec(client);
-        const res = await new TypeCommand([key]).exec(client);
-        assertEquals(res, "string");
-      },
-    );
-  },
-);
+test("string", () => {
+  test("returns the correct type", async () => {
+    const key = newKey();
+    const value = randomID();
+    await new SetCommand([key, value]).exec(client);
+    const res = await new TypeCommand([key]).exec(client);
+    expect(res).toEqual("string");
+  });
+});
 
-Deno.test(
-  "list",
-  async (t) => {
-    await t.step(
-      "returns the correct type",
-      async () => {
-        const key = newKey();
-        const value = randomID();
-        await new LPushCommand([key, value]).exec(client);
-        const res = await new TypeCommand([key]).exec(client);
-        assertEquals(res, "list");
-      },
-    );
-  },
-);
+test("list", () => {
+  test("returns the correct type", async () => {
+    const key = newKey();
+    const value = randomID();
+    await new LPushCommand([key, value]).exec(client);
+    const res = await new TypeCommand([key]).exec(client);
+    expect(res).toEqual("list");
+  });
+});
 
-Deno.test(
-  "set",
-  async (t) => {
-    await t.step(
-      "returns the correct type",
-      async () => {
-        const key = newKey();
-        const value = randomID();
-        await new SAddCommand([key, value]).exec(client);
-        const res = await new TypeCommand([key]).exec(client);
-        assertEquals(res, "set");
-      },
-    );
-  },
-);
+test("set", () => {
+  test("returns the correct type", async () => {
+    const key = newKey();
+    const value = randomID();
+    await new SAddCommand([key, value]).exec(client);
+    const res = await new TypeCommand([key]).exec(client);
+    expect(res).toEqual("set");
+  });
+});
 
-Deno.test(
-  "hash",
-  async (t) => {
-    await t.step(
-      "returns the correct type",
-      async () => {
-        const key = newKey();
-        const field = randomID();
-        const value = randomID();
-        await new HSetCommand([key, { [field]: value }]).exec(client);
-        const res = await new TypeCommand([key]).exec(client);
-        assertEquals(res, "hash");
-      },
-    );
-  },
-);
+test("hash", () => {
+  test("returns the correct type", async () => {
+    const key = newKey();
+    const field = randomID();
+    const value = randomID();
+    await new HSetCommand([key, { [field]: value }]).exec(client);
+    const res = await new TypeCommand([key]).exec(client);
+    expect(res).toEqual("hash");
+  });
+});
 
-Deno.test(
-  "zset",
-  async (t) => {
-    await t.step(
-      "returns the correct type",
-      async () => {
-        const key = newKey();
-        const member = randomID();
-        await new ZAddCommand([key, { score: 0, member }]).exec(client);
-        const res = await new TypeCommand([key]).exec(client);
-        assertEquals(res, "zset");
-      },
-    );
-  },
-);
+test("zset", () => {
+  test("returns the correct type", async () => {
+    const key = newKey();
+    const member = randomID();
+    await new ZAddCommand([key, { score: 0, member }]).exec(client);
+    const res = await new TypeCommand([key]).exec(client);
+    expect(res).toEqual("zset");
+  });
+});
 
-Deno.test(
-  "none",
-  async (t) => {
-    await t.step(
-      "returns the correct type",
-      async () => {
-        const key = newKey();
-        const res = await new TypeCommand([key]).exec(client);
-        assertEquals(res, "none");
-      },
-    );
-  },
-);
+test("none", () => {
+  test("returns the correct type", async () => {
+    const key = newKey();
+    const res = await new TypeCommand([key]).exec(client);
+    expect(res).toEqual("none");
+  });
+});

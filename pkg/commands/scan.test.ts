@@ -1,18 +1,17 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { SetCommand } from "./set.ts";
-import { ZAddCommand } from "./zadd.ts";
-import { ScanCommand } from "./scan.ts";
-import { TypeCommand } from "./type.ts";
-import { FlushDBCommand } from "./flushdb.ts";
+import { afterAll, expect, test } from "bun:test";
+import { FlushDBCommand } from "./flushdb";
+import { ScanCommand } from "./scan";
+import { SetCommand } from "./set";
+import { TypeCommand } from "./type";
+import { ZAddCommand } from "./zadd";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
-Deno.test("without options", async (t) => {
-  await t.step("returns cursor and keys", async () => {
+test("without options", () => {
+  test("returns cursor and keys", async () => {
     const key = newKey();
     const value = randomID();
     await new SetCommand([key, value]).exec(client);
@@ -22,13 +21,13 @@ Deno.test("without options", async (t) => {
       const res = await new ScanCommand([cursor]).exec(client);
       cursor = res[0];
       found.push(...res[1]);
-    } while (cursor != 0);
-    assertEquals(found.includes(key), true);
+    } while (cursor !== 0);
+    expect(found.includes(key)).toBeTrue();
   });
 });
 
-Deno.test("with match", async (t) => {
-  await t.step("returns cursor and keys", async () => {
+test("with match", () => {
+  test("returns cursor and keys", async () => {
     const key = newKey();
     const value = randomID();
     await new SetCommand([key, value]).exec(client);
@@ -37,17 +36,17 @@ Deno.test("with match", async (t) => {
     const found: string[] = [];
     do {
       const res = await new ScanCommand([cursor, { match: key }]).exec(client);
-      assertEquals(typeof res[0], "number");
+      expect(typeof res[0]).toEqual("number");
       cursor = res[0];
       found.push(...res[1]);
-    } while (cursor != 0);
+    } while (cursor !== 0);
 
-    assertEquals(found, [key]);
+    expect(found).toEqual([key]);
   });
 });
 
-Deno.test("with count", async (t) => {
-  await t.step("returns cursor and keys", async () => {
+test("with count", () => {
+  test("returns cursor and keys", async () => {
     const key = newKey();
     const value = randomID();
     await new SetCommand([key, value]).exec(client);
@@ -58,14 +57,14 @@ Deno.test("with count", async (t) => {
       const res = await new ScanCommand([cursor, { count: 1 }]).exec(client);
       cursor = res[0];
       found.push(...res[1]);
-    } while (cursor != 0);
+    } while (cursor !== 0);
 
-    assertEquals(found.includes(key), true);
+    expect(found.includes(key)).toEqual(true);
   });
 });
 
-Deno.test("with type", async (t) => {
-  await t.step("returns cursor and keys", async () => {
+test("with type", () => {
+  test("returns cursor and keys", async () => {
     await new FlushDBCommand([]).exec(client);
     const key1 = newKey();
     const key2 = newKey();
@@ -78,17 +77,15 @@ Deno.test("with type", async (t) => {
     let cursor = 0;
     const found: string[] = [];
     do {
-      const res = await new ScanCommand([cursor, { type: "string" }]).exec(
-        client,
-      );
+      const res = await new ScanCommand([cursor, { type: "string" }]).exec(client);
       cursor = res[0];
       found.push(...res[1]);
-    } while (cursor != 0);
+    } while (cursor !== 0);
 
-    assertEquals(found.length, 1);
+    expect(found.length).toEqual(1);
     for (const key of found) {
       const type = await new TypeCommand([key]).exec(client);
-      assertEquals(type, "string");
+      expect(type).toEqual("string");
     }
   });
 });

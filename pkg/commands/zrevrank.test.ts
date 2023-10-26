@@ -1,15 +1,14 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { ZAddCommand } from "./zadd.ts";
-import { ZRevRankCommand } from "./zrevrank.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { afterAll, expect, test } from "bun:test";
+import { keygen, newHttpClient } from "../test-utils";
+import { ZAddCommand } from "./zadd";
+import { ZRevRankCommand } from "./zrevrank";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("returns the rank", async () => {
+test("returns the rank", async () => {
   const key = newKey();
 
   await new ZAddCommand([
@@ -20,5 +19,5 @@ Deno.test("returns the rank", async () => {
   ]).exec(client);
 
   const res = await new ZRevRankCommand([key, "member2"]).exec(client);
-  assertEquals(res, 1);
+  expect(res).toEqual(1);
 });

@@ -1,19 +1,16 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { SAddCommand } from "./sadd.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
-import { SCardCommand } from "./scard.ts";
+import { afterAll, expect, test } from "bun:test";
+import { keygen, newHttpClient } from "../test-utils";
+import { SAddCommand } from "./sadd";
+
+import { SCardCommand } from "./scard";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test(
-  "returns the cardinality",
-  async () => {
-    const key = newKey();
-    await new SAddCommand([key, "member1"]).exec(client);
-    const res = await new SCardCommand([key]).exec(client);
-    assertEquals(res, 1);
-  },
-);
+test("returns the cardinality", async () => {
+  const key = newKey();
+  await new SAddCommand([key, "member1"]).exec(client);
+  const res = await new SCardCommand([key]).exec(client);
+  expect(res).toEqual(1);
+});

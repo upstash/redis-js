@@ -6,8 +6,6 @@ export default {
 
     const count = await redis.incr("cloudflare-workers-count");
 
-    return new Response(
-      JSON.stringify({ count }),
-    );
+    return new Response(JSON.stringify({ count }));
   },
 };

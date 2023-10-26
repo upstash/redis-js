@@ -1,26 +1,18 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 
-export type ZRangeCommandOptions =
-  & {
-    withScores?: boolean;
-    rev?: boolean;
-  }
-  & (
-    | { byScore: true; byLex?: never }
-    | { byScore?: never; byLex: true }
-    | { byScore?: never; byLex?: never }
-  )
-  & (
-    | { offset: number; count: number }
-    | { offset?: never; count?: never }
-  );
+export type ZRangeCommandOptions = {
+  withScores?: boolean;
+  rev?: boolean;
+} & (
+  | { byScore: true; byLex?: never }
+  | { byScore?: never; byLex: true }
+  | { byScore?: never; byLex?: never }
+) &
+  ({ offset: number; count: number } | { offset?: never; count?: never });
 /**
  * @see https://redis.io/commands/zrange
  */
-export class ZRangeCommand<TData extends unknown[]> extends Command<
-  string[],
-  TData
-> {
+export class ZRangeCommand<TData extends unknown[]> extends Command<string[], TData> {
   constructor(
     cmd: [key: string, min: number, max: number, opts?: ZRangeCommandOptions],
     cmdOpts?: CommandOptions<string[], TData>,
@@ -64,9 +56,7 @@ export class ZRangeCommand<TData extends unknown[]> extends Command<
     if (opts?.rev) {
       command.push("rev");
     }
-    if (
-      typeof opts?.count !== "undefined" && typeof opts?.offset !== "undefined"
-    ) {
+    if (typeof opts?.count !== "undefined" && typeof opts?.offset !== "undefined") {
       command.push("limit", opts!.offset, opts!.count);
     }
     if (opts?.withScores) {

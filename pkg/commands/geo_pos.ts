@@ -29,7 +29,9 @@ export class GeoPosCommand<TMember = string> extends Command<(string | null)[][]
 function transform(result: (string | null)[][]): Coordinates[] {
   const final: Coordinates[] = [];
   for (const pos of result) {
-    if (!pos?.[0] || !pos?.[1]) continue;
+    if (!pos?.[0] || !pos?.[1]) {
+      continue;
+    }
     final.push({ lng: parseFloat(pos[0]), lat: parseFloat(pos[1]) });
   }
   return final;

@@ -1,11 +1,11 @@
-import { newHttpClient } from "../test-utils.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
-import { PublishCommand } from "./publish.ts";
+import { newHttpClient } from "../test-utils";
+
+import { PublishCommand } from "./publish";
 
 const client = newHttpClient();
 
-Deno.test("returns the number of clients that received the message", async () => {
+test("returns the number of clients that received the message", async () => {
   const res = await new PublishCommand(["channel", "hello"]).exec(client);
 
-  assertEquals(typeof res, "number");
+  expect(typeof res, "number");
 });

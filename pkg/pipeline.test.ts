@@ -1,22 +1,17 @@
-import { Pipeline } from "./pipeline.ts";
-import { Redis } from "./redis.ts";
-import { keygen, newHttpClient, randomID } from "./test-utils.ts";
-import {
-  assertEquals,
-  assertRejects,
-} from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { Pipeline } from "./pipeline";
+import { Redis } from "./redis";
+import { keygen, newHttpClient, randomID } from "./test-utils";
 
-import { afterEach } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-
-import { ScriptLoadCommand } from "./commands/script_load.ts";
+import { afterEach, describe, expect, test } from "bun:test";
+import { ScriptLoadCommand } from "./commands/script_load";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterEach(cleanup);
 
-Deno.test("with destructuring", async (t) => {
-  await t.step("correctly binds this", async () => {
+describe("with destructuring", () => {
+  test("correctly binds this", async () => {
     const { pipeline } = new Redis(client);
     const p = pipeline();
 
@@ -24,32 +19,31 @@ Deno.test("with destructuring", async (t) => {
     echo("Hello");
 
     const res = await exec();
-    assertEquals(res, ["Hello"]);
+    expect(res).toEqual(["Hello"]);
   });
 });
 
-Deno.test("with single command", async (t) => {
-  await t.step("works with multiple commands", async () => {
+describe("with single command", () => {
+  test("works with multiple commands", async () => {
     const p = new Pipeline({ client });
     p.set(newKey(), randomID());
     const res = await p.exec();
-    assertEquals(res.length, 1);
-    assertEquals(res[0], "OK");
+    expect(res.length).toEqual(1);
+    expect(res[0]).toEqual("OK");
   });
 });
 
-Deno.test("when chaining in a for loop", async (t) => {
-  await t.step("works", async () => {
+describe("when chaining in a for loop", () => {
+  test("works", async () => {
     const key = newKey();
-    const res = await new Pipeline({ client }).set(key, randomID()).get(key)
-      .exec();
+    const res = await new Pipeline({ client }).set(key, randomID()).get(key).exec();
 
-    assertEquals(res.length, 2);
+    expect(res.length).toEqual(2);
   });
 });
 
-Deno.test("when chaining inline", async (t) => {
-  await t.step("works", async () => {
+describe("when chaining inline", () => {
+  test("works", async () => {
     const key = newKey();
     const p = new Pipeline({ client });
     for (let i = 0; i < 10; i++) {
@@ -57,46 +51,54 @@ Deno.test("when chaining inline", async (t) => {
     }
 
     const res = await p.exec();
-    assertEquals(res.length, 10);
+    expect(res.length).toEqual(10);
   });
 });
 
-Deno.test("when no commands were added", async (t) => {
-  await t.step("throws", async () => {
-    await assertRejects(() => new Pipeline({ client }).exec());
+describe("when no commands were added", () => {
+  test("throws", async () => {
+    let hasThrown = false;
+    await new Pipeline({ client }).exec().catch(() => {
+      hasThrown = true;
+    });
+    expect(hasThrown).toBeTrue();
   });
 });
 
-Deno.test("when length called", async (t) => {
-  await t.step("before exec()", () => {
+describe("when length called", () => {
+  test("before exec()", () => {
     const key = newKey();
     const p = new Pipeline({ client });
     for (let i = 0; i < 10; i++) {
       p.set(key, randomID());
     }
-    assertEquals(p.length(), 10);
+    expect(p.length()).toEqual(10);
   });
 
-  await t.step("after exec()", async () => {
+  test("after exec()", async () => {
     const key = newKey();
     const p = new Pipeline({ client });
     for (let i = 0; i < 10; i++) {
       p.set(key, randomID());
     }
     await p.exec();
-    assertEquals(p.length(), 10);
+    expect(p.length()).toEqual(10);
   });
 });
 
-Deno.test("when one command throws an error", async (t) => {
-  await t.step("throws", async () => {
+describe("when one command throws an error", () => {
+  test("throws", async () => {
     const p = new Pipeline({ client }).set("key", "value").hget("key", "field");
-    await assertRejects(() => p.exec());
+    let hasThrown = false;
+    await p.exec().catch(() => {
+      hasThrown = true;
+    });
+    expect(hasThrown).toBeTrue();
   });
 });
 
-Deno.test("transaction", async (t) => {
-  await t.step("works", async () => {
+describe("transaction", () => {
+  test("works", async () => {
     const key = newKey();
     const value = randomID();
     const tx = new Pipeline({ client, multiExec: true });
@@ -105,13 +107,13 @@ Deno.test("transaction", async (t) => {
     tx.del(key);
 
     const [ok, storedvalue, deleted] = await tx.exec<["OK", string, number]>();
-    assertEquals(ok, "OK");
-    assertEquals(storedvalue, value);
-    assertEquals(deleted, 1);
+    expect(ok).toEqual("OK");
+    expect(storedvalue).toEqual(value);
+    expect(deleted).toEqual(1);
   });
 });
-Deno.test("use all the things", async (t) => {
-  await t.step("works", async () => {
+describe("use all the things", () => {
+  test("works", async () => {
     const p = new Pipeline({ client });
 
     const persistentKey = newKey();
@@ -242,6 +244,6 @@ Deno.test("use all the things", async (t) => {
       .json.set(newKey(), "$", { hello: "world" });
 
     const res = await p.exec();
-    assertEquals(res.length, 121);
+    expect(res.length).toEqual(121);
   });
 });

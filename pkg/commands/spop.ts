@@ -1,11 +1,8 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 /**
  * @see https://redis.io/commands/spop
  */
-export class SPopCommand<TData> extends Command<
-  string | string[] | null,
-  TData | null
-> {
+export class SPopCommand<TData> extends Command<string | string[] | null, TData | null> {
   constructor(
     [key, count]: [key: string, count?: number],
     opts?: CommandOptions<string | string[] | null, TData | null>,

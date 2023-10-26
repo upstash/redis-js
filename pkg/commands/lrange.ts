@@ -1,4 +1,4 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 
 export class LRangeCommand<TData = string> extends Command<unknown[], TData[]> {
   constructor(

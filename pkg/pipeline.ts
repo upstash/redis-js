@@ -20,6 +20,7 @@ import {
   GeoHashCommand,
   GeoAddCommand,
   GeoDistCommand,
+  GeoSearchStoreCommand,
   GeoSearchCommand,
   GeoPosCommand,
   GetBitCommand,
@@ -1137,6 +1138,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
        */
       geosearch: (...args: CommandArgs<typeof GeoSearchCommand>) =>
         new GeoSearchCommand(args, this.commandOptions).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/geosearchstore
+       */
+      geosearchstore: (...args: CommandArgs<typeof GeoSearchStoreCommand>) =>
+        new GeoSearchStoreCommand(args, this.commandOptions).exec(this.client),
 
       /**
        * @see https://redis.io/commands/json.get

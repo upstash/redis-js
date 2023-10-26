@@ -18,6 +18,7 @@ import {
   FlushDBCommand,
   GeoAddCommand,
   GeoDistCommand,
+  GeoSearchStoreCommand,
   GeoSearchCommand,
   GeoHashCommand,
   GeoPosCommand,
@@ -275,6 +276,12 @@ export class Redis {
        */
       geosearch: (...args: CommandArgs<typeof GeoSearchCommand>) =>
         new GeoSearchCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/geosearchstore
+       */
+      geosearchstore: (...args: CommandArgs<typeof GeoSearchStoreCommand>) =>
+        new GeoSearchStoreCommand(args, this.opts).exec(this.client),
 
       /**
        * @see https://redis.io/commands/json.get

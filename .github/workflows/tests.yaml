@@ -591,7 +591,7 @@ jobs:
         run: bun run build
 
       - name: Set NPM_TOKEN
-        run: npm config set _authToken=${{secrets.NPM_TOKEN}}
+        run: npm config set //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
 
       - name: Publish ci version
         working-directory: ./dist

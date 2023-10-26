@@ -17,6 +17,7 @@ import {
   ExpireCommand,
   FlushAllCommand,
   FlushDBCommand,
+  GeoHashCommand,
   GeoAddCommand,
   GeoDistCommand,
   GeoPosCommand,
@@ -231,7 +232,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   exec = async <
     TCommandResults extends unknown[] = [] extends TCommands
       ? unknown[]
-      : InferResponseData<TCommands>,
+      : InferResponseData<TCommands>
   >(): Promise<TCommandResults> => {
     if (this.commands.length === 0) {
       throw new Error("Pipeline is empty");
@@ -245,7 +246,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
     return res.map(({ error, result }, i) => {
       if (error) {
         throw new UpstashError(
-          `Command ${i + 1} [ ${this.commands[i].command[0]} ] failed: ${error}`,
+          `Command ${i + 1} [ ${this.commands[i].command[0]} ] failed: ${error}`
         );
       }
 
@@ -299,7 +300,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
     ...sourceKeys: string[]
   ) =>
     this.chain(
-      new BitOpCommand([op as any, destinationKey, sourceKey, ...sourceKeys], this.commandOptions),
+      new BitOpCommand([op as any, destinationKey, sourceKey, ...sourceKeys], this.commandOptions)
     );
 
   /**
@@ -481,7 +482,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   hrandfield = <TData extends string | string[] | Record<string, unknown>>(
     key: string,
     count?: number,
-    withValues?: boolean,
+    withValues?: boolean
   ) =>
     this.chain(new HRandFieldCommand<TData>([key, count, withValues] as any, this.commandOptions));
 
@@ -899,23 +900,23 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
       | [
           key: string,
           opts: ZAddCommandOptions | ZAddCommandOptionsWithIncr,
-          ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]],
+          ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]]
         ]
   ) => {
     if ("score" in args[1]) {
       return this.chain(
         new ZAddCommand<TData>(
           [args[0], args[1] as ScoreMember<TData>, ...(args.slice(2) as any)],
-          this.commandOptions,
-        ),
+          this.commandOptions
+        )
       );
     }
 
     return this.chain(
       new ZAddCommand<TData>(
         [args[0], args[1] as any, ...(args.slice(2) as any)],
-        this.commandOptions,
-      ),
+        this.commandOptions
+      )
     );
   };
 
@@ -977,13 +978,13 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
           key: string,
           min: `(${string}` | `[${string}` | "-" | "+",
           max: `(${string}` | `[${string}` | "-" | "+",
-          opts: { byLex: true } & ZRangeCommandOptions,
+          opts: { byLex: true } & ZRangeCommandOptions
         ]
       | [
           key: string,
           min: number | `(${number}` | "-inf" | "+inf",
           max: number | `(${number}` | "-inf" | "+inf",
-          opts: { byScore: true } & ZRangeCommandOptions,
+          opts: { byScore: true } & ZRangeCommandOptions
         ]
   ) => this.chain(new ZRangeCommand<TData>(args as any, this.commandOptions));
 
@@ -1123,6 +1124,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
        */
       geopos: (...args: CommandArgs<typeof GeoPosCommand>) =>
         new GeoPosCommand(args, this.commandOptions).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/geohash
+       */
+      geohash: (...args: CommandArgs<typeof GeoHashCommand>) =>
+        new GeoHashCommand(args, this.commandOptions).exec(this.client),
 
       /**
        * @see https://redis.io/commands/json.get

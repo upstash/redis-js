@@ -1,32 +1,31 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { SAddCommand } from "./sadd.ts";
-import { SIsMemberCommand } from "./sismember.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { SAddCommand } from "./sadd";
+import { SIsMemberCommand } from "./sismember";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
+import { afterAll, expect, test } from "bun:test";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("when member exists", async (t) => {
-  await t.step("returns 1", async () => {
+test("when member exists", () => {
+  test("returns 1", async () => {
     const key = newKey();
     const value = randomID();
     await new SAddCommand([key, value]).exec(client);
     const res = await new SIsMemberCommand([key, value]).exec(client);
-    assertEquals(res, 1);
+    expect(res).toEqual(1);
   });
 });
 
-Deno.test("when member exists", async (t) => {
-  await t.step("returns 0", async () => {
+test("when member exists", () => {
+  test("returns 0", async () => {
     const key = newKey();
     const value1 = randomID();
     const value2 = randomID();
     await new SAddCommand([key, value1]).exec(client);
     const res = await new SIsMemberCommand([key, value2]).exec(client);
-    assertEquals(res, 0);
+    expect(res).toEqual(0);
   });
 });

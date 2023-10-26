@@ -1,17 +1,16 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { ZAddCommand } from "./zadd.ts";
-import { ZCardCommand } from "./zcard.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { afterAll, expect, test } from "bun:test";
+import { keygen, newHttpClient } from "../test-utils";
+import { ZAddCommand } from "./zadd";
+import { ZCardCommand } from "./zcard";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("returns the cardinality", async () => {
+test("returns the cardinality", async () => {
   const key = newKey();
   await new ZAddCommand([key, { score: 1, member: "member1" }]).exec(client);
   const res = await new ZCardCommand([key]).exec(client);
-  assertEquals(res, 1);
+  expect(res).toEqual(1);
 });

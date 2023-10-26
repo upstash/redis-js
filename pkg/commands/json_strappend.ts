@@ -1,10 +1,9 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 
 /**
  * @see https://redis.io/commands/json.strappend
  */
-export class JsonStrAppendCommand<TData extends unknown[]>
-  extends Command<(null | string)[], (null | number)[]> {
+export class JsonStrAppendCommand extends Command<(null | string)[], (null | number)[]> {
   constructor(
     cmd: [key: string, path: string, value: string],
     opts?: CommandOptions<(null | string)[], (null | number)[]>,

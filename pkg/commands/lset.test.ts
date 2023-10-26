@@ -1,44 +1,42 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { LPushCommand } from "./lpush.ts";
-import { LSetCommand } from "./lset.ts";
-import { LPopCommand } from "./lpop.ts";
-import {
-  assertEquals,
-  assertRejects,
-} from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { afterAll, describe, expect, test } from "bun:test";
+import { LPopCommand } from "./lpop";
+import { LPushCommand } from "./lpush";
+import { LSetCommand } from "./lset";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("when list exists", async (t) => {
-  await t.step("when the index is in range", async (t) => {
-    await t.step("replaces the element at index", async () => {
+describe("when list exists", () => {
+  describe("when the index is in range", () => {
+    test("replaces the element at index", async () => {
       const key = newKey();
 
       const value = randomID();
       const newValue = randomID();
       await new LPushCommand([key, value]).exec(client);
       const res = await new LSetCommand([key, 0, newValue]).exec(client);
-      assertEquals(res, "OK");
+      expect(res).toEqual("OK");
 
       const res2 = await new LPopCommand([key]).exec(client);
 
-      assertEquals(res2, newValue);
+      expect(res2).toEqual(newValue);
     });
-    await t.step("when the index is out of bounds", async (t) => {
-      await t.step("returns null", async () => {
+    describe("when the index is out of bounds", () => {
+      test("returns null", async () => {
         const key = newKey();
 
         const value = randomID();
         const newValue = randomID();
         await new LPushCommand([key, value]).exec(client);
-        await assertRejects(() =>
-          new LSetCommand([key, 1, newValue]).exec(client)
-        );
+        let hasThrown = false;
+        await new LSetCommand([key, 1, newValue]).exec(client).catch(() => {
+          hasThrown = true;
+        });
+        expect(hasThrown).toBeTrue();
       });
     });
   });

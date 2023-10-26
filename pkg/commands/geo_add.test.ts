@@ -1,12 +1,8 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import {
-  assert,
-  assertEquals,
-} from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { afterAll, describe, expect, test } from "bun:test";
 
-import { GeoAddCommand, GeoMember } from "./geo_add.ts";
+import { GeoAddCommand, GeoMember } from "./geo_add";
 
 const client = newHttpClient();
 
@@ -49,19 +45,16 @@ function getTestMember(): GeoMember<Record<string, number>> {
   };
 }
 
-Deno.test("without options", async (t) => {
-  await t.step("adds the geo member", async () => {
+describe("without options", () => {
+  test("adds the geo member", async () => {
     const key = newKey();
     const member = randomID();
 
-    const res = await new GeoAddCommand([
-      key,
-      { ...generateRandomPoint(), member },
-    ]).exec(client);
-    assertEquals(res, 1);
+    const res = await new GeoAddCommand([key, { ...generateRandomPoint(), member }]).exec(client);
+    expect(res).toEqual(1);
   });
 
-  await t.step("adds multiple members", async () => {
+  test("adds multiple members", async () => {
     const key = newKey();
 
     const res = await new GeoAddCommand([
@@ -72,10 +65,10 @@ Deno.test("without options", async (t) => {
       { ...generateRandomPoint(), member: randomID() },
     ]).exec(client);
 
-    assertEquals(res, 4);
+    expect(res).toEqual(4);
   });
 
-  await t.step("adds the geo member with member as object", async () => {
+  test("adds the geo member with member as object", async () => {
     const key = newKey();
 
     const res = await new GeoAddCommand<Record<string, number>>([
@@ -89,20 +82,18 @@ Deno.test("without options", async (t) => {
       getTestMember(),
     ]).exec(client);
 
-    assertEquals(res, 7);
+    expect(res).toEqual(7);
   });
 });
 
-Deno.test("xx", async (t) => {
-  await t.step("when the member exists", async (t) => {
-    await t.step("updates the member", async () => {
+describe("xx", () => {
+  describe("when the member exists", () => {
+    test("updates the member", async () => {
       const key = newKey();
       const member = getTestMember();
 
       // Create member.
-      await new GeoAddCommand<Record<string, number>>([key, member]).exec(
-        client,
-      );
+      await new GeoAddCommand<Record<string, number>>([key, member]).exec(client);
 
       const updatedMember = { ...generateRandomPoint(), member: member.member };
 
@@ -112,40 +103,34 @@ Deno.test("xx", async (t) => {
         updatedMember,
       ]).exec(client);
 
-      assertEquals(response, 0);
+      expect(response).toEqual(0);
     });
   });
-  await t.step("when the member does not exist", async (t) => {
-    await t.step("does nothing", async () => {
+  describe("when the member does not exist", () => {
+    test("does nothing", async () => {
       const key = newKey();
       const member = getTestMember();
 
       // Create member.
-      await new GeoAddCommand<Record<string, number>>([
-        key,
-        { xx: true },
-        member,
-      ]).exec(client);
+      await new GeoAddCommand<Record<string, number>>([key, { xx: true }, member]).exec(client);
 
       const { result } = await client.request({
         body: ["geopos", key, JSON.stringify(member.member)],
       });
 
-      assertEquals(result, [null]);
+      expect(result).toEqual([null]);
     });
   });
 });
 
-Deno.test("nx", async (t) => {
-  await t.step("when the member exists", async (t) => {
-    await t.step("does not update the member", async () => {
+describe("nx", () => {
+  describe("when the member exists", () => {
+    test("does not update the member", async () => {
       const key = newKey();
       const member = getTestMember();
 
       // Create member.
-      await new GeoAddCommand<Record<string, number>>([key, member]).exec(
-        client,
-      );
+      await new GeoAddCommand<Record<string, number>>([key, member]).exec(client);
 
       // Get member position
       const { result } = await client.request({
@@ -161,19 +146,19 @@ Deno.test("nx", async (t) => {
         updatedMember,
       ]).exec(client);
 
-      assertEquals(response, 0);
+      expect(response).toEqual(0);
 
       // Get member position again. And assert it didn't change
       const { result: updatedResult } = await client.request({
         body: ["geopos", key, JSON.stringify(member.member)],
       });
 
-      assertEquals(result, updatedResult);
+      expect(result).toEqual(updatedResult);
     });
   });
 
-  await t.step("when the member does not exist", async (t) => {
-    await t.step("adds new member", async () => {
+  describe("when the member does not exist", () => {
+    test("adds new member", async () => {
       const key = newKey();
       const member = getTestMember();
 
@@ -184,25 +169,20 @@ Deno.test("nx", async (t) => {
         member,
       ]).exec(client);
 
-      assertEquals(response, 1);
+      expect(response).toEqual(1);
     });
   });
 });
 
-Deno.test("ch", async (t) => {
-  await t.step("returns the number of changed elements", async (t) => {
+describe("ch", () => {
+  test("returns the number of changed elements", async () => {
     const key = newKey();
     const member = getTestMember();
     const member2 = getTestMember();
     const member3 = getTestMember();
 
     // Create member.
-    await new GeoAddCommand<Record<string, number>>([
-      key,
-      member,
-      member2,
-      member3,
-    ]).exec(client);
+    await new GeoAddCommand<Record<string, number>>([key, member, member2, member3]).exec(client);
 
     const updatedMember2 = { ...member2, ...generateRandomPoint() };
     const updatedMember3 = { ...member3, ...generateRandomPoint() };
@@ -216,6 +196,6 @@ Deno.test("ch", async (t) => {
       updatedMember3,
     ]).exec(client);
 
-    assertEquals(response, 2);
+    expect(response).toEqual(2);
   });
 });

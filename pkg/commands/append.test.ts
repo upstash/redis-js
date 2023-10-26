@@ -1,29 +1,28 @@
-import { AppendCommand } from "./append.ts";
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
+import { AppendCommand } from "./append";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
+import { afterAll, describe, expect, test } from "bun:test";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("when key is not set", async (t) => {
-  await await t.step("appends to empty value", async () => {
+describe("when key is not set", () => {
+  test("appends to empty value", async () => {
     const key = newKey();
     const value = randomID();
     const res = await new AppendCommand([key, value]).exec(client);
-    assertEquals(res, value.length);
+    expect(res).toEqual(value.length);
   });
 });
 
-Deno.test("when key is set", async (t) => {
-  await await t.step("appends to existing value", async () => {
+describe("when key is set", () => {
+  test("appends to existing value", async () => {
     const key = newKey();
     const value = randomID();
     const res = await new AppendCommand([key, value]).exec(client);
-    assertEquals(res, value.length);
+    expect(res).toEqual(value.length);
     const res2 = await new AppendCommand([key, "_"]).exec(client);
-    assertEquals(res2, value.length + 1);
+    expect(res2).toEqual(value.length + 1);
   });
 });

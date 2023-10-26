@@ -1,11 +1,11 @@
-import { newHttpClient, randomID } from "../test-utils.ts";
+import { newHttpClient, randomID } from "../test-utils";
 
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
-import { EchoCommand } from "./echo.ts";
+import { expect, test } from "bun:test";
+import { EchoCommand } from "./echo";
 const client = newHttpClient();
 
-Deno.test("returns the message", async () => {
+test("returns the message", async () => {
   const message = randomID();
   const res = await new EchoCommand([message]).exec(client);
-  assertEquals(res, message);
+  expect(res).toEqual(message);
 });

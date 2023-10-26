@@ -31,12 +31,7 @@ export function BreadcrumbItem({ url, name }: BreadcrumbItemProps) {
 export function Breadcrumb({ data, showRoot = true }: BreadcrumbProps) {
   return (
     <div className="flex items-center gap-1.5">
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 16 16"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+      <svg width="20" height="20" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
         <path
           fill="currentColor"
           fillRule="evenodd"

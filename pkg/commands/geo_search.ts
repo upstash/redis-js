@@ -3,21 +3,21 @@ import { Command, CommandOptions } from "./command.ts";
 type RadiusOptions = "M" | "KM" | "FT" | "MI";
 type CenterPoint<TMemberType> =
   | {
-    type: "FROMMEMBER" | "frommember";
-    member: TMemberType;
-  }
+      type: "FROMMEMBER" | "frommember";
+      member: TMemberType;
+    }
   | {
-    type: "FROMLONLAT" | "fromlonlat";
-    coordinate: { lon: number; lat: number };
-  };
+      type: "FROMLONLAT" | "fromlonlat";
+      coordinate: { lon: number; lat: number };
+    };
 
 type Shape =
   | { type: "BYRADIUS" | "byradius"; radius: number; radiusType: RadiusOptions }
   | {
-    type: "BYBOX" | "bybox";
-    rect: { width: number; height: number };
-    rectType: RadiusOptions;
-  };
+      type: "BYBOX" | "bybox";
+      rect: { width: number; height: number };
+      rectType: RadiusOptions;
+    };
 
 type GeoSearchCommandOptions = {
   count?: { limit: number; any?: boolean };
@@ -33,12 +33,14 @@ type OptionMappings = {
 };
 
 type GeoSearchOptions<TOptions> = {
-  [
-    K in keyof TOptions as K extends keyof OptionMappings ? OptionMappings[K]
-      : never
-  ]: K extends "withHash" ? string
-    : K extends "withCoord" ? { long: number; lat: number }
-    : K extends "withDist" ? number
+  [K in keyof TOptions as K extends keyof OptionMappings
+    ? OptionMappings[K]
+    : never]: K extends "withHash"
+    ? string
+    : K extends "withCoord"
+    ? { long: number; lat: number }
+    : K extends "withDist"
+    ? number
     : never;
 };
 
@@ -51,7 +53,7 @@ type GeoSearchResponse<TOptions, TMemberType> = ({
  */
 export class GeoSearchCommand<
   TMemberType = string,
-  TOptions extends GeoSearchCommandOptions = GeoSearchCommandOptions,
+  TOptions extends GeoSearchCommandOptions = GeoSearchCommandOptions
 > extends Command<any[] | any[][], GeoSearchResponse<TOptions, TMemberType>> {
   constructor(
     [key, centerPoint, shape, order, opts]: [
@@ -59,40 +61,24 @@ export class GeoSearchCommand<
       centerPoint: CenterPoint<TMemberType>,
       shape: Shape,
       order: "ASC" | "DESC" | "asc" | "desc",
-      opts?: TOptions,
+      opts?: TOptions
     ],
-    commandOptions?: CommandOptions<
-      any[] | any[][],
-      GeoSearchResponse<TOptions, TMemberType>
-    >,
+    commandOptions?: CommandOptions<any[] | any[][], GeoSearchResponse<TOptions, TMemberType>>
   ) {
     const command: unknown[] = ["GEOSEARCH", key];
 
-    if (
-      centerPoint.type === "FROMMEMBER" || centerPoint.type === "frommember"
-    ) {
+    if (centerPoint.type === "FROMMEMBER" || centerPoint.type === "frommember") {
       command.push(centerPoint.type, centerPoint.member);
     }
-    if (
-      centerPoint.type === "FROMLONLAT" || centerPoint.type === "fromlonlat"
-    ) {
-      command.push(
-        centerPoint.type,
-        centerPoint.coordinate.lon,
-        centerPoint.coordinate.lat,
-      );
+    if (centerPoint.type === "FROMLONLAT" || centerPoint.type === "fromlonlat") {
+      command.push(centerPoint.type, centerPoint.coordinate.lon, centerPoint.coordinate.lat);
     }
 
     if (shape.type === "BYRADIUS" || shape.type === "byradius") {
       command.push(shape.type, shape.radius, shape.radiusType);
     }
     if (shape.type === "BYBOX" || shape.type === "bybox") {
-      command.push(
-        shape.type,
-        shape.rect.width,
-        shape.rect.height,
-        shape.rectType,
-      );
+      command.push(shape.type, shape.rect.width, shape.rect.height, shape.rectType);
     }
     command.push(order);
 
@@ -147,7 +133,7 @@ export class GeoSearchCommand<
       {
         ...commandOptions,
         deserialize: transform,
-      },
+      }
     );
   }
 }

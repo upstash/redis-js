@@ -1,35 +1,23 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 
-export type ZInterStoreCommandOptions =
-  & {
-    aggregate?: "sum" | "min" | "max";
-  }
-  & (
-    | { weight: number; weights?: never }
-    | { weight?: never; weights: number[] }
-    | { weight?: never; weights?: never }
-  );
+export type ZInterStoreCommandOptions = {
+  aggregate?: "sum" | "min" | "max";
+} & (
+  | { weight: number; weights?: never }
+  | { weight?: never; weights: number[] }
+  | { weight?: never; weights?: never }
+);
 
 /**
  * @see https://redis.io/commands/zInterstore
  */
 export class ZInterStoreCommand extends Command<number, number> {
   constructor(
-    cmd: [
-      destination: string,
-      numKeys: 1,
-      key: string,
-      opts?: ZInterStoreCommandOptions,
-    ],
+    cmd: [destination: string, numKeys: 1, key: string, opts?: ZInterStoreCommandOptions],
     cmdOpts?: CommandOptions<number, number>,
   );
   constructor(
-    cmd: [
-      destination: string,
-      numKeys: number,
-      keys: string[],
-      opts?: ZInterStoreCommandOptions,
-    ],
+    cmd: [destination: string, numKeys: number, keys: string[], opts?: ZInterStoreCommandOptions],
     cmdOpts?: CommandOptions<number, number>,
   );
   constructor(

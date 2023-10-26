@@ -1,6 +1,6 @@
-import { UpstashError } from "../error.ts";
-import { Requester } from "../http.ts";
-import { parseResponse } from "../util.ts";
+import { UpstashError } from "../error";
+import { Requester } from "../http";
+import { parseResponse } from "../util";
 
 type Serialize = (data: unknown) => string | number | boolean;
 type Deserialize<TResult, TData> = (result: TResult) => TData;
@@ -49,10 +49,10 @@ export class Command<TResult, TData> {
     opts?: CommandOptions<TResult, TData>,
   ) {
     this.serialize = defaultSerializer;
-    this.deserialize = typeof opts?.automaticDeserialization === "undefined" ||
-        opts.automaticDeserialization
-      ? opts?.deserialize ?? parseResponse
-      : (x) => x as unknown as TData;
+    this.deserialize =
+      typeof opts?.automaticDeserialization === "undefined" || opts.automaticDeserialization
+        ? opts?.deserialize ?? parseResponse
+        : (x) => x as unknown as TData;
 
     this.command = command.map((c) => this.serialize(c));
   }

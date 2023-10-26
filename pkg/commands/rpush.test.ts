@@ -1,28 +1,17 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { RPushCommand } from "./rpush.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
+
+import { afterAll, expect, test } from "bun:test";
+import { RPushCommand } from "./rpush";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test(
-  "returns the length after command",
-  async () => {
-    const key = newKey();
-    const res = await new RPushCommand([key, randomID()]).exec(
-      client,
-    );
-    assertEquals(res, 1);
-    const res2 = await new RPushCommand([
-      key,
-      randomID(),
-      randomID(),
-    ]).exec(
-      client,
-    );
+test("returns the length after command", async () => {
+  const key = newKey();
+  const res = await new RPushCommand([key, randomID()]).exec(client);
+  expect(res).toEqual(1);
+  const res2 = await new RPushCommand([key, randomID(), randomID()]).exec(client);
 
-    assertEquals(res2, 3);
-  },
-);
+  expect(res2).toEqual(3);
+});

@@ -1,13 +1,12 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 
 /**
  * @see https://redis.io/commands/rpop
  */
-export class RPopCommand<TData extends unknown | unknown[] = string>
-  extends Command<
-    unknown | null,
-    TData | null
-  > {
+export class RPopCommand<TData extends unknown | unknown[] = string> extends Command<
+  unknown | null,
+  TData | null
+> {
   constructor(
     cmd: [key: string, count?: number],
     opts?: CommandOptions<unknown | null, TData | null>,

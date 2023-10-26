@@ -1,33 +1,32 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { LPushCommand } from "./lpush.ts";
-import { LIndexCommand } from "./lindex.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { afterAll, expect, test } from "bun:test";
+import { LIndexCommand } from "./lindex";
+import { LPushCommand } from "./lpush";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("when list exists", async (t) => {
-  await t.step("when the index is in range", async (t) => {
-    await t.step("returns the element at index", async () => {
+test("when list exists", () => {
+  test("when the index is in range", () => {
+    test("returns the element at index", async () => {
       const key = newKey();
 
       const value = randomID();
       await new LPushCommand([key, value]).exec(client);
       const res = await new LIndexCommand([key, 0]).exec(client);
-      assertEquals(res, value);
+      expect(res).toEqual(value);
     });
-    await t.step("when the index is out of bounds", async (t) => {
-      await t.step("returns null", async () => {
+    test("when the index is out of bounds", () => {
+      test("returns null", async () => {
         const key = newKey();
 
         const value = randomID();
         await new LPushCommand([key, value]).exec(client);
         const res = await new LIndexCommand([key, 1]).exec(client);
-        assertEquals(res, null);
+        expect(res).toEqual(null);
       });
     });
   });

@@ -1,29 +1,34 @@
-import { HttpClient } from "./http.ts";
-import {
-  assertEquals,
-  assertRejects,
-} from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { expect, test } from "bun:test";
+import { HttpClient } from "./http";
 
-import { newHttpClient } from "./test-utils.ts";
-Deno.test("remove trailing slash from urls", () => {
+import { newHttpClient } from "./test-utils";
+test("remove trailing slash from urls", () => {
   const client = new HttpClient({ baseUrl: "https://example.com/" });
 
-  assertEquals(client.baseUrl, "https://example.com");
+  expect(client.baseUrl).toEqual("https://example.com");
 });
 
-Deno.test(new URL("", import.meta.url).pathname, async (t) => {
-  await t.step("when the request is invalid", async (t) => {
-    await t.step("throws", async () => {
+test(new URL("", import.meta.url).pathname, () => {
+  test("when the request is invalid", () => {
+    test("throws", async () => {
       const client = newHttpClient();
-      await assertRejects(() => client.request({ body: ["get", "1", "2"] }));
+      let hasThrown = false;
+      await client.request({ body: ["get", "1", "2"] }).catch(() => {
+        hasThrown = true;
+      });
+      expect(hasThrown).toBeTrue();
     });
   });
 
-  await t.step("whithout authorization", async (t) => {
-    await t.step("throws", async () => {
+  test("whithout authorization", () => {
+    test("throws", async () => {
       const client = newHttpClient();
       client.headers = {};
-      await assertRejects(() => client.request({ body: ["get", "1", "2"] }));
+      let hasThrown = false;
+      await client.request({ body: ["get", "1", "2"] }).catch(() => {
+        hasThrown = true;
+      });
+      expect(hasThrown).toBeTrue();
     });
   });
 });

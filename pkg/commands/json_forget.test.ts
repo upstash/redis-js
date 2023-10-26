@@ -1,25 +1,29 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
+import { afterAll, expect, test } from "bun:test";
+import { keygen, newHttpClient } from "../test-utils";
 
-import { JsonSetCommand } from "./json_set.ts";
-import { JsonGetCommand } from "./json_get.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
-import { JsonForgetCommand } from "./json_forget.ts";
+import { JsonGetCommand } from "./json_get";
+import { JsonSetCommand } from "./json_set";
+
+import { JsonForgetCommand } from "./json_forget";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("Delete a value", async () => {
+test("Delete a value", async () => {
   const key = newKey();
-  const res1 = await new JsonSetCommand([key, "$", {
-    a: 1,
-    nested: { a: 2, b: 3 },
-  }]).exec(client);
-  assertEquals(res1, "OK");
+  const res1 = await new JsonSetCommand([
+    key,
+    "$",
+    {
+      a: 1,
+      nested: { a: 2, b: 3 },
+    },
+  ]).exec(client);
+  expect(res1, "OK");
   const res2 = await new JsonForgetCommand([key, "$..a"]).exec(client);
-  assertEquals(res2, 2);
+  expect(res2).toEqual(2);
   const res3 = await new JsonGetCommand([key, "$"]).exec(client);
-  assertEquals(res3, [{ nested: { b: 3 } }]);
+  expect(res3).toEqual([{ nested: { b: 3 } }]);
 });

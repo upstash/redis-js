@@ -1,17 +1,16 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { SetCommand } from "./set.ts";
-import { RenameNXCommand } from "./renamenx.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { afterAll, expect, test } from "bun:test";
+import { RenameNXCommand } from "./renamenx";
+import { SetCommand } from "./set";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("when the key exists", async (t) => {
-  await t.step("does nothing", async () => {
+test("when the key exists", () => {
+  test("does nothing", async () => {
     const source = newKey();
     const destination = newKey();
     const sourceValue = randomID();
@@ -19,16 +18,16 @@ Deno.test("when the key exists", async (t) => {
     await new SetCommand([source, sourceValue]).exec(client);
     await new SetCommand([destination, destinationValue]).exec(client);
     const res = await new RenameNXCommand([source, destination]).exec(client);
-    assertEquals(res, 0);
+    expect(res).toEqual(0);
   });
 });
-Deno.test("when the key does not exist", async (t) => {
-  await t.step("renames the key", async () => {
+test("when the key does not exist", () => {
+  test("renames the key", async () => {
     const source = newKey();
     const destination = newKey();
     const value = randomID();
     await new SetCommand([source, value]).exec(client);
     const res = await new RenameNXCommand([source, destination]).exec(client);
-    assertEquals(res, 1);
+    expect(res).toEqual(1);
   });
 });

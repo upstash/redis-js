@@ -1,22 +1,19 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { ScriptLoadCommand } from "./script_load.ts";
-import { EvalshaCommand } from "./evalsha.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { afterAll, describe, expect, test } from "bun:test";
+import { EvalshaCommand } from "./evalsha";
+import { ScriptLoadCommand } from "./script_load";
 
 const client = newHttpClient();
 
 const { cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("without keys", async (t) => {
-  await t.step("returns something", async () => {
+describe("without keys", () => {
+  test("returns something", async () => {
     const value = randomID();
-    const sha1 = await new ScriptLoadCommand([
-      `return {ARGV[1], "${value}"}`,
-    ]).exec(client);
+    const sha1 = await new ScriptLoadCommand([`return {ARGV[1], "${value}"}`]).exec(client);
     const res = await new EvalshaCommand([sha1, [], [value]]).exec(client);
-    assertEquals(res, [value, value]);
+    expect(res).toEqual([value, value]);
   });
 });

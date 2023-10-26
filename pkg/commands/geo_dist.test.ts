@@ -1,13 +1,14 @@
-import { newHttpClient } from "../test-utils.ts";
+import { expect, test } from "bun:test";
+import { newHttpClient } from "../test-utils";
 
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
 
-import { GeoAddCommand } from "./geo_add.ts";
-import { GeoDistCommand } from "./geo_dist.ts";
+
+import { GeoAddCommand } from "./geo_add";
+import { GeoDistCommand } from "./geo_dist";
 
 const client = newHttpClient();
 
-Deno.test("should return distance successfully in meters", async () => {
+test("should return distance successfully in meters", async () => {
   await new GeoAddCommand([
     "Sicily",
     { longitude: 13.361389, latitude: 38.115556, member: "Palermo" },
@@ -18,10 +19,10 @@ Deno.test("should return distance successfully in meters", async () => {
     client,
   );
 
-  assertEquals(res, 166274.1516);
+  expect(res).toEqual( 166274.1516);
 });
 
-Deno.test("should return distance for object members", async () => {
+test("should return distance for object members", async () => {
   await new GeoAddCommand([
     "Sicily",
     { longitude: 13.361389, latitude: 38.115556, member: { name: "Palermo" } },
@@ -34,10 +35,10 @@ Deno.test("should return distance for object members", async () => {
     client,
   );
 
-  assertEquals(res, 166274.1516);
+  expect(res).toEqual( 166274.1516);
 });
 
-Deno.test("should return distance successfully in kilometers", async () => {
+test("should return distance successfully in kilometers", async () => {
   await new GeoAddCommand([
     "Sicily",
     { longitude: 13.361389, latitude: 38.115556, member: "Palermo" },
@@ -47,10 +48,10 @@ Deno.test("should return distance successfully in kilometers", async () => {
   const res = await new GeoDistCommand(["Sicily", "Palermo", "Catania", "KM"])
     .exec(client);
 
-  assertEquals(res, 166.2742);
+  expect(res).toEqual( 166.2742);
 });
 
-Deno.test("should return distance successfully in miles", async () => {
+test("should return distance successfully in miles", async () => {
   await new GeoAddCommand([
     "Sicily",
     { longitude: 13.361389, latitude: 38.115556, member: "Palermo" },
@@ -60,10 +61,10 @@ Deno.test("should return distance successfully in miles", async () => {
   const res = await new GeoDistCommand(["Sicily", "Palermo", "Catania", "MI"])
     .exec(client);
 
-  assertEquals(res, 103.3182);
+  expect(res).toEqual( 103.3182);
 });
 
-Deno.test("should return distance successfully in feet", async () => {
+test("should return distance successfully in feet", async () => {
   await new GeoAddCommand([
     "Sicily",
     { longitude: 13.361389, latitude: 38.115556, member: "Palermo" },
@@ -73,11 +74,11 @@ Deno.test("should return distance successfully in feet", async () => {
   const res = await new GeoDistCommand(["Sicily", "Palermo", "Catania", "FT"])
     .exec(client);
 
-  assertEquals(res?.toString(), "545518.8700");
+  expect(res?.toString()).toEqual( "545518.8700");
 });
 
-Deno.test("should return null if members doesn't exist", async () => {
+test("should return null if members doesn't exist", async () => {
   const res = await new GeoDistCommand(["Sicily", "FOO", "BAR"]).exec(client);
 
-  assertEquals(res, null);
+  expect(res).toEqual( null);
 });

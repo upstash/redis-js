@@ -1,35 +1,23 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 
-export type ZUnionStoreCommandOptions =
-  & {
-    aggregate?: "sum" | "min" | "max";
-  }
-  & (
-    | { weight: number; weights?: never }
-    | { weight?: never; weights: number[] }
-    | { weight?: never; weights?: never }
-  );
+export type ZUnionStoreCommandOptions = {
+  aggregate?: "sum" | "min" | "max";
+} & (
+  | { weight: number; weights?: never }
+  | { weight?: never; weights: number[] }
+  | { weight?: never; weights?: never }
+);
 
 /**
  * @see https://redis.io/commands/zunionstore
  */
 export class ZUnionStoreCommand extends Command<number, number> {
   constructor(
-    cmd: [
-      destination: string,
-      numKeys: 1,
-      key: string,
-      opts?: ZUnionStoreCommandOptions,
-    ],
+    cmd: [destination: string, numKeys: 1, key: string, opts?: ZUnionStoreCommandOptions],
     cmdOpts?: CommandOptions<number, number>,
   );
   constructor(
-    cmd: [
-      destination: string,
-      numKeys: number,
-      keys: string[],
-      opts?: ZUnionStoreCommandOptions,
-    ],
+    cmd: [destination: string, numKeys: number, keys: string[], opts?: ZUnionStoreCommandOptions],
     cmdOpts?: CommandOptions<number, number>,
   );
   constructor(

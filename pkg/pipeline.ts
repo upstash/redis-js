@@ -1,3 +1,5 @@
+import { Command, CommandOptions } from "./commands/command";
+import { HRandFieldCommand } from "./commands/hrandfield";
 import {
   AppendCommand,
   BitCountCommand,
@@ -15,9 +17,12 @@ import {
   ExpireCommand,
   FlushAllCommand,
   FlushDBCommand,
+  GeoHashCommand,
   GeoAddCommand,
   GeoDistCommand,
   GeoSearchStoreCommand,
+  GeoSearchCommand,
+  GeoPosCommand,
   GetBitCommand,
   GetCommand,
   GetDelCommand,
@@ -78,47 +83,47 @@ import {
   MGetCommand,
   MSetCommand,
   MSetNXCommand,
-  PersistCommand,
   PExpireAtCommand,
   PExpireCommand,
-  PingCommand,
   PSetEXCommand,
   PTtlCommand,
+  PersistCommand,
+  PingCommand,
   PublishCommand,
-  RandomKeyCommand,
-  RenameCommand,
-  RenameNXCommand,
   RPopCommand,
   RPushCommand,
   RPushXCommand,
+  RandomKeyCommand,
+  RenameCommand,
+  RenameNXCommand,
   SAddCommand,
-  ScanCommand,
   SCardCommand,
+  SDiffCommand,
+  SDiffStoreCommand,
+  SInterCommand,
+  SInterStoreCommand,
+  SIsMemberCommand,
+  SMIsMemberCommand,
+  SMembersCommand,
+  SMoveCommand,
+  SPopCommand,
+  SRandMemberCommand,
+  SRemCommand,
+  SScanCommand,
+  SUnionCommand,
+  SUnionStoreCommand,
+  ScanCommand,
   ScoreMember,
   ScriptExistsCommand,
   ScriptFlushCommand,
   ScriptLoadCommand,
-  SDiffCommand,
-  SDiffStoreCommand,
   SetBitCommand,
   SetCommand,
   SetCommandOptions,
   SetExCommand,
   SetNxCommand,
   SetRangeCommand,
-  SInterCommand,
-  SInterStoreCommand,
-  SIsMemberCommand,
-  SMembersCommand,
-  SMIsMemberCommand,
-  SMoveCommand,
-  SPopCommand,
-  SRandMemberCommand,
-  SRemCommand,
-  SScanCommand,
   StrLenCommand,
-  SUnionCommand,
-  SUnionStoreCommand,
   TimeCommand,
   TouchCommand,
   TtlCommand,
@@ -146,15 +151,13 @@ import {
   ZScoreCommand,
   ZUnionCommand,
   ZUnionStoreCommand,
-} from "./commands/mod.ts";
-import { Command, CommandOptions } from "./commands/command.ts";
-import { UpstashError } from "./error.ts";
-import { Requester } from "./http.ts";
-import { UpstashResponse } from "./http.ts";
-import { CommandArgs } from "./types.ts";
-import { ZMScoreCommand } from "./commands/zmscore.ts";
-import { HRandFieldCommand } from "./commands/hrandfield.ts";
-import { ZDiffStoreCommand } from "./commands/zdiffstore.ts";
+} from "./commands/mod";
+import { ZDiffStoreCommand } from "./commands/zdiffstore";
+import { ZMScoreCommand } from "./commands/zmscore";
+import { UpstashError } from "./error";
+import { Requester } from "./http";
+import { UpstashResponse } from "./http";
+import { CommandArgs } from "./types";
 
 // Given a tuple of commands, returns a tuple of the response data of each command
 type InferResponseData<T extends unknown[]> = {
@@ -1117,6 +1120,24 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
        */
       geodist: (...args: CommandArgs<typeof GeoDistCommand>) =>
         new GeoDistCommand(args, this.commandOptions).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/geopos
+       */
+      geopos: (...args: CommandArgs<typeof GeoPosCommand>) =>
+        new GeoPosCommand(args, this.commandOptions).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/geohash
+       */
+      geohash: (...args: CommandArgs<typeof GeoHashCommand>) =>
+        new GeoHashCommand(args, this.commandOptions).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/geosearch
+       */
+      geosearch: (...args: CommandArgs<typeof GeoSearchCommand>) =>
+        new GeoSearchCommand(args, this.commandOptions).exec(this.client),
 
       /**
        * @see https://redis.io/commands/geosearchstore

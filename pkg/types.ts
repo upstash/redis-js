@@ -1,4 +1,4 @@
-export type CommandArgs<TCommand extends new (...args: any) => any> =
+export type CommandArgs<TCommand extends new (..._args: any) => any> =
   ConstructorParameters<TCommand>[0];
 
 export type Telemetry = {

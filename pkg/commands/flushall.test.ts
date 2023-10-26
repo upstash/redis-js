@@ -1,18 +1,18 @@
-import { newHttpClient } from "../test-utils.ts";
-import { FlushAllCommand } from "./flushall.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { newHttpClient } from "../test-utils";
+import { FlushAllCommand } from "./flushall";
 
+import { describe, expect, test } from "bun:test";
 const client = newHttpClient();
 
-Deno.test("without options", async (t) => {
-  await t.step("flushes the db", async () => {
+describe("without options", () => {
+  test("flushes the db", async () => {
     const res = await new FlushAllCommand().exec(client);
-    assertEquals(res, "OK");
+    expect(res).toEqual("OK");
   });
 });
-Deno.test("async", async (t) => {
-  await t.step("flushes the db", async () => {
+describe("async", () => {
+  test("flushes the db", async () => {
     const res = await new FlushAllCommand([{ async: true }]).exec(client);
-    assertEquals(res, "OK");
+    expect(res).toEqual("OK");
   });
 });

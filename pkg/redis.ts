@@ -19,6 +19,9 @@ import {
   GeoAddCommand,
   GeoDistCommand,
   GeoSearchStoreCommand,
+  GeoSearchCommand,
+  GeoHashCommand,
+  GeoPosCommand,
   GetBitCommand,
   GetCommand,
   GetDelCommand,
@@ -80,47 +83,47 @@ import {
   MGetCommand,
   MSetCommand,
   MSetNXCommand,
-  PersistCommand,
   PExpireAtCommand,
   PExpireCommand,
-  PingCommand,
   PSetEXCommand,
   PTtlCommand,
+  PersistCommand,
+  PingCommand,
   PublishCommand,
-  RandomKeyCommand,
-  RenameCommand,
-  RenameNXCommand,
   RPopCommand,
   RPushCommand,
   RPushXCommand,
+  RandomKeyCommand,
+  RenameCommand,
+  RenameNXCommand,
   SAddCommand,
-  ScanCommand,
   SCardCommand,
+  SDiffCommand,
+  SDiffStoreCommand,
+  SInterCommand,
+  SInterStoreCommand,
+  SIsMemberCommand,
+  SMIsMemberCommand,
+  SMembersCommand,
+  SMoveCommand,
+  SPopCommand,
+  SRandMemberCommand,
+  SRemCommand,
+  SScanCommand,
+  SUnionCommand,
+  SUnionStoreCommand,
+  ScanCommand,
   ScoreMember,
   ScriptExistsCommand,
   ScriptFlushCommand,
   ScriptLoadCommand,
-  SDiffCommand,
-  SDiffStoreCommand,
   SetBitCommand,
   SetCommand,
   SetCommandOptions,
   SetExCommand,
   SetNxCommand,
   SetRangeCommand,
-  SInterCommand,
-  SInterStoreCommand,
-  SIsMemberCommand,
-  SMembersCommand,
-  SMIsMemberCommand,
-  SMoveCommand,
-  SPopCommand,
-  SRandMemberCommand,
-  SRemCommand,
-  SScanCommand,
   StrLenCommand,
-  SUnionCommand,
-  SUnionStoreCommand,
   TimeCommand,
   TouchCommand,
   TtlCommand,
@@ -150,18 +153,18 @@ import {
   ZScoreCommand,
   ZUnionCommand,
   ZUnionStoreCommand,
-} from "./commands/mod.ts";
-import { Requester, UpstashRequest, UpstashResponse } from "./http.ts";
-import { Pipeline } from "./pipeline.ts";
-import type { CommandArgs } from "./types.ts";
-import { Script } from "./script.ts";
-import { ZMScoreCommand } from "./commands/zmscore.ts";
-import { ZDiffStoreCommand } from "./commands/zdiffstore.ts";
-import type { RedisOptions, Telemetry } from "./types.ts";
+} from "./commands/mod";
+import { ZDiffStoreCommand } from "./commands/zdiffstore";
+import { ZMScoreCommand } from "./commands/zmscore";
+import { Requester, UpstashRequest, UpstashResponse } from "./http";
+import { Pipeline } from "./pipeline";
+import { Script } from "./script";
+import type { CommandArgs } from "./types";
+import type { RedisOptions, Telemetry } from "./types";
 
 // See https://github.com/upstash/upstash-redis/issues/342
 // why we need this export
-export type { RedisOptions } from "./types.ts";
+export type { RedisOptions } from "./types";
 
 /**
  * Serverless redis client for upstash.
@@ -251,10 +254,28 @@ export class Redis {
         new GeoAddCommand(args, this.opts).exec(this.client),
 
       /**
+       * @see https://redis.io/commands/geopos
+       */
+      geopos: (...args: CommandArgs<typeof GeoPosCommand>) =>
+        new GeoPosCommand(args, this.opts).exec(this.client),
+
+      /**
        * @see https://redis.io/commands/geodist
        */
       geodist: (...args: CommandArgs<typeof GeoDistCommand>) =>
         new GeoDistCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/geohash
+       */
+      geohash: (...args: CommandArgs<typeof GeoHashCommand>) =>
+        new GeoHashCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/geosearch
+       */
+      geosearch: (...args: CommandArgs<typeof GeoSearchCommand>) =>
+        new GeoSearchCommand(args, this.opts).exec(this.client),
 
       /**
        * @see https://redis.io/commands/geosearchstore

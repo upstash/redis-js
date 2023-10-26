@@ -1,73 +1,59 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
-import {
-  assert,
-  assertEquals,
-} from "https://deno.land/std@0.177.0/testing/asserts.ts";
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { HSetCommand } from "./hset.ts";
-import { HRandFieldCommand } from "./hrandfield.ts";
+import { afterAll, expect, test } from "bun:test";
+import { keygen, newHttpClient, randomID } from "../test-utils";
+import { HRandFieldCommand } from "./hrandfield";
+import { HSetCommand } from "./hset";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
-Deno.test("with single field present", async (t) => {
-  await t.step("returns the field", async () => {
+test("with single field present", () => {
+  test("returns the field", async () => {
     const key = newKey();
     const field1 = randomID();
     const value1 = randomID();
-    await new HSetCommand([key, { [field1]: value1 }]).exec(
-      client,
-    );
+    await new HSetCommand([key, { [field1]: value1 }]).exec(client);
 
     const res = await new HRandFieldCommand([key]).exec(client);
 
-    assertEquals(res, field1);
+    expect(res).toEqual(field1);
   });
 });
 
-Deno.test("with multiple fields present", async (t) => {
-  await t.step("returns a random field", async () => {
+test("with multiple fields present", () => {
+  test("returns a random field", async () => {
     const key = newKey();
     const fields: Record<string, string> = {};
     for (let i = 0; i < 10; i++) {
       fields[randomID()] = randomID();
     }
-    await new HSetCommand([key, fields]).exec(
-      client,
-    );
+    await new HSetCommand([key, fields]).exec(client);
 
     const res = await new HRandFieldCommand<string>([key]).exec(client);
 
-    assert(res in fields);
+    expect(fields).toInclude(res);
   });
 });
 
-Deno.test("with withvalues", async (t) => {
-  await t.step("returns a subset with values", async () => {
+test("with withvalues", () => {
+  test("returns a subset with values", async () => {
     const key = newKey();
     const fields: Record<string, string> = {};
     for (let i = 0; i < 10; i++) {
       fields[randomID()] = randomID();
     }
-    await new HSetCommand([key, fields]).exec(
-      client,
-    );
+    await new HSetCommand([key, fields]).exec(client);
 
-    const res = await new HRandFieldCommand<Record<string, string>>([
-      key,
-      2,
-      true,
-    ]).exec(client);
+    const res = await new HRandFieldCommand<Record<string, string>>([key, 2, true]).exec(client);
     for (const [k, v] of Object.entries(res)) {
-      assert(k in fields);
-      assert(fields[k] === v);
+      expect(fields).toInclude(k);
+      expect(fields[k]).toEqual(v);
     }
   });
 });
-Deno.test("when hash does not exist", async (t) => {
-  await t.step("it returns null", async () => {
+test("when hash does not exist", () => {
+  test("it returns null", async () => {
     const res = await new HRandFieldCommand([randomID()]).exec(client);
-    assertEquals(res, null);
+    expect(res).toEqual(null);
   });
 });

@@ -1,30 +1,23 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { HMSetCommand } from "./hmset.ts";
-import { HKeysCommand } from "./hkeys.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { afterAll, describe, expect, test } from "bun:test";
+import { HKeysCommand } from "./hkeys";
+import { HMSetCommand } from "./hmset";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test(
-  "with existing hash",
-  async (t) => {
-    await t.step(
-      "returns all keys",
-      async () => {
-        const key = newKey();
-        const kv = {
-          [randomID()]: randomID(),
-          [randomID()]: randomID(),
-        };
-        await new HMSetCommand([key, kv]).exec(client);
-        const res = await new HKeysCommand([key]).exec(client);
-        assertEquals(res.sort(), Object.keys(kv).sort());
-      },
-    );
-  },
-);
+describe("with existing hash", () => {
+  test("returns all keys", async () => {
+    const key = newKey();
+    const kv = {
+      [randomID()]: randomID(),
+      [randomID()]: randomID(),
+    };
+    await new HMSetCommand([key, kv]).exec(client);
+    const res = await new HKeysCommand([key]).exec(client);
+    expect(res.sort()).toEqual(Object.keys(kv).sort());
+  });
+});

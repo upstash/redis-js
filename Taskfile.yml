@@ -2,17 +2,12 @@ version: '3'
 
 
 tasks:
-  fmt: 
-    cmds:
-      - deno fmt 
-      - deno lint
 
- 
   build:
     deps:
       - fmt
     cmds:
-      - deno run -A ./cmd/build.ts
+      - bun run build
   
   test:
     deps:

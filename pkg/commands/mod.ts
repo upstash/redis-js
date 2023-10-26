@@ -19,6 +19,7 @@ export * from "./geo_add";
 export * from "./geo_dist";
 export * from "./geo_pos";
 export * from "./geo_hash";
+export * from "./geo_search";
 export * from "./get";
 export * from "./getbit";
 export * from "./getdel";

@@ -33,4 +33,17 @@ describe("GEOHASH tests", () => {
     const response = await new GeoHashCommand([key, "Palermo", "Catania", "Marsala"]).exec(client);
     expect(response.length).toEqual(3);
   });
+
+  test("should accept two objects as members", async () => {
+    const key = "Sicily";
+    const members = [{ name: "Palermo" }, { name: "Catania" }];
+    await new GeoAddCommand([
+      key,
+      { longitude: 13.361389, latitude: 38.115556, member: members[0] },
+      { longitude: 15.087269, latitude: 37.502669, member: members[1] },
+    ]).exec(client);
+
+    const response = await new GeoHashCommand([key, members]).exec(client);
+    expect(response.length).toBe(2);
+  });
 });

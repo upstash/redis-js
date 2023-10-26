@@ -19,6 +19,7 @@ import {
   FlushDBCommand,
   GeoAddCommand,
   GeoDistCommand,
+  GeoPosCommand,
   GetBitCommand,
   GetCommand,
   GetDelCommand,
@@ -1116,6 +1117,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
        */
       geodist: (...args: CommandArgs<typeof GeoDistCommand>) =>
         new GeoDistCommand(args, this.commandOptions).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/geopos
+       */
+      geopos: (...args: CommandArgs<typeof GeoPosCommand>) =>
+        new GeoPosCommand(args, this.commandOptions).exec(this.client),
 
       /**
        * @see https://redis.io/commands/json.get

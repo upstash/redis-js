@@ -17,6 +17,7 @@ export * from "./flushall";
 export * from "./flushdb";
 export * from "./geo_add";
 export * from "./geo_dist";
+export * from "./geo_pos";
 export * from "./get";
 export * from "./getbit";
 export * from "./getdel";

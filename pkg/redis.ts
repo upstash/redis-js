@@ -18,6 +18,7 @@ import {
   FlushDBCommand,
   GeoAddCommand,
   GeoDistCommand,
+  GeoPosCommand,
   GetBitCommand,
   GetCommand,
   GetDelCommand,
@@ -248,6 +249,12 @@ export class Redis {
        */
       geoadd: (...args: CommandArgs<typeof GeoAddCommand>) =>
         new GeoAddCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/geopos
+       */
+      geopos: (...args: CommandArgs<typeof GeoPosCommand>) =>
+        new GeoPosCommand(args, this.opts).exec(this.client),
 
       /**
        * @see https://redis.io/commands/geodist

@@ -3,6 +3,7 @@ export * from "./bitcount";
 export * from "./bitop";
 export * from "./bitpos";
 export * from "./command";
+export * from "./copy";
 export * from "./dbsize";
 export * from "./decr";
 export * from "./decrby";

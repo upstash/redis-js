@@ -1,8 +1,8 @@
 name: Tests
 on:
   push:
-      branches:
-          - main
+    branches:
+      - main
   pull_request:
   schedule:
     - cron: "0 0 * * *" # daily
@@ -39,7 +39,6 @@ jobs:
 
       - name: Build
         run: bun run build
-
 
   nextjs-local:
     needs:
@@ -85,12 +84,9 @@ jobs:
         env:
           DEPLOYMENT_URL: http://localhost:3000
 
-
-
   nextjs-edge-local:
     needs:
       - test
-
 
     runs-on: ubuntu-latest
     steps:
@@ -152,7 +148,6 @@ jobs:
         with:
           version: latest
 
-
       - name: Deploy
         run: |
           pnpm --dir=examples/nextjs add @upstash/redis@${{needs.release.outputs.version}}
@@ -165,7 +160,6 @@ jobs:
       - name: Test
         run: bun test examples/nextjs/ci.test.ts
         working-directory: examples/nextjs
-
 
   nextjs-edge-deployed:
     concurrency: nextjs-edge-deployed
@@ -187,7 +181,6 @@ jobs:
         with:
           version: latest
 
-
       - name: Deploy
         run: |
           pnpm --dir=examples/nextjs_edge add @upstash/redis@${{needs.release.outputs.version}}
@@ -199,7 +192,6 @@ jobs:
 
       - name: Test
         run: bun test examples/nextjs_edge/ci.test.ts
-
 
   deno-deployed:
     concurrency: deno-deployed
@@ -232,13 +224,11 @@ jobs:
         env:
           DENO_DEPLOY_TOKEN: ${{ secrets.DENO_DEPLOY_TOKEN }}
 
-
       - name: Test
         run: bun test main.test.ts
         working-directory: examples/deno
         env:
           DEPLOYMENT_URL: https://upstash-redis-70jbfgxwz310.deno.dev
-
 
   cloudflare-workers-local:
     needs:
@@ -284,7 +274,6 @@ jobs:
           UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 
-
       - name: Test
         run: bun test examples/cloudflare-workers/ci.test.ts
         env:
@@ -308,8 +297,6 @@ jobs:
 
       - name: Install bun
         run: npm install -g bun
-
-
 
       - name: Install example
         run: |
@@ -363,10 +350,10 @@ jobs:
 
       - name: Add environment
         run: |
-            echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
-            echo '[vars]' >> wrangler.toml
-            echo 'UPSTASH_REDIS_REST_URL = "${{ secrets.UPSTASH_REDIS_REST_URL }}"' >> ./wrangler.toml
-            echo 'UPSTASH_REDIS_REST_TOKEN = "${{ secrets.UPSTASH_REDIS_REST_TOKEN }}"' >> ./wrangler.toml
+          echo 'account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"' >> wrangler.toml
+          echo '[vars]' >> wrangler.toml
+          echo 'UPSTASH_REDIS_REST_URL = "${{ secrets.UPSTASH_REDIS_REST_URL }}"' >> ./wrangler.toml
+          echo 'UPSTASH_REDIS_REST_TOKEN = "${{ secrets.UPSTASH_REDIS_REST_TOKEN }}"' >> ./wrangler.toml
         working-directory: examples/cloudflare-workers-with-typescript
 
       - name: Start example
@@ -443,7 +430,6 @@ jobs:
         with:
           version: latest
 
-
       - name: Install bun
         run: npm install -g bun
 
@@ -471,7 +457,6 @@ jobs:
       - name: Start example
         working-directory: ./examples/fastly
         run: ./fastly compute serve & sleep 10
-
 
       - name: Test
         run: bun test examples/fastly/ci.test.ts
@@ -507,7 +492,6 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: latest
-
 
       - name: Install example
         working-directory: ./examples/fastly
@@ -565,10 +549,6 @@ jobs:
         run: node ./index.js
         working-directory: examples/nodejs
 
-
-
-
-
   release:
     concurrency: release
     outputs:
@@ -607,15 +587,12 @@ jobs:
       - name: Install Dependencies
         run: bun install
 
-
       - name: Build
         run: bun run build
 
-
-
+      - name: Set NPM_TOKEN
+        run: npm config set //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
 
       - name: Publish ci version
         working-directory: ./dist
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
-          npm publish --tag=ci --verbose
+        run: npm publish --tag=ci --verbose

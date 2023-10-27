@@ -58,7 +58,7 @@ await redis.set('key', 'value');
 let data = await redis.get('key');
 console.log(data)
 
-await redis.set('key2', 'value2', {ex: 1});
+await redis.set('key3', 'value3', {ex: 1});
 
 // sorted set
 await redis.zadd('scores', { score: 1, member: 'team1' })
@@ -105,7 +105,7 @@ the url and token
 ### Running tests
 
 ```sh
-bun run test 
+bun run test
 ```
 
 ### Building

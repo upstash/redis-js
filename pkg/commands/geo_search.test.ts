@@ -1,4 +1,4 @@
-import { describe, test, expect, afterAll } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 import { keygen, newHttpClient } from "../test-utils.ts";
 
 import { GeoAddCommand } from "./geo_add.ts";

@@ -1,4 +1,4 @@
-import { expect, test, describe, afterAll } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 import { keygen, newHttpClient } from "../test-utils.ts";
 
 import { GeoAddCommand } from "./geo_add.ts";
@@ -32,7 +32,7 @@ describe("GEOSSEARCHSTORE tests", () => {
       "ASC",
     ]).exec(client);
     const zrangeRes = await new ZRangeCommand([destination, 0, -1, { withScores: true }]).exec(
-      client
+      client,
     );
     expect(zrangeRes).toEqual([
       "Empire State Building",
@@ -68,7 +68,7 @@ describe("GEOSSEARCHSTORE tests", () => {
       { storeDist: true },
     ]).exec(client);
     const zrangeRes = await new ZRangeCommand([destination, 0, -1, { withScores: true }]).exec(
-      client
+      client,
     );
     expect(zrangeRes).toEqual([
       "Empire State Building",
@@ -104,7 +104,7 @@ describe("GEOSSEARCHSTORE tests", () => {
       { storeDist: true },
     ]).exec(client);
     const zrangeRes = await new ZRangeCommand([destination, 0, -1, { withScores: true }]).exec(
-      client
+      client,
     );
     expect(zrangeRes).toEqual([
       { name: "Empire State Building" },

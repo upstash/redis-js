@@ -42,6 +42,17 @@
       ]
     }
   },
+  "exports": {
+    "node": "./dist/nodejs.js",
+    "deno": "./dist/nodejs.js",
+    "workerd": "./dist/cloudflare.js",
+    "bun": "./dist/nodejs.js"
+  },
+  "engines": {
+    "node": ">=18",
+    "deno": ">=1.30",
+    "bun": ">=1.04"
+  },
   "devDependencies": {
     "@types/crypto-js": "^4.1.3",
     "bun-types": "^1.0.6",

@@ -29,7 +29,7 @@ type GeoSearchCommandOptions = {
  */
 export class GeoSearchStoreCommand<
   TMemberType = string,
-  TOptions extends GeoSearchCommandOptions = GeoSearchCommandOptions
+  TOptions extends GeoSearchCommandOptions = GeoSearchCommandOptions,
 > extends Command<any[] | any[][], number> {
   constructor(
     [destination, key, centerPoint, shape, order, opts]: [
@@ -38,9 +38,9 @@ export class GeoSearchStoreCommand<
       centerPoint: CenterPoint<TMemberType>,
       shape: Shape,
       order: "ASC" | "DESC" | "asc" | "desc",
-      opts?: TOptions
+      opts?: TOptions,
     ],
-    commandOptions?: CommandOptions<any[] | any[][], number>
+    commandOptions?: CommandOptions<any[] | any[][], number>,
   ) {
     const command: unknown[] = ["GEOSEARCHSTORE", destination, key];
 

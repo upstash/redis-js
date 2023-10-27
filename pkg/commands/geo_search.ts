@@ -33,9 +33,10 @@ type OptionMappings = {
 };
 
 type GeoSearchOptions<TOptions> = {
-  [K in keyof TOptions as K extends keyof OptionMappings
-    ? OptionMappings[K]
-    : never]: K extends "withHash"
+  [K in
+    keyof TOptions as K extends keyof OptionMappings
+      ? OptionMappings[K]
+      : never]: K extends "withHash"
     ? string
     : K extends "withCoord"
     ? { long: number; lat: number }
@@ -53,7 +54,7 @@ type GeoSearchResponse<TOptions, TMemberType> = ({
  */
 export class GeoSearchCommand<
   TMemberType = string,
-  TOptions extends GeoSearchCommandOptions = GeoSearchCommandOptions
+  TOptions extends GeoSearchCommandOptions = GeoSearchCommandOptions,
 > extends Command<any[] | any[][], GeoSearchResponse<TOptions, TMemberType>> {
   constructor(
     [key, centerPoint, shape, order, opts]: [
@@ -61,9 +62,9 @@ export class GeoSearchCommand<
       centerPoint: CenterPoint<TMemberType>,
       shape: Shape,
       order: "ASC" | "DESC" | "asc" | "desc",
-      opts?: TOptions
+      opts?: TOptions,
     ],
-    commandOptions?: CommandOptions<any[] | any[][], GeoSearchResponse<TOptions, TMemberType>>
+    commandOptions?: CommandOptions<any[] | any[][], GeoSearchResponse<TOptions, TMemberType>>,
   ) {
     const command: unknown[] = ["GEOSEARCH", key];
 
@@ -133,7 +134,7 @@ export class GeoSearchCommand<
       {
         ...commandOptions,
         deserialize: transform,
-      }
+      },
     );
   }
 }

@@ -5,6 +5,7 @@ import {
   BitCountCommand,
   BitOpCommand,
   BitPosCommand,
+  CopyCommand,
   DBSizeCommand,
   DecrByCommand,
   DecrCommand,
@@ -310,6 +311,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   bitpos = (...args: CommandArgs<typeof BitPosCommand>) =>
     this.chain(new BitPosCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/copy
+   */
+  copy = (...args: CommandArgs<typeof CopyCommand>) =>
+    this.chain(new CopyCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/zdiffstore

@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 import { ZAddCommand } from "./zadd";
 import { ZInterStoreCommand } from "./zinterstore";
 
@@ -9,10 +9,10 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("command format", () => {
-  test("without options", () => {
+describe("command format", () => {
+  describe("without options", () => {
     test("builds the correct command", () => {
-      expect(new ZInterStoreCommand(["destination", 1, "key"]).command, [
+      expect(new ZInterStoreCommand(["destination", 1, "key"]).command).toEqual([
         "zinterstore",
         "destination",
         1,
@@ -20,9 +20,9 @@ test("command format", () => {
       ]);
     });
   });
-  test("with multiple keys", () => {
+  describe("with multiple keys", () => {
     test("builds the correct command", () => {
-      expect(new ZInterStoreCommand(["destination", 2, ["key1", "key2"]]).command, [
+      expect(new ZInterStoreCommand(["destination", 2, ["key1", "key2"]]).command).toEqual([
         "zinterstore",
         "destination",
         2,
@@ -31,9 +31,9 @@ test("command format", () => {
       ]);
     });
   });
-  test("with single weight", () => {
+  describe("with single weight", () => {
     test("builds the correct command", () => {
-      expect(new ZInterStoreCommand(["destination", 1, "key", { weight: 4 }]).command, [
+      expect(new ZInterStoreCommand(["destination", 1, "key", { weight: 4 }]).command).toEqual([
         "zinterstore",
         "destination",
         1,
@@ -43,7 +43,7 @@ test("command format", () => {
       ]);
     });
   });
-  test("with multiple weights", () => {
+  describe("with multiple weights", () => {
     test("builds the correct command", () => {
       expect(
         new ZInterStoreCommand([
@@ -53,12 +53,11 @@ test("command format", () => {
           {
             weights: [2, 3],
           },
-        ]).command,
-        ["zinterstore", "destination", 2, "key1", "key2", "weights", 2, 3],
-      );
+        ]).command
+      ).toEqual(["zinterstore", "destination", 2, "key1", "key2", "weights", 2, 3]);
     });
-    test("with aggregate", () => {
-      test("sum", () => {
+    describe("with aggregate", () => {
+      describe("sum", () => {
         test("builds the correct command", () => {
           expect(
             new ZInterStoreCommand([
@@ -68,12 +67,11 @@ test("command format", () => {
               {
                 aggregate: "sum",
               },
-            ]).command,
-            ["zinterstore", "destination", 1, "key", "aggregate", "sum"],
-          );
+            ]).command
+          ).toEqual(["zinterstore", "destination", 1, "key", "aggregate", "sum"]);
         });
       });
-      test("min", () => {
+      describe("min", () => {
         test("builds the correct command", () => {
           expect(
             new ZInterStoreCommand([
@@ -83,12 +81,11 @@ test("command format", () => {
               {
                 aggregate: "min",
               },
-            ]).command,
-            ["zinterstore", "destination", 1, "key", "aggregate", "min"],
-          );
+            ]).command
+          ).toEqual(["zinterstore", "destination", 1, "key", "aggregate", "min"]);
         });
       });
-      test("max", () => {
+      describe("max", () => {
         test("builds the correct command", () => {
           expect(
             new ZInterStoreCommand([
@@ -98,13 +95,12 @@ test("command format", () => {
               {
                 aggregate: "max",
               },
-            ]).command,
-            ["zinterstore", "destination", 1, "key", "aggregate", "max"],
-          );
+            ]).command
+          ).toEqual(["zinterstore", "destination", 1, "key", "aggregate", "max"]);
         });
       });
     });
-    test("complex", () => {
+    describe("complex", () => {
       test("builds the correct command", () => {
         expect(
           new ZInterStoreCommand([
@@ -115,15 +111,25 @@ test("command format", () => {
               weights: [4, 2],
               aggregate: "max",
             },
-          ]).command,
-          ["zinterstore", "destination", 2, "key1", "key2", "weights", 4, 2, "aggregate", "max"],
-        );
+          ]).command
+        ).toEqual([
+          "zinterstore",
+          "destination",
+          2,
+          "key1",
+          "key2",
+          "weights",
+          4,
+          2,
+          "aggregate",
+          "max",
+        ]);
       });
     });
   });
 });
 
-test("without options", () => {
+describe("without options", () => {
   test("returns the number of elements in the new set ", async () => {
     const destination = newKey();
     const key1 = newKey();
@@ -145,8 +151,8 @@ test("without options", () => {
   });
 });
 
-test("with weights", () => {
-  test("single weight", () => {
+describe("with weights", () => {
+  describe("single weight", () => {
     test("returns the number of elements in the new set ", async () => {
       const destination = newKey();
       const key1 = newKey();
@@ -174,7 +180,7 @@ test("with weights", () => {
       expect(res).toEqual(1);
     });
   });
-  test("multiple weight", () => {
+  describe("multiple weight", () => {
     test("returns the number of elements in the new set ", async () => {
       const destination = newKey();
       const key1 = newKey();
@@ -203,8 +209,8 @@ test("with weights", () => {
     });
   });
 });
-test("aggregate", () => {
-  test("sum", () => {
+describe("aggregate", () => {
+  describe("sum", () => {
     test("returns the number of elements in the new set ", async () => {
       const destination = newKey();
       const key1 = newKey();
@@ -232,7 +238,7 @@ test("aggregate", () => {
       expect(res).toEqual(1);
     });
   });
-  test("min", () => {
+  describe("min", () => {
     test("returns the number of elements in the new set ", async () => {
       const destination = newKey();
       const key1 = newKey();
@@ -260,7 +266,7 @@ test("aggregate", () => {
       expect(res).toEqual(1);
     });
   });
-  test("max", () => {
+  describe("max", () => {
     test("returns the number of elements in the new set ", async () => {
       const destination = newKey();
       const key1 = newKey();

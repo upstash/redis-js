@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 import { XAddCommand } from "./xadd";
 import { XRangeCommand } from "./xrange";
 
@@ -9,7 +9,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("without options", () => {
+describe("without options", () => {
   test("returns the set", async () => {
     const key = newKey();
     const field1 = "field1";
@@ -21,15 +21,15 @@ test("without options", () => {
     await new XAddCommand([key, "*", { [field1]: member1, [field2]: member2 }]).exec(client);
 
     const res = await new XRangeCommand([key, "-", "+"]).exec(client);
-    expect(Object.keys(res).length, 1);
-    expect(Object.values(res)[0], {
+    expect(Object.keys(res).length).toBe(1);
+    expect(Object.values(res)[0]).toEqual({
       [field1]: member1,
       [field2]: member2,
     });
   });
 });
 
-test("limit", () => {
+describe("limit", () => {
   test("returns the only the first one", async () => {
     const key = newKey();
     const field1 = "field1";
@@ -42,8 +42,8 @@ test("limit", () => {
     await new XAddCommand([key, "*", { [field2]: member2 }]).exec(client);
 
     const res = await new XRangeCommand([key, "-", "+", 1]).exec(client);
-    expect(Object.keys(res).length, 1);
-    expect(Object.values(res)[0], {
+    expect(Object.keys(res).length).toBe(1);
+    expect(Object.values(res)[0]).toEqual({
       [field1]: member1,
     });
   });
@@ -62,8 +62,8 @@ test("many fields", () => {
       const id = await new XAddCommand([key, "*", fields]).exec(client);
 
       const res = await new XRangeCommand([key, "-", "+"]).exec(client);
-      expect(Object.keys(res).length, i);
-      expect(res[id], fields);
+      expect(Object.keys(res).length).toBe(i);
+      expect(res[id]).toEqual(fields);
     }
   });
 });

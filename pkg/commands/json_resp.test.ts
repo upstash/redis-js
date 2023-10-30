@@ -25,7 +25,7 @@ test("Return an array of RESP details about a document", async () => {
       max_level: [80, 100, 120],
     },
   ]).exec(client);
-  expect(res1, "OK");
+  expect(res1).toBe("OK");
   const res2 = await new JsonRespCommand([key]).exec(client);
-  expect(res2.length, 15);
+  expect(res2.length).toBe(15);
 });

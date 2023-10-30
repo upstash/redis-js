@@ -12,5 +12,5 @@ test("returns a random key", async () => {
   const key = newKey();
   await new SetCommand([key, randomID()]).exec(client);
   const res = await new RandomKeyCommand().exec(client);
-  expect(typeof res, "string");
+  expect(typeof res).toBe("string");
 });

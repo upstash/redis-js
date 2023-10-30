@@ -20,7 +20,7 @@ test("return the length", async () => {
       nested: { a: { b: 2, c: 1 } },
     },
   ]).exec(client);
-  expect(res1, "OK");
+  expect(res1).toBe("OK");
   const res2 = await new JsonObjLenCommand([key, "$..a"]).exec(client);
   expect(res2).toEqual([2, null]);
 });

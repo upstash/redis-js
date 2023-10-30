@@ -21,9 +21,9 @@ test("return the length", async () => {
       foo: "bar",
     },
   ]).exec(client);
-  expect(res1, "OK");
+  expect(res1).toBe("OK");
   const res2 = await new JsonTypeCommand([key, "$..foo"]).exec(client);
-  expect(res2.sort(), ["string"]);
+  expect(res2.sort()).toEqual(["string"]);
   const res3 = await new JsonTypeCommand([key, "$..a"]).exec(client);
-  expect(res3.sort(), ["boolean", "integer"]);
+  expect(res3.sort()).toEqual(["boolean", "integer"]);
 });

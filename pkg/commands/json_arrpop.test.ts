@@ -20,7 +20,7 @@ test("Pop a value from an index and insert a new value", async () => {
       max_level: [80, 90, 100, 120],
     },
   ]).exec(client);
-  expect(res1, "OK");
+  expect(res1).toBe("OK");
 
   const res2 = await new JsonArrPopCommand([key, "$.max_level", 0]).exec(client);
   expect(res2).toEqual([80]);

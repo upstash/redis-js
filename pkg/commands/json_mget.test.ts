@@ -22,7 +22,7 @@ test("Return the values at path from multiple key arguments", async () => {
       c: null,
     },
   ]).exec(client);
-  expect(res1, "OK");
+  expect(res1).toBe("OK");
 
   const res2 = await new JsonSetCommand([
     key2,

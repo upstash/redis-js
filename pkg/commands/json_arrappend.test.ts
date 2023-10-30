@@ -25,7 +25,7 @@ test("Add a new color to a list of product colors", async () => {
       colors: ["black", "silver"],
     },
   ]).exec(client);
-  expect(res1, "OK");
+  expect(res1).toBe("OK");
   const res2 = await new JsonArrAppendCommand([key, "$.colors", '"blue"']).exec(client);
   expect(res2).toEqual([3]);
   const res3 = await new JsonGetCommand([key]).exec(client);

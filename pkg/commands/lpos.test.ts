@@ -25,7 +25,7 @@ test("with rank", () => {
     const key = newKey();
     await new RPushCommand([key, "a", "b", "c", 1, 2, 3, "c", "c"]).exec(client);
     const cmd = new LPosCommand([key, "c", { rank: 2 }]);
-    expect(cmd.command, ["lpos", key, "c", "rank", 2]);
+    expect(cmd.command).toEqual(["lpos", key, "c", "rank", 2]);
     const res = await cmd.exec(client);
     expect(res).toEqual(6);
   });

@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 
 import { ZAddCommand } from "./zadd";
 import { ZUnionCommand } from "./zunion";
@@ -10,20 +10,25 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("command format", () => {
-  test("without options", () => {
+describe("command format", () => {
+  describe("without options", () => {
     test("builds the correct command", () => {
-      expect(new ZUnionCommand([1, "key"]).command, ["zunion", 1, "key"]);
+      expect(new ZUnionCommand([1, "key"]).command).toEqual(["zunion", 1, "key"]);
     });
   });
-  test("with multiple keys", () => {
+  describe("with multiple keys", () => {
     test("builds the correct command", () => {
-      expect(new ZUnionCommand([2, ["key1", "key2"]]).command, ["zunion", 2, "key1", "key2"]);
+      expect(new ZUnionCommand([2, ["key1", "key2"]]).command).toEqual([
+        "zunion",
+        2,
+        "key1",
+        "key2",
+      ]);
     });
   });
-  test("with single weight", () => {
+  describe("with single weight", () => {
     test("builds the correct command", () => {
-      expect(new ZUnionCommand([1, "key", { weight: 4 }]).command, [
+      expect(new ZUnionCommand([1, "key", { weight: 4 }]).command).toEqual([
         "zunion",
         1,
         "key",
@@ -32,7 +37,7 @@ test("command format", () => {
       ]);
     });
   });
-  test("with multiple weights", () => {
+  describe("with multiple weights", () => {
     test("builds the correct command", () => {
       expect(
         new ZUnionCommand([
@@ -41,12 +46,11 @@ test("command format", () => {
           {
             weights: [2, 3],
           },
-        ]).command,
-        ["zunion", 2, "key1", "key2", "weights", 2, 3],
-      );
+        ]).command
+      ).toEqual(["zunion", 2, "key1", "key2", "weights", 2, 3]);
     });
-    test("with aggregate", () => {
-      test("sum", () => {
+    describe("with aggregate", () => {
+      describe("sum", () => {
         test("builds the correct command", () => {
           expect(
             new ZUnionCommand([
@@ -55,12 +59,11 @@ test("command format", () => {
               {
                 aggregate: "sum",
               },
-            ]).command,
-            ["zunion", 1, "key", "aggregate", "sum"],
-          );
+            ]).command
+          ).toEqual(["zunion", 1, "key", "aggregate", "sum"]);
         });
       });
-      test("min", () => {
+      describe("min", () => {
         test("builds the correct command", () => {
           expect(
             new ZUnionCommand([
@@ -69,12 +72,11 @@ test("command format", () => {
               {
                 aggregate: "min",
               },
-            ]).command,
-            ["zunion", 1, "key", "aggregate", "min"],
-          );
+            ]).command
+          ).toEqual(["zunion", 1, "key", "aggregate", "min"]);
         });
       });
-      test("max", () => {
+      describe("max", () => {
         test("builds the correct command", () => {
           expect(
             new ZUnionCommand([
@@ -83,13 +85,12 @@ test("command format", () => {
               {
                 aggregate: "max",
               },
-            ]).command,
-            ["zunion", 1, "key", "aggregate", "max"],
-          );
+            ]).command
+          ).toEqual(["zunion", 1, "key", "aggregate", "max"]);
         });
       });
     });
-    test("complex", () => {
+    describe("complex", () => {
       test("builds the correct command", () => {
         expect(
           new ZUnionCommand([
@@ -99,15 +100,14 @@ test("command format", () => {
               weights: [4, 2],
               aggregate: "max",
             },
-          ]).command,
-          ["zunion", 2, "key1", "key2", "weights", 4, 2, "aggregate", "max"],
-        );
+          ]).command
+        ).toEqual(["zunion", 2, "key1", "key2", "weights", 4, 2, "aggregate", "max"]);
       });
     });
   });
 });
 
-test("without options", () => {
+describe("without options", () => {
   test("returns the union", async () => {
     const key1 = newKey();
     const key2 = newKey();
@@ -121,12 +121,12 @@ test("without options", () => {
 
     const res = await new ZUnionCommand([2, [key1, key2]]).exec(client);
 
-    expect(res.length, 2);
-    expect(res?.sort(), [member1, member2].sort());
+    expect(res.length).toBe(2);
+    expect(res?.sort()).toEqual([member1, member2].sort());
   });
 });
 
-test("with weights", () => {
+describe("with weights", () => {
   test("returns the set", async () => {
     const key1 = newKey();
     const key2 = newKey();
@@ -147,12 +147,12 @@ test("with weights", () => {
       },
     ]).exec(client);
 
-    expect(res.length, 2);
+    expect(res.length).toBe(2);
   });
 });
 
-test("aggregate", () => {
-  test("sum", () => {
+describe("aggregate", () => {
+  describe("sum", () => {
     test("returns the set", async () => {
       const key1 = newKey();
       const key2 = newKey();
@@ -172,11 +172,11 @@ test("aggregate", () => {
         },
       ]).exec(client);
 
-      expect(Array.isArray(res), true);
-      expect(res.length, 2);
+      expect(Array.isArray(res)).toBe(true);
+      expect(res.length).toBe(2);
     });
   });
-  test("min", () => {
+  describe("min", () => {
     test("returns the set ", async () => {
       const key1 = newKey();
       const key2 = newKey();
@@ -195,10 +195,10 @@ test("aggregate", () => {
           aggregate: "min",
         },
       ]).exec(client);
-      expect(res.length, 2);
+      expect(res.length).toBe(2);
     });
   });
-  test("max", () => {
+  describe("max", () => {
     test("returns the set ", async () => {
       const key1 = newKey();
       const key2 = newKey();
@@ -217,12 +217,12 @@ test("aggregate", () => {
           aggregate: "max",
         },
       ]).exec(client);
-      expect(res.length, 2);
+      expect(res.length).toBe(2);
     });
   });
 });
 
-test("withscores", () => {
+describe("withscores", () => {
   test("returns the set", async () => {
     const key1 = newKey();
     const score1 = 1;
@@ -244,8 +244,8 @@ test("withscores", () => {
       },
     ]).exec(client);
 
-    expect(res.length, 4);
-    expect(res[0], member1);
-    expect(res[1], score1);
+    expect(res.length).toBe(4);
+    expect(res[0]).toEqual(member1);
+    expect(res[1]).toEqual(score1);
   });
 });

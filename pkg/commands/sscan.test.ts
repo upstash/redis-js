@@ -6,6 +6,7 @@ import { SScanCommand } from "./sscan";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
+
 afterAll(cleanup);
 test("without options", () => {
   test("returns cursor and members", async () => {
@@ -14,9 +15,9 @@ test("without options", () => {
     await new SAddCommand([key, member]).exec(client);
     const res = await new SScanCommand([key, 0]).exec(client);
 
-    expect(res.length, 2);
-    expect(typeof res[0], "number");
-    expect(res![1].length > 0, true);
+    expect(res.length).toBe(2);
+    expect(typeof res[0]).toBe("number");
+    expect(res![1].length > 0).toBe(true);
   });
 });
 
@@ -27,9 +28,9 @@ test("with match", () => {
     await new SAddCommand([key, member]).exec(client);
     const res = await new SScanCommand([key, 0, { match: member }]).exec(client);
 
-    expect(res.length, 2);
-    expect(typeof res[0], "number");
-    expect(res![1].length > 0, true);
+    expect(res.length).toBe(2);
+    expect(typeof res[0]).toBe("number");
+    expect(res![1].length > 0).toBe(true);
   });
 });
 
@@ -40,8 +41,8 @@ test("with count", () => {
     await new SAddCommand([key, member]).exec(client);
     const res = await new SScanCommand([key, 0, { count: 1 }]).exec(client);
 
-    expect(res.length, 2);
-    expect(typeof res[0], "number");
-    expect(res![1].length > 0, true);
+    expect(res.length).toBe(2);
+    expect(typeof res[0]).toBe("number");
+    expect(res![1].length > 0).toBe(true);
   });
 });

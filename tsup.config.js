@@ -1,7 +1,12 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["platforms/nodejs.ts", "platforms/cloudflare.ts", "platforms/fastly.ts"],
+  entry: [
+    "platforms/nodejs.ts",
+    "platforms/cloudflare.ts",
+    "platforms/fastly.ts",
+    "pkg/commands/**/!(*.test).ts",
+  ],
   format: ["cjs", "esm"],
   splitting: false,
   sourcemap: false,

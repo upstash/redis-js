@@ -570,10 +570,6 @@ jobs:
       - name: Set env
         run: echo "VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
-      - name: Get version
-        id: version
-        run: echo "::set-output name=version::v0.0.0-ci.${GITHUB_SHA}"
-
       - name: Setup Node
         uses: actions/setup-node@v2
         with:

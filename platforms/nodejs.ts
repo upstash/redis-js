@@ -18,7 +18,7 @@ if (typeof atob === "undefined") {
     return Buffer.from(b64, "base64").toString("utf-8");
   };
 }
-
+export type * from "../pkg/commands/types";
 export type { Requester, UpstashRequest, UpstashResponse };
 
 /**

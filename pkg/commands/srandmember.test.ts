@@ -26,6 +26,6 @@ test("with count", () => {
     const member2 = randomID();
     await new SAddCommand([key, member1, member2]).exec(client);
     const res = await new SRandMemberCommand<unknown[]>([key, 2]).exec(client);
-    expect(res?.length, 2);
+    expect(res?.length).toBe(2);
   });
 });

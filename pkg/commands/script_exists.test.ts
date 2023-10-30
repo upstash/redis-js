@@ -1,11 +1,12 @@
+import { describe, expect, test } from "bun:test";
 import { newHttpClient, randomID } from "../test-utils";
 import { ScriptExistsCommand } from "./script_exists";
 import { ScriptLoadCommand } from "./script_load";
 
 const client = newHttpClient();
 
-test("with a single script", () => {
-  test("when the script exists", () => {
+describe("with a single script", () => {
+  describe("when the script exists", () => {
     test("returns 1", async () => {
       const script = `return "${randomID()}"`;
       const hash = await new ScriptLoadCommand([script]).exec(client);
@@ -13,14 +14,15 @@ test("with a single script", () => {
       expect(res).toEqual([1]);
     });
   });
-  test("when the script does not exist", () => {
+  describe("when the script does not exist", () => {
     test("returns 0", async () => {
       const res = await new ScriptExistsCommand(["21"]).exec(client);
       expect(res).toEqual([0]);
     });
   });
 });
-test("with multiple scripts", () => {
+
+describe("with multiple scripts", () => {
   test("returns the found scripts", async () => {
     const script1 = `return "${randomID()}"`;
     const script2 = `return "${randomID()}"`;

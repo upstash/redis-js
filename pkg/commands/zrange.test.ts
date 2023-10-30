@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 import { ZAddCommand } from "./zadd";
 import { ZRangeCommand } from "./zrange";
 const client = newHttpClient();
@@ -8,7 +8,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("without options", () => {
+describe("without options", () => {
   test("returns the set", async () => {
     const key = newKey();
     const score1 = 2;
@@ -24,12 +24,12 @@ test("without options", () => {
     ]).exec(client);
 
     const res = await new ZRangeCommand([key, 1, 3]).exec(client);
-    expect(res.length, 1);
-    expect(res![0], member2);
+    expect(res.length).toBe(1);
+    expect(res![0]).toEqual(member2);
   });
 });
 
-test("withscores", () => {
+describe("withscores", () => {
   test("returns the set", async () => {
     const key = newKey();
     const score1 = 2;
@@ -45,13 +45,13 @@ test("withscores", () => {
     ]).exec(client);
 
     const res = await new ZRangeCommand([key, 1, 3, { withScores: true }]).exec(client);
-    expect(res.length, 2);
-    expect(res![0], member2);
-    expect(res![1], score2);
+    expect(res.length).toBe(2);
+    expect(res![0]).toEqual(member2);
+    expect(res![1]).toEqual(score2);
   });
 });
 
-test("byscore", () => {
+describe("byscore", () => {
   test("returns the set", async () => {
     const key = newKey();
     const score1 = 1;
@@ -79,9 +79,9 @@ test("byscore", () => {
       },
     ]).exec(client);
 
-    expect(res.length, 2);
-    expect(res![0], member1);
-    expect(res![1], member2);
+    expect(res.length).toBe(2);
+    expect(res![0]).toEqual(member1);
+    expect(res![1]).toEqual(member2);
 
     const res2 = await new ZRangeCommand([
       key,
@@ -91,10 +91,10 @@ test("byscore", () => {
         byScore: true,
       },
     ]).exec(client);
-    expect(res2.length, 3);
-    expect(res2![0], member1);
-    expect(res2![1], member2);
-    expect(res2![2], member3);
+    expect(res2.length).toBe(3);
+    expect(res2![0]).toEqual(member1);
+    expect(res2![1]).toEqual(member2);
+    expect(res2![2]).toEqual(member3);
 
     const res3 = await new ZRangeCommand([
       key,
@@ -108,7 +108,7 @@ test("byscore", () => {
   });
 });
 
-test("bylex", () => {
+describe("bylex", () => {
   test("returns the set", async () => {
     const key = newKey();
 
@@ -121,9 +121,9 @@ test("bylex", () => {
 
     // everything in between a and c, excluding "a" and including "c"
     const res = await new ZRangeCommand([key, "(a", "[c", { byLex: true }]).exec(client);
-    expect(res.length, 2);
-    expect(res![0], "b");
-    expect(res![1], "c");
+    expect(res.length).toBe(2);
+    expect(res![0]).toBe("b");
+    expect(res![1]).toBe("c");
 
     //everything after "a", excluding a
     const res2 = await new ZRangeCommand([key, "(a", "+", { byLex: true }]).exec(client);
@@ -138,13 +138,13 @@ test("bylex", () => {
         byLex: true,
       },
     ]).exec(client);
-    expect(res3.length, 2);
-    expect(res3![0], "a");
-    expect(res3![1], "b");
+    expect(res3.length).toBe(2);
+    expect(res3![0]).toBe("a");
+    expect(res3![1]).toBe("b");
   });
 });
 
-test("rev", () => {
+describe("rev", () => {
   test("returns the set in reverse order", async () => {
     const key = newKey();
     const score1 = 2;
@@ -160,13 +160,13 @@ test("rev", () => {
     ]).exec(client);
 
     const res = await new ZRangeCommand([key, 0, 7, { rev: true }]).exec(client);
-    expect(res.length, 2);
-    expect(res![0], member2);
-    expect(res![1], member1);
+    expect(res.length).toBe(2);
+    expect(res![0]).toEqual(member2);
+    expect(res![1]).toEqual(member1);
   });
 });
 
-test("limit", () => {
+describe("limit", () => {
   test("returns only the first 2", async () => {
     const key = newKey();
     for (let i = 0; i < 10; i++) {
@@ -183,6 +183,6 @@ test("limit", () => {
         count: 2,
       },
     ]).exec(client);
-    expect(res.length, 2);
+    expect(res.length).toBe(2);
   });
 });

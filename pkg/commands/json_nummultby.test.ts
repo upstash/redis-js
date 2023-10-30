@@ -20,9 +20,9 @@ test("return the length", async () => {
       b: [{ a: 2 }, { a: 5 }, { a: "c" }],
     },
   ]).exec(client);
-  expect(res1, "OK");
+  expect(res1).toBe("OK");
   const res2 = await new JsonNumMultByCommand([key, "$.a", 2]).exec(client);
-  expect(res2.sort(), [null]);
+  expect(res2.sort()).toEqual([null]);
   const res3 = await new JsonNumMultByCommand([key, "$..a", 2]).exec(client);
-  expect(res3.sort(), [10, 4, null, null]);
+  expect(res3.sort()).toEqual([10, 4, null, null]);
 });

@@ -16,7 +16,7 @@ test("returns all members of the set", async () => {
   await new SAddCommand([key, value1, value2]).exec(client);
   const res = await new SMembersCommand<{ v: string }[]>([key]).exec(client);
 
-  expect(res!.length, 2);
-  expect(res!.map(({ v }) => v).includes(value1.v), true);
-  expect(res!.map(({ v }) => v).includes(value2.v), true);
+  expect(res!.length).toBe(2);
+  expect(res!.map(({ v }) => v).includes(value1.v));
+  expect(res!.map(({ v }) => v).includes(value2.v)).toBe(true);
 });

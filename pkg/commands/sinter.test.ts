@@ -16,9 +16,9 @@ test("with single set", () => {
     const value2 = { v: randomID() };
     await new SAddCommand([key, value1, value2]).exec(client);
     const res = await new SInterCommand<{ v: string }>([key]).exec(client);
-    expect(res.length, 2);
-    expect(res.map(({ v }) => v).includes(value1.v), true);
-    expect(res.map(({ v }) => v).includes(value2.v), true);
+    expect(res.length).toBe(2);
+    expect(res.map(({ v }) => v).includes(value1.v)).toBe(true);
+    expect(res.map(({ v }) => v).includes(value2.v)).toBe(true);
   });
 });
 

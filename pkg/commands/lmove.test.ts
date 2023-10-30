@@ -22,10 +22,10 @@ test("moves the entry from left to left", async () => {
   expect(res).toEqual(value);
 
   const elementInSource = await new LPopCommand([source]).exec(client);
-  expect(elementInSource, null);
+  expect(elementInSource).toEqual(null);
 
   const elementInDestination = await new LPopCommand([destination]).exec(client);
-  expect(elementInDestination, value);
+  expect(elementInDestination).toBe(value);
 });
 
 test("moves the entry from left to right", async () => {
@@ -39,8 +39,8 @@ test("moves the entry from left to right", async () => {
   expect(res).toEqual(values.at(-1));
 
   const elementsInSource = await new LLenCommand([source]).exec(client);
-  expect(elementsInSource, values.length - 1);
+  expect(elementsInSource).toEqual(values.length - 1);
 
   const elementInDestination = await new LPopCommand([destination]).exec(client);
-  expect(elementInDestination, values.at(-1));
+  expect(elementInDestination).toEqual(values.at(-1));
 });

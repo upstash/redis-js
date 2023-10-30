@@ -25,7 +25,7 @@ test("Get lengths of JSON arrays in a document", async () => {
       max_level: [80, 100, 120],
     },
   ]).exec(client);
-  expect(res1, "OK");
+  expect(res1).toBe("OK");
   const res2 = await new JsonArrLenCommand([key, "$.max_level"]).exec(client);
   expect(res2).toEqual([3]);
 });

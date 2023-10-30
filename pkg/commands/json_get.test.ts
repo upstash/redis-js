@@ -20,7 +20,7 @@ test("Return the value at path in JSON serialized form", async () => {
       nested: { a: 4, b: null },
     },
   ]).exec(client);
-  expect(res1, "OK");
+  expect(res1).toBe("OK");
   const res2 = await new JsonGetCommand([key, "$..b"]).exec(client);
   expect(res2).toEqual([null, 3]);
   const res3 = await new JsonGetCommand([key, "$..a", "$..b"]).exec(client);

@@ -14,5 +14,5 @@ test("returns the ttl on a key", async () => {
   const ttl = 60;
   await new SetExCommand([key, ttl, "value"]).exec(client);
   const res = await new PTtlCommand([key]).exec(client);
-  expect(res <= ttl * 1000, true);
+  expect(res <= ttl * 1000).toBe(true);
 });

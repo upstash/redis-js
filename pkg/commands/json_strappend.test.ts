@@ -22,9 +22,9 @@ test("Add 'baz' to existing string", async () => {
       nested2: { a: 31 },
     },
   ]).exec(client);
-  expect(res1, "OK");
+  expect(res1).toBe("OK");
   const res2 = await new JsonStrAppendCommand([key, "$..a", '"baz"']).exec(client);
-  expect(res2.sort(), [6, 8, null]);
+  expect(res2.sort()).toEqual([6, 8, null]);
   const res3 = await new JsonGetCommand([key]).exec(client);
   expect(res3).toEqual({
     a: "foobaz",

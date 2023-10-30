@@ -21,7 +21,7 @@ test("return the length", async () => {
       nested2: { a: 31 },
     },
   ]).exec(client);
-  expect(res1, "OK");
+  expect(res1).toBe("OK");
   const res2 = await new JsonStrLenCommand([key, "$..a"]).exec(client);
-  expect(res2.sort(), [3, 5, null]);
+  expect(res2.sort()).toEqual([3, 5, null]);
 });

@@ -20,5 +20,5 @@ test("adds the element", async () => {
   expect(res).toEqual(2);
 
   const list = await new LRangeCommand([key, 0, -1]).exec(client);
-  expect(list, [value2, value1]);
+  expect(list).toEqual([value2, value1]);
 });

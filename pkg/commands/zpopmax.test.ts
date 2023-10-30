@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 import { ZAddCommand } from "./zadd";
 import { ZPopMaxCommand } from "./zpopmax";
 
@@ -9,7 +9,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("without options", () => {
+describe("without options", () => {
   test("returns the max", async () => {
     const key = newKey();
     const score1 = 1;
@@ -22,13 +22,13 @@ test("without options", () => {
       { score: score2, member: member2 },
     ]).exec(client);
     const res = await new ZPopMaxCommand([key]).exec(client);
-    expect(res.length, 2);
-    expect(res![0], member2);
-    expect(res![1], score2);
+    expect(res.length).toBe(2);
+    expect(res![0]).toEqual(member2);
+    expect(res![1]).toEqual(score2);
   });
 });
 
-test("with count", () => {
+describe("with count", () => {
   test("returns the n max members", async () => {
     const key = newKey();
     const score1 = 1;

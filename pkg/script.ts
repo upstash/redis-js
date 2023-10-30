@@ -1,5 +1,3 @@
-import Hex from "crypto-js/enc-hex";
-import sha1 from "crypto-js/sha1";
 import { Redis } from "./redis";
 /**
  * Creates a new script.
@@ -19,7 +17,7 @@ import { Redis } from "./redis";
  */
 export class Script<TResult = unknown> {
   public readonly script: string;
-  public readonly sha1: string;
+  public readonly sha1: Promise<string>;
   private readonly redis: Redis;
 
   constructor(redis: Redis, script: string) {
@@ -61,7 +59,19 @@ export class Script<TResult = unknown> {
   /**
    * Compute the sha1 hash of the script and return its hex representation.
    */
-  private digest(s: string): string {
-    return Hex.stringify(sha1(s));
+  private async digest(s: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(s);
+
+    const hashBuffer = await crypto.subtle.digest("SHA-1", data);
+
+    return this.bufferToHex(hashBuffer);
+  }
+
+  private bufferToHex(buffer: ArrayBuffer): string {
+    const byteArray = new Uint8Array(buffer);
+    return Array.from(byteArray)
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
   }
 }

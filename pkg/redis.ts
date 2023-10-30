@@ -502,7 +502,7 @@ export class Redis {
    * @see https://redis.io/commands/evalsha
    */
   evalsha = <TArgs extends unknown[], TData = unknown>(
-    ...args: [sha1: string, keys: string[], args: TArgs]
+    ...args: [sha1: Promise<string>, keys: string[], args: TArgs]
   ) => new EvalshaCommand<TArgs, TData>(args, this.opts).exec(this.client);
 
   /**

@@ -24,10 +24,8 @@ jobs:
       - name: Install bun
         run: npm i -g bun
 
-      - name: Set package version
-        run: |
-          bun run ./scripts/set-version.js . ${{ env.VERSION }}
-          echo "export const VERSION='${{ env.VERSION }}'" > ./version.ts
+      - name: Set version
+        run: echo $(jq --arg v "$VERSION" '(.version) = $v' package.json) > package.json
 
       - name: Install Dependencies
         run: bun install

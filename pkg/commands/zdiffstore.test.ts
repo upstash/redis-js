@@ -9,6 +9,7 @@ const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
+
 test("stors the diff", async () => {
   const key1 = newKey();
   const key2 = newKey();
@@ -36,6 +37,6 @@ test("stors the diff", async () => {
   expect(res).toEqual(1);
 
   const zset3 = await new ZRangeCommand([out, 0, -1, { withScores: true }]).exec(client);
-  expect(zset3[0], "three");
-  expect(zset3[1], 3);
+  expect(zset3[0]).toBe("three");
+  expect(zset3[1]).toBe(3);
 });

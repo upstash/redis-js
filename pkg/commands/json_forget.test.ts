@@ -21,7 +21,7 @@ test("Delete a value", async () => {
       nested: { a: 2, b: 3 },
     },
   ]).exec(client);
-  expect(res1, "OK");
+  expect(res1).toBe("OK");
   const res2 = await new JsonForgetCommand([key, "$..a"]).exec(client);
   expect(res2).toEqual(2);
   const res3 = await new JsonGetCommand([key, "$"]).exec(client);

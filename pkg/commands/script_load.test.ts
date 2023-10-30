@@ -1,3 +1,4 @@
+import { expect, test } from "bun:test";
 import { newHttpClient } from "../test-utils";
 import { ScriptLoadCommand } from "./script_load";
 

@@ -583,11 +583,6 @@ jobs:
         run: |
           echo $(jq --arg v "${{ steps.version.outputs.version }}" '(.version) = $v' package.json) > package.json
 
-      - name: Log package.json
-        run: |
-          cat package.json
-          echo "VERSION: ${{ steps.version.outputs.version }}"
-
       - name: Install Dependencies
         run: bun install
 

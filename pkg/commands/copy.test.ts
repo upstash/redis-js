@@ -2,8 +2,8 @@ import { keygen, newHttpClient, randomID } from "../test-utils";
 
 import { afterAll, describe, expect, test } from "bun:test";
 import { CopyCommand } from "./copy";
-import { SetCommand } from "./set";
 import { LPushCommand } from "./lpush";
+import { SetCommand } from "./set";
 
 const client = newHttpClient();
 

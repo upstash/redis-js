@@ -1,19 +1,19 @@
 function parseRecursive(obj: unknown): unknown {
   const parsed = Array.isArray(obj)
     ? obj.map((o) => {
-      try {
-        return parseRecursive(o);
-      } catch {
-        return o;
-      }
-    })
+        try {
+          return parseRecursive(o);
+        } catch {
+          return o;
+        }
+      })
     : JSON.parse(obj as string);
 
   /**
    * Parsing very large numbers can result in MAX_SAFE_INTEGER
    * overflow. In that case we return the number as string instead.
    */
-  if (typeof parsed === "number" && parsed.toString() != obj) {
+  if (typeof parsed === "number" && parsed.toString() !== obj) {
     return obj;
   }
   return parsed;

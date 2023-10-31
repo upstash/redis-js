@@ -36,7 +36,7 @@ npm install @upstash/redis
 #### Deno
 
 ```ts
-import { Redis } from "https://deno.land/x/upstash_redis/mod.ts";
+import { Redis } from "https://esm.sh/@upstash/redis";
 ```
 
 ### Create database
@@ -58,7 +58,7 @@ await redis.set('key', 'value');
 let data = await redis.get('key');
 console.log(data)
 
-await redis.set('key2', 'value2', {ex: 1});
+await redis.set('key3', 'value3', {ex: 1});
 
 // sorted set
 await redis.zadd('scores', { score: 1, member: 'team1' })
@@ -95,7 +95,7 @@ details.
 
 ## Contributing
 
-### [Install Deno](https://deno.land/#installation)
+### [Install Bun](https://bun.sh/docs/installation)
 
 ### Database
 
@@ -105,8 +105,15 @@ the url and token
 ### Running tests
 
 ```sh
-UPSTASH_REDIS_REST_URL=".." UPSTASH_REDIS_REST_TOKEN=".." deno test -A
+bun run test
 ```
+
+### Building
+
+```sh
+bun run build
+```
+
 
 ### Telemetry
 

@@ -1,10 +1,9 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 
 /**
  * @see https://redis.io/commands/json.objkeys
  */
-export class JsonObjKeysCommand
-  extends Command<(string[] | null)[], (string[] | null)[]> {
+export class JsonObjKeysCommand extends Command<(string[] | null)[], (string[] | null)[]> {
   constructor(
     cmd: [key: string, path?: string],
     opts?: CommandOptions<(string[] | null)[], (string[] | null)[]>,

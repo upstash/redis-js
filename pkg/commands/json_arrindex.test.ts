@@ -1,59 +1,54 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
+import { afterAll, expect, test } from "bun:test";
+import { keygen, newHttpClient } from "../test-utils";
 
-import { JsonSetCommand } from "./json_set.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
-import { JsonArrAppendCommand } from "./json_arrappend.ts";
-import { JsonGetCommand } from "./json_get.ts";
-import { JsonArrInsertCommand } from "./json_arrinsert.ts";
-import { JsonArrIndexCommand } from "./json_arrindex.ts";
+import { JsonSetCommand } from "./json_set";
+
+import { JsonArrAppendCommand } from "./json_arrappend";
+import { JsonArrIndexCommand } from "./json_arrindex";
+import { JsonArrInsertCommand } from "./json_arrinsert";
+import { JsonGetCommand } from "./json_get";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("Find the specific place of a color in a list of product colors", async () => {
+test("Find the specific place of a color in a list of product colors", async () => {
   const key = newKey();
-  const res1 = await new JsonSetCommand([key, "$", {
-    "name": "Noise-cancelling Bluetooth headphones",
-    "description":
-      "Wireless Bluetooth headphones with noise-cancelling technology",
-    "connection": { "wireless": true, "type": "Bluetooth" },
-    "price": 99.98,
-    "stock": 25,
-    "colors": ["black", "silver"],
-  }]).exec(client);
-  assertEquals(res1, "OK");
-  const res2 = await new JsonArrAppendCommand([key, "$.colors", '"blue"']).exec(
-    client,
-  );
-  assertEquals(res2, [3]);
+  const res1 = await new JsonSetCommand([
+    key,
+    "$",
+    {
+      name: "Noise-cancelling Bluetooth headphones",
+      description: "Wireless Bluetooth headphones with noise-cancelling technology",
+      connection: { wireless: true, type: "Bluetooth" },
+      price: 99.98,
+      stock: 25,
+      colors: ["black", "silver"],
+    },
+  ]).exec(client);
+  expect(res1).toBe("OK");
+  const res2 = await new JsonArrAppendCommand([key, "$.colors", '"blue"']).exec(client);
+  expect(res2).toEqual([3]);
   const res3 = await new JsonGetCommand([key]).exec(client);
-  assertEquals(res3, {
-    "name": "Noise-cancelling Bluetooth headphones",
-    "description":
-      "Wireless Bluetooth headphones with noise-cancelling technology",
-    "connection": { "wireless": true, "type": "Bluetooth" },
-    "price": 99.98,
-    "stock": 25,
-    "colors": ["black", "silver", "blue"],
+  expect(res3).toEqual({
+    name: "Noise-cancelling Bluetooth headphones",
+    description: "Wireless Bluetooth headphones with noise-cancelling technology",
+    connection: { wireless: true, type: "Bluetooth" },
+    price: 99.98,
+    stock: 25,
+    colors: ["black", "silver", "blue"],
   });
   const res4 = await new JsonGetCommand([key, "$.colors[*]"]).exec(client);
-  assertEquals(res4, ["black", "silver", "blue"]);
+  expect(res4).toEqual(["black", "silver", "blue"]);
 
-  const res5 = await new JsonArrInsertCommand([
-    key,
-    "$.colors",
-    2,
-    '"yellow"',
-    '"gold"',
-  ]).exec(client);
-  assertEquals(res5, [5]);
+  const res5 = await new JsonArrInsertCommand([key, "$.colors", 2, '"yellow"', '"gold"']).exec(
+    client
+  );
+  expect(res5).toEqual([5]);
   const res6 = await new JsonGetCommand([key, "$.colors"]).exec(client);
-  assertEquals(res6, [["black", "silver", "yellow", "gold", "blue"]]);
+  expect(res6).toEqual([["black", "silver", "yellow", "gold", "blue"]]);
 
-  const res7 = await new JsonArrIndexCommand([key, "$..colors", '"silver"'])
-    .exec(client);
-  assertEquals(res7, [1]);
+  const res7 = await new JsonArrIndexCommand([key, "$..colors", '"silver"']).exec(client);
+  expect(res7).toEqual([1]);
 });

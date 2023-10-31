@@ -1,34 +1,30 @@
-import * as core from "../pkg/redis.ts";
-import type {
-  Requester,
-  UpstashRequest,
-  UpstashResponse,
-} from "../pkg/http.ts";
-import { HttpClient, RequesterConfig } from "../pkg/http.ts";
-import { VERSION } from "../version.ts";
+import type { Requester, UpstashRequest, UpstashResponse } from "../pkg/http";
+import { HttpClient, RequesterConfig } from "../pkg/http";
+import * as core from "../pkg/redis";
+import { VERSION } from "../version";
 
 type Env = {
   UPSTASH_DISABLE_TELEMETRY?: string;
 };
+
+export type * from "../pkg/commands/types";
 export type { Requester, UpstashRequest, UpstashResponse };
 /**
  * Connection credentials for upstash redis.
  * Get them from https://console.upstash.com/redis/<uuid>
  */
-export type RedisConfigCloudflare =
-  & {
-    /**
-     * UPSTASH_REDIS_REST_URL
-     */
-    url: string;
-    /**
-     * UPSTASH_REDIS_REST_TOKEN
-     */
-    token: string;
-  }
-  & core.RedisOptions
-  & RequesterConfig
-  & Env;
+export type RedisConfigCloudflare = {
+  /**
+   * UPSTASH_REDIS_REST_URL
+   */
+  url: string;
+  /**
+   * UPSTASH_REDIS_REST_TOKEN
+   */
+  token: string;
+} & core.RedisOptions &
+  RequesterConfig &
+  Env;
 
 /**
  * Serverless redis client for upstash.
@@ -46,23 +42,11 @@ export class Redis extends core.Redis {
    * ```
    */
   constructor(config: RedisConfigCloudflare, env?: Env) {
-    if (
-      config.url.startsWith(" ") ||
-      config.url.endsWith(" ") ||
-      /\r|\n/.test(config.url)
-    ) {
-      console.warn(
-        "The redis url contains whitespace or newline, which can cause errors!",
-      );
+    if (config.url.startsWith(" ") || config.url.endsWith(" ") || /\r|\n/.test(config.url)) {
+      console.warn("The redis url contains whitespace or newline, which can cause errors!");
     }
-    if (
-      config.token.startsWith(" ") ||
-      config.token.endsWith(" ") ||
-      /\r|\n/.test(config.token)
-    ) {
-      console.warn(
-        "The redis token contains whitespace or newline, which can cause errors!",
-      );
+    if (config.token.startsWith(" ") || config.token.endsWith(" ") || /\r|\n/.test(config.token)) {
+      console.warn("The redis token contains whitespace or newline, which can cause errors!");
     }
 
     const client = new HttpClient({
@@ -100,7 +84,7 @@ export class Redis extends core.Redis {
       UPSTASH_REDIS_REST_TOKEN: string;
       UPSTASH_DISABLE_TELEMETRY?: string;
     },
-    opts?: Omit<RedisConfigCloudflare, "url" | "token">,
+    opts?: Omit<RedisConfigCloudflare, "url" | "token">
   ): Redis {
     // @ts-ignore These will be defined by cloudflare
     const url = env?.UPSTASH_REDIS_REST_URL ?? UPSTASH_REDIS_REST_URL;
@@ -110,12 +94,12 @@ export class Redis extends core.Redis {
 
     if (!url) {
       throw new Error(
-        "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_URL`",
+        "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_URL`"
       );
     }
     if (!token) {
       throw new Error(
-        "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_TOKEN`",
+        "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_TOKEN`"
       );
     }
     return new Redis({ ...opts, url, token }, env);

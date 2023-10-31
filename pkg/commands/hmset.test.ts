@@ -1,14 +1,14 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { HMSetCommand } from "./hmset.ts";
-import { HMGetCommand } from "./hmget.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
+
+import { afterAll, expect, test } from "bun:test";
+import { HMGetCommand } from "./hmget";
+import { HMSetCommand } from "./hmset";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
-Deno.test("gets exiting values", async () => {
+test("gets exiting values", async () => {
   const key = newKey();
   const kv = {
     [randomID()]: randomID(),
@@ -16,8 +16,8 @@ Deno.test("gets exiting values", async () => {
   };
   const res = await new HMSetCommand([key, kv]).exec(client);
 
-  assertEquals(res, "OK");
+  expect(res).toEqual("OK");
   const res2 = await new HMGetCommand([key, ...Object.keys(kv)]).exec(client);
 
-  assertEquals(res2, kv);
+  expect(res2).toEqual(kv);
 });

@@ -1,28 +1,24 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { MSetCommand } from "./mset.ts";
-import { MGetCommand } from "./mget.ts";
+import { afterAll, expect, test } from "bun:test";
+import { MGetCommand } from "./mget";
+import { MSetCommand } from "./mset";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test(
-  "gets exiting values",
-  async () => {
-    const key1 = newKey();
-    const key2 = newKey();
-    const kv = {
-      [key1]: randomID(),
-      [key2]: randomID(),
-    };
-    const res = await new MSetCommand([kv]).exec(client);
+test("gets exiting values", async () => {
+  const key1 = newKey();
+  const key2 = newKey();
+  const kv = {
+    [key1]: randomID(),
+    [key2]: randomID(),
+  };
+  const res = await new MSetCommand([kv]).exec(client);
 
-    assertEquals(res, "OK");
-    const res2 = await new MGetCommand([key1, key2]).exec(client);
-    assertEquals(res2, Object.values(kv));
-  },
-);
+  expect(res).toEqual("OK");
+  const res2 = await new MGetCommand([key1, key2]).exec(client);
+  expect(res2).toEqual(Object.values(kv));
+});

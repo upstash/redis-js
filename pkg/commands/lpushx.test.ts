@@ -1,35 +1,30 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { LPushXCommand } from "./lpushx.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { afterAll, expect, test } from "bun:test";
+import { LPushXCommand } from "./lpushx";
 
-import { LPushCommand } from "./lpush.ts";
+import { LPushCommand } from "./lpush";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("when list exists", async (t) => {
-  await t.step("returns the length after command", async () => {
+test("when list exists", () => {
+  test("returns the length after command", async () => {
     const key = newKey();
     await new LPushCommand([key, randomID()]).exec(client);
     const res = await new LPushXCommand([key, randomID()]).exec(client);
-    assertEquals(res, 2);
-    const res2 = await new LPushXCommand([
-      key,
-      randomID(),
-      randomID(),
-    ]).exec(client);
+    expect(res).toEqual(2);
+    const res2 = await new LPushXCommand([key, randomID(), randomID()]).exec(client);
 
-    assertEquals(res2, 4);
+    expect(res2).toEqual(4);
   });
 });
 
-Deno.test("when list does not exist", async (t) => {
-  await t.step("does nothing", async () => {
+test("when list does not exist", () => {
+  test("does nothing", async () => {
     const key = newKey();
     const res = await new LPushXCommand([key, randomID()]).exec(client);
-    assertEquals(res, 0);
+    expect(res).toEqual(0);
   });
 });

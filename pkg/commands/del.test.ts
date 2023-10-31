@@ -1,38 +1,38 @@
-import { keygen, newHttpClient } from "../test-utils.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
-import { DelCommand } from "./del.ts";
-import { SetCommand } from "./set.ts";
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
+import { keygen, newHttpClient } from "../test-utils";
+
+import { afterAll, describe, expect, test } from "bun:test";
+import { DelCommand } from "./del";
+import { SetCommand } from "./set";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("when key does not exist", async (t) => {
-  await t.step("does nothing", async () => {
+describe("when key does not exist", () => {
+  test("does nothing", async () => {
     const key = newKey();
 
     const res = await new DelCommand([key]).exec(client);
-    assertEquals(res, 0);
+    expect(res).toEqual(0);
   });
 });
-Deno.test("when key does exist", async (t) => {
-  await t.step("deletes the key", async () => {
+describe("when key does exist", () => {
+  test("deletes the key", async () => {
     const key = newKey();
     await new SetCommand([key, "value"]).exec(client);
     const res = await new DelCommand([key]).exec(client);
-    assertEquals(res, 1);
+    expect(res).toEqual(1);
   });
 });
-Deno.test("with multiple keys", async (t) => {
-  await t.step("when one does not exist", async (t) => {
-    await t.step("deletes all keys", async () => {
+describe("with multiple keys", () => {
+  describe("when one does not exist", () => {
+    test("deletes all keys", async () => {
       const key1 = newKey();
       const key2 = newKey();
       await new SetCommand([key1, "value"]).exec(client);
       const res = await new DelCommand([key1, key2]).exec(client);
-      assertEquals(res, 1);
+      expect(res).toEqual(1);
     });
   });
 });

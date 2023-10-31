@@ -1,4 +1,4 @@
-import { Command, CommandOptions } from "./command.ts";
+import { Command, CommandOptions } from "./command";
 
 export type ScanCommandOptions = {
   match?: string;
@@ -8,10 +8,7 @@ export type ScanCommandOptions = {
 /**
  * @see https://redis.io/commands/scan
  */
-export class ScanCommand extends Command<
-  [number, string[]],
-  [number, string[]]
-> {
+export class ScanCommand extends Command<[number, string[]], [number, string[]]> {
   constructor(
     [cursor, opts]: [cursor: number, opts?: ScanCommandOptions],
     cmdOpts?: CommandOptions<[number, string[]], [number, string[]]>,

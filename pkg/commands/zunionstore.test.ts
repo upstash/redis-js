@@ -1,19 +1,19 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
-import { ZUnionStoreCommand } from "./zunionstore.ts";
-import { ZAddCommand } from "./zadd.ts";
+import { afterAll, describe, expect, test } from "bun:test";
+
+import { ZAddCommand } from "./zadd";
+import { ZUnionStoreCommand } from "./zunionstore";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("command format", async (t) => {
-  await t.step("without options", async (t) => {
-    await t.step("builds the correct command", () => {
-      assertEquals(new ZUnionStoreCommand(["destination", 1, "key"]).command, [
+describe("command format", () => {
+  describe("without options", () => {
+    test("builds the correct command", () => {
+      expect(new ZUnionStoreCommand(["destination", 1, "key"]).command).toEqual([
         "zunionstore",
         "destination",
         1,
@@ -21,100 +21,117 @@ Deno.test("command format", async (t) => {
       ]);
     });
   });
-  await t.step("with multiple keys", async (t) => {
-    await t.step("builds the correct command", () => {
-      assertEquals(
-        new ZUnionStoreCommand(["destination", 2, ["key1", "key2"]]).command,
-        ["zunionstore", "destination", 2, "key1", "key2"],
-      );
+  describe("with multiple keys", () => {
+    test("builds the correct command", () => {
+      expect(new ZUnionStoreCommand(["destination", 2, ["key1", "key2"]]).command).toEqual([
+        "zunionstore",
+        "destination",
+        2,
+        "key1",
+        "key2",
+      ]);
     });
   });
-  await t.step("with single weight", async (t) => {
-    await t.step("builds the correct command", () => {
-      assertEquals(
-        new ZUnionStoreCommand(["destination", 1, "key", { weight: 4 }])
-          .command,
-        ["zunionstore", "destination", 1, "key", "weights", 4],
-      );
+  describe("with single weight", () => {
+    test("builds the correct command", () => {
+      expect(new ZUnionStoreCommand(["destination", 1, "key", { weight: 4 }]).command).toEqual([
+        "zunionstore",
+        "destination",
+        1,
+        "key",
+        "weights",
+        4,
+      ]);
     });
   });
-  await t.step("with multiple weights", async (t) => {
-    await t.step("builds the correct command", () => {
-      assertEquals(
-        new ZUnionStoreCommand(["destination", 2, ["key1", "key2"], {
-          weights: [2, 3],
-        }]).command,
-        [
+  describe("with multiple weights", () => {
+    test("builds the correct command", () => {
+      expect(
+        new ZUnionStoreCommand([
+          "destination",
+          2,
+          ["key1", "key2"],
+          {
+            weights: [2, 3],
+          },
+        ]).command
+      ).toEqual(["zunionstore", "destination", 2, "key1", "key2", "weights", 2, 3]);
+    });
+    describe("with aggregate", () => {
+      describe("sum", () => {
+        test("builds the correct command", () => {
+          expect(
+            new ZUnionStoreCommand([
+              "destination",
+              1,
+              "key",
+              {
+                aggregate: "sum",
+              },
+            ]).command
+          ).toEqual(["zunionstore", "destination", 1, "key", "aggregate", "sum"]);
+        });
+      });
+      describe("min", () => {
+        test("builds the correct command", () => {
+          expect(
+            new ZUnionStoreCommand([
+              "destination",
+              1,
+              "key",
+              {
+                aggregate: "min",
+              },
+            ]).command
+          ).toEqual(["zunionstore", "destination", 1, "key", "aggregate", "min"]);
+        });
+      });
+      describe("max", () => {
+        test("builds the correct command", () => {
+          expect(
+            new ZUnionStoreCommand([
+              "destination",
+              1,
+              "key",
+              {
+                aggregate: "max",
+              },
+            ]).command
+          ).toEqual(["zunionstore", "destination", 1, "key", "aggregate", "max"]);
+        });
+      });
+    });
+    describe("complex", () => {
+      test("builds the correct command", () => {
+        expect(
+          new ZUnionStoreCommand([
+            "destination",
+            2,
+            ["key1", "key2"],
+            {
+              weights: [4, 2],
+              aggregate: "max",
+            },
+          ]).command
+        ).toEqual([
           "zunionstore",
           "destination",
           2,
           "key1",
           "key2",
           "weights",
+          4,
           2,
-          3,
-        ],
-      );
-    });
-    await t.step("with aggregate", async (t) => {
-      await t.step("sum", async (t) => {
-        await t.step("builds the correct command", () => {
-          assertEquals(
-            new ZUnionStoreCommand(["destination", 1, "key", {
-              aggregate: "sum",
-            }]).command,
-            ["zunionstore", "destination", 1, "key", "aggregate", "sum"],
-          );
-        });
-      });
-      await t.step("min", async (t) => {
-        await t.step("builds the correct command", () => {
-          assertEquals(
-            new ZUnionStoreCommand(["destination", 1, "key", {
-              aggregate: "min",
-            }]).command,
-            ["zunionstore", "destination", 1, "key", "aggregate", "min"],
-          );
-        });
-      });
-      await t.step("max", async (t) => {
-        await t.step("builds the correct command", () => {
-          assertEquals(
-            new ZUnionStoreCommand(["destination", 1, "key", {
-              aggregate: "max",
-            }]).command,
-            ["zunionstore", "destination", 1, "key", "aggregate", "max"],
-          );
-        });
-      });
-    });
-    await t.step("complex", async (t) => {
-      await t.step("builds the correct command", () => {
-        assertEquals(
-          new ZUnionStoreCommand(["destination", 2, ["key1", "key2"], {
-            weights: [4, 2],
-            aggregate: "max",
-          }]).command,
-          [
-            "zunionstore",
-            "destination",
-            2,
-            "key1",
-            "key2",
-            "weights",
-            4,
-            2,
-            "aggregate",
-            "max",
-          ],
-        );
+          "aggregate",
+          "max",
+        ]);
       });
     });
   });
 });
 
-Deno.test("without options", async (t) => {
-  await t.step("returns the number of elements in the new set ", async () => {
+describe("without options", () => {
+  test("returns the number of elements in the new set ", async () => {
     const destination = newKey();
     const key1 = newKey();
     const key2 = newKey();
@@ -123,24 +140,17 @@ Deno.test("without options", async (t) => {
     const score2 = 2;
     const member2 = randomID();
 
-    await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(
-      client,
-    );
-    await new ZAddCommand([key2, { score: score2, member: member2 }]).exec(
-      client,
-    );
+    await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(client);
+    await new ZAddCommand([key2, { score: score2, member: member2 }]).exec(client);
 
-    const res = await new ZUnionStoreCommand([destination, 2, [key1, key2]])
-      .exec(
-        client,
-      );
-    assertEquals(res, 2);
+    const res = await new ZUnionStoreCommand([destination, 2, [key1, key2]]).exec(client);
+    expect(res).toEqual(2);
   });
 });
 
-Deno.test("with weights", async (t) => {
-  await t.step("single weight", async (t) => {
-    await t.step("returns the number of elements in the new set ", async () => {
+describe("with weights", () => {
+  describe("single weight", () => {
+    test("returns the number of elements in the new set ", async () => {
       const destination = newKey();
       const key1 = newKey();
       const key2 = newKey();
@@ -149,21 +159,22 @@ Deno.test("with weights", async (t) => {
       const score2 = 2;
       const member2 = randomID();
 
-      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(
-        client,
-      );
-      await new ZAddCommand([key2, { score: score2, member: member2 }]).exec(
-        client,
-      );
+      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(client);
+      await new ZAddCommand([key2, { score: score2, member: member2 }]).exec(client);
 
-      const res = await new ZUnionStoreCommand([destination, 2, [key1, key2], {
-        weights: [2, 3],
-      }]).exec(client);
-      assertEquals(res, 2);
+      const res = await new ZUnionStoreCommand([
+        destination,
+        2,
+        [key1, key2],
+        {
+          weights: [2, 3],
+        },
+      ]).exec(client);
+      expect(res).toEqual(2);
     });
   });
-  await t.step("multiple weight", async (t) => {
-    await t.step("returns the number of elements in the new set ", async () => {
+  describe("multiple weight", () => {
+    test("returns the number of elements in the new set ", async () => {
       const destination = newKey();
       const key1 = newKey();
       const key2 = newKey();
@@ -172,23 +183,24 @@ Deno.test("with weights", async (t) => {
       const score2 = 2;
       const member2 = randomID();
 
-      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(
-        client,
-      );
-      await new ZAddCommand([key2, { score: score2, member: member2 }]).exec(
-        client,
-      );
+      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(client);
+      await new ZAddCommand([key2, { score: score2, member: member2 }]).exec(client);
 
-      const res = await new ZUnionStoreCommand([destination, 2, [key1, key2], {
-        weights: [1, 2],
-      }]).exec(client);
-      assertEquals(res, 2);
+      const res = await new ZUnionStoreCommand([
+        destination,
+        2,
+        [key1, key2],
+        {
+          weights: [1, 2],
+        },
+      ]).exec(client);
+      expect(res).toEqual(2);
     });
   });
 });
-Deno.test("aggregate", async (t) => {
-  await t.step("sum", async (t) => {
-    await t.step("returns the number of elements in the new set ", async () => {
+describe("aggregate", () => {
+  describe("sum", () => {
+    test("returns the number of elements in the new set ", async () => {
       const destination = newKey();
       const key1 = newKey();
       const key2 = newKey();
@@ -197,21 +209,22 @@ Deno.test("aggregate", async (t) => {
       const score2 = 2;
       const member2 = randomID();
 
-      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(
-        client,
-      );
-      await new ZAddCommand([key2, { score: score2, member: member2 }]).exec(
-        client,
-      );
+      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(client);
+      await new ZAddCommand([key2, { score: score2, member: member2 }]).exec(client);
 
-      const res = await new ZUnionStoreCommand([destination, 2, [key1, key2], {
-        aggregate: "sum",
-      }]).exec(client);
-      assertEquals(res, 2);
+      const res = await new ZUnionStoreCommand([
+        destination,
+        2,
+        [key1, key2],
+        {
+          aggregate: "sum",
+        },
+      ]).exec(client);
+      expect(res).toEqual(2);
     });
   });
-  await t.step("min", async (t) => {
-    await t.step("returns the number of elements in the new set ", async () => {
+  describe("min", () => {
+    test("returns the number of elements in the new set ", async () => {
       const destination = newKey();
       const key1 = newKey();
       const key2 = newKey();
@@ -220,21 +233,22 @@ Deno.test("aggregate", async (t) => {
       const score2 = 2;
       const member2 = randomID();
 
-      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(
-        client,
-      );
-      await new ZAddCommand([key2, { score: score2, member: member2 }]).exec(
-        client,
-      );
+      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(client);
+      await new ZAddCommand([key2, { score: score2, member: member2 }]).exec(client);
 
-      const res = await new ZUnionStoreCommand([destination, 2, [key1, key2], {
-        aggregate: "min",
-      }]).exec(client);
-      assertEquals(res, 2);
+      const res = await new ZUnionStoreCommand([
+        destination,
+        2,
+        [key1, key2],
+        {
+          aggregate: "min",
+        },
+      ]).exec(client);
+      expect(res).toEqual(2);
     });
   });
-  await t.step("max", async (t) => {
-    await t.step("returns the number of elements in the new set ", async () => {
+  describe("max", () => {
+    test("returns the number of elements in the new set ", async () => {
       const destination = newKey();
       const key1 = newKey();
       const key2 = newKey();
@@ -243,17 +257,18 @@ Deno.test("aggregate", async (t) => {
       const score2 = 2;
       const member2 = randomID();
 
-      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(
-        client,
-      );
-      await new ZAddCommand([key2, { score: score2, member: member2 }]).exec(
-        client,
-      );
+      await new ZAddCommand([key1, { score: score1, member: member1 }]).exec(client);
+      await new ZAddCommand([key2, { score: score2, member: member2 }]).exec(client);
 
-      const res = await new ZUnionStoreCommand([destination, 2, [key1, key2], {
-        aggregate: "max",
-      }]).exec(client);
-      assertEquals(res, 2);
+      const res = await new ZUnionStoreCommand([
+        destination,
+        2,
+        [key1, key2],
+        {
+          aggregate: "max",
+        },
+      ]).exec(client);
+      expect(res).toEqual(2);
     });
   });
 });

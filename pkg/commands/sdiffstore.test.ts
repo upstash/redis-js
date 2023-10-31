@@ -1,16 +1,15 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { SAddCommand } from "./sadd.ts";
-import { SDiffStoreCommand } from "./sdiffstore.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { afterAll, expect, test } from "bun:test";
+import { SAddCommand } from "./sadd";
+import { SDiffStoreCommand } from "./sdiffstore";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("returns the diff", async () => {
+test("returns the diff", async () => {
   const key1 = newKey();
   const member1 = randomID();
   const key2 = newKey();
@@ -18,8 +17,6 @@ Deno.test("returns the diff", async () => {
   const destination = newKey();
   await new SAddCommand([key1, member1]).exec(client);
   await new SAddCommand([key2, member2]).exec(client);
-  const res = await new SDiffStoreCommand([destination, key1, key2]).exec(
-    client,
-  );
-  assertEquals(res, 1);
+  const res = await new SDiffStoreCommand([destination, key1, key2]).exec(client);
+  expect(res).toEqual(1);
 });

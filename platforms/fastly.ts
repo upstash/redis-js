@@ -1,38 +1,32 @@
-import * as core from "../pkg/redis.ts";
-import type {
-  Requester,
-  RequesterConfig,
-  UpstashRequest,
-  UpstashResponse,
-} from "../pkg/http.ts";
-import { HttpClient } from "../pkg/http.ts";
-import { VERSION } from "../version.ts";
+import type { Requester, RequesterConfig, UpstashRequest, UpstashResponse } from "../pkg/http";
+import { HttpClient } from "../pkg/http";
+import * as core from "../pkg/redis";
+import { VERSION } from "../version";
 
+export type * from "../pkg/commands/types";
 export type { Requester, UpstashRequest, UpstashResponse };
 
 /**
  * Connection credentials for upstash redis.
  * Get them from https://console.upstash.com/redis/<uuid>
  */
-export type RedisConfigFastly =
-  & {
-    /**
-     * UPSTASH_REDIS_REST_URL
-     */
-    url: string;
-    /**
-     * UPSTASH_REDIS_REST_TOKEN
-     */
-    token: string;
-    /**
-     * A Request can be forwarded to any backend defined on your service. Backends
-     * can be created via the Fastly CLI, API, or web interface, and are
-     * referenced by name.
-     */
-    backend: string;
-  }
-  & core.RedisOptions
-  & RequesterConfig;
+export type RedisConfigFastly = {
+  /**
+   * UPSTASH_REDIS_REST_URL
+   */
+  url: string;
+  /**
+   * UPSTASH_REDIS_REST_TOKEN
+   */
+  token: string;
+  /**
+   * A Request can be forwarded to any backend defined on your service. Backends
+   * can be created via the Fastly CLI, API, or web interface, and are
+   * referenced by name.
+   */
+  backend: string;
+} & core.RedisOptions &
+  RequesterConfig;
 
 /**
  * Serverless redis client for upstash.
@@ -51,23 +45,11 @@ export class Redis extends core.Redis {
    * ```
    */
   constructor(config: RedisConfigFastly) {
-    if (
-      config.url.startsWith(" ") ||
-      config.url.endsWith(" ") ||
-      /\r|\n/.test(config.url)
-    ) {
-      console.warn(
-        "The redis url contains whitespace or newline, which can cause errors!",
-      );
+    if (config.url.startsWith(" ") || config.url.endsWith(" ") || /\r|\n/.test(config.url)) {
+      console.warn("The redis url contains whitespace or newline, which can cause errors!");
     }
-    if (
-      config.token.startsWith(" ") ||
-      config.token.endsWith(" ") ||
-      /\r|\n/.test(config.token)
-    ) {
-      console.warn(
-        "The redis token contains whitespace or newline, which can cause errors!",
-      );
+    if (config.token.startsWith(" ") || config.token.endsWith(" ") || /\r|\n/.test(config.token)) {
+      console.warn("The redis token contains whitespace or newline, which can cause errors!");
     }
 
     const client = new HttpClient({

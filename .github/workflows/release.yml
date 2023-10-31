@@ -21,23 +21,31 @@ jobs:
         with:
           node-version: lts/*
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
+      - name: Install bun
+        run: npm i -g bun
+
+      - name: Set package version
+        run: |
+          bun run ./scripts/set-version.js . ${{ env.VERSION }}
+          echo "export const VERSION='${{ env.VERSION }}'" > ./version.ts
+
+      - name: Install Dependencies
+        run: bun install
 
       - name: Build
-        run: deno run -A ./cmd/build.ts $VERSION
+        run: bun run build
+
+      - name: Set NPM_TOKEN
+        run: npm config set //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
 
       - name: Publish
         if: "!github.event.release.prerelease"
         working-directory: ./dist
         run: |
-          echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
           npm publish --access public
 
       - name: Publish release candidate
         if: "github.event.release.prerelease"
         working-directory: ./dist
         run: |
-          echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
           npm publish --access public --tag=next

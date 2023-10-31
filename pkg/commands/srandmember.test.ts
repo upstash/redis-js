@@ -1,32 +1,31 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { SAddCommand } from "./sadd.ts";
-import { SRandMemberCommand } from "./srandmember.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { afterAll, expect, test } from "bun:test";
+import { SAddCommand } from "./sadd";
+import { SRandMemberCommand } from "./srandmember";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("without opts", async (t) => {
-  await t.step("returns a random key", async () => {
+test("without opts", () => {
+  test("returns a random key", async () => {
     const key = newKey();
     const member = randomID();
     await new SAddCommand([key, member]).exec(client);
     const res = await new SRandMemberCommand([key]).exec(client);
-    assertEquals(res, member);
+    expect(res).toEqual(member);
   });
 });
 
-Deno.test("with count", async (t) => {
-  await t.step("returns a random key", async () => {
+test("with count", () => {
+  test("returns a random key", async () => {
     const key = newKey();
     const member1 = randomID();
     const member2 = randomID();
     await new SAddCommand([key, member1, member2]).exec(client);
     const res = await new SRandMemberCommand<unknown[]>([key, 2]).exec(client);
-    assertEquals(res?.length, 2);
+    expect(res?.length).toBe(2);
   });
 });

@@ -1,14 +1,14 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
-import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { SAddCommand } from "./sadd.ts";
-import { SMembersCommand } from "./smembers.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
+
+import { afterAll, expect, test } from "bun:test";
+import { SAddCommand } from "./sadd";
+import { SMembersCommand } from "./smembers";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("returns all members of the set", async () => {
+test("returns all members of the set", async () => {
   const key = newKey();
   const value1 = { v: randomID() };
   const value2 = { v: randomID() };
@@ -16,7 +16,7 @@ Deno.test("returns all members of the set", async () => {
   await new SAddCommand([key, value1, value2]).exec(client);
   const res = await new SMembersCommand<{ v: string }[]>([key]).exec(client);
 
-  assertEquals(res!.length, 2);
-  assertEquals(res!.map(({ v }) => v).includes(value1.v), true);
-  assertEquals(res!.map(({ v }) => v).includes(value2.v), true);
+  expect(res!.length).toBe(2);
+  expect(res!.map(({ v }) => v).includes(value1.v));
+  expect(res!.map(({ v }) => v).includes(value2.v)).toBe(true);
 });

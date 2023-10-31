@@ -1,22 +1,17 @@
-import {
-  assertEquals,
-  assertFalse,
-} from "https://deno.land/std@0.177.0/testing/asserts.ts";
-import { randomUnsafeIntegerString } from "./test-utils.ts";
+import { expect, test } from "bun:test";
 
-Deno.test("randomUnsafeIntegerString() should return a string", () => {
+import { randomUnsafeIntegerString } from "./test-utils";
+
+test("randomUnsafeIntegerString() should return a string", () => {
   const result = randomUnsafeIntegerString();
-  assertEquals(typeof result, "string");
+  expect(typeof result).toEqual("string");
 });
-Deno.test("randomUnsafeIntegerString() should return different values", () => {
+test("randomUnsafeIntegerString() should return different values", () => {
   const result1 = randomUnsafeIntegerString();
   const result2 = randomUnsafeIntegerString();
-  assertEquals(result1 !== result2, true);
+  expect(result1).not.toEqual(result2);
 });
-Deno.test(
-  "randomUnsafeIntegerString() should return a string with unsafe integer",
-  () => {
-    const result = randomUnsafeIntegerString();
-    assertFalse(Number.isSafeInteger(Number(result)));
-  },
-);
+test("randomUnsafeIntegerString() should return a string with unsafe integer", () => {
+  const result = randomUnsafeIntegerString();
+  expect(Number.isSafeInteger(Number(result))).toBeFalse();
+});

@@ -1,45 +1,40 @@
-import { keygen, newHttpClient, randomID } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { LPopCommand } from "./lpop.ts";
-import {
-  assertArrayIncludes,
-  assertEquals,
-  assertExists,
-} from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { afterAll, expect, test } from "bun:test";
+import { LPopCommand } from "./lpop";
 
-import { LPushCommand } from "./lpush.ts";
+import { LPushCommand } from "./lpush";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-Deno.test("when list exists", async (t) => {
-  await t.step("returns the first element", async () => {
+test("when list exists", () => {
+  test("returns the first element", async () => {
     const key = newKey();
     const value = randomID();
     await new LPushCommand([key, value]).exec(client);
     const res = await new LPopCommand([key]).exec(client);
-    assertEquals(res, value);
+    expect(res).toEqual(value);
   });
 });
 
-Deno.test("when list does not exist", async (t) => {
-  await t.step("returns null", async () => {
+test("when list does not exist", () => {
+  test("returns null", async () => {
     const key = newKey();
     const res = await new LPopCommand([key]).exec(client);
-    assertEquals(res, null);
+    expect(res).toEqual(null);
   });
 });
 
-Deno.test("with count", async (t) => {
-  await t.step("returns 2 elements", async () => {
+test("with count", () => {
+  test("returns 2 elements", async () => {
     const key = newKey();
     const value1 = randomID();
     const value2 = randomID();
     await new LPushCommand([key, value1, value2]).exec(client);
     const res = await new LPopCommand<string[]>([key, 2]).exec(client);
-    assertExists(res);
-    assertArrayIncludes(res, [value1, value2]);
+    expect(res).toBeTruthy();
+    expect([value1, value2]).toContain(res);
   });
 });

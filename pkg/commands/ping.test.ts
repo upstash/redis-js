@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { newHttpClient, randomID } from "../test-utils";
 import { PingCommand } from "./ping";
 

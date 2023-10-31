@@ -6,7 +6,7 @@ import { Command, CommandOptions } from "./command";
 export class CopyCommand extends Command<number, "COPIED" | "NOT_COPIED"> {
   constructor(
     [key, destinationKey, opts]: [key: string, destinationKey: string, opts?: { replace: boolean }],
-    commandOptions?: CommandOptions<number, "COPIED" | "NOT_COPIED">
+    commandOptions?: CommandOptions<number, "COPIED" | "NOT_COPIED">,
   ) {
     super(["COPY", key, destinationKey, ...(opts?.replace ? ["REPLACE"] : [])], {
       ...commandOptions,

@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test, describe } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 import { ZAddCommand } from "./zadd";
 import { ZScoreCommand } from "./zscore";
 
@@ -24,7 +24,7 @@ describe("command format", () => {
   describe("with nx", () => {
     test("build the correct command", () => {
       expect(
-        new ZAddCommand(["key", { nx: true }, { score: 0, member: "member" }]).command
+        new ZAddCommand(["key", { nx: true }, { score: 0, member: "member" }]).command,
       ).toEqual(["zadd", "key", "nx", 0, "member"]);
     });
   });
@@ -32,7 +32,7 @@ describe("command format", () => {
   describe("with xx", () => {
     test("build the correct command", () => {
       expect(
-        new ZAddCommand(["key", { xx: true }, { score: 0, member: "member" }]).command
+        new ZAddCommand(["key", { xx: true }, { score: 0, member: "member" }]).command,
       ).toEqual(["zadd", "key", "xx", 0, "member"]);
     });
   });
@@ -40,7 +40,7 @@ describe("command format", () => {
   describe("with ch", () => {
     test("build the correct command", () => {
       expect(
-        new ZAddCommand(["key", { ch: true }, { score: 0, member: "member" }]).command
+        new ZAddCommand(["key", { ch: true }, { score: 0, member: "member" }]).command,
       ).toEqual(["zadd", "key", "ch", 0, "member"]);
     });
   });
@@ -48,7 +48,7 @@ describe("command format", () => {
   describe("with incr", () => {
     test("build the correct command", () => {
       expect(
-        new ZAddCommand(["key", { incr: true }, { score: 0, member: "member" }]).command
+        new ZAddCommand(["key", { incr: true }, { score: 0, member: "member" }]).command,
       ).toEqual(["zadd", "key", "incr", 0, "member"]);
     });
   });
@@ -56,7 +56,7 @@ describe("command format", () => {
   describe("with nx and ch", () => {
     test("build the correct command", () => {
       expect(
-        new ZAddCommand(["key", { nx: true, ch: true }, { score: 0, member: "member" }]).command
+        new ZAddCommand(["key", { nx: true, ch: true }, { score: 0, member: "member" }]).command,
       ).toEqual(["zadd", "key", "nx", "ch", 0, "member"]);
     });
   });
@@ -65,7 +65,7 @@ describe("command format", () => {
     test("build the correct command", () => {
       expect(
         new ZAddCommand(["key", { nx: true, ch: true, incr: true }, { score: 0, member: "member" }])
-          .command
+          .command,
       ).toEqual(["zadd", "key", "nx", "ch", "incr", 0, "member"]);
     });
   });
@@ -78,7 +78,7 @@ describe("command format", () => {
           { nx: true },
           { score: 0, member: "member" },
           { score: 1, member: "member1" },
-        ]).command
+        ]).command,
       ).toEqual(["zadd", "key", "nx", 0, "member", 1, "member1"]);
     });
   });
@@ -103,7 +103,7 @@ describe("xx", () => {
       await new ZAddCommand([key, { score, member }]).exec(client);
       const newScore = score + 1;
       const res = await new ZAddCommand([key, { xx: true }, { score: newScore, member }]).exec(
-        client
+        client,
       );
       expect(res).toEqual(0);
 
@@ -119,7 +119,7 @@ describe("xx", () => {
       await new ZAddCommand([key, { score, member }]).exec(client);
       const newScore = score + 1;
       const res = await new ZAddCommand([key, { xx: true }, { score: newScore, member }]).exec(
-        client
+        client,
       );
       expect(res).toEqual(0);
     });
@@ -135,7 +135,7 @@ describe("nx", () => {
       await new ZAddCommand([key, { score, member }]).exec(client);
       const newScore = score + 1;
       const res = await new ZAddCommand([key, { nx: true }, { score: newScore, member }]).exec(
-        client
+        client,
       );
       expect(res).toEqual(0);
 
@@ -162,7 +162,7 @@ describe("ch", () => {
     await new ZAddCommand([key, { score, member }]).exec(client);
     const newScore = score + 1;
     const res = await new ZAddCommand([key, { ch: true }, { score: newScore, member }]).exec(
-      client
+      client,
     );
     expect(res).toEqual(1);
   });

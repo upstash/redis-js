@@ -584,6 +584,12 @@ jobs:
           echo $(jq --arg v "$VERSION" '(.version) = $v' package.json) > package.json
           echo "export const VERSION='${{ steps.version.outputs.version }}'" > ./version.ts
 
+
+      - name: Log package.json
+        run: |
+          cat package.json
+          echo "VERSION: ${{ steps.version.outputs.version }}"
+
       - name: Install Dependencies
         run: bun install
 

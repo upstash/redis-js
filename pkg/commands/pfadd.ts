@@ -5,7 +5,7 @@ import { Command, CommandOptions } from "./command.ts";
  */
 export class PfAddCommand<TData = string> extends Command<number, number> {
   constructor(
-    cmd: [key: string, ...members: TData[]],
+    cmd: [string, ...(TData[] | TData[])],
     opts?: CommandOptions<number, number>
   ) {
     super(["pfadd", ...cmd], opts);

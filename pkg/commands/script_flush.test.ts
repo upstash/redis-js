@@ -1,9 +1,9 @@
 import { newHttpClient, randomID } from "../test-utils";
 import { ScriptLoadCommand } from "./script_load";
 
+import { describe, expect, test } from "bun:test";
 import { ScriptExistsCommand } from "./script_exists";
 import { ScriptFlushCommand } from "./script_flush";
-import { describe, test, expect } from "bun:test";
 const client = newHttpClient();
 
 describe("sync", () => {

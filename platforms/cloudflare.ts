@@ -6,6 +6,8 @@ import { VERSION } from "../version";
 type Env = {
   UPSTASH_DISABLE_TELEMETRY?: string;
 };
+
+export type * from "../pkg/commands/types";
 export type { Requester, UpstashRequest, UpstashResponse };
 /**
  * Connection credentials for upstash redis.
@@ -82,7 +84,7 @@ export class Redis extends core.Redis {
       UPSTASH_REDIS_REST_TOKEN: string;
       UPSTASH_DISABLE_TELEMETRY?: string;
     },
-    opts?: Omit<RedisConfigCloudflare, "url" | "token">,
+    opts?: Omit<RedisConfigCloudflare, "url" | "token">
   ): Redis {
     // @ts-ignore These will be defined by cloudflare
     const url = env?.UPSTASH_REDIS_REST_URL ?? UPSTASH_REDIS_REST_URL;
@@ -92,12 +94,12 @@ export class Redis extends core.Redis {
 
     if (!url) {
       throw new Error(
-        "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_URL`",
+        "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_URL`"
       );
     }
     if (!token) {
       throw new Error(
-        "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_TOKEN`",
+        "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_TOKEN`"
       );
     }
     return new Redis({ ...opts, url, token }, env);

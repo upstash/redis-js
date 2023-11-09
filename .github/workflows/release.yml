@@ -17,7 +17,7 @@ jobs:
         run: echo "VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: lts/*
 
@@ -26,7 +26,7 @@ jobs:
 
       - name: Set package version
         run: |
-          bun run ./scripts/set-version.js . ${{ env.VERSION }}
+          echo $(jq --arg v "${{ env.VERSION }}" '(.version) = $v' package.json) > package.json
           echo "export const VERSION='${{ env.VERSION }}'" > ./version.ts
 
       - name: Install Dependencies

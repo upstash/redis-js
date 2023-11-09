@@ -43,7 +43,7 @@ test("Find the specific place of a color in a list of product colors", async () 
   expect(res4).toEqual(["black", "silver", "blue"]);
 
   const res5 = await new JsonArrInsertCommand([key, "$.colors", 2, '"yellow"', '"gold"']).exec(
-    client
+    client,
   );
   expect(res5).toEqual([5]);
   const res6 = await new JsonGetCommand([key, "$.colors"]).exec(client);

@@ -20,7 +20,7 @@ It is the only connectionless (HTTP based) Redis client and designed for:
 - and other environments where HTTP is preferred over TCP.
 
 See
-[the list of APIs](https://docs.upstash.com/features/restapi#rest---redis-api-compatibility)
+[the list of APIs](https://upstash.com/docs/redis/overall/rediscompatibility)
 supported.
 
 ## Quick Start

@@ -88,6 +88,9 @@ import {
   PExpireCommand,
   PSetEXCommand,
   PTtlCommand,
+  PfAddCommand,
+  PfCountCommand,
+  PfMergeCommand,
   PersistCommand,
   PingCommand,
   PublishCommand,
@@ -656,6 +659,24 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   pexpireat = (...args: CommandArgs<typeof PExpireAtCommand>) =>
     this.chain(new PExpireAtCommand(args, this.commandOptions));
+
+    /**
+   * @see https://redis.io/commands/pfadd
+   */
+  pfadd = (...args: CommandArgs<typeof PfAddCommand>) =>
+    this.chain(new PfAddCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/pfcount
+   */
+  pfcount = (...args: CommandArgs<typeof PfCountCommand>) =>
+    this.chain(new PfCountCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/pfmerge
+   */
+  pfmerge = (...args: CommandArgs<typeof PfMergeCommand>) =>
+    this.chain(new PfMergeCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/ping

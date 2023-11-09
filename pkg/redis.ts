@@ -88,6 +88,9 @@ import {
   PExpireCommand,
   PSetEXCommand,
   PTtlCommand,
+  PfAddCommand,
+  PfCountCommand,
+  PfMergeCommand,
   PersistCommand,
   PingCommand,
   PublishCommand,
@@ -802,6 +805,24 @@ export class Redis {
    */
   pexpireat = (...args: CommandArgs<typeof PExpireAtCommand>) =>
     new PExpireAtCommand(args, this.opts).exec(this.client);
+
+    /**
+   * @see https://redis.io/commands/pfadd
+   */
+    pfadd = (...args: CommandArgs<typeof PfAddCommand>) =>
+    new PfAddCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/pfcount
+   */
+  pfcount = (...args: CommandArgs<typeof PfCountCommand>) =>
+    new PfCountCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/pfmerge
+   */
+  pfmerge = (...args: CommandArgs<typeof PfMergeCommand>) =>
+    new PfMergeCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/ping

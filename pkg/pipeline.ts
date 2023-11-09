@@ -663,20 +663,20 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
     /**
    * @see https://redis.io/commands/pfadd
    */
-    pfadd = (...args: CommandArgs<typeof PfAddCommand>) =>
-    new PfAddCommand(args, this.commandOptions).exec(this.client);
+  pfadd = (...args: CommandArgs<typeof PfAddCommand>) =>
+    this.chain(new PfAddCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/pfcount
    */
   pfcount = (...args: CommandArgs<typeof PfCountCommand>) =>
-    new PfCountCommand(args, this.commandOptions).exec(this.client);
+    this.chain(new PfCountCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/pfmerge
    */
   pfmerge = (...args: CommandArgs<typeof PfMergeCommand>) =>
-    new PfMergeCommand(args, this.commandOptions).exec(this.client);
+    this.chain(new PfMergeCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/ping

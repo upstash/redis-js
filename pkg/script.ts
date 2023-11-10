@@ -1,5 +1,5 @@
-import Hex from "crypto-js/enc-hex";
-import sha1 from "crypto-js/sha1";
+import Hex from "crypto-js/enc-hex.js";
+import sha1 from "crypto-js/sha1.js";
 import { Redis } from "./redis";
 /**
  * Creates a new script.

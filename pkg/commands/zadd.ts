@@ -11,14 +11,9 @@ type LTAndGTOptions =
   | { lt?: never; gt?: never };
 
 export type ZAddCommandOptions = NXAndXXOptions &
-  LTAndGTOptions & { ch?: true };
+  LTAndGTOptions & { ch?: true } & { incr?: true };
 
-export type ZAddCommandOptionsWithIncr = ZAddCommandOptions & { incr: true };
-
-type Arg2<TData> =
-  | ScoreMember<TData>
-  | ZAddCommandOptions
-  | ZAddCommandOptionsWithIncr;
+type Arg2<TData> = ScoreMember<TData> | ZAddCommandOptions;
 export type ScoreMember<TData> = { score: number; member: TData };
 /**
  * @see https://redis.io/commands/zadd

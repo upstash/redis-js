@@ -2,9 +2,8 @@ import { keygen, newHttpClient, randomID } from "../test-utils";
 
 import { afterAll, describe, expect, test } from "bun:test";
 import { ZAddCommand } from "./zadd";
-import { ZScoreCommand } from "./zscore";
 import { ZRangeCommand } from "./zrange";
-import { sleep } from "bun";
+import { ZScoreCommand } from "./zscore";
 
 const client = newHttpClient();
 

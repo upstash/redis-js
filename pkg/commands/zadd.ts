@@ -1,32 +1,14 @@
 import { Command, CommandOptions } from "./command";
 
 type NXAndXXOptions =
-  | {
-      nx: true;
-      xx?: never;
-    }
-  | {
-      nx?: never;
-      xx: true;
-    }
-  | {
-      nx?: never;
-      xx?: never;
-    };
+  | { nx: true; xx?: never }
+  | { nx?: never; xx: true }
+  | { nx?: never; xx?: never };
 
 type LTAndGTOptions =
-  | {
-      lt: true;
-      gt?: never;
-    }
-  | {
-      lt?: never;
-      gt: true;
-    }
-  | {
-      lt?: never;
-      gt?: never;
-    };
+  | { lt: true; gt?: never }
+  | { lt?: never; gt: true }
+  | { lt?: never; gt?: never };
 
 export type ZAddCommandOptions = NXAndXXOptions &
   LTAndGTOptions & { ch?: true };
@@ -45,24 +27,6 @@ export class ZAddCommand<TData = string> extends Command<
   number | null,
   number | null
 > {
-  //   constructor(
-  //     cmd: [
-  //       key: string,
-  //       scoreMember: ScoreMember<TData>,
-  //       ...scoreMemberPairs: ScoreMember<TData>[]
-  //     ],
-  //     opts?: CommandOptions<number | null, number | null>
-  //   );
-
-  //   constructor(
-  //     cmd: [
-  //       key: string,
-  //       opts: ZAddCommandOptions | ZAddCommandOptionsWithIncr,
-  //       ...scoreMemberPairs: ScoreMember<TData>[]
-  //     ],
-  //     opts?: CommandOptions<number | null, number | null>
-  //   );
-
   constructor(
     [key, arg1, ...arg2]: [string, Arg2<TData>, ...ScoreMember<TData>[]],
     opts?: CommandOptions<number | null, number | null>

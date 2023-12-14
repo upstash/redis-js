@@ -949,8 +949,16 @@ export class Redis {
   /**
    * @see https://redis.io/commands/set
    */
-  set = <TData>(key: string, value: TData, opts?: SetCommandOptions) =>
-    new SetCommand<TData>([key, value, opts], this.opts).exec(this.client);
+  set = <TData>(
+    key: string,
+    value: TData,
+    opts?: SetCommandOptions,
+    clientOpts?: { signal?: AbortSignal }
+  ) =>
+    new SetCommand<TData>([key, value, opts], {
+      ...this.opts,
+      ...clientOpts,
+    }).exec(this.client);
 
   /**
    * @see https://redis.io/commands/setbit

@@ -28,6 +28,17 @@ export type CommandOptions<TResult, TData> = {
    * @default true
    */
   automaticDeserialization?: boolean;
+  /**
+   * The signal will allow aborting requests on the fly.
+   *
+   *   const controller = new AbortController();
+   *   const signal = controller.signal;
+   *
+   *   await new ZAddCommand([key, { score: 1, member: "one" }]).exec(client);
+   *   controller.abort();
+   *
+   */
+  signal?: AbortSignal;
 };
 /**
  * Command offers default (de)serialization and the exec method to all commands.
@@ -38,6 +49,7 @@ export type CommandOptions<TResult, TData> = {
 export class Command<TResult, TData> {
   public readonly command: (string | number | boolean)[];
   public readonly serialize: Serialize;
+  public readonly signal?: AbortSignal;
   public readonly deserialize: Deserialize<TResult, TData>;
   /**
    * Create a new command instance.
@@ -46,11 +58,13 @@ export class Command<TResult, TData> {
    */
   constructor(
     command: (string | boolean | number | unknown)[],
-    opts?: CommandOptions<TResult, TData>,
+    opts?: CommandOptions<TResult, TData>
   ) {
     this.serialize = defaultSerializer;
+    this.signal = opts?.signal;
     this.deserialize =
-      typeof opts?.automaticDeserialization === "undefined" || opts.automaticDeserialization
+      typeof opts?.automaticDeserialization === "undefined" ||
+      opts.automaticDeserialization
         ? opts?.deserialize ?? parseResponse
         : (x) => x as unknown as TData;
 
@@ -63,6 +77,7 @@ export class Command<TResult, TData> {
   public async exec(client: Requester): Promise<TData> {
     const { result, error } = await client.request<TResult>({
       body: this.command,
+      signal: this.signal,
     });
     if (error) {
       throw new UpstashError(error);

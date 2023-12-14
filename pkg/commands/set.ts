@@ -8,7 +8,11 @@ export type SetCommandOptions = { get?: boolean } & (
   | { ex?: never; px?: never; exat?: never; pxat?: never; keepTtl: true }
   | { ex?: never; px?: never; exat?: never; pxat?: never; keepTtl?: never }
 ) &
-  ({ nx: true; xx?: never } | { xx: true; nx?: never } | { xx?: never; nx?: never });
+  (
+    | { nx: true; xx?: never }
+    | { xx: true; nx?: never }
+    | { xx?: never; nx?: never }
+  );
 
 /**
  * @see https://redis.io/commands/set
@@ -19,7 +23,7 @@ export class SetCommand<TData, TResult = TData | "OK" | null> extends Command<
 > {
   constructor(
     [key, value, opts]: [key: string, value: TData, opts?: SetCommandOptions],
-    cmdOpts?: CommandOptions<TResult, TData>,
+    cmdOpts?: CommandOptions<TResult, TData>
   ) {
     const command: unknown[] = ["set", key, value];
     if (opts) {

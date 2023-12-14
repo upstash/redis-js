@@ -116,4 +116,38 @@ describe("GEOSSEARCHSTORE tests", () => {
     ]);
     expect(res).toEqual(zrangeRes.length / 2);
   });
+
+  test("should return limited amount of members and store them in sorted set", async () => {
+    const key = newKey();
+    const destination = newKey();
+
+    await new GeoAddCommand([
+      key,
+      { longitude: -73.9857, latitude: 40.7488, member: "Empire State Building" },
+      { longitude: -74.0445, latitude: 40.6892, member: "Statue of Liberty" },
+      { longitude: -73.9632, latitude: 40.7789, member: "Central Park" },
+      { longitude: -73.873, latitude: 40.7769, member: "LaGuardia Airport" },
+      { longitude: -74.177, latitude: 40.6413, member: "JFK Airport" },
+      { longitude: -73.9772, latitude: 40.7527, member: "Grand Central Terminal" },
+    ]).exec(client);
+
+    const res = await new GeoSearchStoreCommand([
+      destination,
+      key,
+      { type: "FROMMEMBER", member: "Empire State Building" },
+      { type: "BYRADIUS", radius: 5, radiusType: "KM" },
+      "ASC",
+      { count: { limit: 2 } },
+    ]).exec(client);
+    const zrangeRes = await new ZRangeCommand([destination, 0, -1, { withScores: true }]).exec(
+      client,
+    );
+    expect(zrangeRes).toEqual([
+      "Empire State Building",
+      1791875672666387,
+      "Grand Central Terminal",
+      1791875708058440,
+    ]);
+    expect(res).toEqual(zrangeRes.length / 2);
+  });
 });

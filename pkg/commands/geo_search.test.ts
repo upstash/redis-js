@@ -175,4 +175,23 @@ describe("GEOSEARCH tests", () => {
       },
     ]);
   });
+
+  test("should return one member, with count set", async () => {
+    const key = newKey();
+    await new GeoAddCommand([
+      key,
+      { longitude: 13.361389, latitude: 38.115556, member: "Palermo" },
+      { longitude: 15.087269, latitude: 37.502669, member: "Catania" },
+    ]).exec(client);
+
+    const res = await new GeoSearchCommand([
+      key,
+      { type: "FROMLONLAT", coordinate: { lon: 15, lat: 37 } },
+      { type: "BYRADIUS", radius: 200, radiusType: "KM" },
+      "ASC",
+      { count: { limit: 1 } },
+    ]).exec(client);
+
+    expect(res).toEqual([{ member: "Catania" }]);
+  });
 });

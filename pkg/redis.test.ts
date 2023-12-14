@@ -18,6 +18,25 @@ describe("when storing base64 data", () => {
     expect(res).toEqual(value);
   });
 
+  test("general", async () => {
+    const controller = new AbortController();
+
+    const redis = new Redis(client);
+    const key = newKey();
+    const value = "VXBzdGFzaCBpcyByZWFsbHkgY29vbA";
+
+    controller.abort("Abort works!");
+    const setRest = await redis.set(
+      key,
+      value,
+      {},
+      { signal: controller.signal }
+    );
+    expect(setRest).toEqual("Abort works!");
+    const res = await redis.get(key);
+    expect(res).toEqual(null);
+  });
+
   // decode("OK") => 8
   test("getting '8'", async () => {
     const redis = new Redis(client);

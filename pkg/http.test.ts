@@ -1,15 +1,16 @@
-import { expect, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { HttpClient } from "./http";
 
 import { newHttpClient } from "./test-utils";
+
 test("remove trailing slash from urls", () => {
   const client = new HttpClient({ baseUrl: "https://example.com/" });
 
   expect(client.baseUrl).toEqual("https://example.com");
 });
 
-test(new URL("", import.meta.url).pathname, () => {
-  test("when the request is invalid", () => {
+describe(new URL("", import.meta.url).pathname, () => {
+  describe("when the request is invalid", () => {
     test("throws", async () => {
       const client = newHttpClient();
       let hasThrown = false;
@@ -20,7 +21,7 @@ test(new URL("", import.meta.url).pathname, () => {
     });
   });
 
-  test("whithout authorization", () => {
+  describe("whithout authorization", () => {
     test("throws", async () => {
       const client = newHttpClient();
       client.headers = {};
@@ -30,5 +31,21 @@ test(new URL("", import.meta.url).pathname, () => {
       });
       expect(hasThrown).toBeTrue();
     });
+  });
+});
+
+describe("Abort", () => {
+  test("should abort the request", async () => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    const client = newHttpClient();
+    const body = client.request({
+      body: ["set", "name", "hezarfen"],
+      signal,
+    });
+    controller.abort("Abort works!");
+
+    expect((await body).result).toEqual("Abort works!");
   });
 });

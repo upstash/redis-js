@@ -84,7 +84,7 @@ export class GeoSearchCommand<
     command.push(order);
 
     if (opts?.count) {
-      command.push(opts.count.limit, ...(opts.count.any ? ["ANY"] : []));
+      command.push("COUNT", opts.count.limit, ...(opts.count.any ? ["ANY"] : []));
     }
 
     const transform = (result: string[] | string[][]) => {

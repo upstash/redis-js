@@ -138,6 +138,7 @@ import {
   XLenCommand,
   XRangeCommand,
   XRevRangeCommand,
+  XTrimCommand,
   ZAddCommand,
   ZAddCommandOptions,
   ZCardCommand,
@@ -1014,6 +1015,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   xlen = (...args: CommandArgs<typeof XLenCommand>) =>
     this.chain(new XLenCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/xtrim
+   */
+  xtrim = (...args: CommandArgs<typeof XTrimCommand>) =>
+    this.chain(new XTrimCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/xrange

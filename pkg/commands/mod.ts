@@ -135,6 +135,7 @@ export * from "./xdel";
 export * from "./xlen";
 export * from "./xrange";
 export * from "./xrevrange";
+export * from "./xtrim";
 export * from "./zadd";
 export * from "./zcard";
 export * from "./zcount";

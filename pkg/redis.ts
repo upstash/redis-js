@@ -138,6 +138,7 @@ import {
   XLenCommand,
   XRangeCommand,
   XRevRangeCommand,
+  XTrimCommand,
   ZAddCommand,
   ZAddCommandOptions,
   ZCardCommand,
@@ -1108,6 +1109,12 @@ export class Redis {
    */
   xlen = (...args: CommandArgs<typeof XLenCommand>) =>
     new XLenCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xtrim
+   */
+  xtrim = (...args: CommandArgs<typeof XTrimCommand>) =>
+    new XTrimCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/xrange

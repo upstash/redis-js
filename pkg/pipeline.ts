@@ -133,6 +133,9 @@ import {
   TtlCommand,
   TypeCommand,
   UnlinkCommand,
+  XAddCommand,
+  XRangeCommand,
+  XRevRangeCommand,
   ZAddCommand,
   ZAddCommandOptions,
   ZCardCommand,
@@ -991,6 +994,24 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
       )
     );
   };
+
+  /**
+   * @see https://redis.io/commands/xadd
+   */
+  xadd = (...args: CommandArgs<typeof XAddCommand>) =>
+    this.chain(new XAddCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/xrange
+   */
+  xrange = (...args: CommandArgs<typeof XRangeCommand>) =>
+    this.chain(new XRangeCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/xrevrange
+   */
+  xrevrange = (...args: CommandArgs<typeof XRevRangeCommand>) =>
+    this.chain(new XRevRangeCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/zcard

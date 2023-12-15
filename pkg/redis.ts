@@ -135,6 +135,7 @@ import {
   UnlinkCommand,
   XAddCommand,
   XRangeCommand,
+  XRevRangeCommand,
   ZAddCommand,
   ZAddCommandOptions,
   ZCardCommand,
@@ -1099,6 +1100,12 @@ export class Redis {
    */
   xrange = (...args: CommandArgs<typeof XRangeCommand>) =>
     new XRangeCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xrevrange
+   */
+  xrevrange = (...args: CommandArgs<typeof XRevRangeCommand>) =>
+    new XRevRangeCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zadd

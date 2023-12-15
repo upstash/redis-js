@@ -18,7 +18,11 @@ describe("without options", () => {
     const field2 = "field2";
     const member2 = randomID();
 
-    await new XAddCommand([key, "*", { [field1]: member1, [field2]: member2 }]).exec(client);
+    await new XAddCommand([
+      key,
+      "*",
+      { [field1]: member1, [field2]: member2 },
+    ]).exec(client);
 
     const res = await new XRangeCommand([key, "-", "+"]).exec(client);
     expect(Object.keys(res).length).toBe(1);
@@ -49,7 +53,7 @@ describe("limit", () => {
   });
 });
 
-test("many fields", () => {
+describe("many fields", () => {
   test("returns all fields", async () => {
     const key = newKey();
 

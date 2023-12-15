@@ -88,10 +88,10 @@ import {
   PExpireCommand,
   PSetEXCommand,
   PTtlCommand,
+  PersistCommand,
   PfAddCommand,
   PfCountCommand,
   PfMergeCommand,
-  PersistCommand,
   PingCommand,
   PublishCommand,
   RPopCommand,
@@ -134,7 +134,11 @@ import {
   TypeCommand,
   UnlinkCommand,
   XAddCommand,
+  XDelCommand,
+  XLenCommand,
   XRangeCommand,
+  XRevRangeCommand,
+  XTrimCommand,
   ZAddCommand,
   ZAddCommandOptions,
   ZCardCommand,
@@ -1095,10 +1099,34 @@ export class Redis {
     new XAddCommand(args, this.opts).exec(this.client);
 
   /**
+   * @see https://redis.io/commands/xdel
+   */
+  xdel = (...args: CommandArgs<typeof XDelCommand>) =>
+    new XDelCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xlen
+   */
+  xlen = (...args: CommandArgs<typeof XLenCommand>) =>
+    new XLenCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xtrim
+   */
+  xtrim = (...args: CommandArgs<typeof XTrimCommand>) =>
+    new XTrimCommand(args, this.opts).exec(this.client);
+
+  /**
    * @see https://redis.io/commands/xrange
    */
   xrange = (...args: CommandArgs<typeof XRangeCommand>) =>
     new XRangeCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xrevrange
+   */
+  xrevrange = (...args: CommandArgs<typeof XRevRangeCommand>) =>
+    new XRevRangeCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zadd

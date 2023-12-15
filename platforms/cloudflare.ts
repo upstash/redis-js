@@ -22,6 +22,11 @@ export type RedisConfigCloudflare = {
    * UPSTASH_REDIS_REST_TOKEN
    */
   token: string;
+  /**
+   * The signal will allow aborting requests on the fly.
+   * For more check: https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
+   */
+  signal?: AbortSignal;
 } & core.RedisOptions &
   RequesterConfig &
   Env;
@@ -42,11 +47,23 @@ export class Redis extends core.Redis {
    * ```
    */
   constructor(config: RedisConfigCloudflare, env?: Env) {
-    if (config.url.startsWith(" ") || config.url.endsWith(" ") || /\r|\n/.test(config.url)) {
-      console.warn("The redis url contains whitespace or newline, which can cause errors!");
+    if (
+      config.url.startsWith(" ") ||
+      config.url.endsWith(" ") ||
+      /\r|\n/.test(config.url)
+    ) {
+      console.warn(
+        "The redis url contains whitespace or newline, which can cause errors!"
+      );
     }
-    if (config.token.startsWith(" ") || config.token.endsWith(" ") || /\r|\n/.test(config.token)) {
-      console.warn("The redis token contains whitespace or newline, which can cause errors!");
+    if (
+      config.token.startsWith(" ") ||
+      config.token.endsWith(" ") ||
+      /\r|\n/.test(config.token)
+    ) {
+      console.warn(
+        "The redis token contains whitespace or newline, which can cause errors!"
+      );
     }
 
     const client = new HttpClient({
@@ -54,6 +71,7 @@ export class Redis extends core.Redis {
       baseUrl: config.url,
       headers: { authorization: `Bearer ${config.token}` },
       responseEncoding: config.responseEncoding,
+      signal: config.signal,
     });
 
     super(client, {

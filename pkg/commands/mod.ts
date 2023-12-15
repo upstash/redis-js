@@ -133,6 +133,7 @@ export * from "./unlink";
 export * from "./xadd";
 export * from "./xrange";
 export * from "./xrevrange";
+export * from "./xdel";
 export * from "./zadd";
 export * from "./zcard";
 export * from "./zcount";

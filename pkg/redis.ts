@@ -88,10 +88,10 @@ import {
   PExpireCommand,
   PSetEXCommand,
   PTtlCommand,
+  PersistCommand,
   PfAddCommand,
   PfCountCommand,
   PfMergeCommand,
-  PersistCommand,
   PingCommand,
   PublishCommand,
   RPopCommand,
@@ -134,6 +134,7 @@ import {
   TypeCommand,
   UnlinkCommand,
   XAddCommand,
+  XDelCommand,
   XRangeCommand,
   XRevRangeCommand,
   ZAddCommand,
@@ -1094,6 +1095,12 @@ export class Redis {
    */
   xadd = (...args: CommandArgs<typeof XAddCommand>) =>
     new XAddCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xdel
+   */
+  xdel = (...args: CommandArgs<typeof XDelCommand>) =>
+    new XDelCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/xrange

@@ -19,7 +19,9 @@ export type UpstashRequest = {
 export type UpstashResponse<TResult> = { result?: TResult; error?: string };
 
 export interface Requester {
-  request: <TResult = unknown>(req: UpstashRequest) => Promise<UpstashResponse<TResult>>;
+  request: <TResult = unknown>(
+    req: UpstashRequest
+  ) => Promise<UpstashResponse<TResult>>;
 }
 
 type ResultError = {
@@ -93,6 +95,7 @@ export type HttpClientConfig = {
   options?: Options;
   retry?: RetryConfig;
   agent?: any;
+  signal?: AbortSignal;
 } & RequesterConfig;
 
 export class HttpClient implements Requester {
@@ -101,6 +104,7 @@ export class HttpClient implements Requester {
   public readonly options: {
     backend?: string;
     agent: any;
+    signal?: AbortSignal;
     responseEncoding?: false | "base64";
     cache?: CacheSetting;
   };
@@ -116,6 +120,7 @@ export class HttpClient implements Requester {
       agent: config.agent,
       responseEncoding: config.responseEncoding ?? "base64", // default to base64
       cache: config.cache,
+      signal: config.signal,
     };
 
     this.baseUrl = config.baseUrl.replace(/\/$/, "");
@@ -138,7 +143,8 @@ export class HttpClient implements Requester {
     } else {
       this.retry = {
         attempts: config?.retry?.retries ?? 5,
-        backoff: config?.retry?.backoff ?? ((retryCount) => Math.exp(retryCount) * 50),
+        backoff:
+          config?.retry?.backoff ?? ((retryCount) => Math.exp(retryCount) * 50),
       };
     }
   }
@@ -147,7 +153,7 @@ export class HttpClient implements Requester {
     function merge(
       obj: Record<string, string>,
       key: string,
-      value?: string,
+      value?: string
     ): Record<string, string> {
       if (!value) {
         return obj;
@@ -160,12 +166,22 @@ export class HttpClient implements Requester {
       return obj;
     }
 
-    this.headers = merge(this.headers, "Upstash-Telemetry-Runtime", telemetry.runtime);
-    this.headers = merge(this.headers, "Upstash-Telemetry-Platform", telemetry.platform);
+    this.headers = merge(
+      this.headers,
+      "Upstash-Telemetry-Runtime",
+      telemetry.runtime
+    );
+    this.headers = merge(
+      this.headers,
+      "Upstash-Telemetry-Platform",
+      telemetry.platform
+    );
     this.headers = merge(this.headers, "Upstash-Telemetry-Sdk", telemetry.sdk);
   }
 
-  public async request<TResult>(req: UpstashRequest): Promise<UpstashResponse<TResult>> {
+  public async request<TResult>(
+    req: UpstashRequest
+  ): Promise<UpstashResponse<TResult>> {
     const requestOptions: RequestInit & { backend?: string; agent?: any } = {
       cache: this.options.cache,
       method: "POST",
@@ -173,6 +189,7 @@ export class HttpClient implements Requester {
       body: JSON.stringify(req.body),
       keepalive: true,
       agent: this.options?.agent,
+      signal: this.options.signal,
 
       /**
        * Fastly specific
@@ -184,9 +201,23 @@ export class HttpClient implements Requester {
     let error: Error | null = null;
     for (let i = 0; i <= this.retry.attempts; i++) {
       try {
-        res = await fetch([this.baseUrl, ...(req.path ?? [])].join("/"), requestOptions);
+        res = await fetch(
+          [this.baseUrl, ...(req.path ?? [])].join("/"),
+          requestOptions
+        );
         break;
       } catch (err) {
+        if (this.options.signal?.aborted) {
+          const myBlob = new Blob([
+            JSON.stringify({ result: this.options.signal.reason ?? "Aborted" }),
+          ]);
+          const myOptions = {
+            status: 200,
+            statusText: this.options.signal.reason ?? "Aborted",
+          };
+          res = new Response(myBlob, myOptions);
+          break;
+        }
         error = err as Error;
         await new Promise((r) => setTimeout(r, this.retry.backoff(i)));
       }
@@ -197,7 +228,9 @@ export class HttpClient implements Requester {
 
     const body = (await res.json()) as UpstashResponse<string>;
     if (!res.ok) {
-      throw new UpstashError(`${body.error}, command was: ${JSON.stringify(req.body)}`);
+      throw new UpstashError(
+        `${body.error}, command was: ${JSON.stringify(req.body)}`
+      );
     }
 
     if (this.options?.responseEncoding === "base64") {
@@ -251,7 +284,11 @@ function decode(raw: ResultError["result"]): ResultError["result"] {
     case "object": {
       if (Array.isArray(raw)) {
         result = raw.map((v) =>
-          typeof v === "string" ? base64decode(v) : Array.isArray(v) ? v.map(decode) : v,
+          typeof v === "string"
+            ? base64decode(v)
+            : Array.isArray(v)
+            ? v.map(decode)
+            : v
         );
       } else {
         // If it's not an array it must be null

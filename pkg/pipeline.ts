@@ -135,6 +135,7 @@ import {
   UnlinkCommand,
   XAddCommand,
   XDelCommand,
+  XLenCommand,
   XRangeCommand,
   XRevRangeCommand,
   ZAddCommand,
@@ -1007,6 +1008,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   xdel = (...args: CommandArgs<typeof XDelCommand>) =>
     this.chain(new XDelCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/xlen
+   */
+  xlen = (...args: CommandArgs<typeof XLenCommand>) =>
+    this.chain(new XLenCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/xrange

@@ -1,7 +1,7 @@
 import { Command, CommandOptions } from "./command";
 
 /**
- * @see https://redis.io/commands/del
+ * @see https://redis.io/commands/xdel
  */
 export class XDelCommand extends Command<number, number> {
   constructor(

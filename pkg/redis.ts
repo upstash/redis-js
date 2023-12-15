@@ -135,6 +135,7 @@ import {
   UnlinkCommand,
   XAddCommand,
   XDelCommand,
+  XLenCommand,
   XRangeCommand,
   XRevRangeCommand,
   ZAddCommand,
@@ -1101,6 +1102,12 @@ export class Redis {
    */
   xdel = (...args: CommandArgs<typeof XDelCommand>) =>
     new XDelCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xlen
+   */
+  xlen = (...args: CommandArgs<typeof XLenCommand>) =>
+    new XLenCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/xrange

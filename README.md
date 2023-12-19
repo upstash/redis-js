@@ -6,7 +6,7 @@ of [Upstash REST API](https://docs.upstash.com/features/restapi).
 [![Tests](https://github.com/upstash/upstash-redis/actions/workflows/tests.yaml/badge.svg)](https://github.com/upstash/upstash-redis/actions/workflows/tests.yaml)
 ![npm (scoped)](https://img.shields.io/npm/v/@upstash/redis)
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/@upstash/redis)
-
+  
 It is the only connectionless (HTTP based) Redis client and designed for:
 
 - Serverless functions (AWS Lambda ...)

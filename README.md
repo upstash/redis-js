@@ -31,7 +31,7 @@ supported.
 
 ```bash
 npm install @upstash/redis
-```
+``` 
 
 #### Deno
 

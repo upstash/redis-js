@@ -132,6 +132,7 @@ export * from "./type";
 export * from "./unlink";
 export * from "./xadd";
 export * from "./xdel";
+export * from "./xgroup";
 export * from "./xlen";
 export * from "./xrange";
 export * from "./xrevrange";

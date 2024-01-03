@@ -134,6 +134,7 @@ import {
   TypeCommand,
   UnlinkCommand,
   XAddCommand,
+  XClaimCommand,
   XDelCommand,
   XGroupCommand,
   XInfoCommand,
@@ -1143,6 +1144,12 @@ export class Redis {
    */
   xpending = (...args: CommandArgs<typeof XPendingCommand>) =>
     new XPendingCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xclaim
+   */
+  xclaim = (...args: CommandArgs<typeof XClaimCommand>) =>
+    new XClaimCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/xtrim

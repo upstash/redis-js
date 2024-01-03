@@ -134,6 +134,7 @@ import {
   TypeCommand,
   UnlinkCommand,
   XAddCommand,
+  XClaimCommand,
   XDelCommand,
   XGroupCommand,
   XInfoCommand,
@@ -1050,6 +1051,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   xpending = (...args: CommandArgs<typeof XPendingCommand>) =>
     this.chain(new XPendingCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/xclaim
+   */
+  xclaim = (...args: CommandArgs<typeof XClaimCommand>) =>
+    this.chain(new XClaimCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/xtrim

@@ -133,6 +133,7 @@ import {
   TtlCommand,
   TypeCommand,
   UnlinkCommand,
+  XAckCommand,
   XAddCommand,
   XAutoClaim,
   XClaimCommand,
@@ -1103,6 +1104,12 @@ export class Redis {
    */
   xadd = (...args: CommandArgs<typeof XAddCommand>) =>
     new XAddCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xack
+   */
+  xack = (...args: CommandArgs<typeof XAckCommand>) =>
+    new XAckCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/xdel

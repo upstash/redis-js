@@ -133,6 +133,7 @@ import {
   TtlCommand,
   TypeCommand,
   UnlinkCommand,
+  XAckCommand,
   XAddCommand,
   XAutoClaim,
   XClaimCommand,
@@ -1010,6 +1011,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   xadd = (...args: CommandArgs<typeof XAddCommand>) =>
     this.chain(new XAddCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/xack
+   */
+  xack = (...args: CommandArgs<typeof XAckCommand>) =>
+    this.chain(new XAckCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/xdel

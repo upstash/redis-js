@@ -136,9 +136,11 @@ import {
   XAddCommand,
   XDelCommand,
   XGroupCommand,
+  XInfoCommand,
   XLenCommand,
   XRangeCommand,
   XReadCommand,
+  XReadGroupCommand,
   XRevRangeCommand,
   XTrimCommand,
   ZAddCommand,
@@ -1023,6 +1025,18 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   xread = (...args: CommandArgs<typeof XReadCommand>) =>
     this.chain(new XReadCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/xreadgroup
+   */
+  xreadgroup = (...args: CommandArgs<typeof XReadGroupCommand>) =>
+    this.chain(new XReadGroupCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/xinfo
+   */
+  xinfo = (...args: CommandArgs<typeof XInfoCommand>) =>
+    this.chain(new XInfoCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/xlen

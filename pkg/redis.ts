@@ -136,9 +136,11 @@ import {
   XAddCommand,
   XDelCommand,
   XGroupCommand,
+  XInfoCommand,
   XLenCommand,
   XRangeCommand,
   XReadCommand,
+  XReadGroupCommand,
   XRevRangeCommand,
   XTrimCommand,
   ZAddCommand,
@@ -168,8 +170,7 @@ import { ZMScoreCommand } from "./commands/zmscore";
 import { Requester, UpstashRequest, UpstashResponse } from "./http";
 import { Pipeline } from "./pipeline";
 import { Script } from "./script";
-import type { CommandArgs } from "./types";
-import type { RedisOptions, Telemetry } from "./types";
+import type { CommandArgs, RedisOptions, Telemetry } from "./types";
 
 // See https://github.com/upstash/upstash-redis/issues/342
 // why we need this export
@@ -1117,6 +1118,18 @@ export class Redis {
    */
   xread = (...args: CommandArgs<typeof XReadCommand>) =>
     new XReadCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xreadgroup
+   */
+  xreadgroup = (...args: CommandArgs<typeof XReadGroupCommand>) =>
+    new XReadGroupCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xinfo
+   */
+  xinfo = (...args: CommandArgs<typeof XInfoCommand>) =>
+    new XInfoCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/xlen

@@ -1,4 +1,9 @@
-import { keygen, newHttpClient, randomID } from "../test-utils";
+import {
+  addNewItemToStream,
+  keygen,
+  newHttpClient,
+  randomID,
+} from "../test-utils";
 
 import { afterAll, describe, expect, test } from "bun:test";
 import { XAddCommand } from "./xadd";
@@ -13,7 +18,8 @@ describe("COUNT", () => {
   test("should return desired amount of items", async () => {
     const streamKey = newKey();
     const { member1: xmember1, member2: xmember2 } = await addNewItemToStream(
-      streamKey
+      streamKey,
+      client
     );
 
     const res = (await new XReadCommand([streamKey, "0-0"]).exec(
@@ -25,9 +31,9 @@ describe("COUNT", () => {
   test("should return desired amount of items", async () => {
     const wantedLength = 3;
     const streamKey = newKey();
-    await addNewItemToStream(streamKey);
-    await addNewItemToStream(streamKey);
-    await addNewItemToStream(streamKey);
+    await addNewItemToStream(streamKey, client);
+    await addNewItemToStream(streamKey, client);
+    await addNewItemToStream(streamKey, client);
 
     const res = (await new XReadCommand([
       streamKey,
@@ -40,9 +46,9 @@ describe("COUNT", () => {
   test("should return desired amount of items", async () => {
     const wantedLength = 2;
     const streamKey = newKey();
-    await addNewItemToStream(streamKey);
-    await addNewItemToStream(streamKey);
-    await addNewItemToStream(streamKey);
+    await addNewItemToStream(streamKey, client);
+    await addNewItemToStream(streamKey, client);
+    await addNewItemToStream(streamKey, client);
 
     const res = (await new XReadCommand([
       streamKey,
@@ -55,9 +61,9 @@ describe("COUNT", () => {
   test("should return desired amount of items", async () => {
     const wantedLength = 2;
     const streamKey = newKey();
-    await addNewItemToStream(streamKey);
-    await addNewItemToStream(streamKey);
-    await addNewItemToStream(streamKey);
+    await addNewItemToStream(streamKey, client);
+    await addNewItemToStream(streamKey, client);
+    await addNewItemToStream(streamKey, client);
 
     const res = (await new XReadCommand([
       streamKey,
@@ -72,7 +78,7 @@ describe("COUNT", () => {
 describe("IDs", () => {
   test("should return desired amount of items", async () => {
     const streamKey = newKey();
-    await addNewItemToStream(streamKey);
+    await addNewItemToStream(streamKey, client);
 
     const res = (await new XReadCommand([
       streamKey,
@@ -91,9 +97,9 @@ describe("Multiple stream", () => {
     const wantedLength = 2;
 
     const streamKey1 = newKey();
-    await addNewItemToStream(streamKey1);
+    await addNewItemToStream(streamKey1, client);
     const streamKey2 = newKey();
-    await addNewItemToStream(streamKey2);
+    await addNewItemToStream(streamKey2, client);
 
     const res = (await new XReadCommand([
       [streamKey1, streamKey2],
@@ -106,7 +112,7 @@ describe("Multiple stream", () => {
     const wantedLength = 1;
 
     const streamKey1 = newKey();
-    await addNewItemToStream(streamKey1);
+    await addNewItemToStream(streamKey1, client);
 
     const res = (await new XReadCommand([
       [streamKey1, newKey()],
@@ -118,7 +124,7 @@ describe("Multiple stream", () => {
   test("should throw when unbalanced is array passed", async () => {
     const throwable = async () => {
       const streamKey1 = newKey();
-      await addNewItemToStream(streamKey1);
+      await addNewItemToStream(streamKey1, client);
 
       await new XReadCommand([[streamKey1, newKey()], ["0-0"]]).exec(client);
     };
@@ -126,17 +132,3 @@ describe("Multiple stream", () => {
     expect(throwable).toThrow(UNBALANCED_XREAD_ERR);
   });
 });
-
-async function addNewItemToStream(streamKey: string) {
-  const field1 = "field1";
-  const member1 = randomID();
-  const field2 = "field2";
-  const member2 = randomID();
-
-  const res = await new XAddCommand([
-    streamKey,
-    "*",
-    { [field1]: member1, [field2]: member2 },
-  ]).exec(client);
-  return { member1, member2, streamId: res };
-}

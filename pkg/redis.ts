@@ -138,6 +138,7 @@ import {
   XGroupCommand,
   XLenCommand,
   XRangeCommand,
+  XReadCommand,
   XRevRangeCommand,
   XTrimCommand,
   ZAddCommand,
@@ -1104,11 +1105,18 @@ export class Redis {
    */
   xdel = (...args: CommandArgs<typeof XDelCommand>) =>
     new XDelCommand(args, this.opts).exec(this.client);
+
   /**
    * @see https://redis.io/commands/xgroup
    */
   xgroup = (...args: CommandArgs<typeof XGroupCommand>) =>
     new XGroupCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xread
+   */
+  xread = (...args: CommandArgs<typeof XReadCommand>) =>
+    new XReadCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/xlen

@@ -134,6 +134,7 @@ import {
   TypeCommand,
   UnlinkCommand,
   XAddCommand,
+  XAutoClaim,
   XClaimCommand,
   XDelCommand,
   XGroupCommand,
@@ -1150,6 +1151,12 @@ export class Redis {
    */
   xclaim = (...args: CommandArgs<typeof XClaimCommand>) =>
     new XClaimCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xautoclaim
+   */
+  xautoclaim = (...args: CommandArgs<typeof XAutoClaim>) =>
+    new XAutoClaim(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/xtrim

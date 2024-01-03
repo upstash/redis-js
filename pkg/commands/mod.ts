@@ -137,6 +137,7 @@ export * from "./xinfo";
 export * from "./xlen";
 export * from "./xpending";
 export * from "./xclaim";
+export * from "./xautoclaim";
 export * from "./xrange";
 export * from "./xread";
 export * from "./xreadgroup";

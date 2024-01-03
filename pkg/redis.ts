@@ -138,6 +138,7 @@ import {
   XGroupCommand,
   XInfoCommand,
   XLenCommand,
+  XPendingCommand,
   XRangeCommand,
   XReadCommand,
   XReadGroupCommand,
@@ -1136,6 +1137,12 @@ export class Redis {
    */
   xlen = (...args: CommandArgs<typeof XLenCommand>) =>
     new XLenCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xpending
+   */
+  xpending = (...args: CommandArgs<typeof XPendingCommand>) =>
+    new XPendingCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/xtrim

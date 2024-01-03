@@ -138,6 +138,7 @@ import {
   XGroupCommand,
   XInfoCommand,
   XLenCommand,
+  XPendingCommand,
   XRangeCommand,
   XReadCommand,
   XReadGroupCommand,
@@ -1043,6 +1044,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   xlen = (...args: CommandArgs<typeof XLenCommand>) =>
     this.chain(new XLenCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/xpending
+   */
+  xpending = (...args: CommandArgs<typeof XPendingCommand>) =>
+    this.chain(new XPendingCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/xtrim

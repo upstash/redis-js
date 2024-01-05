@@ -133,10 +133,18 @@ import {
   TtlCommand,
   TypeCommand,
   UnlinkCommand,
+  XAckCommand,
   XAddCommand,
+  XAutoClaim,
+  XClaimCommand,
   XDelCommand,
+  XGroupCommand,
+  XInfoCommand,
   XLenCommand,
+  XPendingCommand,
   XRangeCommand,
+  XReadCommand,
+  XReadGroupCommand,
   XRevRangeCommand,
   XTrimCommand,
   ZAddCommand,
@@ -1005,16 +1013,64 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
     this.chain(new XAddCommand(args, this.commandOptions));
 
   /**
+   * @see https://redis.io/commands/xack
+   */
+  xack = (...args: CommandArgs<typeof XAckCommand>) =>
+    this.chain(new XAckCommand(args, this.commandOptions));
+
+  /**
    * @see https://redis.io/commands/xdel
    */
   xdel = (...args: CommandArgs<typeof XDelCommand>) =>
     this.chain(new XDelCommand(args, this.commandOptions));
 
   /**
+   * @see https://redis.io/commands/xgroup
+   */
+  xgroup = (...args: CommandArgs<typeof XGroupCommand>) =>
+    this.chain(new XGroupCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/xread
+   */
+  xread = (...args: CommandArgs<typeof XReadCommand>) =>
+    this.chain(new XReadCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/xreadgroup
+   */
+  xreadgroup = (...args: CommandArgs<typeof XReadGroupCommand>) =>
+    this.chain(new XReadGroupCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/xinfo
+   */
+  xinfo = (...args: CommandArgs<typeof XInfoCommand>) =>
+    this.chain(new XInfoCommand(args, this.commandOptions));
+
+  /**
    * @see https://redis.io/commands/xlen
    */
   xlen = (...args: CommandArgs<typeof XLenCommand>) =>
     this.chain(new XLenCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/xpending
+   */
+  xpending = (...args: CommandArgs<typeof XPendingCommand>) =>
+    this.chain(new XPendingCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/xclaim
+   */
+  xclaim = (...args: CommandArgs<typeof XClaimCommand>) =>
+    this.chain(new XClaimCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/xautoclaim
+   */
+  xautoclaim = (...args: CommandArgs<typeof XAutoClaim>) =>
+    this.chain(new XAutoClaim(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/xtrim

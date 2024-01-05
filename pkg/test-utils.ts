@@ -1,4 +1,5 @@
 import { DelCommand } from "./commands/del";
+import { XAddCommand } from "./commands/xadd";
 import { HttpClient } from "./http";
 
 /**
@@ -54,4 +55,21 @@ export function keygen(): {
       }
     },
   };
+}
+
+export async function addNewItemToStream(
+  streamKey: string,
+  client: HttpClient
+) {
+  const field1 = "field1";
+  const member1 = randomID();
+  const field2 = "field2";
+  const member2 = randomID();
+
+  const res = await new XAddCommand([
+    streamKey,
+    "*",
+    { [field1]: member1, [field2]: member2 },
+  ]).exec(client);
+  return { member1, member2, streamId: res };
 }

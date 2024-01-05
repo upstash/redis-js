@@ -133,10 +133,18 @@ import {
   TtlCommand,
   TypeCommand,
   UnlinkCommand,
+  XAckCommand,
   XAddCommand,
+  XAutoClaim,
+  XClaimCommand,
   XDelCommand,
+  XGroupCommand,
+  XInfoCommand,
   XLenCommand,
+  XPendingCommand,
   XRangeCommand,
+  XReadCommand,
+  XReadGroupCommand,
   XRevRangeCommand,
   XTrimCommand,
   ZAddCommand,
@@ -166,8 +174,7 @@ import { ZMScoreCommand } from "./commands/zmscore";
 import { Requester, UpstashRequest, UpstashResponse } from "./http";
 import { Pipeline } from "./pipeline";
 import { Script } from "./script";
-import type { CommandArgs } from "./types";
-import type { RedisOptions, Telemetry } from "./types";
+import type { CommandArgs, RedisOptions, Telemetry } from "./types";
 
 // See https://github.com/upstash/upstash-redis/issues/342
 // why we need this export
@@ -1099,16 +1106,64 @@ export class Redis {
     new XAddCommand(args, this.opts).exec(this.client);
 
   /**
+   * @see https://redis.io/commands/xack
+   */
+  xack = (...args: CommandArgs<typeof XAckCommand>) =>
+    new XAckCommand(args, this.opts).exec(this.client);
+
+  /**
    * @see https://redis.io/commands/xdel
    */
   xdel = (...args: CommandArgs<typeof XDelCommand>) =>
     new XDelCommand(args, this.opts).exec(this.client);
 
   /**
+   * @see https://redis.io/commands/xgroup
+   */
+  xgroup = (...args: CommandArgs<typeof XGroupCommand>) =>
+    new XGroupCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xread
+   */
+  xread = (...args: CommandArgs<typeof XReadCommand>) =>
+    new XReadCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xreadgroup
+   */
+  xreadgroup = (...args: CommandArgs<typeof XReadGroupCommand>) =>
+    new XReadGroupCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xinfo
+   */
+  xinfo = (...args: CommandArgs<typeof XInfoCommand>) =>
+    new XInfoCommand(args, this.opts).exec(this.client);
+
+  /**
    * @see https://redis.io/commands/xlen
    */
   xlen = (...args: CommandArgs<typeof XLenCommand>) =>
     new XLenCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xpending
+   */
+  xpending = (...args: CommandArgs<typeof XPendingCommand>) =>
+    new XPendingCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xclaim
+   */
+  xclaim = (...args: CommandArgs<typeof XClaimCommand>) =>
+    new XClaimCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xautoclaim
+   */
+  xautoclaim = (...args: CommandArgs<typeof XAutoClaim>) =>
+    new XAutoClaim(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/xtrim

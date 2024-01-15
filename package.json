@@ -3,6 +3,10 @@
   "version": "0.0.0-canary.2",
   "main": "./nodejs.js",
   "module": "./nodejs.mjs",
+  "exports": {
+    "require": "./nodejs.js",
+    "import": "./nodejs.mjs"
+  },
   "types": "./nodejs.d.ts",
   "description": "An HTTP/REST based Redis client built on top of Upstash REST API.",
   "repository": {

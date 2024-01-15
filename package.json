@@ -3,6 +3,30 @@
   "version": "0.0.0-canary.2",
   "main": "./nodejs.js",
   "module": "./nodejs.mjs",
+  "exports": {
+    ".": {
+      "import": "./nodejs.js",
+      "require": "./nodejs.mjs"
+    },
+    "./node": {
+      "import": "./nodejs.js",
+      "require": "./nodejs.mjs"
+    },
+    "./node.js": "./node.js",
+    "./node.mjs": "./node.mjs",
+    "./cloudflare": {
+      "import": "./cloudflare.js",
+      "require": "./cloudflare.mjs"
+    },
+    "./cloudflare.js": "./cloudflare.js",
+    "./cloudflare.mjs": "./cloudflare.mjs",
+    "./fastly": {
+      "import": "./fastly.js",
+      "require": "./fastly.mjs"
+    },
+    "./fastly.js": "./fastly.js",
+    "./fastly.mjs": "./fastly.mjs"
+  },
   "types": "./nodejs.d.ts",
   "description": "An HTTP/REST based Redis client built on top of Upstash REST API.",
   "repository": {

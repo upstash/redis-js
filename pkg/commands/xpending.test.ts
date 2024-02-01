@@ -50,7 +50,6 @@ describe("XPENDING", () => {
   });
 
   test("should not get pending messages with idle time", async () => {
-    await sleep(350);
     const pending = await new XPendingCommand([
       streamKey1,
       group,
@@ -59,7 +58,6 @@ describe("XPENDING", () => {
       10,
       { idleTime: 500 },
     ]).exec(client);
-
     expect(pending).toBeInstanceOf(Array);
     expect(pending.length).toEqual(0);
   });

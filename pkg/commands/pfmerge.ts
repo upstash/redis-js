@@ -6,7 +6,7 @@ import { Command, CommandOptions } from "./command.ts";
 export class PfMergeCommand extends Command<"OK", "OK"> {
   constructor(
     cmd: [destination_key: string, ...(string[] | string[])],
-    opts?: CommandOptions<"OK", "OK">
+    opts?: CommandOptions<"OK", "OK">,
   ) {
     super(["pfmerge", ...cmd], opts);
   }

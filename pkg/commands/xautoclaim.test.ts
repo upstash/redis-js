@@ -1,7 +1,7 @@
 import { addNewItemToStream, keygen, newHttpClient } from "../test-utils";
 
-import { sleep } from "bun";
 import { afterAll, describe, expect, test } from "bun:test";
+import { sleep } from "bun";
 import { XAutoClaim } from "./xautoclaim";
 import { XGroupCommand } from "./xgroup";
 import { XReadGroupCommand } from "./xreadgroup";
@@ -21,27 +21,13 @@ describe("XCLAIM", () => {
     await addNewItemToStream(streamKey, client);
     await addNewItemToStream(streamKey, client);
 
-    await new XGroupCommand([
-      streamKey,
-      { type: "CREATE", group, id: "0" },
-    ]).exec(client);
+    await new XGroupCommand([streamKey, { type: "CREATE", group, id: "0" }]).exec(client);
 
-    await new XReadGroupCommand([
-      group,
-      consumer1,
-      [streamKey],
-      [">"],
-      { count: 2 },
-    ]).exec(client);
+    await new XReadGroupCommand([group, consumer1, [streamKey], [">"], { count: 2 }]).exec(client);
 
-    const res = (await new XAutoClaim([
-      streamKey,
-      group,
-      consumer2,
-      10,
-      "0-0",
-      { count: 1 },
-    ]).exec(client)) as string[];
+    const res = (await new XAutoClaim([streamKey, group, consumer2, 10, "0-0", { count: 1 }]).exec(
+      client,
+    )) as string[];
     expect(res).toBeInstanceOf(Array);
   });
 
@@ -54,18 +40,9 @@ describe("XCLAIM", () => {
     await addNewItemToStream(streamKey, client);
     await addNewItemToStream(streamKey, client);
 
-    await new XGroupCommand([
-      streamKey,
-      { type: "CREATE", group, id: "0" },
-    ]).exec(client);
+    await new XGroupCommand([streamKey, { type: "CREATE", group, id: "0" }]).exec(client);
 
-    await new XReadGroupCommand([
-      group,
-      consumer1,
-      [streamKey],
-      [">"],
-      { count: 2 },
-    ]).exec(client);
+    await new XReadGroupCommand([group, consumer1, [streamKey], [">"], { count: 2 }]).exec(client);
     await sleep(2000);
     const res = (await new XAutoClaim([
       streamKey,
@@ -87,18 +64,9 @@ describe("XCLAIM", () => {
     await addNewItemToStream(streamKey, client);
     const { streamId } = await addNewItemToStream(streamKey, client);
 
-    await new XGroupCommand([
-      streamKey,
-      { type: "CREATE", group, id: "0" },
-    ]).exec(client);
+    await new XGroupCommand([streamKey, { type: "CREATE", group, id: "0" }]).exec(client);
 
-    await new XReadGroupCommand([
-      group,
-      consumer1,
-      [streamKey],
-      [">"],
-      { count: 2 },
-    ]).exec(client);
+    await new XReadGroupCommand([group, consumer1, [streamKey], [">"], { count: 2 }]).exec(client);
     await sleep(2000);
     const xclaim = (await new XAutoClaim([
       streamKey,
@@ -118,20 +86,11 @@ describe("XCLAIM", () => {
     const consumer2 = newKey();
 
     await addNewItemToStream(streamKey, client);
-    const { streamId } = await addNewItemToStream(streamKey, client);
+    await addNewItemToStream(streamKey, client);
 
-    await new XGroupCommand([
-      streamKey,
-      { type: "CREATE", group, id: "0" },
-    ]).exec(client);
+    await new XGroupCommand([streamKey, { type: "CREATE", group, id: "0" }]).exec(client);
 
-    await new XReadGroupCommand([
-      group,
-      consumer1,
-      [streamKey],
-      [">"],
-      { count: 2 },
-    ]).exec(client);
+    await new XReadGroupCommand([group, consumer1, [streamKey], [">"], { count: 2 }]).exec(client);
 
     const xclaim = (await new XAutoClaim([
       streamKey,

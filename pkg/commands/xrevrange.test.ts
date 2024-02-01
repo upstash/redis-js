@@ -10,29 +10,15 @@ const key = newKey();
 afterAll(cleanup);
 
 beforeEach(async () => {
-  await new XAddCommand([
-    key,
-    "*",
-    { name: "Virginia", surname: "Woolf" },
-  ]).exec(client);
+  await new XAddCommand([key, "*", { name: "Virginia", surname: "Woolf" }]).exec(client);
 
-  await new XAddCommand([key, "*", { name: "Jane", surname: "Austen" }]).exec(
-    client
-  );
+  await new XAddCommand([key, "*", { name: "Jane", surname: "Austen" }]).exec(client);
 
-  await new XAddCommand([key, "*", { name: "Toni", surname: "Morrison" }]).exec(
-    client
-  );
+  await new XAddCommand([key, "*", { name: "Toni", surname: "Morrison" }]).exec(client);
 
-  await new XAddCommand([
-    key,
-    "*",
-    { name: "Agatha", surname: "Christie" },
-  ]).exec(client);
+  await new XAddCommand([key, "*", { name: "Agatha", surname: "Christie" }]).exec(client);
 
-  await new XAddCommand([key, "*", { name: "Ngozi", surname: "Adichie" }]).exec(
-    client
-  );
+  await new XAddCommand([key, "*", { name: "Ngozi", surname: "Adichie" }]).exec(client);
 });
 
 describe("without options", () => {

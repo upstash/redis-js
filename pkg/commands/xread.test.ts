@@ -11,14 +11,9 @@ afterAll(cleanup);
 describe("COUNT", () => {
   test("should return successfully", async () => {
     const streamKey = newKey();
-    const { member1: xmember1, member2: xmember2 } = await addNewItemToStream(
-      streamKey,
-      client
-    );
+    const { member1: xmember1, member2: xmember2 } = await addNewItemToStream(streamKey, client);
 
-    const res = (await new XReadCommand([streamKey, "0-0"]).exec(
-      client
-    )) as string[];
+    const res = (await new XReadCommand([streamKey, "0-0"]).exec(client)) as string[];
 
     expect(res[0][1][0][1]).toEqual(["field1", xmember1, "field2", xmember2]);
   });
@@ -29,11 +24,9 @@ describe("COUNT", () => {
     await addNewItemToStream(streamKey, client);
     await addNewItemToStream(streamKey, client);
 
-    const res = (await new XReadCommand([
-      streamKey,
-      "0-0",
-      { count: wantedLength },
-    ]).exec(client)) as any[];
+    const res = (await new XReadCommand([streamKey, "0-0", { count: wantedLength }]).exec(
+      client,
+    )) as any[];
 
     expect(res[0][1].length).toBe(wantedLength);
   });
@@ -44,11 +37,9 @@ describe("COUNT", () => {
     await addNewItemToStream(streamKey, client);
     await addNewItemToStream(streamKey, client);
 
-    const res = (await new XReadCommand([
-      streamKey,
-      "0-0",
-      { count: wantedLength },
-    ]).exec(client)) as any[];
+    const res = (await new XReadCommand([streamKey, "0-0", { count: wantedLength }]).exec(
+      client,
+    )) as any[];
 
     expect(res[0][1].length).toBe(wantedLength);
   });
@@ -61,13 +52,12 @@ describe("IDs", () => {
       const streamKey = newKey();
       await addNewItemToStream(streamKey, client);
 
-      const res = (await new XReadCommand([
-        streamKey,
-        `${Date.now() - 15000}-0`,
-      ]).exec(client)) as string[];
+      const res = (await new XReadCommand([streamKey, `${Date.now() - 15000}-0`]).exec(
+        client,
+      )) as string[];
       expect(res).toBeInstanceOf(Array);
     },
-    { retry: 3 }
+    { retry: 3 },
   );
 });
 
@@ -88,7 +78,7 @@ describe("Multiple stream", () => {
       ]).exec(client)) as string[];
       expect(res.length).toBe(wantedLength);
     },
-    { retry: 3 }
+    { retry: 3 },
   );
 
   test(
@@ -105,7 +95,7 @@ describe("Multiple stream", () => {
       ]).exec(client)) as string[];
       expect(res.length).toBe(wantedLength);
     },
-    { retry: 3 }
+    { retry: 3 },
   );
 
   test(
@@ -120,6 +110,6 @@ describe("Multiple stream", () => {
 
       expect(throwable).toThrow(UNBALANCED_XREAD_ERR);
     },
-    { retry: 3 }
+    { retry: 3 },
   );
 });

@@ -19,9 +19,7 @@ describe("GROUPS", () => {
       await addNewItemToStream(streamKey, client);
     }
 
-    const res = (await new XInfoCommand([streamKey, { type: "GROUPS" }]).exec(
-      client
-    )) as string[];
+    const res = (await new XInfoCommand([streamKey, { type: "GROUPS" }]).exec(client)) as string[];
     expect(res).toEqual([]);
   });
 
@@ -34,14 +32,9 @@ describe("GROUPS", () => {
       await addNewItemToStream(streamKey, client);
     }
 
-    await new XGroupCommand([
-      streamKey,
-      { type: "CREATE", group, id: "0" },
-    ]).exec(client);
+    await new XGroupCommand([streamKey, { type: "CREATE", group, id: "0" }]).exec(client);
 
-    const res = (await new XInfoCommand([streamKey, { type: "GROUPS" }]).exec(
-      client
-    )) as string[];
+    const res = (await new XInfoCommand([streamKey, { type: "GROUPS" }]).exec(client)) as string[];
     expect(res[0][1]).toEqual(group);
   });
 });
@@ -56,15 +49,11 @@ describe("CONSUMERS", () => {
       await addNewItemToStream(streamKey, client);
     }
 
-    await new XGroupCommand([
-      streamKey,
-      { type: "CREATE", group, id: "0" },
-    ]).exec(client);
+    await new XGroupCommand([streamKey, { type: "CREATE", group, id: "0" }]).exec(client);
 
-    const res = (await new XInfoCommand([
-      streamKey,
-      { type: "CONSUMERS", group },
-    ]).exec(client)) as string[];
+    const res = (await new XInfoCommand([streamKey, { type: "CONSUMERS", group }]).exec(
+      client,
+    )) as string[];
 
     expect(res).toEqual([]);
   });
@@ -79,19 +68,13 @@ describe("CONSUMERS", () => {
       await addNewItemToStream(streamKey, client);
     }
 
-    await new XGroupCommand([
-      streamKey,
-      { type: "CREATE", group, id: "0" },
-    ]).exec(client);
+    await new XGroupCommand([streamKey, { type: "CREATE", group, id: "0" }]).exec(client);
 
-    (await new XReadGroupCommand([group, consumer, streamKey, ">"]).exec(
-      client
+    (await new XReadGroupCommand([group, consumer, streamKey, ">"]).exec(client)) as string[];
+
+    const res = (await new XInfoCommand([streamKey, { type: "CONSUMERS", group }]).exec(
+      client,
     )) as string[];
-
-    const res = (await new XInfoCommand([
-      streamKey,
-      { type: "CONSUMERS", group },
-    ]).exec(client)) as string[];
     const pendingCount = res[0][3];
 
     expect(pendingCount).toBe(wantedAmount);

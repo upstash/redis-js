@@ -2,8 +2,8 @@ import { addNewItemToStream, keygen, newHttpClient } from "../test-utils";
 
 import { afterAll, describe, expect, test } from "bun:test";
 import { XGroupCommand } from "./xgroup";
-import { UNBALANCED_XREADGROUP_ERR, XReadGroupCommand } from "./xreadgroup";
 import { XInfoCommand } from "./xinfo";
+import { UNBALANCED_XREADGROUP_ERR, XReadGroupCommand } from "./xreadgroup";
 
 const client = newHttpClient();
 
@@ -21,17 +21,11 @@ describe("COUNT", () => {
       await addNewItemToStream(streamKey, client);
     }
 
-    await new XGroupCommand([
-      streamKey,
-      { type: "CREATE", group, id: "0" },
-    ]).exec(client);
+    await new XGroupCommand([streamKey, { type: "CREATE", group, id: "0" }]).exec(client);
 
-    const res = (await new XReadGroupCommand([
-      group,
-      consumer,
-      streamKey,
-      ">",
-    ]).exec(client)) as string[];
+    const res = (await new XReadGroupCommand([group, consumer, streamKey, ">"]).exec(
+      client,
+    )) as string[];
     const listOfStreams = res[0][1];
 
     expect(listOfStreams.length).toEqual(wantedAmount);
@@ -47,10 +41,7 @@ describe("COUNT", () => {
       await addNewItemToStream(streamKey, client);
     }
 
-    await new XGroupCommand([
-      streamKey,
-      { type: "CREATE", group, id: "0" },
-    ]).exec(client);
+    await new XGroupCommand([streamKey, { type: "CREATE", group, id: "0" }]).exec(client);
 
     const res = (await new XReadGroupCommand([
       group,
@@ -73,23 +64,13 @@ describe("NOACK", () => {
 
     await addNewItemToStream(streamKey, client);
 
-    await new XGroupCommand([
-      streamKey,
-      { type: "CREATE", group, id: "0" },
-    ]).exec(client);
+    await new XGroupCommand([streamKey, { type: "CREATE", group, id: "0" }]).exec(client);
 
-    await new XReadGroupCommand([
-      group,
-      consumer,
-      streamKey,
-      ">",
-      { NOACK: true },
-    ]).exec(client);
+    await new XReadGroupCommand([group, consumer, streamKey, ">", { NOACK: true }]).exec(client);
 
-    const xinfoRes = (await new XInfoCommand([
-      streamKey,
-      { type: "CONSUMERS", group },
-    ]).exec(client)) as string[];
+    const xinfoRes = (await new XInfoCommand([streamKey, { type: "CONSUMERS", group }]).exec(
+      client,
+    )) as string[];
     expect(xinfoRes).toEqual([]);
   });
 
@@ -103,23 +84,13 @@ describe("NOACK", () => {
       await addNewItemToStream(streamKey, client);
     }
 
-    await new XGroupCommand([
-      streamKey,
-      { type: "CREATE", group, id: "0" },
-    ]).exec(client);
+    await new XGroupCommand([streamKey, { type: "CREATE", group, id: "0" }]).exec(client);
 
-    await new XReadGroupCommand([
-      group,
-      consumer,
-      streamKey,
-      ">",
-      { NOACK: false },
-    ]).exec(client);
+    await new XReadGroupCommand([group, consumer, streamKey, ">", { NOACK: false }]).exec(client);
 
-    const xinfoRes = (await new XInfoCommand([
-      streamKey,
-      { type: "CONSUMERS", group },
-    ]).exec(client)) as string[];
+    const xinfoRes = (await new XInfoCommand([streamKey, { type: "CONSUMERS", group }]).exec(
+      client,
+    )) as string[];
 
     const pendingCount = xinfoRes[0][3];
 
@@ -139,14 +110,8 @@ describe("Multiple Stream", () => {
     await addNewItemToStream(streamKey2, client);
     await addNewItemToStream(streamKey2, client);
 
-    await new XGroupCommand([
-      streamKey1,
-      { type: "CREATE", group, id: "0" },
-    ]).exec(client);
-    await new XGroupCommand([
-      streamKey2,
-      { type: "CREATE", group, id: "0" },
-    ]).exec(client);
+    await new XGroupCommand([streamKey1, { type: "CREATE", group, id: "0" }]).exec(client);
+    await new XGroupCommand([streamKey2, { type: "CREATE", group, id: "0" }]).exec(client);
 
     const res = (await new XReadGroupCommand([
       group,
@@ -168,10 +133,7 @@ describe("Multiple Stream", () => {
       await addNewItemToStream(streamKey, client);
     }
 
-    await new XGroupCommand([
-      streamKey,
-      { type: "CREATE", group, id: "0" },
-    ]).exec(client);
+    await new XGroupCommand([streamKey, { type: "CREATE", group, id: "0" }]).exec(client);
 
     const res = (await new XReadGroupCommand([
       group,
@@ -193,17 +155,9 @@ describe("Multiple Stream", () => {
 
       await addNewItemToStream(streamKey, client);
 
-      await new XGroupCommand([
-        streamKey,
-        { type: "CREATE", group, id: "0" },
-      ]).exec(client);
+      await new XGroupCommand([streamKey, { type: "CREATE", group, id: "0" }]).exec(client);
 
-      await new XReadGroupCommand([
-        group,
-        consumer,
-        [streamKey, newKey()],
-        ["0-0"],
-      ]).exec(client);
+      await new XReadGroupCommand([group, consumer, [streamKey, newKey()], ["0-0"]]).exec(client);
     };
 
     expect(throwable).toThrow(UNBALANCED_XREADGROUP_ERR);

@@ -10,21 +10,17 @@ type LTAndGTOptions =
   | { lt?: never; gt: true }
   | { lt?: never; gt?: never };
 
-export type ZAddCommandOptions = NXAndXXOptions &
-  LTAndGTOptions & { ch?: true } & { incr?: true };
+export type ZAddCommandOptions = NXAndXXOptions & LTAndGTOptions & { ch?: true } & { incr?: true };
 
 type Arg2<TData> = ScoreMember<TData> | ZAddCommandOptions;
 export type ScoreMember<TData> = { score: number; member: TData };
 /**
  * @see https://redis.io/commands/zadd
  */
-export class ZAddCommand<TData = string> extends Command<
-  number | null,
-  number | null
-> {
+export class ZAddCommand<TData = string> extends Command<number | null, number | null> {
   constructor(
     [key, arg1, ...arg2]: [string, Arg2<TData>, ...ScoreMember<TData>[]],
-    opts?: CommandOptions<number | null, number | null>
+    opts?: CommandOptions<number | null, number | null>,
   ) {
     const command: unknown[] = ["zadd", key];
     if ("nx" in arg1 && arg1.nx) {

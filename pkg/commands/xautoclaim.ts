@@ -11,9 +11,9 @@ export class XAutoClaim extends Command<unknown[], unknown[]> {
       consumer: string,
       minIdleTime: number,
       start: string,
-      options?: { count?: number; justId?: boolean }
+      options?: { count?: number; justId?: boolean },
     ],
-    opts?: CommandOptions<unknown[], unknown[]>
+    opts?: CommandOptions<unknown[], unknown[]>,
   ) {
     const commands: unknown[] = [];
 
@@ -24,9 +24,6 @@ export class XAutoClaim extends Command<unknown[], unknown[]> {
     if (options?.justId) {
       commands.push("JUSTID");
     }
-    super(
-      ["XAUTOCLAIM", key, group, consumer, minIdleTime, start, ...commands],
-      opts
-    );
+    super(["XAUTOCLAIM", key, group, consumer, minIdleTime, start, ...commands], opts);
   }
 }

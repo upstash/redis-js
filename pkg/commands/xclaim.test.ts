@@ -22,42 +22,17 @@ describe("XCLAIM", () => {
     const { streamId: streamId2 } = await addNewItemToStream(streamKey, client);
     await addNewItemToStream(streamKey, client);
 
-    await new XGroupCommand([
-      streamKey,
-      { type: "CREATE", group, id: "0" },
-    ]).exec(client);
+    await new XGroupCommand([streamKey, { type: "CREATE", group, id: "0" }]).exec(client);
 
-    await new XReadGroupCommand([
-      group,
-      consumer1,
-      [streamKey],
-      [">"],
-      { count: 1 },
-    ]).exec(client);
+    await new XReadGroupCommand([group, consumer1, [streamKey], [">"], { count: 1 }]).exec(client);
 
-    await new XReadGroupCommand([
-      group,
-      consumer2,
-      [streamKey],
-      [">"],
-      { count: 1 },
-    ]).exec(client);
+    await new XReadGroupCommand([group, consumer2, [streamKey], [">"], { count: 1 }]).exec(client);
 
-    await new XReadGroupCommand([
-      group,
-      consumer3,
-      [streamKey],
-      [">"],
-      { count: 1 },
-    ]).exec(client);
+    await new XReadGroupCommand([group, consumer3, [streamKey], [">"], { count: 1 }]).exec(client);
 
-    const res = (await new XClaimCommand([
-      streamKey,
-      group,
-      consumer3,
-      100,
-      streamId2,
-    ]).exec(client)) as string[];
+    const res = (await new XClaimCommand([streamKey, group, consumer3, 100, streamId2]).exec(
+      client,
+    )) as string[];
 
     expect(res).toBeInstanceOf(Array);
     expect(res[0][0]).toBe(streamId2);
@@ -73,26 +48,11 @@ describe("XCLAIM", () => {
     await addNewItemToStream(streamKey, client);
     await addNewItemToStream(streamKey, client);
 
-    await new XGroupCommand([
-      streamKey,
-      { type: "CREATE", group, id: "0" },
-    ]).exec(client);
+    await new XGroupCommand([streamKey, { type: "CREATE", group, id: "0" }]).exec(client);
 
-    await new XReadGroupCommand([
-      group,
-      consumer1,
-      [streamKey],
-      [">"],
-      { count: 1 },
-    ]).exec(client);
+    await new XReadGroupCommand([group, consumer1, [streamKey], [">"], { count: 1 }]).exec(client);
 
-    await new XReadGroupCommand([
-      group,
-      consumer3,
-      [streamKey],
-      [">"],
-      { count: 1 },
-    ]).exec(client);
+    await new XReadGroupCommand([group, consumer3, [streamKey], [">"], { count: 1 }]).exec(client);
 
     const res = (await new XClaimCommand([
       streamKey,

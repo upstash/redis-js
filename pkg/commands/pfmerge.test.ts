@@ -1,6 +1,6 @@
-import { newHttpClient, randomID, keygen } from "../test-utils.ts";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
-import { afterEach, expect, test, describe } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
 
 import { PfAddCommand } from "./pfadd.ts";
 import { PfCountCommand } from "./pfcount.ts";
@@ -26,9 +26,7 @@ describe("merge HLLs with distinct values and count", () => {
     const resAdd = await new PfAddCommand([key2, value3, value4]).exec(client);
     expect(resAdd).toBe(1);
 
-    const resMerge = await new PfMergeCommand([mergedKey, key1, key2]).exec(
-      client
-    );
+    const resMerge = await new PfMergeCommand([mergedKey, key1, key2]).exec(client);
     expect(resMerge).toBe("OK");
 
     const resCount = await new PfCountCommand([mergedKey]).exec(client);
@@ -46,9 +44,7 @@ describe("merge HLL with an empty HLL", () => {
     const resAdd = await new PfAddCommand([key, value1]).exec(client);
     expect(resAdd).toBe(1);
 
-    const resMerge = await new PfMergeCommand([mergedKey, key, emptyKey]).exec(
-      client
-    );
+    const resMerge = await new PfMergeCommand([mergedKey, key, emptyKey]).exec(client);
     expect(resMerge).toBe("OK");
 
     const resCount = await new PfCountCommand([mergedKey]).exec(client);
@@ -62,11 +58,7 @@ describe("merge two empty HLLs", () => {
   const mergedKey = newKey();
 
   test("merge two empty HLLs", async () => {
-    const resMerge = await new PfMergeCommand([
-      mergedKey,
-      emptyKey1,
-      emptyKey2,
-    ]).exec(client);
+    const resMerge = await new PfMergeCommand([mergedKey, emptyKey1, emptyKey2]).exec(client);
     expect(resMerge).toBe("OK");
 
     const resCount = await new PfCountCommand([mergedKey]).exec(client);

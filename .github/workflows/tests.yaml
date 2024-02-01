@@ -594,4 +594,6 @@ jobs:
 
       - name: Publish ci version
         working-directory: ./dist
-        run: npm publish --tag=ci --verbose
+        run: |
+          npm pkg delete scripts.prepare
+          npm publish --tag=ci --verbose

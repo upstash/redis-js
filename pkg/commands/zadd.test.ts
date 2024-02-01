@@ -13,17 +13,19 @@ afterAll(cleanup);
 describe("command format", () => {
   describe("without options", () => {
     test("build the correct command", () => {
-      expect(
-        new ZAddCommand(["key", { score: 0, member: "member" }]).command
-      ).toEqual(["zadd", "key", 0, "member"]);
+      expect(new ZAddCommand(["key", { score: 0, member: "member" }]).command).toEqual([
+        "zadd",
+        "key",
+        0,
+        "member",
+      ]);
     });
   });
 
   describe("with nx", () => {
     test("build the correct command", () => {
       expect(
-        new ZAddCommand(["key", { nx: true }, { score: 0, member: "member" }])
-          .command
+        new ZAddCommand(["key", { nx: true }, { score: 0, member: "member" }]).command,
       ).toEqual(["zadd", "key", "nx", 0, "member"]);
     });
   });
@@ -31,8 +33,7 @@ describe("command format", () => {
   describe("with xx", () => {
     test("build the correct command", () => {
       expect(
-        new ZAddCommand(["key", { xx: true }, { score: 0, member: "member" }])
-          .command
+        new ZAddCommand(["key", { xx: true }, { score: 0, member: "member" }]).command,
       ).toEqual(["zadd", "key", "xx", 0, "member"]);
     });
   });
@@ -40,8 +41,7 @@ describe("command format", () => {
   describe("with ch", () => {
     test("build the correct command", () => {
       expect(
-        new ZAddCommand(["key", { ch: true }, { score: 0, member: "member" }])
-          .command
+        new ZAddCommand(["key", { ch: true }, { score: 0, member: "member" }]).command,
       ).toEqual(["zadd", "key", "ch", 0, "member"]);
     });
   });
@@ -49,8 +49,7 @@ describe("command format", () => {
   describe("with incr", () => {
     test("build the correct command", () => {
       expect(
-        new ZAddCommand(["key", { incr: true }, { score: 0, member: "member" }])
-          .command
+        new ZAddCommand(["key", { incr: true }, { score: 0, member: "member" }]).command,
       ).toEqual(["zadd", "key", "incr", 0, "member"]);
     });
   });
@@ -58,11 +57,7 @@ describe("command format", () => {
   describe("with nx and ch", () => {
     test("build the correct command", () => {
       expect(
-        new ZAddCommand([
-          "key",
-          { nx: true, ch: true },
-          { score: 0, member: "member" },
-        ]).command
+        new ZAddCommand(["key", { nx: true, ch: true }, { score: 0, member: "member" }]).command,
       ).toEqual(["zadd", "key", "nx", "ch", 0, "member"]);
     });
   });
@@ -70,11 +65,8 @@ describe("command format", () => {
   describe("with nx,ch and incr", () => {
     test("build the correct command", () => {
       expect(
-        new ZAddCommand([
-          "key",
-          { nx: true, ch: true, incr: true },
-          { score: 0, member: "member" },
-        ]).command
+        new ZAddCommand(["key", { nx: true, ch: true, incr: true }, { score: 0, member: "member" }])
+          .command,
       ).toEqual(["zadd", "key", "nx", "ch", "incr", 0, "member"]);
     });
   });
@@ -87,7 +79,7 @@ describe("command format", () => {
           { nx: true },
           { score: 0, member: "member" },
           { score: 1, member: "member1" },
-        ]).command
+        ]).command,
       ).toEqual(["zadd", "key", "nx", 0, "member", 1, "member1"]);
     });
   });
@@ -111,11 +103,9 @@ describe("xx", () => {
       const score = Math.floor(Math.random() * 10);
       await new ZAddCommand([key, { score, member }]).exec(client);
       const newScore = score + 1;
-      const res = await new ZAddCommand([
-        key,
-        { xx: true },
-        { score: newScore, member },
-      ]).exec(client);
+      const res = await new ZAddCommand([key, { xx: true }, { score: newScore, member }]).exec(
+        client,
+      );
       expect(res).toEqual(0);
 
       const res2 = await new ZScoreCommand([key, member]).exec(client);
@@ -129,11 +119,9 @@ describe("xx", () => {
       const score = Math.floor(Math.random() * 10);
       await new ZAddCommand([key, { score, member }]).exec(client);
       const newScore = score + 1;
-      const res = await new ZAddCommand([
-        key,
-        { xx: true },
-        { score: newScore, member },
-      ]).exec(client);
+      const res = await new ZAddCommand([key, { xx: true }, { score: newScore, member }]).exec(
+        client,
+      );
       expect(res).toEqual(0);
     });
   });
@@ -147,11 +135,9 @@ describe("nx", () => {
       const score = Math.floor(Math.random() * 10);
       await new ZAddCommand([key, { score, member }]).exec(client);
       const newScore = score + 1;
-      const res = await new ZAddCommand([
-        key,
-        { nx: true },
-        { score: newScore, member },
-      ]).exec(client);
+      const res = await new ZAddCommand([key, { nx: true }, { score: newScore, member }]).exec(
+        client,
+      );
       expect(res).toEqual(0);
 
       const res2 = await new ZScoreCommand([key, member]).exec(client);
@@ -163,11 +149,7 @@ describe("nx", () => {
       const key = newKey();
       const member = randomID();
       const score = Math.floor(Math.random() * 10);
-      const res = await new ZAddCommand([
-        key,
-        { nx: true },
-        { score, member },
-      ]).exec(client);
+      const res = await new ZAddCommand([key, { nx: true }, { score, member }]).exec(client);
       expect(res).toEqual(1);
     });
   });
@@ -180,11 +162,9 @@ describe("ch", () => {
     const score = Math.floor(Math.random() * 10);
     await new ZAddCommand([key, { score, member }]).exec(client);
     const newScore = score + 1;
-    const res = await new ZAddCommand([
-      key,
-      { ch: true },
-      { score: newScore, member },
-    ]).exec(client);
+    const res = await new ZAddCommand([key, { ch: true }, { score: newScore, member }]).exec(
+      client,
+    );
     expect(res).toEqual(1);
   });
 });
@@ -195,11 +175,7 @@ describe("incr", () => {
     const member = randomID();
     const score = Math.floor(Math.random() * 10);
     await new ZAddCommand([key, { score, member }]).exec(client);
-    const res = await new ZAddCommand([
-      key,
-      { incr: true },
-      { score: 1, member },
-    ]).exec(client);
+    const res = await new ZAddCommand([key, { incr: true }, { score: 1, member }]).exec(client);
     expect(typeof res).toBe("number");
     expect(res).toEqual(score + 1);
   });
@@ -214,18 +190,9 @@ describe("LT and GT", () => {
       await new ZAddCommand([key, { score: 2, member: "two" }]).exec(client);
       await new ZAddCommand([key, { score: 3, member: "three" }]).exec(client);
 
-      await new ZAddCommand([
-        key,
-        { gt: true },
-        { score: 4, member: "two" },
-      ]).exec(client);
+      await new ZAddCommand([key, { gt: true }, { score: 4, member: "two" }]).exec(client);
 
-      const res2 = await new ZRangeCommand([
-        key,
-        0,
-        -1,
-        { withScores: true },
-      ]).exec(client);
+      const res2 = await new ZRangeCommand([key, 0, -1, { withScores: true }]).exec(client);
 
       expect(res2).toEqual(["one", 1, "three", 3, "two", 4]);
     });
@@ -237,18 +204,9 @@ describe("LT and GT", () => {
       await new ZAddCommand([key, { score: 2, member: "two" }]).exec(client);
       await new ZAddCommand([key, { score: 3, member: "three" }]).exec(client);
 
-      await new ZAddCommand([
-        key,
-        { gt: true },
-        { score: 1, member: "two" },
-      ]).exec(client);
+      await new ZAddCommand([key, { gt: true }, { score: 1, member: "two" }]).exec(client);
 
-      const res2 = await new ZRangeCommand([
-        key,
-        0,
-        -1,
-        { withScores: true },
-      ]).exec(client);
+      const res2 = await new ZRangeCommand([key, 0, -1, { withScores: true }]).exec(client);
 
       expect(res2).toEqual(["one", 1, "two", 2, "three", 3]);
     });
@@ -261,18 +219,9 @@ describe("LT and GT", () => {
       await new ZAddCommand([key, { score: 1, member: "one" }]).exec(client);
       await new ZAddCommand([key, { score: 2, member: "two" }]).exec(client);
       await new ZAddCommand([key, { score: 3, member: "three" }]).exec(client);
-      await new ZAddCommand([
-        key,
-        { lt: true },
-        { score: 2, member: "three" },
-      ]).exec(client);
+      await new ZAddCommand([key, { lt: true }, { score: 2, member: "three" }]).exec(client);
 
-      const res2 = await new ZRangeCommand([
-        key,
-        0,
-        -1,
-        { withScores: true },
-      ]).exec(client);
+      const res2 = await new ZRangeCommand([key, 0, -1, { withScores: true }]).exec(client);
       expect(res2).toEqual(["one", 1, "three", 2, "two", 2]);
     });
 
@@ -283,18 +232,9 @@ describe("LT and GT", () => {
       await new ZAddCommand([key, { score: 2, member: "two" }]).exec(client);
       await new ZAddCommand([key, { score: 3, member: "three" }]).exec(client);
 
-      await new ZAddCommand([
-        key,
-        { lt: true },
-        { score: 6, member: "two" },
-      ]).exec(client);
+      await new ZAddCommand([key, { lt: true }, { score: 6, member: "two" }]).exec(client);
 
-      const res2 = await new ZRangeCommand([
-        key,
-        0,
-        -1,
-        { withScores: true },
-      ]).exec(client);
+      const res2 = await new ZRangeCommand([key, 0, -1, { withScores: true }]).exec(client);
 
       expect(res2).toEqual(["one", 1, "two", 2, "three", 3]);
     });

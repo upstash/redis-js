@@ -57,10 +57,7 @@ export function keygen(): {
   };
 }
 
-export async function addNewItemToStream(
-  streamKey: string,
-  client: HttpClient
-) {
+export async function addNewItemToStream(streamKey: string, client: HttpClient) {
   const field1 = "field1";
   const member1 = randomID();
   const field2 = "field2";

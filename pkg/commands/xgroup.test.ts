@@ -1,8 +1,8 @@
 import { keygen, newHttpClient } from "../test-utils";
 
 import { afterAll, describe, expect, test } from "bun:test";
-import { XGroupCommand } from "./xgroup";
 import { XAddCommand } from "./xadd";
+import { XGroupCommand } from "./xgroup";
 
 const client = newHttpClient();
 
@@ -30,9 +30,7 @@ describe("XGROUP CREATE", () => {
     const throwable = async () => {
       const key = newKey();
       const group = newKey();
-      await new XGroupCommand([key, { type: "CREATE", group, id: "$" }]).exec(
-        client
-      );
+      await new XGroupCommand([key, { type: "CREATE", group, id: "$" }]).exec(client);
     };
 
     expect(throwable).toThrow();

@@ -6,26 +6,18 @@ export const UNBALANCED_XREAD_ERR =
 type XReadCommandOptions = [
   key: string | string[],
   id: string | string[],
-  options?: { count?: number; blockMS?: number }
+  options?: { count?: number; blockMS?: number },
 ];
 
 //This type ensures users have balanced stream keys and stream ids otherwise redis server will throw an error.
 type XReadOptions = XReadCommandOptions extends [infer K, infer I, ...any[]]
   ? K extends string
     ? I extends string
-      ? [
-          key: string,
-          id: string,
-          options?: { count?: number; blockMS?: number }
-        ]
+      ? [key: string, id: string, options?: { count?: number; blockMS?: number }]
       : never
     : K extends string[]
     ? I extends string[]
-      ? [
-          key: string[],
-          id: string[],
-          options?: { count?: number; blockMS?: number }
-        ]
+      ? [key: string[], id: string[], options?: { count?: number; blockMS?: number }]
       : never
     : never
   : never;
@@ -34,10 +26,7 @@ type XReadOptions = XReadCommandOptions extends [infer K, infer I, ...any[]]
  * @see https://redis.io/commands/xread
  */
 export class XReadCommand extends Command<number, unknown[]> {
-  constructor(
-    [key, id, options]: XReadOptions,
-    opts?: CommandOptions<number, unknown[]>
-  ) {
+  constructor([key, id, options]: XReadOptions, opts?: CommandOptions<number, unknown[]>) {
     if (Array.isArray(key) && Array.isArray(id)) {
       if (key.length !== id.length) {
         throw new Error(UNBALANCED_XREAD_ERR);
@@ -55,7 +44,7 @@ export class XReadCommand extends Command<number, unknown[]> {
     commands.push(
       "STREAMS",
       ...(Array.isArray(key) ? [...key] : [key]),
-      ...(Array.isArray(id) ? [...id] : [id])
+      ...(Array.isArray(id) ? [...id] : [id]),
     );
 
     super(["XREAD", ...commands], opts);

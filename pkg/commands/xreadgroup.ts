@@ -9,7 +9,7 @@ type XReadGroupCommandOptions = [
   consumer: string,
   key: string | string[],
   id: string | string[],
-  options?: Options
+  options?: Options,
 ];
 
 //This type ensures users have balanced stream keys and stream ids otherwise redis server will throw an error.
@@ -18,27 +18,15 @@ type XReadGroupOptions = XReadGroupCommandOptions extends [
   string,
   infer TKey,
   infer TId,
-  ...any[]
+  ...any[],
 ]
   ? TKey extends string
     ? TId extends string
-      ? [
-          group: string,
-          consumer: string,
-          key: string,
-          id: string,
-          options?: Options
-        ]
+      ? [group: string, consumer: string, key: string, id: string, options?: Options]
       : never
     : TKey extends string[]
     ? TId extends string[]
-      ? [
-          group: string,
-          consumer: string,
-          key: string[],
-          id: string[],
-          options?: Options
-        ]
+      ? [group: string, consumer: string, key: string[], id: string[], options?: Options]
       : never
     : never
   : never;
@@ -49,7 +37,7 @@ type XReadGroupOptions = XReadGroupCommandOptions extends [
 export class XReadGroupCommand extends Command<number, unknown[]> {
   constructor(
     [group, consumer, key, id, options]: XReadGroupOptions,
-    opts?: CommandOptions<number, unknown[]>
+    opts?: CommandOptions<number, unknown[]>,
   ) {
     if (Array.isArray(key) && Array.isArray(id)) {
       if (key.length !== id.length) {
@@ -71,7 +59,7 @@ export class XReadGroupCommand extends Command<number, unknown[]> {
     commands.push(
       "STREAMS",
       ...(Array.isArray(key) ? [...key] : [key]),
-      ...(Array.isArray(id) ? [...id] : [id])
+      ...(Array.isArray(id) ? [...id] : [id]),
     );
 
     super(["XREADGROUP", "GROUP", group, consumer, ...commands], opts);

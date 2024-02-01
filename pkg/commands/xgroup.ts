@@ -43,12 +43,13 @@ type XGroupReturnType<T extends XGroupCommandType> = T["type"] extends "CREATE"
 /**
  * @see https://redis.io/commands/xgroup
  */
-export class XGroupCommand<
-  TOptions extends XGroupCommandType = XGroupCommandType
-> extends Command<any, XGroupReturnType<TOptions>> {
+export class XGroupCommand<TOptions extends XGroupCommandType = XGroupCommandType> extends Command<
+  any,
+  XGroupReturnType<TOptions>
+> {
   constructor(
     [key, opts]: [key: string, opts: TOptions],
-    commandOptions?: CommandOptions<any, any>
+    commandOptions?: CommandOptions<any, any>,
   ) {
     const command: unknown[] = ["XGROUP"];
 

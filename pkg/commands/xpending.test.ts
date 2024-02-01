@@ -1,17 +1,10 @@
 import { addNewItemToStream, keygen, newHttpClient } from "../test-utils";
 
-import {
-  afterAll,
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  test,
-} from "bun:test";
+import { afterAll, afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { sleep } from "bun";
 import { XGroupCommand } from "./xgroup";
 import { XPendingCommand } from "./xpending";
 import { XReadGroupCommand } from "./xreadgroup";
-import { sleep } from "bun";
 
 const client = newHttpClient();
 
@@ -30,24 +23,12 @@ describe("XPENDING", () => {
     ]).exec(client);
     await addNewItemToStream(streamKey1, client);
 
-    await new XReadGroupCommand([
-      group,
-      consumer,
-      streamKey1,
-      ">",
-      { count: 1 },
-    ]).exec(client);
+    await new XReadGroupCommand([group, consumer, streamKey1, ">", { count: 1 }]).exec(client);
   });
   afterEach(cleanup);
 
   test("should get pending messages", async () => {
-    const pending = await new XPendingCommand([
-      streamKey1,
-      group,
-      "-",
-      "+",
-      10,
-    ]).exec(client);
+    const pending = await new XPendingCommand([streamKey1, group, "-", "+", 10]).exec(client);
 
     expect(pending).toBeInstanceOf(Array);
     expect(pending.length).toBeGreaterThan(0);
@@ -69,7 +50,6 @@ describe("XPENDING", () => {
   });
 
   test("should not get pending messages with idle time", async () => {
-    await sleep(350);
     const pending = await new XPendingCommand([
       streamKey1,
       group,
@@ -78,20 +58,13 @@ describe("XPENDING", () => {
       10,
       { idleTime: 500 },
     ]).exec(client);
-
     expect(pending).toBeInstanceOf(Array);
     expect(pending.length).toEqual(0);
   });
 
   test("should get specific consumer", async () => {
     const newConsumer = newKey();
-    await new XReadGroupCommand([
-      group,
-      newConsumer,
-      streamKey1,
-      ">",
-      { count: 1 },
-    ]).exec(client);
+    await new XReadGroupCommand([group, newConsumer, streamKey1, ">", { count: 1 }]).exec(client);
 
     const pending = await new XPendingCommand([
       streamKey1,

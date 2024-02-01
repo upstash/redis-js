@@ -12,20 +12,10 @@ afterAll(cleanup);
 describe("XLEN", () => {
   test("should give size of the stream", async () => {
     const key = newKey();
-    await new XAddCommand([key, "*", { name: "Jane", surname: "Austen" }]).exec(
-      client
-    );
-    await new XAddCommand([
-      key,
-      "*",
-      { name: "Toni", surname: "Morrison" },
-    ]).exec(client);
+    await new XAddCommand([key, "*", { name: "Jane", surname: "Austen" }]).exec(client);
+    await new XAddCommand([key, "*", { name: "Toni", surname: "Morrison" }]).exec(client);
 
-    await new XAddCommand([
-      key,
-      "*",
-      { name: "Hezarfen", surname: "----" },
-    ]).exec(client);
+    await new XAddCommand([key, "*", { name: "Hezarfen", surname: "----" }]).exec(client);
 
     const res = await new XLenCommand([key]).exec(client);
 

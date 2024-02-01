@@ -18,9 +18,9 @@ export class XClaimCommand extends Command<unknown[], unknown[]> {
         force?: boolean;
         justId?: boolean;
         lastId?: number;
-      }
+      },
     ],
-    opts?: CommandOptions<unknown[], unknown[]>
+    opts?: CommandOptions<unknown[], unknown[]>,
   ) {
     const ids = Array.isArray(id) ? [...id] : [id];
     const commands: unknown[] = [];
@@ -49,9 +49,6 @@ export class XClaimCommand extends Command<unknown[], unknown[]> {
       commands.push("LASTID", options.lastId);
     }
 
-    super(
-      ["XCLAIM", key, group, consumer, minIdleTime, ...ids, ...commands],
-      opts
-    );
+    super(["XCLAIM", key, group, consumer, minIdleTime, ...ids, ...commands], opts);
   }
 }

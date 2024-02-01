@@ -1,5 +1,5 @@
-import { newHttpClient, keygen, randomID } from "../test-utils.ts";
-import { afterEach, expect, test, describe } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
+import { keygen, newHttpClient, randomID } from "../test-utils.ts";
 
 import { PfAddCommand } from "./pfadd.ts";
 import { PfCountCommand } from "./pfcount.ts";
@@ -30,7 +30,6 @@ describe("multiple keys cardinality check", () => {
   const value2 = randomID();
   const value3 = randomID();
   const value4 = randomID();
-  const value5 = randomID();
 
   test("insert unique strings into two HLLs", async () => {
     await new PfAddCommand([key1, value1, value2]).exec(client);

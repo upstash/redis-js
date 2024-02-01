@@ -14,9 +14,9 @@ export class XPendingCommand extends Command<unknown[], unknown[]> {
       options?: {
         idleTime?: number;
         consumer?: string | string[];
-      }
+      },
     ],
-    opts?: CommandOptions<unknown[], unknown[]>
+    opts?: CommandOptions<unknown[], unknown[]>,
   ) {
     const consumers =
       typeof options?.consumer !== "undefined"
@@ -36,7 +36,7 @@ export class XPendingCommand extends Command<unknown[], unknown[]> {
         count,
         ...consumers,
       ],
-      opts
+      opts,
     );
   }
 }

@@ -262,42 +262,6 @@ export class Redis {
         new JsonForgetCommand(args, this.opts).exec(this.client),
 
       /**
-       * @see https://redis.io/commands/geoadd
-       */
-      geoadd: (...args: CommandArgs<typeof GeoAddCommand>) =>
-        new GeoAddCommand(args, this.opts).exec(this.client),
-
-      /**
-       * @see https://redis.io/commands/geopos
-       */
-      geopos: (...args: CommandArgs<typeof GeoPosCommand>) =>
-        new GeoPosCommand(args, this.opts).exec(this.client),
-
-      /**
-       * @see https://redis.io/commands/geodist
-       */
-      geodist: (...args: CommandArgs<typeof GeoDistCommand>) =>
-        new GeoDistCommand(args, this.opts).exec(this.client),
-
-      /**
-       * @see https://redis.io/commands/geohash
-       */
-      geohash: (...args: CommandArgs<typeof GeoHashCommand>) =>
-        new GeoHashCommand(args, this.opts).exec(this.client),
-
-      /**
-       * @see https://redis.io/commands/geosearch
-       */
-      geosearch: (...args: CommandArgs<typeof GeoSearchCommand>) =>
-        new GeoSearchCommand(args, this.opts).exec(this.client),
-
-      /**
-       * @see https://redis.io/commands/geosearchstore
-       */
-      geosearchstore: (...args: CommandArgs<typeof GeoSearchStoreCommand>) =>
-        new GeoSearchStoreCommand(args, this.opts).exec(this.client),
-
-      /**
        * @see https://redis.io/commands/json.get
        */
       get: <TData>(...args: CommandArgs<typeof JsonGetCommand>) =>
@@ -547,6 +511,42 @@ export class Redis {
    */
   flushdb = (...args: CommandArgs<typeof FlushDBCommand>) =>
     new FlushDBCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/geoadd
+   */
+  geoadd = (...args: CommandArgs<typeof GeoAddCommand>) =>
+    new GeoAddCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/geopos
+   */
+  geopos = (...args: CommandArgs<typeof GeoPosCommand>) =>
+    new GeoPosCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/geodist
+   */
+  geodist = (...args: CommandArgs<typeof GeoDistCommand>) =>
+    new GeoDistCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/geohash
+   */
+  geohash = (...args: CommandArgs<typeof GeoHashCommand>) =>
+    new GeoHashCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/geosearch
+   */
+  geosearch = (...args: CommandArgs<typeof GeoSearchCommand>) =>
+    new GeoSearchCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/geosearchstore
+   */
+  geosearchstore = (...args: CommandArgs<typeof GeoSearchStoreCommand>) =>
+    new GeoSearchStoreCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/get

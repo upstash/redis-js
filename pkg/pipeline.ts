@@ -413,6 +413,42 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
     this.chain(new FlushDBCommand(args, this.commandOptions));
 
   /**
+   * @see https://redis.io/commands/geoadd
+   */
+  geoadd = (...args: CommandArgs<typeof GeoAddCommand>) =>
+    this.chain(new GeoAddCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/geodist
+   */
+  geodist = (...args: CommandArgs<typeof GeoDistCommand>) =>
+    this.chain(new GeoDistCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/geopos
+   */
+  geopos = (...args: CommandArgs<typeof GeoPosCommand>) =>
+    this.chain(new GeoPosCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/geohash
+   */
+  geohash = (...args: CommandArgs<typeof GeoHashCommand>) =>
+    this.chain(new GeoHashCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/geosearch
+   */
+  geosearch = (...args: CommandArgs<typeof GeoSearchCommand>) =>
+    this.chain(new GeoSearchCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/geosearchstore
+   */
+  geosearchstore = (...args: CommandArgs<typeof GeoSearchStoreCommand>) =>
+    this.chain(new GeoSearchStoreCommand(args, this.commandOptions));
+
+  /**
    * @see https://redis.io/commands/get
    */
   get = <TData>(...args: CommandArgs<typeof GetCommand>) =>
@@ -1232,42 +1268,6 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
        */
       forget: (...args: CommandArgs<typeof JsonForgetCommand>) =>
         this.chain(new JsonForgetCommand(args, this.commandOptions)),
-
-      /**
-       * @see https://redis.io/commands/geoadd
-       */
-      geoadd: (...args: CommandArgs<typeof GeoAddCommand>) =>
-        this.chain(new GeoAddCommand(args, this.commandOptions)),
-
-      /**
-       * @see https://redis.io/commands/geodist
-       */
-      geodist: (...args: CommandArgs<typeof GeoDistCommand>) =>
-        this.chain(new GeoDistCommand(args, this.commandOptions)),
-
-      /**
-       * @see https://redis.io/commands/geopos
-       */
-      geopos: (...args: CommandArgs<typeof GeoPosCommand>) =>
-        this.chain(new GeoPosCommand(args, this.commandOptions)),
-
-      /**
-       * @see https://redis.io/commands/geohash
-       */
-      geohash: (...args: CommandArgs<typeof GeoHashCommand>) =>
-        this.chain(new GeoHashCommand(args, this.commandOptions)),
-
-      /**
-       * @see https://redis.io/commands/geosearch
-       */
-      geosearch: (...args: CommandArgs<typeof GeoSearchCommand>) =>
-        this.chain(new GeoSearchCommand(args, this.commandOptions)),
-
-      /**
-       * @see https://redis.io/commands/geosearchstore
-       */
-      geosearchstore: (...args: CommandArgs<typeof GeoSearchStoreCommand>) =>
-        this.chain(new GeoSearchStoreCommand(args, this.commandOptions)),
 
       /**
        * @see https://redis.io/commands/json.get

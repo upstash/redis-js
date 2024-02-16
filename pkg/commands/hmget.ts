@@ -29,7 +29,7 @@ function deserialize<TData extends Record<string, unknown>>(
  *
  * @see https://redis.io/commands/hmget
  */
-export class HMGetCommand<TData extends Record<string, unknown>,> extends Command<
+export class HMGetCommand<TData extends Record<string, unknown>> extends Command<
   (string | null)[],
   TData | null
 > {

@@ -18,6 +18,9 @@
       },
       "suspicious": {
         "noExplicitAny": "off"
+      },
+      "style": {
+        "noNonNullAssertion": "off"
       }
     },
     "ignore": ["node_modules", "dist"]

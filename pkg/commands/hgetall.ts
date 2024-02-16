@@ -27,7 +27,7 @@ function deserialize<TData extends Record<string, unknown>>(result: string[]): T
 /**
  * @see https://redis.io/commands/hgetall
  */
-export class HGetAllCommand<TData extends Record<string, unknown>,> extends Command<
+export class HGetAllCommand<TData extends Record<string, unknown>> extends Command<
   unknown | null,
   TData | null
 > {

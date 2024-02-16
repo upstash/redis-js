@@ -1,8 +1,6 @@
 import { expect, test } from "bun:test";
 import { newHttpClient } from "../test-utils";
 
-
-
 import { GeoAddCommand } from "./geo_add";
 import { GeoDistCommand } from "./geo_dist";
 
@@ -15,11 +13,9 @@ test("should return distance successfully in meters", async () => {
     { longitude: 15.087269, latitude: 37.502669, member: "Catania" },
   ]).exec(client);
 
-  const res = await new GeoDistCommand(["Sicily", "Palermo", "Catania"]).exec(
-    client,
-  );
+  const res = await new GeoDistCommand(["Sicily", "Palermo", "Catania"]).exec(client);
 
-  expect(res).toEqual( 166274.1516);
+  expect(res).toEqual(166274.1516);
 });
 
 test("should return distance for object members", async () => {
@@ -29,13 +25,15 @@ test("should return distance for object members", async () => {
     { longitude: 15.087269, latitude: 37.502669, member: { name: "Catania" } },
   ]).exec(client);
 
-  const res = await new GeoDistCommand(["Sicily", { name: "Palermo" }, {
-    name: "Catania",
-  }]).exec(
-    client,
-  );
+  const res = await new GeoDistCommand([
+    "Sicily",
+    { name: "Palermo" },
+    {
+      name: "Catania",
+    },
+  ]).exec(client);
 
-  expect(res).toEqual( 166274.1516);
+  expect(res).toEqual(166274.1516);
 });
 
 test("should return distance successfully in kilometers", async () => {
@@ -45,10 +43,9 @@ test("should return distance successfully in kilometers", async () => {
     { longitude: 15.087269, latitude: 37.502669, member: "Catania" },
   ]).exec(client);
 
-  const res = await new GeoDistCommand(["Sicily", "Palermo", "Catania", "KM"])
-    .exec(client);
+  const res = await new GeoDistCommand(["Sicily", "Palermo", "Catania", "KM"]).exec(client);
 
-  expect(res).toEqual( 166.2742);
+  expect(res).toEqual(166.2742);
 });
 
 test("should return distance successfully in miles", async () => {
@@ -58,10 +55,9 @@ test("should return distance successfully in miles", async () => {
     { longitude: 15.087269, latitude: 37.502669, member: "Catania" },
   ]).exec(client);
 
-  const res = await new GeoDistCommand(["Sicily", "Palermo", "Catania", "MI"])
-    .exec(client);
+  const res = await new GeoDistCommand(["Sicily", "Palermo", "Catania", "MI"]).exec(client);
 
-  expect(res).toEqual( 103.3182);
+  expect(res).toEqual(103.3182);
 });
 
 test("should return distance successfully in feet", async () => {
@@ -71,14 +67,13 @@ test("should return distance successfully in feet", async () => {
     { longitude: 15.087269, latitude: 37.502669, member: "Catania" },
   ]).exec(client);
 
-  const res = await new GeoDistCommand(["Sicily", "Palermo", "Catania", "FT"])
-    .exec(client);
+  const res = await new GeoDistCommand(["Sicily", "Palermo", "Catania", "FT"]).exec(client);
 
-  expect(res?.toString()).toEqual( "545518.8700");
+  expect(res?.toString()).toEqual("545518.8700");
 });
 
 test("should return null if members doesn't exist", async () => {
   const res = await new GeoDistCommand(["Sicily", "FOO", "BAR"]).exec(client);
 
-  expect(res).toEqual( null);
+  expect(res).toEqual(null);
 });

@@ -25,10 +25,10 @@ type XReadGroupOptions = XReadGroupCommandOptions extends [
       ? [group: string, consumer: string, key: string, id: string, options?: Options]
       : never
     : TKey extends string[]
-    ? TId extends string[]
-      ? [group: string, consumer: string, key: string[], id: string[], options?: Options]
+      ? TId extends string[]
+        ? [group: string, consumer: string, key: string[], id: string[], options?: Options]
+        : never
       : never
-    : never
   : never;
 
 /**

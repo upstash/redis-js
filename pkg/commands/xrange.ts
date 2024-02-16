@@ -27,7 +27,7 @@ function deserialize<TData extends Record<string, Record<string, unknown>>>(
   return obj as TData;
 }
 
-export class XRangeCommand<TData extends Record<string, Record<string, unknown>>,> extends Command<
+export class XRangeCommand<TData extends Record<string, Record<string, unknown>>> extends Command<
   string[][],
   TData
 > {

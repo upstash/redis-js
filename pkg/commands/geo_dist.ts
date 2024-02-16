@@ -3,8 +3,7 @@ import { Command, CommandOptions } from "./command";
 /**
  * @see https://redis.io/commands/geodist
  */
-export class GeoDistCommand<TMemberType = string>
-  extends Command<number | null, number | null> {
+export class GeoDistCommand<TMemberType = string> extends Command<number | null, number | null> {
   constructor(
     [key, member1, member2, unit = "M"]: [
       key: string,

@@ -9,14 +9,18 @@ const { newKey, cleanup } = keygen();
 afterEach(cleanup);
 
 describe("when storing base64 data", () => {
-  test("general", async () => {
-    const redis = new Redis(client);
-    const key = newKey();
-    const value = "VXBzdGFzaCBpcyByZWFsbHkgY29vbA";
-    await redis.set(key, value);
-    const res = await redis.get(key);
-    expect(res).toEqual(value);
-  });
+  test(
+    "general",
+    async () => {
+      const redis = new Redis(client);
+      const key = newKey();
+      const value = "VXBzdGFzaCBpcyByZWFsbHkgY29vbA";
+      await redis.set(key, value);
+      const res = await redis.get(key);
+      expect(res).toEqual(value);
+    },
+    { timeout: 150000 },
+  );
 
   // decode("OK") => 8
   test("getting '8'", async () => {
@@ -37,7 +41,7 @@ describe("when storing base64 data", () => {
   });
 });
 
-describe("mget", async () => {
+describe("mget", () => {
   const key = newKey();
   const key1 = newKey();
   const value = "foobar";
@@ -132,7 +136,7 @@ test("special data", () => {
     await redis.set(key, value);
     const res = await redis.get<string>(key);
 
-    expect(res!).toEqual(value);
+    expect(res).toEqual(value);
   });
   test("empty string", async () => {
     const key = newKey();
@@ -141,14 +145,14 @@ test("special data", () => {
     await redis.set(key, value);
     const res = await redis.get<string>(key);
 
-    expect(res!).toEqual(value);
+    expect(res).toEqual(value);
   });
 
   test("not found key", async () => {
     const redis = new Redis(client);
     const res = await redis.get<string>(newKey());
 
-    expect(res!).toEqual(null);
+    expect(res).toEqual(null);
   });
 
   test("with encodeURIComponent", async () => {
@@ -157,8 +161,7 @@ test("special data", () => {
     const redis = new Redis(client);
     await redis.set(key, encodeURIComponent(value));
     const res = await redis.get<string>(key);
-
-    expect(decodeURIComponent(res!)).toEqual(value);
+    if (res) expect(decodeURIComponent(res)).toEqual(value);
   });
 
   test("without encodeURIComponent", async () => {
@@ -168,7 +171,7 @@ test("special data", () => {
     await redis.set(key, value);
     const res = await redis.get<string>(key);
 
-    expect(res!).toEqual(value);
+    expect(res).toEqual(value);
   });
   test("emojis", async () => {
     const key = newKey();

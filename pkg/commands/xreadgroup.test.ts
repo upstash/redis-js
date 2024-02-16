@@ -147,7 +147,7 @@ describe("Multiple Stream", () => {
     expect(listOfStreams.length).toEqual(wantedAmount);
   });
 
-  test("should throw when unbalanced is array passed", async () => {
+  test("should throw when unbalanced is array passed", () => {
     const throwable = async () => {
       const streamKey = newKey();
       const group = newKey();

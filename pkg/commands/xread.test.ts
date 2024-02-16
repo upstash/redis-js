@@ -100,7 +100,7 @@ describe("Multiple stream", () => {
 
   test(
     "should throw when unbalanced is array passed",
-    async () => {
+    () => {
       const throwable = async () => {
         const streamKey1 = newKey();
         await addNewItemToStream(streamKey1, client);

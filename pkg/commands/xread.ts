@@ -16,10 +16,10 @@ type XReadOptions = XReadCommandOptions extends [infer K, infer I, ...any[]]
       ? [key: string, id: string, options?: { count?: number; blockMS?: number }]
       : never
     : K extends string[]
-    ? I extends string[]
-      ? [key: string[], id: string[], options?: { count?: number; blockMS?: number }]
+      ? I extends string[]
+        ? [key: string[], id: string[], options?: { count?: number; blockMS?: number }]
+        : never
       : never
-    : never
   : never;
 
 /**

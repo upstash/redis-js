@@ -26,7 +26,7 @@ describe("XGROUP CREATE", () => {
     ]).exec(client);
     expect(res).toEqual("OK");
   });
-  test("should return error if stream and mkstream don't exist ", async () => {
+  test("should return error if stream and mkstream don't exist ", () => {
     const throwable = async () => {
       const key = newKey();
       const group = newKey();
@@ -120,7 +120,7 @@ describe("XGROUP DESTROY", () => {
     expect(res).toEqual(1);
   });
 
-  test("should throw if stream doesn't exist", async () => {
+  test("should throw if stream doesn't exist", () => {
     const throwable = async () => {
       const key = newKey();
       const group = newKey();

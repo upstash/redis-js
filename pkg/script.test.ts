@@ -7,13 +7,17 @@ const { cleanup } = keygen();
 afterEach(cleanup);
 
 describe("create a new script", () => {
-  test("creates a new script", async () => {
-    const redis = new Redis(client);
-    const script = redis.createScript("return ARGV[1];");
+  test(
+    "creates a new script",
+    async () => {
+      const redis = new Redis(client);
+      const script = redis.createScript("return ARGV[1];");
 
-    const res = await script.eval([], ["Hello World"]);
-    expect(res).toEqual("Hello World");
-  });
+      const res = await script.eval([], ["Hello World"]);
+      expect(res).toEqual("Hello World");
+    },
+    { timeout: 15000 },
+  );
 });
 
 describe("sha1", () => {

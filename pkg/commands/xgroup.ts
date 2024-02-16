@@ -31,14 +31,14 @@ type XGroupCommandType =
 type XGroupReturnType<T extends XGroupCommandType> = T["type"] extends "CREATE"
   ? string
   : T["type"] extends "CREATECONSUMER"
-  ? 0 | 1
-  : T["type"] extends "DELCONSUMER"
-  ? number
-  : T["type"] extends "DESTROY"
-  ? 0 | 1
-  : T["type"] extends "SETID"
-  ? string
-  : never;
+    ? 0 | 1
+    : T["type"] extends "DELCONSUMER"
+      ? number
+      : T["type"] extends "DESTROY"
+        ? 0 | 1
+        : T["type"] extends "SETID"
+          ? string
+          : never;
 
 /**
  * @see https://redis.io/commands/xgroup

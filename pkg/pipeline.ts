@@ -415,38 +415,38 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/geoadd
    */
-  geoadd = (...args: CommandArgs<typeof GeoAddCommand>) =>
-    this.chain(new GeoAddCommand(args, this.commandOptions));
+  geoadd = <TData>(...args: CommandArgs<typeof GeoAddCommand<TData>>) =>
+    this.chain(new GeoAddCommand<TData>(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/geodist
    */
-  geodist = (...args: CommandArgs<typeof GeoDistCommand>) =>
-    this.chain(new GeoDistCommand(args, this.commandOptions));
+  geodist = <TData>(...args: CommandArgs<typeof GeoDistCommand<TData>>) =>
+    this.chain(new GeoDistCommand<TData>(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/geopos
    */
-  geopos = (...args: CommandArgs<typeof GeoPosCommand>) =>
-    this.chain(new GeoPosCommand(args, this.commandOptions));
+  geopos = <TData>(...args: CommandArgs<typeof GeoPosCommand<TData>>) =>
+    this.chain(new GeoPosCommand<TData>(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/geohash
    */
-  geohash = (...args: CommandArgs<typeof GeoHashCommand>) =>
-    this.chain(new GeoHashCommand(args, this.commandOptions));
+  geohash = <TData>(...args: CommandArgs<typeof GeoHashCommand<TData>>) =>
+    this.chain(new GeoHashCommand<TData>(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/geosearch
    */
-  geosearch = (...args: CommandArgs<typeof GeoSearchCommand>) =>
-    this.chain(new GeoSearchCommand(args, this.commandOptions));
+  geosearch = <TData>(...args: CommandArgs<typeof GeoSearchCommand<TData>>) =>
+    this.chain(new GeoSearchCommand<TData>(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/geosearchstore
    */
-  geosearchstore = (...args: CommandArgs<typeof GeoSearchStoreCommand>) =>
-    this.chain(new GeoSearchStoreCommand(args, this.commandOptions));
+  geosearchstore = <TData>(...args: CommandArgs<typeof GeoSearchStoreCommand<TData>>) =>
+    this.chain(new GeoSearchStoreCommand<TData>(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/get

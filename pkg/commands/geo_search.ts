@@ -33,16 +33,15 @@ type OptionMappings = {
 };
 
 type GeoSearchOptions<TOptions> = {
-  [K in
-    keyof TOptions as K extends keyof OptionMappings
-      ? OptionMappings[K]
-      : never]: K extends "withHash"
+  [K in keyof TOptions as K extends keyof OptionMappings
+    ? OptionMappings[K]
+    : never]: K extends "withHash"
     ? string
     : K extends "withCoord"
-    ? { long: number; lat: number }
-    : K extends "withDist"
-    ? number
-    : never;
+      ? { long: number; lat: number }
+      : K extends "withDist"
+        ? number
+        : never;
 };
 
 type GeoSearchResponse<TOptions, TMemberType> = ({
@@ -96,32 +95,31 @@ export class GeoSearchCommand<
             return { member };
           }
         });
-      } else {
-        return result.map((members) => {
-          let counter = 1;
-          const obj = {} as any;
-
-          try {
-            obj.member = JSON.parse(members[0] as string);
-          } catch {
-            obj.member = members[0];
-          }
-
-          if (opts.withDist) {
-            obj.dist = parseFloat(members[counter++]);
-          }
-          if (opts.withHash) {
-            obj.hash = members[counter++].toString();
-          }
-          if (opts.withCoord) {
-            obj.coord = {
-              long: parseFloat(members[counter][0]),
-              lat: parseFloat(members[counter][1]),
-            };
-          }
-          return obj;
-        });
       }
+      return result.map((members) => {
+        let counter = 1;
+        const obj = {} as any;
+
+        try {
+          obj.member = JSON.parse(members[0] as string);
+        } catch {
+          obj.member = members[0];
+        }
+
+        if (opts.withDist) {
+          obj.dist = parseFloat(members[counter++]);
+        }
+        if (opts.withHash) {
+          obj.hash = members[counter++].toString();
+        }
+        if (opts.withCoord) {
+          obj.coord = {
+            long: parseFloat(members[counter][0]),
+            lat: parseFloat(members[counter][1]),
+          };
+        }
+        return obj;
+      });
     };
 
     super(

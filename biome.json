@@ -1,37 +1,34 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.0.0/schema.json",
-
+  "$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
-      "a11y": {
-        "noSvgWithoutTitle": "off"
-      },
       "correctness": {
-        "noUnusedVariables": "warn"
-      },
-      "security": {
-        "noDangerouslySetInnerHtml": "off"
-      },
-      "style": {
-        "useBlockStatements": "error",
-        "noNonNullAssertion": "off"
+        "noUnusedVariables": "error"
       },
       "performance": {
         "noDelete": "off"
       },
-      "suspicious":{
+      "nursery": {
+        "useAwait": "error"
+      },
+      "complexity": {
+        "noBannedTypes": "off"
+      },
+      "suspicious": {
         "noExplicitAny": "off"
       }
     },
-    "ignore": ["node_modules", ".next", "dist", ".nuxt", ".contentlayer"]
+    "ignore": ["node_modules", "dist"]
   },
   "formatter": {
     "indentStyle": "space",
     "indentWidth": 2,
     "enabled": true,
-    "lineWidth": 100,
-    "ignore": ["node_modules", ".next", "dist", ".nuxt", ".contentlayer"]
+    "lineWidth": 100
+  },
+  "organizeImports": {
+    "enabled": true
   }
 }

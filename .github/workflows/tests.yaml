@@ -20,13 +20,10 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v3
 
-      - name: Setup node
-        uses: actions/setup-node@v3
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: 18
-
-      - name: Install bun
-        run: npm install -g bun
+          bun-version: latest
 
       - name: Install Dependencies
         run: bun install
@@ -48,13 +45,11 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
 
-      - name: Install bun
-        run: npm install -g bun
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
       - name: Install Dependencies
         run: bun install
@@ -92,13 +87,11 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
 
-      - name: Install bun
-        run: npm install -g bun
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
       - name: Install Dependencies
         run: bun install
@@ -141,8 +134,10 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install bun
-        run: npm install -g bun
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
       - uses: pnpm/action-setup@v2
         with:
@@ -174,8 +169,10 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install bun
-        run: npm install -g bun
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
       - uses: pnpm/action-setup@v2
         with:
@@ -205,8 +202,10 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v3
 
-      - name: Install bun
-        run: npm install -g bun
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
       - name: Install Dependencies
         run: bun install
@@ -242,8 +241,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-      - name: Install bun
-        run: npm install -g bun
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
       - name: Install Dependencies
         run: bun install
@@ -295,8 +297,10 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install bun
-        run: npm install -g bun
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
       - name: Install example
         run: |
@@ -331,8 +335,10 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install bun
-        run: npm install -g bun
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
       - name: Install Dependencies
         run: bun install
@@ -385,8 +391,10 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install bun
-        run: npm install -g bun
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
       - name: Install example
         run: |
@@ -423,15 +431,14 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install bun
-        run: npm install -g bun
-
       - uses: pnpm/action-setup@v2
         with:
           version: latest
 
-      - name: Install bun
-        run: npm install -g bun
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
       - name: Install Dependencies
         run: bun install
@@ -479,8 +486,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-      - name: Install bun
-        run: npm install -g bun
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
       - name: Cache pnpm modules
         uses: actions/cache@v2
         with:
@@ -533,8 +544,11 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install bun
-        run: npm install -g bun
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
       - name: Install Dependencies
         run: bun install
 
@@ -576,8 +590,10 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install bun
-        run: npm install -g bun
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
       - name: Set version
         run: |

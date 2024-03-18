@@ -34,7 +34,7 @@ jobs:
         run: bun run fmt
 
       - name: Run tests
-        run: bun test pkg --bail --timeout 20000
+        run: bun test pkg --bail
 
       - name: Build
         run: bun run build

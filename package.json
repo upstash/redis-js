@@ -37,7 +37,7 @@
   "files": ["./**"],
   "scripts": {
     "build": "tsup && cp README.md ./dist/ && cp package.json ./dist/ && cp LICENSE ./dist/",
-    "test": "bun test pkg --coverage",
+    "test": "bun test pkg --coverage --timeout 20000",
     "fmt": "bunx @biomejs/biome check --apply ./pkg",
     "prepare": "husky install"
   },

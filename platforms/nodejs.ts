@@ -14,9 +14,7 @@ import { VERSION } from "../version";
  * Workaround for nodejs 14, where atob is not included in the standardlib
  */
 if (typeof atob === "undefined") {
-  global.atob = function (b64: string) {
-    return Buffer.from(b64, "base64").toString("utf-8");
-  };
+  global.atob = (b64: string) => Buffer.from(b64, "base64").toString("utf-8");
 }
 export type * from "../pkg/commands/types";
 export type { Requester, UpstashRequest, UpstashResponse };
@@ -55,6 +53,7 @@ export type RedisConfigNodejs = {
    * For more check: https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
    */
   signal?: AbortSignal;
+  latencyLogging?: boolean;
   agent?: any;
 } & core.RedisOptions &
   RequesterConfig;
@@ -104,18 +103,14 @@ export class Redis extends core.Redis {
       configOrRequester.url.endsWith(" ") ||
       /\r|\n/.test(configOrRequester.url)
     ) {
-      console.warn(
-        "The redis url contains whitespace or newline, which can cause errors!"
-      );
+      console.warn("The redis url contains whitespace or newline, which can cause errors!");
     }
     if (
       configOrRequester.token.startsWith(" ") ||
       configOrRequester.token.endsWith(" ") ||
       /\r|\n/.test(configOrRequester.token)
     ) {
-      console.warn(
-        "The redis token contains whitespace or newline, which can cause errors!"
-      );
+      console.warn("The redis token contains whitespace or newline, which can cause errors!");
     }
 
     const client = new HttpClient({
@@ -131,19 +126,14 @@ export class Redis extends core.Redis {
     super(client, {
       automaticDeserialization: configOrRequester.automaticDeserialization,
       enableTelemetry: !process.env.UPSTASH_DISABLE_TELEMETRY,
+      latencyLogging: configOrRequester.latencyLogging,
     });
 
     this.addTelemetry({
       runtime:
         // @ts-ignore
-        typeof EdgeRuntime === "string"
-          ? "edge-light"
-          : `node@${process.version}`,
-      platform: process.env.VERCEL
-        ? "vercel"
-        : process.env.AWS_REGION
-        ? "aws"
-        : "unknown",
+        typeof EdgeRuntime === "string" ? "edge-light" : `node@${process.version}`,
+      platform: process.env.VERCEL ? "vercel" : process.env.AWS_REGION ? "aws" : "unknown",
       sdk: `@upstash/redis@${VERSION}`,
     });
   }
@@ -161,22 +151,18 @@ export class Redis extends core.Redis {
     // @ts-ignore process will be defined in node
     if (typeof process?.env === "undefined") {
       throw new Error(
-        'Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please import from "@upstash/redis/cloudflare" instead'
+        'Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please import from "@upstash/redis/cloudflare" instead',
       );
     }
     // @ts-ignore process will be defined in node
     const url = process?.env.UPSTASH_REDIS_REST_URL;
     if (!url) {
-      throw new Error(
-        "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`"
-      );
+      throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_URL`");
     }
     // @ts-ignore process will be defined in node
     const token = process?.env.UPSTASH_REDIS_REST_TOKEN;
     if (!token) {
-      throw new Error(
-        "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`"
-      );
+      throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`");
     }
     return new Redis({ ...config, url, token });
   }

@@ -170,6 +170,7 @@ export class HttpClient implements Requester {
 
   public async request<TResult>(req: UpstashRequest): Promise<UpstashResponse<TResult>> {
     const requestOptions: RequestInit & { backend?: string; agent?: any } = {
+      //@ts-expect-error this should throw due to bun regression
       cache: this.options.cache,
       method: "POST",
       headers: this.headers,

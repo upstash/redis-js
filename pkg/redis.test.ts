@@ -237,3 +237,14 @@ test("disable base64 encoding", () => {
     expect(res).toEqual(value);
   });
 });
+
+describe("tests with latency logging", () => {
+  test("test should return OK with latency logs", async () => {
+    const redis = new Redis(client, { latencyLogging: true });
+    const key = newKey();
+    const value = "OK";
+    await redis.set(key, value);
+    const res = await redis.get(key);
+    expect(res).toEqual(value);
+  });
+});

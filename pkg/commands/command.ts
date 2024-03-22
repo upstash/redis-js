@@ -28,6 +28,7 @@ export type CommandOptions<TResult, TData> = {
    * @default true
    */
   automaticDeserialization?: boolean;
+  latencyLogging?: boolean;
 };
 /**
  * Command offers default (de)serialization and the exec method to all commands.
@@ -55,6 +56,22 @@ export class Command<TResult, TData> {
         : (x) => x as unknown as TData;
 
     this.command = command.map((c) => this.serialize(c));
+
+    if (opts?.latencyLogging) {
+      const originalExec = this.exec.bind(this);
+      this.exec = async (client: Requester): Promise<TData> => {
+        const start = performance.now();
+        const result = await originalExec(client);
+        const end = performance.now();
+        const loggerResult = (end - start).toFixed(2);
+        console.log(
+          `Latency for \x1b[38;2;19;185;39m${this.command[0]
+            .toString()
+            .toUpperCase()}\x1b[0m: \x1b[38;2;0;255;255m${loggerResult} ms\x1b[0m`,
+        );
+        return result;
+      };
+    }
   }
 
   /**

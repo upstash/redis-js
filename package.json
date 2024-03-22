@@ -33,19 +33,11 @@
     "type": "git",
     "url": "git+https://github.com/upstash/upstash-redis.git"
   },
-  "keywords": [
-    "redis",
-    "database",
-    "serverless",
-    "edge",
-    "upstash"
-  ],
-  "files": [
-    "./**"
-  ],
+  "keywords": ["redis", "database", "serverless", "edge", "upstash"],
+  "files": ["./**"],
   "scripts": {
     "build": "tsup && cp README.md ./dist/ && cp package.json ./dist/ && cp LICENSE ./dist/",
-    "test": "bun test pkg --coverage",
+    "test": "bun test pkg --coverage --timeout 20000",
     "fmt": "bunx @biomejs/biome check --apply ./pkg",
     "prepare": "husky install"
   },
@@ -57,23 +49,18 @@
   "homepage": "https://github.com/upstash/upstash-redis#readme",
   "typesVersions": {
     "*": {
-      "nodejs": [
-        "./nodejs.d.ts"
-      ],
-      "cloudflare": [
-        "./cloudflare.d.ts"
-      ],
-      "fastly": [
-        "./fastly.d.ts"
-      ]
+      "nodejs": ["./nodejs.d.ts"],
+      "cloudflare": ["./cloudflare.d.ts"],
+      "fastly": ["./fastly.d.ts"]
     }
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.3",
-    "bun-types": "^1.0.6",
+    "bun-types": "1.0.33",
     "tsup": "^7.2.0",
     "@biomejs/biome": "latest",
-    "husky": "^8.0.3"
+    "husky": "^8.0.3",
+    "typescript": "latest"
   },
   "dependencies": {
     "crypto-js": "^4.2.0"

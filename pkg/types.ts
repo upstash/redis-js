@@ -28,6 +28,6 @@ export type RedisOptions = {
    * @default true
    */
   automaticDeserialization?: boolean;
-
+  latencyLogging?: boolean;
   enableTelemetry?: boolean;
 };

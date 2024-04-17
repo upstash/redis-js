@@ -641,7 +641,7 @@ export class Redis {
    * @see https://redis.io/commands/hrandfield
    */
   hrandfield: {
-    (key: string): Promise<string>;
+    (key: string): Promise<string | null>;
     (key: string, count: number): Promise<string[]>;
     <TData extends Record<string, unknown>>(
       key: string,

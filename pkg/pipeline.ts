@@ -223,6 +223,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   private commands: TCommands;
   private commandOptions?: CommandOptions<any, any>;
   private multiExec: boolean;
+
   constructor(opts: {
     client: Requester;
     commandOptions?: CommandOptions<any, any>;
@@ -233,6 +234,26 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
     this.commands = [] as unknown as TCommands; // the TCommands generic in the class definition is only used for carrying through chained command types and should never be explicitly set when instantiating the class
     this.commandOptions = opts.commandOptions;
     this.multiExec = opts.multiExec ?? false;
+
+    if (this.commandOptions?.latencyLogging) {
+      const originalExec = this.exec.bind(this);
+      this.exec = async <
+        TCommandResults extends unknown[] = [] extends TCommands
+          ? unknown[]
+          : InferResponseData<TCommands>,
+      >(): Promise<TCommandResults> => {
+        const start = performance.now();
+        const result = await originalExec();
+        const end = performance.now();
+        const loggerResult = (end - start).toFixed(2);
+        console.log(
+          `Latency for \x1b[38;2;19;185;39m${
+            this.multiExec ? ["MULTI-EXEC"] : ["PIPELINE"].toString().toUpperCase()
+          }\x1b[0m: \x1b[38;2;0;255;255m${loggerResult} ms\x1b[0m`,
+        );
+        return result as TCommandResults;
+      };
+    }
   }
 
   /**

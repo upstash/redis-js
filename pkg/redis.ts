@@ -1,3 +1,4 @@
+import { PipelineAutoExecutor } from "./auto-pipeline";
 import {
   AppendCommand,
   BitCountCommand,
@@ -377,6 +378,16 @@ export class Redis {
       commandOptions: this.opts,
       multiExec: false,
     });
+
+  autoPipeline = (cb: (pipeline: Pipeline<[]>) => unknown) => {
+    return new PipelineAutoExecutor(
+      new Pipeline({
+        client: this.client,
+        commandOptions: this.opts,
+        multiExec: false,
+      }),
+    ).withAutoPipeline(cb);
+  };
 
   /**
    * Create a new transaction to allow executing multiple steps atomically.

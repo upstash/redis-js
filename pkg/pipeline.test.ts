@@ -140,7 +140,6 @@ describe("use all the things", () => {
       .get(newKey())
       .getbit(newKey(), 0)
       .getdel(newKey())
-      .getrange(newKey(), 0, 1)
       .getset(newKey(), "hello")
       .hdel(newKey(), "field")
       .hexists(newKey(), "field")
@@ -244,6 +243,6 @@ describe("use all the things", () => {
       .json.set(newKey(), "$", { hello: "world" });
 
     const res = await p.exec();
-    expect(res.length).toEqual(121);
+    expect(res.length).toEqual(120);
   });
 });

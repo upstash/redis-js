@@ -1,4 +1,4 @@
-import { PipelineAutoExecutor } from "./auto-pipeline";
+import { RedisAutoPipeline } from "./auto-pipeline";
 import {
   AppendCommand,
   BitCountCommand,
@@ -379,14 +379,14 @@ export class Redis {
       multiExec: false,
     });
 
-  autoPipeline = (cb: (pipeline: Pipeline<[]>) => unknown) => {
-    return new PipelineAutoExecutor(
+  autoPipeline = (): Promise<Pipeline<[]>> => {
+    return new RedisAutoPipeline(
       new Pipeline({
         client: this.client,
         commandOptions: this.opts,
         multiExec: false,
       }),
-    ).withAutoPipeline(cb);
+    );
   };
 
   /**

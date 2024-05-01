@@ -1,10 +1,34 @@
 import { Pipeline } from "./pipeline";
 
+export class RedisAutoPipeline {
+  private pipeline: PipelineAutoExecutor;
+
+  constructor(pipeline: Pipeline) {
+    this.pipeline = new PipelineAutoExecutor(pipeline);
+
+    // biome-ignore lint/correctness/noConstructorReturn: <explanation>
+    return new Proxy(this, {
+      get: (target, prop) => {
+        // If the method is a function on the pipeline, wrap it with the executor logic
+        if (typeof target.pipeline.pipeline[prop] === "function") {
+          return (...args) => {
+            return target.pipeline.withAutoPipeline((pipeline) => {
+              pipeline[prop](...args);
+            });
+          };
+        }
+        // If it's not a function, just return it
+        return target.pipeline[prop];
+      },
+    });
+  }
+}
+
 export class PipelineAutoExecutor {
   private pipelinePromises = new WeakMap<Pipeline, Promise<Array<unknown>>>();
   private activePipeline: Pipeline | null = null;
   private indexInCurrentPipeline = 0;
-  private pipeline: Pipeline<[]>;
+  pipeline: Pipeline<[]>;
 
   constructor(pipeline: Pipeline<[]>) {
     this.pipeline = pipeline;

@@ -6,6 +6,6 @@ export class ExpireCommand extends Command<"0" | "1", 0 | 1> {
     cmd: [key: string, seconds: number, option?: ExpireOptions],
     opts?: CommandOptions<"0" | "1", 0 | 1>,
   ) {
-    super(["expire", ...cmd], opts);
+    super(["expire", ...cmd.filter(Boolean)], opts);
   }
 }

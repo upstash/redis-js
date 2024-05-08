@@ -62,10 +62,15 @@ export class Redis extends core.Redis {
 
     super(client, {
       automaticDeserialization: config.automaticDeserialization,
+      enableAutoPipelining: config.enableAutoPipelining
     });
     this.addTelemetry({
       sdk: `@upstash/redis@${VERSION}`,
       platform: "fastly",
     });
+
+    if (this.enableAutoPipelining) {
+      return this.autoPipeline()
+    }
   }
 }

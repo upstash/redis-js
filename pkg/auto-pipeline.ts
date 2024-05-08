@@ -1,41 +1,40 @@
+import { Command } from "./commands/command";
+import { CommandArgs } from "./types";
 import { Pipeline } from "./pipeline";
+import { Redis } from "./redis";
 
-export class RedisAutoPipeline {
-  private pipeline: PipelineAutoExecutor;
+export function createAutoPipelineProxy(redis: Redis) {
+  redis.prepareAutoPipelineExecutor()
 
-  constructor(pipeline: Pipeline) {
-    this.pipeline = new PipelineAutoExecutor(pipeline);
-
-    // biome-ignore lint/correctness/noConstructorReturn: <explanation>
-    return new Proxy(this, {
-      get: (target, prop) => {
-        // If the method is a function on the pipeline, wrap it with the executor logic
-        if (typeof target.pipeline.pipeline[prop] === "function") {
-          return (...args) => {
-            return target.pipeline.withAutoPipeline((pipeline) => {
-              pipeline[prop](...args);
-            });
-          };
-        }
-        // If it's not a function, just return it
-        return target.pipeline[prop];
-      },
-    });
-  }
+  return new Proxy(redis, {
+    get: (target, prop: keyof Pipeline ) => { // omit excluded keys // raise if excluded
+      // If the method is a function on the pipeline, wrap it with the executor logic
+      if (typeof target.autoPipelineExecutor.pipeline[prop] === "function") {
+        return (...args: CommandArgs<typeof Command>) => {
+          return target.autoPipelineExecutor.withAutoPipeline((pipeline) => {
+            (pipeline[prop] as Function)(...args);
+          });
+        };
+      }
+      return target.autoPipelineExecutor.pipeline[prop];
+    },
+  });
 }
 
-export class PipelineAutoExecutor {
+export class AutoPipelineExecutor {
   private pipelinePromises = new WeakMap<Pipeline, Promise<Array<unknown>>>();
   private activePipeline: Pipeline | null = null;
   private indexInCurrentPipeline = 0;
-  pipeline: Pipeline<[]>;
+  pipeline: Pipeline; // only to make sure that proxy can work
+  redis: Redis;
 
-  constructor(pipeline: Pipeline<[]>) {
-    this.pipeline = pipeline;
+  constructor(redis: Redis) {
+    this.redis = redis;
+    this.pipeline = redis.pipeline()
   }
 
   async withAutoPipeline<T>(executeWithPipeline: (pipeline: Pipeline) => unknown): Promise<T> {
-    const pipeline = this.activePipeline || this.pipeline;
+    const pipeline = this.activePipeline || this.redis.pipeline();
 
     if (!this.activePipeline) {
       this.activePipeline = pipeline;

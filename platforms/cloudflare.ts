@@ -66,12 +66,17 @@ export class Redis extends core.Redis {
       enableTelemetry: !env?.UPSTASH_DISABLE_TELEMETRY,
       automaticDeserialization: config.automaticDeserialization,
       latencyLogging: config.latencyLogging,
+      enableAutoPipelining: config.enableAutoPipelining
     });
     // This is only added of the user has not disabled telemetry
     this.addTelemetry({
       platform: "cloudflare",
       sdk: `@upstash/redis@${VERSION}`,
     });
+
+    if (this.enableAutoPipelining) {
+      return this.autoPipeline()
+    }
   }
 
   /*

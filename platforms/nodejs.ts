@@ -127,6 +127,7 @@ export class Redis extends core.Redis {
       automaticDeserialization: configOrRequester.automaticDeserialization,
       enableTelemetry: !process.env.UPSTASH_DISABLE_TELEMETRY,
       latencyLogging: configOrRequester.latencyLogging,
+      enableAutoPipelining: configOrRequester.enableAutoPipelining
     });
 
     this.addTelemetry({
@@ -136,6 +137,10 @@ export class Redis extends core.Redis {
       platform: process.env.VERCEL ? "vercel" : process.env.AWS_REGION ? "aws" : "unknown",
       sdk: `@upstash/redis@${VERSION}`,
     });
+
+    if (this.enableAutoPipelining) {
+      return this.autoPipeline()
+    }
   }
 
   /**

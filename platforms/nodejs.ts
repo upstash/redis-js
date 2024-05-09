@@ -167,6 +167,13 @@ export class Redis extends core.Redis {
     return new Redis({ ...config, url, token });
   }
   
+
+  /**
+   * Create a Redis client utilizing auto pipeline.
+   * 
+   * This means that the client will try to pipeline multiple calls
+   * into a single request to reduce latency and the number of requests
+   */
   static autoPipeline(configOrRequester: Partial<RedisConfigNodejs>) {
     let redis: Redis;
     if (configOrRequester.url && configOrRequester.token) {

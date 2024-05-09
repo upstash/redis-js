@@ -69,6 +69,13 @@ export class Redis extends core.Redis {
     });
   }
   
+  /**
+   * Create a Redis client utilizing auto pipeline.
+   * 
+   * This means that the client will try to pipeline multiple calls
+   * into a single request to reduce latency and the number of requests
+   */
+  
   static autoPipeline(config: RedisConfigFastly) {
     const redis = new Redis(config);
 

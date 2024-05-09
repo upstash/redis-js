@@ -4,10 +4,10 @@ import { keygen, newHttpClient } from "./test-utils";
 import { afterEach, describe, expect, test } from "bun:test";
 import { ScriptLoadCommand } from "./commands/script_load";
 
-const redis = Redis.fromEnv({
-  enableAutoPipelining: true,
-  latencyLogging: false
+const redis = Redis.autoPipeline({
+  latencyLogging: true
 })
+
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();

@@ -127,7 +127,6 @@ export class Redis extends core.Redis {
       automaticDeserialization: configOrRequester.automaticDeserialization,
       enableTelemetry: !process.env.UPSTASH_DISABLE_TELEMETRY,
       latencyLogging: configOrRequester.latencyLogging,
-      enableAutoPipelining: configOrRequester.enableAutoPipelining
     });
 
     this.addTelemetry({
@@ -137,10 +136,6 @@ export class Redis extends core.Redis {
       platform: process.env.VERCEL ? "vercel" : process.env.AWS_REGION ? "aws" : "unknown",
       sdk: `@upstash/redis@${VERSION}`,
     });
-
-    if (this.enableAutoPipelining) {
-      return this.autoPipeline()
-    }
   }
 
   /**
@@ -170,5 +165,19 @@ export class Redis extends core.Redis {
       throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`");
     }
     return new Redis({ ...config, url, token });
+  }
+  
+  static autoPipeline(configOrRequester: Partial<RedisConfigNodejs>) {
+    let redis: Redis;
+    if (configOrRequester.url && configOrRequester.token) {
+       // casting below since only url and token are the non-optional fields of RedisConfigNodejs
+      redis = new Redis(configOrRequester as RedisConfigNodejs);
+    }
+
+    // try to initialise Redis from env
+    redis = Redis.fromEnv(configOrRequester);
+
+    // return autoPipeline
+    return redis.autoPipeline()
   }
 }

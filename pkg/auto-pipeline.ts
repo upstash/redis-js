@@ -3,8 +3,13 @@ import { CommandArgs } from "./types";
 import { Pipeline } from "./pipeline";
 import { Redis } from "./redis";
 
+// will omit redis only commands since we call Pipeline in the background in auto pipeline
+type redisOnly = Exclude<keyof Redis, keyof Pipeline>
+
 export function createAutoPipelineProxy(redis: Redis) {
-  redis.prepareAutoPipelineExecutor()
+  if (!redis.autoPipelineExecutor) {
+    redis.autoPipelineExecutor = new AutoPipelineExecutor(redis);
+  }
 
   return new Proxy(redis, {
     get: (target, prop: keyof Pipeline ) => { // omit excluded keys // raise if excluded
@@ -18,7 +23,7 @@ export function createAutoPipelineProxy(redis: Redis) {
       }
       return target.autoPipelineExecutor.pipeline[prop];
     },
-  });
+  }) as Omit<Redis, redisOnly>
 }
 
 export class AutoPipelineExecutor {

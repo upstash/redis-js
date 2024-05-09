@@ -30,5 +30,4 @@ export type RedisOptions = {
   automaticDeserialization?: boolean;
   latencyLogging?: boolean;
   enableTelemetry?: boolean;
-  enableAutoPipelining?: boolean
 };

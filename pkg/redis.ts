@@ -188,7 +188,6 @@ export class Redis {
   protected client: Requester;
   protected opts?: CommandOptions<any, any>;
   protected enableTelemetry: boolean;
-  protected enableAutoPipelining: boolean;
   autoPipelineExecutor!: AutoPipelineExecutor;
 
   /**
@@ -206,7 +205,6 @@ export class Redis {
     this.client = client;
     this.opts = opts;
     this.enableTelemetry = opts?.enableTelemetry ?? true;
-    this.enableAutoPipelining = opts?.enableAutoPipelining ?? false;
   }
 
   get json() {
@@ -382,15 +380,7 @@ export class Redis {
       multiExec: false,
     });
 
-
-  prepareAutoPipelineExecutor = () => {
-    if (!this.autoPipelineExecutor) {
-      this.autoPipelineExecutor = new AutoPipelineExecutor(this);
-    }
-  }
-
-  autoPipeline = (): Redis => {
-    this.prepareAutoPipelineExecutor()
+  autoPipeline = () => {
     return createAutoPipelineProxy(this)
   };
 

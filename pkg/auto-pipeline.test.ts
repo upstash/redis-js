@@ -173,18 +173,9 @@ describe("Auto pipeline", () => {
     expect(fooValue).toBe("bar");
     expect(bazValue).toBe(3);
     expect(redis.pipelineCounter).toBe(1);
-
-    // another await results in one more pipeline call
-    const [fooValueTwo, bazValueTwo] = await Promise.all([
-      redis.get("foo"),
-      redis.get("baz")
-    ]);
-    expect(fooValueTwo).toBe("bar");
-    expect(bazValueTwo).toBe(3);
-    expect(redis.pipelineCounter).toBe(2);
   })
 
-  test("should call pipelines for each await call", async () => {
+  test("consecutive awaits should execute pipeline each time", async () => {
 
     const redis = Redis.autoPipeline({
       latencyLogging: false
@@ -192,19 +183,36 @@ describe("Auto pipeline", () => {
     expect(redis.pipelineCounter).toBe(0);
 
     redis.flushdb();
+
     const res1 = await redis.incr("baz");
+    expect(redis.pipelineCounter).toBe(1);
+
     const res2 = await redis.incr("baz");
+    expect(redis.pipelineCounter).toBe(2);
+
     const res3 = await redis.set("foo", "bar");
     expect(redis.pipelineCounter).toBe(3);
-    expect([res1, res2, res3]).toEqual([1, 2, "OK"])
+
+    expect([res1, res2, res3]).toEqual([1, 2, "OK"]);
+
+  });
+
+  test("commands inside Promise.all should be sent in a single pipeline", async () => {
+
+    const redis = Redis.autoPipeline({
+      latencyLogging: false
+    });
+    expect(redis.pipelineCounter).toBe(0);
 
     const resArray = await Promise.all([
+      redis.flushdb(),
       redis.incr("baz"),
       redis.incr("baz"),
+      redis.set("foo", "bar"),
       redis.get("foo")
-    ])
-    expect(redis.pipelineCounter).toBe(4);
-    expect(resArray).toEqual([3, 4, "bar"])
+    ]);
+    expect(redis.pipelineCounter).toBe(1);
+    expect(resArray).toEqual(["OK", 1, 2, "OK", "bar"]);
 
   })
 });

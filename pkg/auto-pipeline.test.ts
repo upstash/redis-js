@@ -149,7 +149,7 @@ describe("Auto pipeline", () => {
     expect(redis.pipelineCounter).toBe(1);
   });
 
-  test("should be able to group async requests with sync requests", async () => {
+  test("should group async requests with sync requests", async () => {
 
     const redis = Redis.autoPipeline({
       latencyLogging: false
@@ -175,7 +175,7 @@ describe("Auto pipeline", () => {
     expect(redis.pipelineCounter).toBe(1);
   })
 
-  test("consecutive awaits should execute pipeline each time", async () => {
+  test("should execute a pipeline for each consecutive awaited command", async () => {
 
     const redis = Redis.autoPipeline({
       latencyLogging: false
@@ -197,7 +197,7 @@ describe("Auto pipeline", () => {
 
   });
 
-  test("commands inside Promise.all should be sent in a single pipeline", async () => {
+  test("should execute a single pipeline for several commands inside Promise.all", async () => {
 
     const redis = Redis.autoPipeline({
       latencyLogging: false

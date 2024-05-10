@@ -144,43 +144,67 @@ describe("Auto pipeline", () => {
       redis.zunion(1, [newKey()]),
       redis.json.set(newKey(), "$", { hello: "world" })
     ])
-    expect(result).toBeTruthy()
-    expect(result.length).toBe(120) // returns 120 results
-    expect(redis.pipelineCounter).toBe(1)
+    expect(result).toBeTruthy();
+    expect(result.length).toBe(120); // returns 120 results
+    expect(redis.pipelineCounter).toBe(1);
   });
 
   test("should be able to group async requests with sync requests", async () => {
 
     const redis = Redis.autoPipeline({
       latencyLogging: false
-    })
-    expect(redis.pipelineCounter).toBe(0)
+    });
+    expect(redis.pipelineCounter).toBe(0);
 
     // following five commands are added to the pipeline
-    redis.flushdb()
-    redis.incr("baz")
-    redis.incr("baz")
-    redis.set("foo", "bar")
-    redis.incr("baz")
+    redis.flushdb();
+    redis.incr("baz");
+    redis.incr("baz");
+    redis.set("foo", "bar");
+    redis.incr("baz");
 
     // two get calls are added to the pipeline and pipeline
     // is executed since we called await
     const [fooValue, bazValue] = await Promise.all([
       redis.get("foo"),
       redis.get("baz")
-    ])
+    ]);
 
-    expect(fooValue).toBe("bar")
-    expect(bazValue).toBe(3)
-    expect(redis.pipelineCounter).toBe(1)
+    expect(fooValue).toBe("bar");
+    expect(bazValue).toBe(3);
+    expect(redis.pipelineCounter).toBe(1);
 
     // another await results in one more pipeline call
     const [fooValueTwo, bazValueTwo] = await Promise.all([
       redis.get("foo"),
       redis.get("baz")
+    ]);
+    expect(fooValueTwo).toBe("bar");
+    expect(bazValueTwo).toBe(3);
+    expect(redis.pipelineCounter).toBe(2);
+  })
+
+  test("should call pipelines for each await call", async () => {
+
+    const redis = Redis.autoPipeline({
+      latencyLogging: false
+    });
+    expect(redis.pipelineCounter).toBe(0);
+
+    redis.flushdb();
+    const res1 = await redis.incr("baz");
+    const res2 = await redis.incr("baz");
+    const res3 = await redis.set("foo", "bar");
+    expect(redis.pipelineCounter).toBe(3);
+    expect([res1, res2, res3]).toEqual([1, 2, "OK"])
+
+    const resArray = await Promise.all([
+      redis.incr("baz"),
+      redis.incr("baz"),
+      redis.get("foo")
     ])
-    expect(fooValueTwo).toBe("bar")
-    expect(bazValueTwo).toBe(3)
-    expect(redis.pipelineCounter).toBe(2)
+    expect(redis.pipelineCounter).toBe(4);
+    expect(resArray).toEqual([3, 4, "bar"])
+
   })
 });

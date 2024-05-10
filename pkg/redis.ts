@@ -188,7 +188,6 @@ export class Redis {
   protected client: Requester;
   protected opts?: CommandOptions<any, any>;
   protected enableTelemetry: boolean;
-  autoPipelineExecutor!: AutoPipelineExecutor;
 
   /**
    * Create a new redis client

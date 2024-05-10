@@ -6,13 +6,25 @@ import { Redis } from "./redis";
 // will omit redis only commands since we call Pipeline in the background in auto pipeline
 type redisOnly = Exclude<keyof Redis, keyof Pipeline>
 
-export function createAutoPipelineProxy(redis: Redis) {
+export function createAutoPipelineProxy(_redis: Redis) {
+
+  const redis = _redis as Redis & {
+    autoPipelineExecutor: AutoPipelineExecutor;
+    pipelineCounter: number
+  }
+
   if (!redis.autoPipelineExecutor) {
     redis.autoPipelineExecutor = new AutoPipelineExecutor(redis);
   }
 
   return new Proxy(redis, {
-    get: (target, prop: keyof Pipeline ) => { // omit excluded keys // raise if excluded
+    get: (target, prop: "pipelineCounter" | keyof Pipeline ) => {
+
+      // return pipelineCounter of autoPipelineExecutor
+      if (prop == "pipelineCounter") {
+        return target.autoPipelineExecutor.pipelineCounter;
+      }
+
       // If the method is a function on the pipeline, wrap it with the executor logic
       if (typeof target.autoPipelineExecutor.pipeline[prop] === "function") {
         return (...args: CommandArgs<typeof Command>) => {
@@ -23,19 +35,20 @@ export function createAutoPipelineProxy(redis: Redis) {
       }
       return target.autoPipelineExecutor.pipeline[prop];
     },
-  }) as Omit<Redis, redisOnly>
+  }) as (Omit<Redis, redisOnly> & {pipelineCounter: number});
 }
 
 export class AutoPipelineExecutor {
   private pipelinePromises = new WeakMap<Pipeline, Promise<Array<unknown>>>();
   private activePipeline: Pipeline | null = null;
   private indexInCurrentPipeline = 0;
+  private redis: Redis;
   pipeline: Pipeline; // only to make sure that proxy can work
-  redis: Redis;
+  pipelineCounter: number = 0; // to keep track of how many times a pipeline was executed 
 
   constructor(redis: Redis) {
     this.redis = redis;
-    this.pipeline = redis.pipeline()
+    this.pipeline = redis.pipeline();
   }
 
   async withAutoPipeline<T>(executeWithPipeline: (pipeline: Pipeline) => unknown): Promise<T> {
@@ -52,6 +65,7 @@ export class AutoPipelineExecutor {
     const pipelineDone = this.deferExecution().then(() => {
       if (!this.pipelinePromises.has(pipeline)) {
         const pipelinePromise = pipeline.exec();
+        this.pipelineCounter += 1;
 
         this.pipelinePromises.set(pipeline, pipelinePromise);
         this.activePipeline = null;

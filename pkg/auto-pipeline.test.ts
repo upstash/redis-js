@@ -4,9 +4,6 @@ import { keygen, newHttpClient } from "./test-utils";
 import { afterEach, describe, expect, test } from "bun:test";
 import { ScriptLoadCommand } from "./commands/script_load";
 
-const redis = Redis.autoPipeline({
-  latencyLogging: true
-})
 
 const client = newHttpClient();
 
@@ -18,6 +15,11 @@ describe("Auto pipeline", () => {
     const persistentKey = newKey();
     const persistentKey2 = newKey();
     const scriptHash = await new ScriptLoadCommand(["return 1"]).exec(client);
+
+    const redis = Redis.autoPipeline({
+      latencyLogging: false
+    })
+    expect(redis.pipelineCounter).toBe(0)
 
     // all the following commands are in a single pipeline call
     const result = await Promise.all([
@@ -144,9 +146,15 @@ describe("Auto pipeline", () => {
     ])
     expect(result).toBeTruthy()
     expect(result.length).toBe(120) // returns 120 results
+    expect(redis.pipelineCounter).toBe(1)
   });
 
   test("should be able to group async requests with sync requests", async () => {
+
+    const redis = Redis.autoPipeline({
+      latencyLogging: false
+    })
+    expect(redis.pipelineCounter).toBe(0)
 
     // following five commands are added to the pipeline
     redis.flushdb()
@@ -164,5 +172,15 @@ describe("Auto pipeline", () => {
 
     expect(fooValue).toBe("bar")
     expect(bazValue).toBe(3)
+    expect(redis.pipelineCounter).toBe(1)
+
+    // another await results in one more pipeline call
+    const [fooValueTwo, bazValueTwo] = await Promise.all([
+      redis.get("foo"),
+      redis.get("baz")
+    ])
+    expect(fooValueTwo).toBe("bar")
+    expect(bazValueTwo).toBe(3)
+    expect(redis.pipelineCounter).toBe(2)
   })
 });

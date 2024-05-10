@@ -10,7 +10,6 @@ export function createAutoPipelineProxy(_redis: Redis) {
 
   const redis = _redis as Redis & {
     autoPipelineExecutor: AutoPipelineExecutor;
-    pipelineCounter: number
   }
 
   if (!redis.autoPipelineExecutor) {
@@ -35,7 +34,7 @@ export function createAutoPipelineProxy(_redis: Redis) {
       }
       return target.autoPipelineExecutor.pipeline[prop];
     },
-  }) as (Omit<Redis, redisOnly> & {pipelineCounter: number});
+  }) as Omit<Redis, redisOnly>;
 }
 
 export class AutoPipelineExecutor {

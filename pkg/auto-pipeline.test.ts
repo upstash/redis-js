@@ -19,6 +19,7 @@ describe("Auto pipeline", () => {
     const redis = Redis.autoPipeline({
       latencyLogging: false
     })
+    // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0)
 
     // all the following commands are in a single pipeline call
@@ -145,7 +146,8 @@ describe("Auto pipeline", () => {
       redis.json.set(newKey(), "$", { hello: "world" })
     ])
     expect(result).toBeTruthy();
-    expect(result.length).toBe(120); // returns 120 results
+    expect(result.length).toBe(120); // returns 
+    // @ts-expect-error pipelineCounter is not in type but accessible120 results
     expect(redis.pipelineCounter).toBe(1);
   });
 
@@ -153,7 +155,8 @@ describe("Auto pipeline", () => {
 
     const redis = Redis.autoPipeline({
       latencyLogging: false
-    });
+    })
+    // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
 
     // following five commands are added to the pipeline
@@ -172,6 +175,7 @@ describe("Auto pipeline", () => {
 
     expect(fooValue).toBe("bar");
     expect(bazValue).toBe(3);
+    // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(1);
   })
 
@@ -180,17 +184,21 @@ describe("Auto pipeline", () => {
     const redis = Redis.autoPipeline({
       latencyLogging: false
     });
+    // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
 
     redis.flushdb();
 
     const res1 = await redis.incr("baz");
+    // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(1);
 
     const res2 = await redis.incr("baz");
+    // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(2);
 
     const res3 = await redis.set("foo", "bar");
+    // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(3);
 
     expect([res1, res2, res3]).toEqual([1, 2, "OK"]);
@@ -202,6 +210,7 @@ describe("Auto pipeline", () => {
     const redis = Redis.autoPipeline({
       latencyLogging: false
     });
+    // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
 
     const resArray = await Promise.all([
@@ -211,6 +220,7 @@ describe("Auto pipeline", () => {
       redis.set("foo", "bar"),
       redis.get("foo")
     ]);
+    // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(1);
     expect(resArray).toEqual(["OK", 1, 2, "OK", "bar"]);
 

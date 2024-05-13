@@ -3,7 +3,7 @@ import { CommandArgs } from "./types";
 import { Pipeline } from "./pipeline";
 import { Redis } from "./redis";
 
-// will omit redis only commands since we call Pipeline in the background in auto pipeline
+// properties which are only available in redis
 type redisOnly = Exclude<keyof Redis, keyof Pipeline>
 
 export function createAutoPipelineProxy(_redis: Redis) {
@@ -17,27 +17,38 @@ export function createAutoPipelineProxy(_redis: Redis) {
   }
 
   return new Proxy(redis, {
-    get: (target, prop: "pipelineCounter" | keyof Pipeline ) => {
+    get: (target, prop: "pipelineCounter" | keyof Pipeline | redisOnly ) => {
 
       // return pipelineCounter of autoPipelineExecutor
-      if (prop == "pipelineCounter") {
+      if (prop === "pipelineCounter") {
         return target.autoPipelineExecutor.pipelineCounter;
       }
 
+      // Check if prop is a member of Redis but not Pipeline
+      // if so, return the property from the redis client
+      if (prop in target && !(prop in target.autoPipelineExecutor.pipeline)) {
+          return target[prop as redisOnly];
+      }
+
+      prop = prop as keyof Pipeline;
       // If the method is a function on the pipeline, wrap it with the executor logic
       if (typeof target.autoPipelineExecutor.pipeline[prop] === "function") {
         return (...args: CommandArgs<typeof Command>) => {
+          // pass the function as a callback
           return target.autoPipelineExecutor.withAutoPipeline((pipeline) => {
             (pipeline[prop] as Function)(...args);
           });
         };
       }
+
+      // if the property is not a function, a property of redis or "pipelineCounter"
+      // simply return it from pipeline
       return target.autoPipelineExecutor.pipeline[prop];
     },
-  }) as Omit<Redis, redisOnly>;
+  }) as Redis;
 }
 
-export class AutoPipelineExecutor {
+class AutoPipelineExecutor {
   private pipelinePromises = new WeakMap<Pipeline, Promise<Array<unknown>>>();
   private activePipeline: Pipeline | null = null;
   private indexInCurrentPipeline = 0;
@@ -77,7 +88,10 @@ export class AutoPipelineExecutor {
   }
 
   private async deferExecution() {
-    await Promise.resolve();
-    return await Promise.resolve();
+    return await new Promise<void>(resolve => {
+      setTimeout(() => {
+        resolve();
+      }, 0);
+    });
   }
 }

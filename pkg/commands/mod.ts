@@ -73,6 +73,7 @@ export * from "./linsert";
 export * from "./llen";
 export * from "./lmove";
 export * from "./lpop";
+export * from "./lmpop";
 export * from "./lpos";
 export * from "./lpush";
 export * from "./lpushx";

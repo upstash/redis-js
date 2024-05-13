@@ -1,26 +1,24 @@
 import { Command } from "./commands/command";
-import { CommandArgs } from "./types";
 import { Pipeline } from "./pipeline";
 import { Redis } from "./redis";
+import { CommandArgs } from "./types";
 
 // will omit redis only commands since we call Pipeline in the background in auto pipeline
-type redisOnly = Exclude<keyof Redis, keyof Pipeline>
+type redisOnly = Exclude<keyof Redis, keyof Pipeline>;
 
 export function createAutoPipelineProxy(_redis: Redis) {
-
   const redis = _redis as Redis & {
     autoPipelineExecutor: AutoPipelineExecutor;
-  }
+  };
 
   if (!redis.autoPipelineExecutor) {
     redis.autoPipelineExecutor = new AutoPipelineExecutor(redis);
   }
 
   return new Proxy(redis, {
-    get: (target, prop: "pipelineCounter" | keyof Pipeline ) => {
-
+    get: (target, prop: "pipelineCounter" | keyof Pipeline) => {
       // return pipelineCounter of autoPipelineExecutor
-      if (prop == "pipelineCounter") {
+      if (prop === "pipelineCounter") {
         return target.autoPipelineExecutor.pipelineCounter;
       }
 
@@ -43,7 +41,7 @@ export class AutoPipelineExecutor {
   private indexInCurrentPipeline = 0;
   private redis: Redis;
   pipeline: Pipeline; // only to make sure that proxy can work
-  pipelineCounter: number = 0; // to keep track of how many times a pipeline was executed 
+  pipelineCounter = 0; // to keep track of how many times a pipeline was executed
 
   constructor(redis: Redis) {
     this.redis = redis;

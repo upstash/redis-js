@@ -71,4 +71,16 @@ describe("LMPOP", () => {
 
     expect(result1).toBeNull();
   });
+
+  test("should return without count", async () => {
+    const key = newKey();
+    const lpushElement1 = randomID();
+    const lpushElement2 = randomID();
+
+    await new LPushCommand([key, lpushElement1, lpushElement2]).exec(client);
+
+    const result1 = await new LmPopCommand([1, [key], "LEFT"]).exec(client);
+
+    expect(result1).toEqual([key, [lpushElement2]]);
+  });
 });

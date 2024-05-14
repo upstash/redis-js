@@ -12,6 +12,7 @@ export class LmPopCommand<TValues> extends Command<
     opts?: CommandOptions<[string, TValues[]] | null, [string, TValues[]] | null>,
   ) {
     const [numkeys, keys, direction, count] = cmd;
-    super(["LMPOP", numkeys, ...keys, direction, "COUNT", count], opts);
+
+    super(["LMPOP", numkeys, ...keys, direction, ...(count ? ["COUNT", count] : [])], opts);
   }
 }

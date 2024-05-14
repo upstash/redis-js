@@ -17,33 +17,34 @@ export function createAutoPipelineProxy(_redis: Redis) {
   }
 
   return new Proxy(redis, {
-    get: (target, prop: "pipelineCounter" | keyof Pipeline | redisOnly ) => {
+    get: (redis, command: "pipelineCounter" | keyof Pipeline | redisOnly ) => {
 
       // return pipelineCounter of autoPipelineExecutor
-      if (prop === "pipelineCounter") {
-        return target.autoPipelineExecutor.pipelineCounter;
+      if (command === "pipelineCounter") {
+        return redis.autoPipelineExecutor.pipelineCounter;
       }
 
-      // Check if prop is a member of Redis but not Pipeline
-      // if so, return the property from the redis client
-      if (prop in target && !(prop in target.autoPipelineExecutor.pipeline)) {
-          return target[prop as redisOnly];
+      const commandInRedisButNotPipeline =
+        command in redis && !(command in redis.autoPipelineExecutor.pipeline);
+
+      if (commandInRedisButNotPipeline) {
+          return redis[command as redisOnly];
       }
 
-      prop = prop as keyof Pipeline;
+      command = command as keyof Pipeline;
       // If the method is a function on the pipeline, wrap it with the executor logic
-      if (typeof target.autoPipelineExecutor.pipeline[prop] === "function") {
+      if (typeof redis.autoPipelineExecutor.pipeline[command] === "function") {
         return (...args: CommandArgs<typeof Command>) => {
           // pass the function as a callback
-          return target.autoPipelineExecutor.withAutoPipeline((pipeline) => {
-            (pipeline[prop] as Function)(...args);
+          return redis.autoPipelineExecutor.withAutoPipeline((pipeline) => {
+            (pipeline[command] as Function)(...args);
           });
         };
       }
 
       // if the property is not a function, a property of redis or "pipelineCounter"
       // simply return it from pipeline
-      return target.autoPipelineExecutor.pipeline[prop];
+      return redis.autoPipelineExecutor.pipeline[command];
     },
   }) as Redis;
 }

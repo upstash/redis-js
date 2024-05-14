@@ -81,6 +81,7 @@ import {
   LRemCommand,
   LSetCommand,
   LTrimCommand,
+  LmPopCommand,
   MGetCommand,
   MSetCommand,
   MSetNXCommand,
@@ -650,6 +651,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   lpop = <TData>(...args: CommandArgs<typeof LPopCommand>) =>
     this.chain(new LPopCommand<TData>(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/lmpop
+   */
+  lmpop = <TData>(...args: CommandArgs<typeof LmPopCommand>) =>
+    this.chain(new LmPopCommand<TData>(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/lpos

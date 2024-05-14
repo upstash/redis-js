@@ -81,6 +81,7 @@ import {
   LRemCommand,
   LSetCommand,
   LTrimCommand,
+  LmPopCommand,
   MGetCommand,
   MSetCommand,
   MSetNXCommand,
@@ -382,7 +383,7 @@ export class Redis {
     });
 
   protected autoPipeline = () => {
-    return createAutoPipelineProxy(this)
+    return createAutoPipelineProxy(this);
   };
 
   /**
@@ -744,6 +745,12 @@ export class Redis {
    */
   lpop = <TData>(...args: CommandArgs<typeof LPopCommand>) =>
     new LPopCommand<TData>(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/lmpop
+   */
+  lmpop = <TData>(...args: CommandArgs<typeof LmPopCommand>) =>
+    new LmPopCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/lpos

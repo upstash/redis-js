@@ -27,11 +27,11 @@ export type RedisConfigNodejs = {
   /**
    * UPSTASH_REDIS_REST_URL
    */
-  url: string;
+  url: string | undefined;
   /**
    * UPSTASH_REDIS_REST_TOKEN
    */
-  token: string;
+  token: string | undefined;
 
   /**
    * An agent allows you to reuse connections to reduce latency for multiple sequential requests.
@@ -98,6 +98,15 @@ export class Redis extends core.Redis {
       super(configOrRequester);
       return;
     }
+
+    if(!configOrRequester.url) {
+      throw new Error(`[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`)
+    }
+
+    if(!configOrRequester.token) {
+      throw new Error(`[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`)
+    }
+
     if (
       configOrRequester.url.startsWith(" ") ||
       configOrRequester.url.endsWith(" ") ||

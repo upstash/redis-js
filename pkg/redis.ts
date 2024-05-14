@@ -1,3 +1,4 @@
+import { createAutoPipelineProxy } from "../pkg/auto-pipeline";
 import {
   AppendCommand,
   BitCountCommand,
@@ -81,6 +82,7 @@ import {
   LRemCommand,
   LSetCommand,
   LTrimCommand,
+  LmPopCommand,
   MGetCommand,
   MSetCommand,
   MSetNXCommand,
@@ -175,7 +177,6 @@ import { Requester, UpstashRequest, UpstashResponse } from "./http";
 import { Pipeline } from "./pipeline";
 import { Script } from "./script";
 import type { CommandArgs, RedisOptions, Telemetry } from "./types";
-import { AutoPipelineExecutor, createAutoPipelineProxy } from "../pkg/auto-pipeline"
 
 // See https://github.com/upstash/upstash-redis/issues/342
 // why we need this export
@@ -380,7 +381,7 @@ export class Redis {
     });
 
   autoPipeline = () => {
-    return createAutoPipelineProxy(this)
+    return createAutoPipelineProxy(this);
   };
 
   /**
@@ -742,6 +743,12 @@ export class Redis {
    */
   lpop = <TData>(...args: CommandArgs<typeof LPopCommand>) =>
     new LPopCommand<TData>(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/lmpop
+   */
+  lmpop = <TData>(...args: CommandArgs<typeof LmPopCommand>) =>
+    new LmPopCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/lpos

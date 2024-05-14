@@ -1,9 +1,8 @@
-import { Redis } from "../platforms/nodejs"
+import { Redis } from "../platforms/nodejs";
 import { keygen, newHttpClient } from "./test-utils";
 
 import { afterEach, describe, expect, test } from "bun:test";
 import { ScriptLoadCommand } from "./commands/script_load";
-
 
 const client = newHttpClient();
 
@@ -17,10 +16,10 @@ describe("Auto pipeline", () => {
     const scriptHash = await new ScriptLoadCommand(["return 1"]).exec(client);
 
     const redis = Redis.autoPipeline({
-      latencyLogging: false
-    })
+      latencyLogging: false,
+    });
     // @ts-expect-error pipelineCounter is not in type but accessible
-    expect(redis.pipelineCounter).toBe(0)
+    expect(redis.pipelineCounter).toBe(0);
 
     // all the following commands are in a single pipeline call
     const result = await Promise.all([
@@ -143,19 +142,18 @@ describe("Auto pipeline", () => {
       redis.zscore(newKey(), "member"),
       redis.zunionstore(newKey(), 1, [newKey()]),
       redis.zunion(1, [newKey()]),
-      redis.json.set(newKey(), "$", { hello: "world" })
-    ])
+      redis.json.set(newKey(), "$", { hello: "world" }),
+    ]);
     expect(result).toBeTruthy();
-    expect(result.length).toBe(120); // returns 
+    expect(result.length).toBe(120); // returns
     // @ts-expect-error pipelineCounter is not in type but accessible120 results
     expect(redis.pipelineCounter).toBe(1);
   });
 
   test("should group async requests with sync requests", async () => {
-
     const redis = Redis.autoPipeline({
-      latencyLogging: false
-    })
+      latencyLogging: false,
+    });
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
 
@@ -168,21 +166,17 @@ describe("Auto pipeline", () => {
 
     // two get calls are added to the pipeline and pipeline
     // is executed since we called await
-    const [fooValue, bazValue] = await Promise.all([
-      redis.get("foo"),
-      redis.get("baz")
-    ]);
+    const [fooValue, bazValue] = await Promise.all([redis.get("foo"), redis.get("baz")]);
 
     expect(fooValue).toBe("bar");
     expect(bazValue).toBe(3);
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(1);
-  })
+  });
 
   test("should execute a pipeline for each consecutive awaited command", async () => {
-
     const redis = Redis.autoPipeline({
-      latencyLogging: false
+      latencyLogging: false,
     });
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
@@ -202,13 +196,11 @@ describe("Auto pipeline", () => {
     expect(redis.pipelineCounter).toBe(3);
 
     expect([res1, res2, res3]).toEqual([1, 2, "OK"]);
-
   });
 
   test("should execute a single pipeline for several commands inside Promise.all", async () => {
-
     const redis = Redis.autoPipeline({
-      latencyLogging: false
+      latencyLogging: false,
     });
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
@@ -218,11 +210,10 @@ describe("Auto pipeline", () => {
       redis.incr("baz"),
       redis.incr("baz"),
       redis.set("foo", "bar"),
-      redis.get("foo")
+      redis.get("foo"),
     ]);
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(1);
     expect(resArray).toEqual(["OK", 1, 2, "OK", "bar"]);
-
-  })
+  });
 });

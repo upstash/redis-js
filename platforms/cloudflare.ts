@@ -74,12 +74,17 @@ export class Redis extends core.Redis {
       enableTelemetry: !env?.UPSTASH_DISABLE_TELEMETRY,
       automaticDeserialization: config.automaticDeserialization,
       latencyLogging: config.latencyLogging,
+      enableAutoPipelining: config.enableAutoPipelining
     });
     // This is only added of the user has not disabled telemetry
     this.addTelemetry({
       platform: "cloudflare",
       sdk: `@upstash/redis@${VERSION}`,
     });
+
+    if (this.enableAutoPipelining) {
+      return this.autoPipeline()
+    }
   }
 
   /*
@@ -118,26 +123,5 @@ export class Redis extends core.Redis {
       );
     }
     return new Redis({ ...opts, url, token }, env);
-  }
-  
-  /**
-   * Create a Redis client utilizing auto pipeline.
-   * 
-   * This means that the client will try to pipeline multiple calls
-   * into a single request to reduce latency and the number of requests
-   */
-  static autoPipeline(config: Partial<RedisConfigCloudflare>, env?: Env) {
-    let redis: Redis;
-    if (config.url && config.token) {
-       // casting below since only url and token are the non-optional fields of RedisConfigNodejs
-      redis = new Redis(config as RedisConfigCloudflare);
-    }
-
-    // try to initialise Redis from env
-    // @ts-ignore env variable may not have Upstash env variables but this will be checked in runtime
-    redis = Redis.fromEnv(env, config);
-
-    // return autoPipeline
-    return redis.autoPipeline()
   }
 }

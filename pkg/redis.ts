@@ -1,4 +1,3 @@
-import { createAutoPipelineProxy } from "../pkg/auto-pipeline";
 import {
   AppendCommand,
   BitCountCommand,
@@ -177,6 +176,7 @@ import { Requester, UpstashRequest, UpstashResponse } from "./http";
 import { Pipeline } from "./pipeline";
 import { Script } from "./script";
 import type { CommandArgs, RedisOptions, Telemetry } from "./types";
+import { createAutoPipelineProxy } from "../pkg/auto-pipeline"
 
 // See https://github.com/upstash/upstash-redis/issues/342
 // why we need this export
@@ -189,6 +189,7 @@ export class Redis {
   protected client: Requester;
   protected opts?: CommandOptions<any, any>;
   protected enableTelemetry: boolean;
+  protected enableAutoPipelining: boolean;
 
   /**
    * Create a new redis client
@@ -205,6 +206,7 @@ export class Redis {
     this.client = client;
     this.opts = opts;
     this.enableTelemetry = opts?.enableTelemetry ?? true;
+    this.enableAutoPipelining = opts?.enableAutoPipelining ?? false;
   }
 
   get json() {
@@ -380,7 +382,7 @@ export class Redis {
       multiExec: false,
     });
 
-  autoPipeline = () => {
+  protected autoPipeline = () => {
     return createAutoPipelineProxy(this);
   };
 

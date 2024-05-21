@@ -172,6 +172,7 @@ import {
 } from "./commands/mod";
 import { ZDiffStoreCommand } from "./commands/zdiffstore";
 import { ZMScoreCommand } from "./commands/zmscore";
+import { decompressCommandArg } from "./compression";
 import { UpstashError } from "./error";
 import { Requester, UpstashResponse } from "./http";
 import { CommandArgs } from "./types";
@@ -290,7 +291,13 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
         );
       }
 
-      return this.commands[i].deserialize(result);
+      const deserialized = this.commands[i].deserialize(result);
+
+      if (this.commands[i].compress) {
+        return decompressCommandArg(deserialized as any) as TData;
+      };
+
+      return deserialized;
     }) as TCommandResults;
   };
 

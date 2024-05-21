@@ -70,7 +70,8 @@ export class Redis extends core.Redis {
 
     super(client, {
       automaticDeserialization: config.automaticDeserialization,
-      enableAutoPipelining: config.enableAutoPipelining
+      enableAutoPipelining: config.enableAutoPipelining,
+      compression: config.compression,
     });
     this.addTelemetry({
       sdk: `@upstash/redis@${VERSION}`,

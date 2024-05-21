@@ -74,7 +74,8 @@ export class Redis extends core.Redis {
       enableTelemetry: !env?.UPSTASH_DISABLE_TELEMETRY,
       automaticDeserialization: config.automaticDeserialization,
       latencyLogging: config.latencyLogging,
-      enableAutoPipelining: config.enableAutoPipelining
+      enableAutoPipelining: config.enableAutoPipelining,
+      compression: config.compression,
     });
     // This is only added of the user has not disabled telemetry
     this.addTelemetry({

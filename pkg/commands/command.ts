@@ -1,8 +1,9 @@
+import { commandCanBeCompressed, compressCommandArg, decompressCommandArg, SerializedArg } from "../compression";
 import { UpstashError } from "../error";
 import { Requester } from "../http";
 import { parseResponse } from "../util";
 
-type Serialize = (data: unknown) => string | number | boolean;
+type Serialize = (data: unknown) => SerializedArg;
 type Deserialize<TResult, TData> = (result: TResult) => TData;
 
 const defaultSerializer: Serialize = (c: unknown) => {
@@ -29,6 +30,7 @@ export type CommandOptions<TResult, TData> = {
    */
   automaticDeserialization?: boolean;
   latencyLogging?: boolean;
+  compression?: boolean
 };
 /**
  * Command offers default (de)serialization and the exec method to all commands.
@@ -37,16 +39,17 @@ export type CommandOptions<TResult, TData> = {
  * TResult is the raw data returned from upstash, which may need to be transformed or parsed.
  */
 export class Command<TResult, TData> {
-  public readonly command: (string | number | boolean)[];
+  public readonly command: SerializedArg[];
   public readonly serialize: Serialize;
   public readonly deserialize: Deserialize<TResult, TData>;
+  public readonly compress: boolean;
   /**
    * Create a new command instance.
    *
    * You can define a custom `deserialize` function. By default we try to deserialize as json.
    */
   constructor(
-    command: (string | boolean | number | unknown)[],
+    command: (SerializedArg | unknown)[],
     opts?: CommandOptions<TResult, TData>,
   ) {
     this.serialize = defaultSerializer;
@@ -56,6 +59,15 @@ export class Command<TResult, TData> {
         : (x) => x as unknown as TData;
 
     this.command = command.map((c) => this.serialize(c));
+    this.compress = (opts?.compression ?? false) && commandCanBeCompressed(this.command[0] as string)
+
+    // compress strings
+    if (this.compress) {
+      this.command = [
+        this.command[0],
+        ...this.command.slice(1).map(compressCommandArg),
+      ];
+    }
 
     if (opts?.latencyLogging) {
       const originalExec = this.exec.bind(this);
@@ -88,6 +100,12 @@ export class Command<TResult, TData> {
       throw new Error("Request did not return a result");
     }
 
-    return this.deserialize(result);
+    const deserialized = this.deserialize(result);
+
+    if (this.compress) {
+      return decompressCommandArg(deserialized as any) as TData;
+    };
+
+    return deserialized;
   }
 }

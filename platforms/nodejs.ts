@@ -136,7 +136,8 @@ export class Redis extends core.Redis {
       automaticDeserialization: configOrRequester.automaticDeserialization,
       enableTelemetry: !process.env.UPSTASH_DISABLE_TELEMETRY,
       latencyLogging: configOrRequester.latencyLogging,
-      enableAutoPipelining: configOrRequester.enableAutoPipelining
+      enableAutoPipelining: configOrRequester.enableAutoPipelining,
+      compression: configOrRequester.compression,
     });
 
     this.addTelemetry({

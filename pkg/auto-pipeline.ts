@@ -6,7 +6,7 @@ import { CommandArgs } from "./types";
 // properties which are only available in redis
 type redisOnly = Exclude<keyof Redis, keyof Pipeline>;
 
-export function createAutoPipelineProxy(_redis: Redis) {
+export function createAutoPipelineProxy(_redis: Redis, json?: boolean): Redis {
   const redis = _redis as Redis & {
     autoPipelineExecutor: AutoPipelineExecutor;
   };
@@ -22,6 +22,13 @@ export function createAutoPipelineProxy(_redis: Redis) {
         return redis.autoPipelineExecutor.pipelineCounter;
       }
 
+      if (command === "json") {
+        // @ts-ignore returning a proxy with the commands in json so that
+        // the get command redis.json.get can be run with the same auto
+        // pipeline executor
+        return createAutoPipelineProxy(redis, true);
+      };
+      
       const commandInRedisButNotPipeline =
         command in redis && !(command in redis.autoPipelineExecutor.pipeline);
 
@@ -35,7 +42,11 @@ export function createAutoPipelineProxy(_redis: Redis) {
         return (...args: CommandArgs<typeof Command>) => {
           // pass the function as a callback
           return redis.autoPipelineExecutor.withAutoPipeline((pipeline) => {
-            (pipeline[command] as Function)(...args);
+            if (json) {
+              (pipeline.json[command as keyof Pipeline["json"]] as Function)(...args)
+            } else {
+              (pipeline[command] as Function)(...args);
+            }
           });
         };
       }

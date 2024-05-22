@@ -36,16 +36,15 @@ export function createAutoPipelineProxy(_redis: Redis, json?: boolean): Redis {
           return redis[command as redisOnly];
       }
 
-      command = command as keyof Pipeline;
       // If the method is a function on the pipeline, wrap it with the executor logic
-      if (typeof redis.autoPipelineExecutor.pipeline[command] === "function") {
+      if (typeof redis.autoPipelineExecutor.pipeline[command as keyof Pipeline] === "function") {
         return (...args: CommandArgs<typeof Command>) => {
           // pass the function as a callback
           return redis.autoPipelineExecutor.withAutoPipeline((pipeline) => {
             if (json) {
               (pipeline.json[command as keyof Pipeline["json"]] as Function)(...args)
             } else {
-              (pipeline[command] as Function)(...args);
+              (pipeline[command as keyof Pipeline] as Function)(...args);
             }
           });
         };
@@ -53,7 +52,7 @@ export function createAutoPipelineProxy(_redis: Redis, json?: boolean): Redis {
 
       // if the property is not a function, a property of redis or "pipelineCounter"
       // simply return it from pipeline
-      return redis.autoPipelineExecutor.pipeline[command];
+      return redis.autoPipelineExecutor.pipeline[command as keyof Pipeline];
     },
   }) as Redis;
 }

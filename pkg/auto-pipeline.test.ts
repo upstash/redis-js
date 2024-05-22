@@ -310,9 +310,6 @@ describe("Auto pipeline", () => {
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
 
-    const json = redis.json
-    const key = newKey()
-
     const res = await Promise.all([
       redis.set("foo1", "bar"),
       redis.json.set("baz1", "$", { hello: "world" }),

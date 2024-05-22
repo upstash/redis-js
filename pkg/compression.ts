@@ -8,13 +8,35 @@ type Decompress = (result: Result) => Result
 
 const excludedKeyWords = [
   "OK",
-  "PONG"
+  "PONG",
+  "MATCH", // https://redis.io/docs/latest/commands/hscan/
+  "NX", // https://redis.io/docs/latest/commands/geoadd/
+  "XX",
+  "CH",
+  "FROMMEMBER", // https://redis.io/docs/latest/commands/geosearchstore/
+  "FROMLONLAT",
+  "BYRADIUS",
+  "M",
+  "KM",
+  "FT",
+  "MI",
+  "BYBOX",
+  "ASC",
+  "DESC",
+  "COUNT",
+  "ANY",
+  "STOREDIST",
+  "BYSCORE", // https://redis.io/docs/latest/commands/zrange/
+  "BYLEX",
+  "REV",
+  "LIMIT",
+  "WITHSCORES"
 ]
 
 export const compressCommandArg: Compress = (commandArg) => {
   switch (typeof commandArg) {
     case "string":
-      if (!excludedKeyWords.includes(commandArg)) {
+      if (!excludedKeyWords.includes(commandArg.toUpperCase())) {
         return deflateSync(commandArg).toString();
       };
     default:
@@ -29,7 +51,7 @@ export const decompressCommandArg: Decompress = (result) => {
 
   switch (typeof result) {
     case "string":
-      if (!excludedKeyWords.includes(result)) {
+      if (!excludedKeyWords.includes(result.toUpperCase())) {
         const data = inflateSync(
           new Uint8Array(
             result.split(',').map(Number)
@@ -46,9 +68,11 @@ export const decompressCommandArg: Decompress = (result) => {
 const excludeCommandList = [
   "script",
   "eval",
-  "evalsha"
+  "evalsha",
+  "json.set",
+
 ]
 
 export const commandCanBeCompressed = (command: string) => {
-  return !excludeCommandList.includes(command)
+  return !excludeCommandList.includes(command.toLowerCase())
 }

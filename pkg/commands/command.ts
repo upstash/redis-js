@@ -59,15 +59,7 @@ export class Command<TResult, TData> {
         : (x) => x as unknown as TData;
 
     this.command = command.map((c) => this.serialize(c));
-    this.compress = (opts?.compression ?? false) && commandCanBeCompressed(this.command[0] as string)
-
-    // compress strings
-    if (this.compress) {
-      this.command = [
-        this.command[0],
-        ...this.command.slice(1).map(compressCommandArg),
-      ];
-    }
+    this.compress = (opts?.compression ?? true) && commandCanBeCompressed(this.command[0] as string)
 
     if (opts?.latencyLogging) {
       const originalExec = this.exec.bind(this);
@@ -90,8 +82,17 @@ export class Command<TResult, TData> {
    * Execute the command using a client.
    */
   public async exec(client: Requester): Promise<TData> {
+
+    let command = this.command
+    if (this.compress) {
+      command = [
+        this.command[0],
+        ...this.command.slice(1).map(compressCommandArg),
+      ];
+    }
+
     const { result, error } = await client.request<TResult>({
-      body: this.command,
+      body: command,
     });
     if (error) {
       throw new UpstashError(error);

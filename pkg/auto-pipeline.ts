@@ -23,9 +23,6 @@ export function createAutoPipelineProxy(_redis: Redis, json?: boolean): Redis {
       }
 
       if (command === "json") {
-        // @ts-ignore returning a proxy with the commands in json so that
-        // the get command redis.json.get can be run with the same auto
-        // pipeline executor
         return createAutoPipelineProxy(redis, true);
       };
       

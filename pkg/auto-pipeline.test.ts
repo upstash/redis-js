@@ -299,5 +299,37 @@ describe("Auto pipeline", () => {
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(1);
   });
+
+  test("should handle JSON commands correctly", async () => {
+
+    const redis = Redis.fromEnv({
+      latencyLogging: false,
+      enableAutoPipelining: true
+    });
+
+    // @ts-expect-error pipelineCounter is not in type but accessible
+    expect(redis.pipelineCounter).toBe(0);
+
+    const res = await Promise.all([
+      redis.set("foo1", "bar"),
+      redis.json.set("baz1", "$", { hello: "world" }),
+      redis.get("foo1"),
+      redis.json.get("baz1"),
+      redis.json.del("baz1"),
+      redis.json.get("baz1"),
+    ])
+
+    // @ts-expect-error pipelineCounter is not in type but accessible
+    expect(redis.pipelineCounter).toBe(1);
+
+    expect(res).toEqual([
+      "OK",
+      "OK",
+      "bar",
+      { hello: "world" },
+      1,
+      null
+    ])
+  })
 });
 

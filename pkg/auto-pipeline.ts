@@ -94,10 +94,7 @@ class AutoPipelineExecutor {
   }
 
   private async deferExecution() {
-    return await new Promise<void>(resolve => {
-      setTimeout(() => {
-        resolve();
-      }, 0);
-    });
+    await Promise.resolve()
+    return await Promise.resolve()
   }
 }

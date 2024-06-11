@@ -37,9 +37,6 @@ export function parseResponse<TResult>(result: unknown): TResult {
  * 
  * @param result 
  */
-export function deserializeScanResponse(result: [string, any]) {
-  const cursor = result[0];
-  const deserialized = parseResponse(result) as [number | string, any];
-  deserialized[0] = cursor;
-  return deserialized as [string, any];
+export function deserializeScanResponse<TResult>(result: [string, ...any]): TResult {
+  return [result[0], ...parseResponse<any[]>(result.slice(1))] as TResult;
 }

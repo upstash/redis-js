@@ -29,3 +29,17 @@ export function parseResponse<TResult>(result: unknown): TResult {
     return result as TResult;
   }
 }
+
+/**
+ * Deserializes a scan result, excluding the cursor
+ * which can be string "0" or a big number string.
+ * Either way, we want it to stay as a string.
+ * 
+ * @param result 
+ */
+export function deserializeScanResponse(result: [string, any]) {
+  const cursor = result[0];
+  const deserialized = parseResponse(result) as [number | string, any];
+  deserialized[0] = cursor;
+  return deserialized as [string, any];
+}

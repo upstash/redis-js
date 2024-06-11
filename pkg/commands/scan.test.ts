@@ -15,13 +15,13 @@ test("without options", () => {
     const key = newKey();
     const value = randomID();
     await new SetCommand([key, value]).exec(client);
-    let cursor = 0;
+    let cursor = "0";
     const found: string[] = [];
     do {
       const res = await new ScanCommand([cursor]).exec(client);
       cursor = res[0];
       found.push(...res[1]);
-    } while (cursor !== 0);
+    } while (cursor !== "0");
     expect(found.includes(key)).toBeTrue();
   });
 });
@@ -32,14 +32,14 @@ test("with match", () => {
     const value = randomID();
     await new SetCommand([key, value]).exec(client);
 
-    let cursor = 0;
+    let cursor = "0";
     const found: string[] = [];
     do {
       const res = await new ScanCommand([cursor, { match: key }]).exec(client);
       expect(typeof res[0]).toEqual("number");
       cursor = res[0];
       found.push(...res[1]);
-    } while (cursor !== 0);
+    } while (cursor !== "0");
 
     expect(found).toEqual([key]);
   });
@@ -51,13 +51,13 @@ test("with count", () => {
     const value = randomID();
     await new SetCommand([key, value]).exec(client);
 
-    let cursor = 0;
+    let cursor = "0";
     const found: string[] = [];
     do {
       const res = await new ScanCommand([cursor, { count: 1 }]).exec(client);
       cursor = res[0];
       found.push(...res[1]);
-    } while (cursor !== 0);
+    } while (cursor !== "0");
 
     expect(found.includes(key)).toEqual(true);
   });
@@ -74,13 +74,13 @@ test("with type", () => {
     // Add a non-string type
     await new ZAddCommand([key2, { score: 1, member: "abc" }]).exec(client);
 
-    let cursor = 0;
+    let cursor = "0";
     const found: string[] = [];
     do {
       const res = await new ScanCommand([cursor, { type: "string" }]).exec(client);
       cursor = res[0];
       found.push(...res[1]);
-    } while (cursor !== 0);
+    } while (cursor !== "0");
 
     expect(found.length).toEqual(1);
     for (const key of found) {

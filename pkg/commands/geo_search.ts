@@ -130,8 +130,8 @@ export class GeoSearchCommand<
         ...(opts?.withHash ? ["WITHHASH"] : []),
       ],
       {
-        ...commandOptions,
         deserialize: transform,
+        ...commandOptions,
       },
     );
   }

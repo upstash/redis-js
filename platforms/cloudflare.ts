@@ -1,4 +1,5 @@
 import type { Requester, UpstashRequest, UpstashResponse } from "../pkg/http";
+import { Pipeline } from "../pkg/pipeline";
 import { HttpClient, RequesterConfig } from "../pkg/http";
 import * as core from "../pkg/redis";
 import { VERSION } from "../version";
@@ -8,7 +9,7 @@ type Env = {
 };
 
 export type * from "../pkg/commands/types";
-export type { Requester, UpstashRequest, UpstashResponse };
+export type { Requester, UpstashRequest, UpstashResponse, Pipeline };
 /**
  * Connection credentials for upstash redis.
  * Get them from https://console.upstash.com/redis/<uuid>

@@ -16,7 +16,7 @@ describe("without options", () => {
     const res = await new ZScanCommand([key, 0]).exec(client);
 
     expect(res.length).toBe(2);
-    expect(typeof res[0]).toBe("number");
+    expect(typeof res[0]).toBe("string");
     expect(res![1].length > 0).toBe(true);
   });
 });
@@ -26,10 +26,10 @@ describe("with match", () => {
     const key = newKey();
     const value = randomID();
     await new ZAddCommand([key, { score: 0, member: value }]).exec(client);
-    const res = await new ZScanCommand([key, 0, { match: value }]).exec(client);
+    const res = await new ZScanCommand([key, "0", { match: value }]).exec(client);
 
     expect(res.length).toBe(2);
-    expect(typeof res[0]).toBe("number");
+    expect(typeof res[0]).toBe("string");
     expect(res![1].length > 0).toBe(true);
   });
 });
@@ -39,7 +39,7 @@ test("with count", () => {
     const key = newKey();
     const value = randomID();
     await new ZAddCommand([key, { score: 0, member: value }]).exec(client);
-    const res = await new ZScanCommand([key, 0, { count: 1 }]).exec(client);
+    const res = await new ZScanCommand([key, "0", { count: 1 }]).exec(client);
 
     expect(res.length).toBe(2);
     expect(typeof res[0]).toBe("number");

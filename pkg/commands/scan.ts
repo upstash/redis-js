@@ -1,3 +1,4 @@
+import { deserializeScanResponse } from "../util";
 import { Command, CommandOptions } from "./command";
 
 export type ScanCommandOptions = {
@@ -8,12 +9,12 @@ export type ScanCommandOptions = {
 /**
  * @see https://redis.io/commands/scan
  */
-export class ScanCommand extends Command<[number, string[]], [number, string[]]> {
+export class ScanCommand extends Command<[string, string[]], [string, string[]]> {
   constructor(
-    [cursor, opts]: [cursor: number, opts?: ScanCommandOptions],
-    cmdOpts?: CommandOptions<[number, string[]], [number, string[]]>,
+    [cursor, opts]: [cursor: string | number, opts?: ScanCommandOptions],
+    cmdOpts?: CommandOptions<[string, string[]], [string, string[]]>,
   ) {
-    const command = ["scan", cursor];
+    const command: (number | string)[] = ["scan", cursor];
     if (opts?.match) {
       command.push("match", opts.match);
     }
@@ -23,6 +24,12 @@ export class ScanCommand extends Command<[number, string[]], [number, string[]]>
     if (opts?.type && opts.type.length > 0) {
       command.push("type", opts.type);
     }
-    super(command, cmdOpts);
+    super(
+      command,
+      {
+        deserialize: deserializeScanResponse,
+        ...cmdOpts,
+      }
+    );
   }
 }

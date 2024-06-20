@@ -28,6 +28,7 @@ export type RedisConfigCloudflare = {
    * For more check: https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
    */
   signal?: AbortSignal;
+  keepAlive?: boolean;
 } & core.RedisOptions &
   RequesterConfig &
   Env;
@@ -69,13 +70,14 @@ export class Redis extends core.Redis {
       headers: { authorization: `Bearer ${config.token}` },
       responseEncoding: config.responseEncoding,
       signal: config.signal,
+      keepAlive: config.keepAlive,
     });
 
     super(client, {
       enableTelemetry: !env?.UPSTASH_DISABLE_TELEMETRY,
       automaticDeserialization: config.automaticDeserialization,
       latencyLogging: config.latencyLogging,
-      enableAutoPipelining: config.enableAutoPipelining
+      enableAutoPipelining: config.enableAutoPipelining,
     });
     // This is only added of the user has not disabled telemetry
     this.addTelemetry({

@@ -94,6 +94,7 @@ export type HttpClientConfig = {
   retry?: RetryConfig;
   agent?: any;
   signal?: AbortSignal;
+  keepAlive?: boolean
 } & RequesterConfig;
 
 export class HttpClient implements Requester {
@@ -105,6 +106,7 @@ export class HttpClient implements Requester {
     signal?: AbortSignal;
     responseEncoding?: false | "base64";
     cache?: CacheSetting;
+    keepAlive: boolean
   };
 
   public readonly retry: {
@@ -119,6 +121,7 @@ export class HttpClient implements Requester {
       responseEncoding: config.responseEncoding ?? "base64", // default to base64
       cache: config.cache,
       signal: config.signal,
+      keepAlive: config.keepAlive ?? true
     };
 
     this.baseUrl = config.baseUrl.replace(/\/$/, "");
@@ -175,7 +178,7 @@ export class HttpClient implements Requester {
       method: "POST",
       headers: this.headers,
       body: JSON.stringify(req.body),
-      keepalive: true,
+      keepalive: this.options.keepAlive,
       agent: this.options?.agent,
       signal: this.options.signal,
 

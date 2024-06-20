@@ -26,6 +26,7 @@ export type RedisConfigFastly = {
    * referenced by name.
    */
   backend: string;
+  keepAlive?: boolean;
 } & core.RedisOptions &
   RequesterConfig;
 
@@ -67,6 +68,7 @@ export class Redis extends core.Redis {
       headers: { authorization: `Bearer ${config.token}` },
       options: { backend: config.backend },
       responseEncoding: config.responseEncoding,
+      keepAlive: config.keepAlive,
     });
 
     super(client, {

@@ -56,6 +56,7 @@ export type RedisConfigNodejs = {
   signal?: AbortSignal;
   latencyLogging?: boolean;
   agent?: any;
+  keepAlive?: boolean;
 } & core.RedisOptions &
   RequesterConfig;
 
@@ -131,6 +132,7 @@ export class Redis extends core.Redis {
       responseEncoding: configOrRequester.responseEncoding,
       cache: configOrRequester.cache || "no-store",
       signal: configOrRequester.signal,
+      keepAlive: configOrRequester.keepAlive,
     });
 
     super(client, {

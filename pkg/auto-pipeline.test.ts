@@ -17,7 +17,7 @@ describe("Auto pipeline", () => {
 
     const redis = Redis.fromEnv({
       latencyLogging: false,
-      enableAutoPipelining: true
+      enableAutoPipelining: true,
     });
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
@@ -152,10 +152,9 @@ describe("Auto pipeline", () => {
   });
 
   test("should group async requests with sync requests", async () => {
-
     const redis = Redis.fromEnv({
       latencyLogging: false,
-      enableAutoPipelining: true
+      enableAutoPipelining: true,
     });
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
@@ -178,10 +177,9 @@ describe("Auto pipeline", () => {
   });
 
   test("should execute a pipeline for each consecutive awaited command", async () => {
-
     const redis = Redis.fromEnv({
       latencyLogging: false,
-      enableAutoPipelining: true
+      enableAutoPipelining: true,
     });
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
@@ -204,10 +202,9 @@ describe("Auto pipeline", () => {
   });
 
   test("should execute a single pipeline for several commands inside Promise.all", async () => {
-
     const redis = Redis.fromEnv({
       latencyLogging: false,
-      enableAutoPipelining: true
+      enableAutoPipelining: true,
     });
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
@@ -222,14 +219,12 @@ describe("Auto pipeline", () => {
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(1);
     expect(resArray).toEqual(["OK", 1, 2, "OK", "bar"]);
-
   });
 
   test("should be able to utilize only redis functions 'use' like usual", async () => {
-
     const redis = Redis.fromEnv({
       latencyLogging: false,
-      enableAutoPipelining: true
+      enableAutoPipelining: true,
     });
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
@@ -239,7 +234,7 @@ describe("Auto pipeline", () => {
       state = true;
       return await next(req);
     });
-    
+
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
 
@@ -252,10 +247,9 @@ describe("Auto pipeline", () => {
   });
 
   test("should be able to utilize only redis functions 'multi' and 'pipeline' like usual", async () => {
-
     const redis = Redis.fromEnv({
       latencyLogging: false,
-      enableAutoPipelining: true
+      enableAutoPipelining: true,
     });
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
@@ -263,48 +257,46 @@ describe("Auto pipeline", () => {
     const pipe = redis.pipeline();
     pipe.incr("voila");
     pipe.incr("voila");
-    const result = await pipe.exec()
-    expect(result).toEqual([1, 2])
-    
+    const result = await pipe.exec();
+    expect(result).toEqual([1, 2]);
+
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
 
     const transaction = redis.multi();
     transaction.incr("et voila");
     transaction.incr("et voila");
-    const result_2 = await transaction.exec()
-    expect(result_2).toEqual([1, 2])
-    
+    const result_2 = await transaction.exec();
+    expect(result_2).toEqual([1, 2]);
+
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
   });
 
   test("should be able to utilize only redis functions 'createScript' like usual", async () => {
-
     const redis = Redis.fromEnv({
       latencyLogging: false,
-      enableAutoPipelining: true
+      enableAutoPipelining: true,
     });
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
 
     const script = redis.createScript("return ARGV[1];");
-    
+
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
 
     const res = await script.eval([], ["Hello World"]);
     expect(res).toEqual("Hello World");
-    
+
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(1);
   });
 
   test("should handle JSON commands correctly", async () => {
-
     const redis = Redis.fromEnv({
       latencyLogging: false,
-      enableAutoPipelining: true
+      enableAutoPipelining: true,
     });
 
     // @ts-expect-error pipelineCounter is not in type but accessible
@@ -317,19 +309,11 @@ describe("Auto pipeline", () => {
       redis.json.get("baz1"),
       redis.json.del("baz1"),
       redis.json.get("baz1"),
-    ])
+    ]);
 
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(1);
 
-    expect(res).toEqual([
-      "OK",
-      "OK",
-      "bar",
-      { hello: "world" },
-      1,
-      null
-    ])
-  })
+    expect(res).toEqual(["OK", "OK", "bar", { hello: "world" }, 1, null]);
+  });
 });
-

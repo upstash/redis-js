@@ -21,12 +21,9 @@ export class ZScanCommand extends Command<
       command.push("count", opts.count);
     }
 
-    super(
-      command,
-      {
-        deserialize: deserializeScanResponse,
-        ...cmdOpts,
-      }
-    );
+    super(command, {
+      deserialize: deserializeScanResponse,
+      ...cmdOpts,
+    });
   }
 }

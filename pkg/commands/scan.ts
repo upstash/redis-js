@@ -24,12 +24,9 @@ export class ScanCommand extends Command<[string, string[]], [string, string[]]>
     if (opts?.type && opts.type.length > 0) {
       command.push("type", opts.type);
     }
-    super(
-      command,
-      {
-        deserialize: deserializeScanResponse,
-        ...cmdOpts,
-      }
-    );
+    super(command, {
+      deserialize: deserializeScanResponse,
+      ...cmdOpts,
+    });
   }
 }

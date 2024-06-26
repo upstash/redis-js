@@ -1,3 +1,4 @@
+import { createAutoPipelineProxy } from "../pkg/auto-pipeline";
 import {
   AppendCommand,
   BitCountCommand,
@@ -176,7 +177,6 @@ import { Requester, UpstashRequest, UpstashResponse } from "./http";
 import { Pipeline } from "./pipeline";
 import { Script } from "./script";
 import type { CommandArgs, RedisOptions, Telemetry } from "./types";
-import { createAutoPipelineProxy } from "../pkg/auto-pipeline"
 
 // See https://github.com/upstash/upstash-redis/issues/342
 // why we need this export

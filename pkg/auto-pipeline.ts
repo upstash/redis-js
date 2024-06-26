@@ -16,7 +16,7 @@ export function createAutoPipelineProxy(_redis: Redis, json?: boolean): Redis {
   }
 
   return new Proxy(redis, {
-    get: (redis, command: "pipelineCounter" | keyof Pipeline | redisOnly ) => {
+    get: (redis, command: "pipelineCounter" | keyof Pipeline | redisOnly) => {
       // return pipelineCounter of autoPipelineExecutor
       if (command === "pipelineCounter") {
         return redis.autoPipelineExecutor.pipelineCounter;
@@ -24,13 +24,13 @@ export function createAutoPipelineProxy(_redis: Redis, json?: boolean): Redis {
 
       if (command === "json") {
         return createAutoPipelineProxy(redis, true);
-      };
-      
+      }
+
       const commandInRedisButNotPipeline =
         command in redis && !(command in redis.autoPipelineExecutor.pipeline);
 
       if (commandInRedisButNotPipeline) {
-          return redis[command as redisOnly];
+        return redis[command as redisOnly];
       }
 
       // If the method is a function on the pipeline, wrap it with the executor logic
@@ -39,7 +39,7 @@ export function createAutoPipelineProxy(_redis: Redis, json?: boolean): Redis {
           // pass the function as a callback
           return redis.autoPipelineExecutor.withAutoPipeline((pipeline) => {
             if (json) {
-              (pipeline.json[command as keyof Pipeline["json"]] as Function)(...args)
+              (pipeline.json[command as keyof Pipeline["json"]] as Function)(...args);
             } else {
               (pipeline[command as keyof Pipeline] as Function)(...args);
             }
@@ -94,7 +94,7 @@ class AutoPipelineExecutor {
   }
 
   private async deferExecution() {
-    await Promise.resolve()
-    return await Promise.resolve()
+    await Promise.resolve();
+    return await Promise.resolve();
   }
 }

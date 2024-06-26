@@ -94,7 +94,7 @@ export type HttpClientConfig = {
   retry?: RetryConfig;
   agent?: any;
   signal?: AbortSignal;
-  keepAlive?: boolean
+  keepAlive?: boolean;
 } & RequesterConfig;
 
 export class HttpClient implements Requester {
@@ -106,7 +106,7 @@ export class HttpClient implements Requester {
     signal?: AbortSignal;
     responseEncoding?: false | "base64";
     cache?: CacheSetting;
-    keepAlive: boolean
+    keepAlive: boolean;
   };
 
   public readonly retry: {
@@ -121,13 +121,13 @@ export class HttpClient implements Requester {
       responseEncoding: config.responseEncoding ?? "base64", // default to base64
       cache: config.cache,
       signal: config.signal,
-      keepAlive: config.keepAlive ?? true
+      keepAlive: config.keepAlive ?? true,
     };
 
     this.baseUrl = config.baseUrl.replace(/\/$/, "");
     const urlRegex = /^https?:\/\/[^\s/$.?#].[^\s]*$/;
     if (!urlRegex.test(this.baseUrl)) {
-      throw new UrlError(this.baseUrl)
+      throw new UrlError(this.baseUrl);
     }
 
     this.headers = {

@@ -8,6 +8,7 @@ type Env = {
   UPSTASH_DISABLE_TELEMETRY?: string;
 };
 
+export * as errors from "../pkg/error"
 export type * from "../pkg/commands/types";
 export type { Requester, UpstashRequest, UpstashResponse, Pipeline };
 /**

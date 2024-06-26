@@ -4,6 +4,7 @@ import { HttpClient } from "../pkg/http";
 import * as core from "../pkg/redis";
 import { VERSION } from "../version";
 
+export * as errors from "../pkg/error"
 export type * from "../pkg/commands/types";
 export type { Requester, UpstashRequest, UpstashResponse, Pipeline };
 

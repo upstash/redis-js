@@ -125,6 +125,16 @@ export class HttpClient implements Requester {
     };
 
     this.baseUrl = config.baseUrl.replace(/\/$/, "");
+
+    /**
+     * regex to check if the baseUrl starts with http:// or https://
+     * - `^` asserts the position at the start of the string.
+     * - `[^\s/$.?#]` makes sure that the domain starts correctly;
+     *   without white space, '/', '$', '.', '?' or '#'
+     * - `.` matches any character except new line
+     * - `[^\s]*` matches anything except white space
+     * - `$` asserts the position at the end of the string.
+     */
     const urlRegex = /^https?:\/\/[^\s/$.?#].[^\s]*$/;
     if (!urlRegex.test(this.baseUrl)) {
       throw new UrlError(this.baseUrl);

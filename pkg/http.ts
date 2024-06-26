@@ -1,4 +1,4 @@
-import { UpstashError } from "./error";
+import { UpstashError, UrlError } from "./error";
 import { Telemetry } from "./types";
 
 type CacheSetting =
@@ -125,6 +125,10 @@ export class HttpClient implements Requester {
     };
 
     this.baseUrl = config.baseUrl.replace(/\/$/, "");
+    const urlRegex = /^https?:\/\/[^\s/$.?#].[^\s]*$/;
+    if (!urlRegex.test(this.baseUrl)) {
+      throw new UrlError(this.baseUrl)
+    }
 
     this.headers = {
       "Content-Type": "application/json",

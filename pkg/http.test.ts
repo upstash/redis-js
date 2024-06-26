@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { HttpClient } from "./http";
 
 import { newHttpClient } from "./test-utils";
+import { UrlError } from "./error";
 test("remove trailing slash from urls", () => {
   const client = new HttpClient({ baseUrl: "https://example.com/" });
 
@@ -48,3 +49,27 @@ describe("Abort", () => {
     expect((await body).result).toEqual("Abort works!");
   });
 });
+
+describe("should reject invalid urls", () => {
+  test("should reject when https is missing", async () => {
+    try {
+      new HttpClient({baseUrl: "eu1-flying-whale-434343.upstash.io"})
+    } catch (error) {
+      expect(error instanceof UrlError).toBeTrue()
+      return
+    }
+    throw new Error("Test error. Should have raised when initializing client")
+  })
+
+  test("should allow when http is used", async () => {
+    new HttpClient({
+      baseUrl: "http://eu1-flying-whale-434343.upstash.io",
+    })
+  })
+
+  test("should allow when https is used", async () => {
+    new HttpClient({
+      baseUrl: "https://eu1-flying-whale-434343.upstash.io",
+    })
+  })
+})

@@ -7,3 +7,10 @@ export class UpstashError extends Error {
     this.name = "UpstashError";
   }
 }
+
+export class UrlError extends Error {
+  constructor(url: string) {
+    super(`Received an invalid URL: "${url}"`);
+    this.name = "UrlError";
+  }
+}

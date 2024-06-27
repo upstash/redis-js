@@ -17,6 +17,7 @@ import { VERSION } from "../version";
 if (typeof atob === "undefined") {
   global.atob = (b64: string) => Buffer.from(b64, "base64").toString("utf-8");
 }
+export * as errors from "../pkg/error"
 export type * from "../pkg/commands/types";
 export type { Requester, UpstashRequest, UpstashResponse, Pipeline };
 

@@ -1,4 +1,4 @@
-import { UpstashError } from "./error";
+import { UpstashError, UrlError } from "./error";
 import { Telemetry } from "./types";
 
 type CacheSetting =
@@ -94,7 +94,7 @@ export type HttpClientConfig = {
   retry?: RetryConfig;
   agent?: any;
   signal?: AbortSignal;
-  keepAlive?: boolean
+  keepAlive?: boolean;
 } & RequesterConfig;
 
 export class HttpClient implements Requester {
@@ -106,7 +106,7 @@ export class HttpClient implements Requester {
     signal?: AbortSignal;
     responseEncoding?: false | "base64";
     cache?: CacheSetting;
-    keepAlive: boolean
+    keepAlive: boolean;
   };
 
   public readonly retry: {
@@ -121,10 +121,24 @@ export class HttpClient implements Requester {
       responseEncoding: config.responseEncoding ?? "base64", // default to base64
       cache: config.cache,
       signal: config.signal,
-      keepAlive: config.keepAlive ?? true
+      keepAlive: config.keepAlive ?? true,
     };
 
     this.baseUrl = config.baseUrl.replace(/\/$/, "");
+
+    /**
+     * regex to check if the baseUrl starts with http:// or https://
+     * - `^` asserts the position at the start of the string.
+     * - `[^\s/$.?#]` makes sure that the domain starts correctly;
+     *   without white space, '/', '$', '.', '?' or '#'
+     * - `.` matches any character except new line
+     * - `[^\s]*` matches anything except white space
+     * - `$` asserts the position at the end of the string.
+     */
+    const urlRegex = /^https?:\/\/[^\s/$.?#].[^\s]*$/;
+    if (!urlRegex.test(this.baseUrl)) {
+      throw new UrlError(this.baseUrl);
+    }
 
     this.headers = {
       "Content-Type": "application/json",

@@ -10,7 +10,7 @@ type SubcommandArgs<Rest extends unknown[] = []> = [
 /**
  * @see https://redis.io/commands/bitfield
  */
-export class BitFieldCommand extends Command<number[], number[]> {  
+export class BitFieldCommand extends Command<number[], number[]> {
   constructor(
     cmd: [key: string],
     private client: Requester,

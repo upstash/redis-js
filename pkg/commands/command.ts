@@ -37,9 +37,9 @@ export type CommandOptions<TResult, TData> = {
  * TResult is the raw data returned from upstash, which may need to be transformed or parsed.
  */
 export class Command<TResult, TData> {
-  public readonly command: (string | number | boolean)[];
-  public readonly serialize: Serialize;
-  public readonly deserialize: Deserialize<TResult, TData>;
+  protected readonly command: (string | number | boolean)[];
+  protected readonly serialize: Serialize;
+  protected readonly deserialize: Deserialize<TResult, TData>;
   /**
    * Create a new command instance.
    *

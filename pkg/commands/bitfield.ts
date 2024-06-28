@@ -2,15 +2,15 @@ import { type Requester } from "../http";
 import { Command, type CommandOptions } from "./command";
 
 type SubcommandArgs<Rest extends unknown[] = []> = [
-  encoding: `u${number}` | `i${number}`, // u1 - u63 | i1 - i64
-  offset: number | `#${number}`, // any int
+  encoding: string, // u1 - u63 | i1 - i64
+  offset: number | string, // #<int> | <int>
   ...Rest,
 ];
 
 /**
  * @see https://redis.io/commands/bitfield
  */
-export class BitFieldCommand extends Command<number[], number[]> {
+export class BitFieldCommand extends Command<number[], number[]> {  
   constructor(
     cmd: [key: string],
     private client: Requester,

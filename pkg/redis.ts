@@ -411,7 +411,7 @@ export class Redis {
    * redis.set("mykey", 0);
    * const result = await redis.bitfield("mykey")
    *   .set("u4", 0, 16)
-   *   .incr("u4", 4, 1)
+   *   .incr("u4", "#1", 1)
    *   .exec();
    * console.log(result); // [0, 1]
    * ```
@@ -419,7 +419,7 @@ export class Redis {
    * @see https://redis.io/commands/bitfield
    */
   bitfield = (...args: CommandArgs<typeof BitFieldCommand>) =>
-    new BitFieldCommand(args, this.opts, this.client);
+    new BitFieldCommand(args, this.client, this.opts);
 
   /**
    * @see https://redis.io/commands/append

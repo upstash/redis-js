@@ -8,44 +8,39 @@ type SubcommandArgs<Rest extends unknown[] = []> = [
 ];
 
 /**
- * Returns an instance that can be used to execute `BITFIELD` commands on one key.
- *
  * @see https://redis.io/commands/bitfield
  */
 export class BitFieldCommand extends Command<number[], number[]> {
   constructor(
     cmd: [key: string],
+    private client: Requester,
     opts?: CommandOptions<number[], number[]>,
-    private client?: Requester,
   ) {
-    super(cmd, opts);
+    super(["bitfield", ...cmd], opts);
   }
 
-  private pushSerializedArgs(...args: unknown[]) {
-    return this.command.push(...args.map((arg) => this.serialize(arg)));
-  }
-
-  get(...args: SubcommandArgs): this {
-    this.pushSerializedArgs("get", ...args);
+  private chain(...args: typeof this.command): this {
+    this.command.push(...args);
     return this;
   }
 
-  set(...args: SubcommandArgs<[value: number]>): this {
-    this.pushSerializedArgs("set", ...args);
-    return this;
+  get(...args: SubcommandArgs) {
+    return this.chain("get", ...args);
   }
 
-  incrby(...args: SubcommandArgs<[increment: number]>): this {
-    this.pushSerializedArgs("incrby", ...args);
-    return this;
+  set(...args: SubcommandArgs<[value: number]>) {
+    return this.chain("set", ...args);
   }
 
-  overflow(overflow: "WRAP" | "SAT" | "FAIL"): this {
-    this.pushSerializedArgs("overflow", overflow);
-    return this;
+  incrby(...args: SubcommandArgs<[increment: number]>) {
+    return this.chain("incrby", ...args);
   }
 
-  override exec(client = this.client): Promise<number[]> {
-    return this.exec(client);
+  overflow(overflow: "WRAP" | "SAT" | "FAIL") {
+    return this.chain("overflow", overflow);
+  }
+
+  override exec(): Promise<number[]> {
+    return super.exec(this.client);
   }
 }

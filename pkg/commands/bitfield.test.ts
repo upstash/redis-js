@@ -10,7 +10,7 @@ afterAll(cleanup);
 describe("when key is not set", () => {
   test("returns 0", async () => {
     const key = newKey();
-    const res = await new BitFieldCommand([key]).get("u4", "#0").exec(client);
+    const res = await new BitFieldCommand([key], client).get("u4", "#0").exec();
     expect(res).toEqual([0]);
   });
 });
@@ -19,10 +19,10 @@ describe("when key is set", () => {
   test("sets / gets value", async () => {
     const key = newKey();
     const value = 42;
-    const res = await new BitFieldCommand([key])
+    const res = await new BitFieldCommand([key], client)
       .set("u8", "#0", value)
       .get("u8", "#0")
-      .exec(client);
+      .exec();
     expect(res).toEqual([0, value]);
   });
 
@@ -30,21 +30,22 @@ describe("when key is set", () => {
     const key = newKey();
     const value = 42;
     const increment = 10;
-    const res = await new BitFieldCommand([key])
+    const res = await new BitFieldCommand([key], client)
       .set("u8", "#0", value)
       .incrby("u8", "#0", increment)
-      .exec(client);
+      .exec();
     expect(res).toEqual([0, value + increment]);
   });
 
   test("overflows", async () => {
     const key = newKey();
     const value = 255;
-    const res = await new BitFieldCommand([key])
-      .set("u8", "#0", value)
-      .incrby("u8", "#0", 10)
+    const bitWidth = 8;
+    const res = await new BitFieldCommand([key], client)
+      .set(`u${bitWidth}`, "#0", value)
+      .incrby(`u${bitWidth}`, "#0", 10)
       .overflow("WRAP")
-      .exec(client);
-    expect(res).toEqual([0, value]);
+      .exec();
+    expect(res).toEqual([0, (value + 10) % 2 ** bitWidth]);
   });
 });

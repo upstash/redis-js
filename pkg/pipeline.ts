@@ -3,6 +3,7 @@ import { HRandFieldCommand } from "./commands/hrandfield";
 import {
   AppendCommand,
   BitCountCommand,
+  BitFieldPipeline,
   BitOpCommand,
   BitPosCommand,
   CopyCommand,
@@ -321,6 +322,24 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   bitcount = (...args: CommandArgs<typeof BitCountCommand>) =>
     this.chain(new BitCountCommand(args, this.commandOptions));
+
+  /**
+   * Returns an instance that can be used to execute `BITFIELD` commands on one key.
+   *
+   * @example
+   * ```typescript
+   * redis.set("mykey", 0);
+   * const result = await redis.pipeline()
+   *   .bitfield("mykey")
+   *   .set("u4", 0, 16)
+   *   .incr("u4", "#1", 1)
+   *   .exec();
+   * console.log(result); // [[0, 1]]
+   * ```
+   *
+   * @see https://redis.io/commands/bitfield
+   */
+  bitfield = (...args: CommandArgs<typeof BitFieldPipeline>) => new BitFieldPipeline(args, this);
 
   /**
    * @see https://redis.io/commands/bitop

@@ -3,7 +3,7 @@ import { HRandFieldCommand } from "./commands/hrandfield";
 import {
   AppendCommand,
   BitCountCommand,
-  BitFieldPipeline,
+  BitFieldCommand,
   BitOpCommand,
   BitPosCommand,
   CopyCommand,
@@ -339,7 +339,8 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    *
    * @see https://redis.io/commands/bitfield
    */
-  bitfield = (...args: CommandArgs<typeof BitFieldPipeline>) => new BitFieldPipeline(args, this);
+  bitfield = (...args: CommandArgs<typeof BitFieldCommand>) =>
+    new BitFieldCommand(args, this.client, this.commandOptions, this.chain.bind(this));
 
   /**
    * @see https://redis.io/commands/bitop

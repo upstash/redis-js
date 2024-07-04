@@ -13,6 +13,7 @@ describe("Auto pipeline", () => {
   test("should execute all commands inside a Promise.all in a single pipeline", async () => {
     const persistentKey = newKey();
     const persistentKey2 = newKey();
+    const persistentKey3 = newKey();
     const scriptHash = await new ScriptLoadCommand(["return 1"]).exec(client);
 
     const redis = Redis.fromEnv({
@@ -143,10 +144,11 @@ describe("Auto pipeline", () => {
       redis.zscore(newKey(), "member"),
       redis.zunionstore(newKey(), 1, [newKey()]),
       redis.zunion(1, [newKey()]),
-      redis.json.set(newKey(), "$", { hello: "world" }),
+      redis.json.set(persistentKey3, '$', { log: ["one", "two"] }),
+      redis.json.arrappend(persistentKey3, "$.log", '"three"'),
     ]);
     expect(result).toBeTruthy();
-    expect(result.length).toBe(120); // returns
+    expect(result.length).toBe(121); // returns
     // @ts-expect-error pipelineCounter is not in type but accessible120 results
     expect(redis.pipelineCounter).toBe(1);
   });

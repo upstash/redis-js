@@ -34,7 +34,10 @@ export function createAutoPipelineProxy(_redis: Redis, json?: boolean): Redis {
       }
 
       // If the method is a function on the pipeline, wrap it with the executor logic
-      if (typeof redis.autoPipelineExecutor.pipeline[command as keyof Pipeline] === "function") {
+      const isFunction = json
+        ? typeof redis.autoPipelineExecutor.pipeline.json[command as keyof Pipeline["json"]] === "function"
+        : typeof redis.autoPipelineExecutor.pipeline[command as keyof Pipeline] === "function"
+      if (isFunction) {
         return (...args: CommandArgs<typeof Command>) => {
           // pass the function as a callback
           return redis.autoPipelineExecutor.withAutoPipeline((pipeline) => {

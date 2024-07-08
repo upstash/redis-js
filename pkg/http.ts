@@ -95,6 +95,7 @@ export type HttpClientConfig = {
   agent?: any;
   signal?: AbortSignal;
   keepAlive?: boolean;
+  readYourWrites?: boolean;
 } & RequesterConfig;
 
 export class HttpClient implements Requester {
@@ -107,12 +108,14 @@ export class HttpClient implements Requester {
     responseEncoding?: false | "base64";
     cache?: CacheSetting;
     keepAlive: boolean;
+    readYourWrites?: boolean;
   };
 
   public readonly retry: {
     attempts: number;
     backoff: (retryCount: number) => number;
   };
+  protected upstashSyncToken: string | undefined;
 
   public constructor(config: HttpClientConfig) {
     this.options = {
@@ -122,6 +125,7 @@ export class HttpClient implements Requester {
       cache: config.cache,
       signal: config.signal,
       keepAlive: config.keepAlive ?? true,
+      readYourWrites: config.readYourWrites,
     };
 
     this.baseUrl = config.baseUrl.replace(/\/$/, "");
@@ -195,6 +199,7 @@ export class HttpClient implements Requester {
       keepalive: this.options.keepAlive,
       agent: this.options?.agent,
       signal: this.options.signal,
+      readYourWrites: this.options.readYourWrites,
 
       /**
        * Fastly specific

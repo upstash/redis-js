@@ -191,6 +191,7 @@ export class Redis {
   protected opts?: CommandOptions<any, any>;
   protected enableTelemetry: boolean;
   protected enableAutoPipelining: boolean;
+  protected readYourWrites: boolean;
 
   /**
    * Create a new redis client
@@ -208,6 +209,7 @@ export class Redis {
     this.opts = opts;
     this.enableTelemetry = opts?.enableTelemetry ?? true;
     this.enableAutoPipelining = opts?.enableAutoPipelining ?? false;
+    this.readYourWrites = opts?.readYourWrites ?? true;
   }
 
   get json() {

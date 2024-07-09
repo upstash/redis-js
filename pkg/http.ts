@@ -212,7 +212,7 @@ export class HttpClient implements Requester {
       backend: this.options?.backend,
     };
 
-    const newHeader = req.upstashSyncToken || this._upstashSyncToken;
+    const newHeader = this._upstashSyncToken;
     this.headers["upstash-sync-token"] = newHeader;
 
     let res: Response | null = null;

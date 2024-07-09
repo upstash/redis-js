@@ -279,6 +279,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
       throw new Error("Pipeline is empty");
     }
     const path = this.multiExec ? ["multi-exec"] : ["pipeline"];
+
     const res = (await this.client.request({
       path,
       body: Object.values(this.commands).map((c) => c.command),

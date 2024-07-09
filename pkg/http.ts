@@ -15,10 +15,13 @@ export type UpstashRequest = {
    * Request body will be serialized to json
    */
   body?: unknown;
+
+  upstashSyncToken?: string;
 };
 export type UpstashResponse<TResult> = { result?: TResult; error?: string };
 
 export interface Requester {
+  upstashSyncToken: string;
   request: <TResult = unknown>(req: UpstashRequest) => Promise<UpstashResponse<TResult>>;
 }
 
@@ -29,22 +32,22 @@ type ResultError = {
 export type RetryConfig =
   | false
   | {
-      /**
-       * The number of retries to attempt before giving up.
-       *
-       * @default 5
-       */
-      retries?: number;
-      /**
-       * A backoff function receives the current retry cound and returns a number in milliseconds to wait before retrying.
-       *
-       * @default
-       * ```ts
-       * Math.exp(retryCount) * 50
-       * ```
-       */
-      backoff?: (retryCount: number) => number;
-    };
+    /**
+     * The number of retries to attempt before giving up.
+     *
+     * @default 5
+     */
+    retries?: number;
+    /**
+     * A backoff function receives the current retry cound and returns a number in milliseconds to wait before retrying.
+     *
+     * @default
+     * ```ts
+     * Math.exp(retryCount) * 50
+     * ```
+     */
+    backoff?: (retryCount: number) => number;
+  };
 
 export type Options = {
   backend?: string;
@@ -110,12 +113,13 @@ export class HttpClient implements Requester {
     keepAlive: boolean;
     readYourWrites?: boolean;
   };
+  public _upstashSyncToken = "";
 
   public readonly retry: {
     attempts: number;
     backoff: (retryCount: number) => number;
   };
-  protected upstashSyncToken: string | undefined;
+  public upstashSyncToken: string;
 
   public constructor(config: HttpClientConfig) {
     this.options = {
@@ -127,6 +131,7 @@ export class HttpClient implements Requester {
       keepAlive: config.keepAlive ?? true,
       readYourWrites: config.readYourWrites,
     };
+    this.upstashSyncToken = "";
 
     this.baseUrl = config.baseUrl.replace(/\/$/, "");
 
@@ -207,6 +212,10 @@ export class HttpClient implements Requester {
       backend: this.options?.backend,
     };
 
+    const newHeader = req.upstashSyncToken || this._upstashSyncToken;
+    this.headers['upstash-sync-token'] = newHeader
+
+
     let res: Response | null = null;
     let error: Error | null = null;
     for (let i = 0; i <= this.retry.attempts; i++) {
@@ -238,6 +247,9 @@ export class HttpClient implements Requester {
       throw new UpstashError(`${body.error}, command was: ${JSON.stringify(req.body)}`);
     }
 
+    const headers = res.headers
+    this._upstashSyncToken = headers.get('upstash-sync-token') ?? "";
+
     if (this.options?.responseEncoding === "base64") {
       if (Array.isArray(body)) {
         return body.map(({ result, error }) => ({
@@ -248,6 +260,7 @@ export class HttpClient implements Requester {
       const result = decode(body.result) as any;
       return { result, error: body.error };
     }
+
     return body as UpstashResponse<TResult>;
   }
 }

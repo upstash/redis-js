@@ -32,22 +32,22 @@ type ResultError = {
 export type RetryConfig =
   | false
   | {
-    /**
-     * The number of retries to attempt before giving up.
-     *
-     * @default 5
-     */
-    retries?: number;
-    /**
-     * A backoff function receives the current retry cound and returns a number in milliseconds to wait before retrying.
-     *
-     * @default
-     * ```ts
-     * Math.exp(retryCount) * 50
-     * ```
-     */
-    backoff?: (retryCount: number) => number;
-  };
+      /**
+       * The number of retries to attempt before giving up.
+       *
+       * @default 5
+       */
+      retries?: number;
+      /**
+       * A backoff function receives the current retry cound and returns a number in milliseconds to wait before retrying.
+       *
+       * @default
+       * ```ts
+       * Math.exp(retryCount) * 50
+       * ```
+       */
+      backoff?: (retryCount: number) => number;
+    };
 
 export type Options = {
   backend?: string;
@@ -213,8 +213,7 @@ export class HttpClient implements Requester {
     };
 
     const newHeader = req.upstashSyncToken || this._upstashSyncToken;
-    this.headers['upstash-sync-token'] = newHeader
-
+    this.headers["upstash-sync-token"] = newHeader;
 
     let res: Response | null = null;
     let error: Error | null = null;
@@ -247,8 +246,8 @@ export class HttpClient implements Requester {
       throw new UpstashError(`${body.error}, command was: ${JSON.stringify(req.body)}`);
     }
 
-    const headers = res.headers
-    this._upstashSyncToken = headers.get('upstash-sync-token') ?? "";
+    const headers = res.headers;
+    this._upstashSyncToken = headers.get("upstash-sync-token") ?? "";
 
     if (this.options?.responseEncoding === "base64") {
       if (Array.isArray(body)) {

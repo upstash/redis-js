@@ -28,6 +28,7 @@ export type RedisConfigFastly = {
    */
   backend: string;
   keepAlive?: boolean;
+  readYourWrites?: boolean;
 } & core.RedisOptions &
   RequesterConfig;
 
@@ -48,11 +49,11 @@ export class Redis extends core.Redis {
    * ```
    */
   constructor(config: RedisConfigFastly) {
-    if(!config.url) {
+    if (!config.url) {
       throw new Error(`[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`)
     }
 
-    if(!config.token) {
+    if (!config.token) {
       throw new Error(`[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`)
     }
 
@@ -70,6 +71,7 @@ export class Redis extends core.Redis {
       options: { backend: config.backend },
       responseEncoding: config.responseEncoding,
       keepAlive: config.keepAlive,
+      readYourWrites: config.readYourWrites,
     });
 
     super(client, {

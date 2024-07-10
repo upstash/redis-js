@@ -30,6 +30,7 @@ export type RedisConfigCloudflare = {
    */
   signal?: AbortSignal;
   keepAlive?: boolean;
+  readYourWrites?: boolean;
 } & core.RedisOptions &
   RequesterConfig &
   Env;
@@ -50,11 +51,11 @@ export class Redis extends core.Redis {
    * ```
    */
   constructor(config: RedisConfigCloudflare, env?: Env) {
-    if(!config.url) {
+    if (!config.url) {
       throw new Error(`[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`)
     }
 
-    if(!config.token) {
+    if (!config.token) {
       throw new Error(`[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`)
     }
 
@@ -72,6 +73,7 @@ export class Redis extends core.Redis {
       responseEncoding: config.responseEncoding,
       signal: config.signal,
       keepAlive: config.keepAlive,
+      readYourWrites: config.readYourWrites,
     });
 
     super(client, {

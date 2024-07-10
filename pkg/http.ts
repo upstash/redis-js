@@ -115,7 +115,7 @@ export class HttpClient implements Requester {
     keepAlive: boolean;
 
   };
-  public readYourWrites = true;
+  public readYourWrites: boolean;
   public upstashSyncToken = "";
 
 

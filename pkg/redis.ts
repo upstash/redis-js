@@ -208,7 +208,6 @@ export class Redis {
     this.opts = opts;
     this.enableTelemetry = opts?.enableTelemetry ?? true;
     this.enableAutoPipelining = opts?.enableAutoPipelining ?? false;
-    // this.readYourWrites = opts?.readYourWrites ?? true;
     if (opts?.readYourWrites === false) {
       this.client.readYourWrites = false;
     }
@@ -454,9 +453,9 @@ export class Redis {
     sourceKey: string,
     ...sourceKeys: string[]
   ) =>
-    new BitOpCommand([op as any, destinationKey, sourceKey, ...sourceKeys], this.opts).exec(
-      this.client,
-    );
+      new BitOpCommand([op as any, destinationKey, sourceKey, ...sourceKeys], this.opts).exec(
+        this.client,
+      );
 
   /**
    * @see https://redis.io/commands/bitpos
@@ -1205,10 +1204,10 @@ export class Redis {
     ...args:
       | [key: string, scoreMember: ScoreMember<TData>, ...scoreMemberPairs: ScoreMember<TData>[]]
       | [
-          key: string,
-          opts: ZAddCommandOptions,
-          ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]],
-        ]
+        key: string,
+        opts: ZAddCommandOptions,
+        ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]],
+      ]
   ) => {
     if ("score" in args[1]) {
       return new ZAddCommand<TData>(
@@ -1283,17 +1282,17 @@ export class Redis {
     ...args:
       | [key: string, min: number, max: number, opts?: ZRangeCommandOptions]
       | [
-          key: string,
-          min: `(${string}` | `[${string}` | "-" | "+",
-          max: `(${string}` | `[${string}` | "-" | "+",
-          opts: { byLex: true } & ZRangeCommandOptions,
-        ]
+        key: string,
+        min: `(${string}` | `[${string}` | "-" | "+",
+        max: `(${string}` | `[${string}` | "-" | "+",
+        opts: { byLex: true } & ZRangeCommandOptions,
+      ]
       | [
-          key: string,
-          min: number | `(${number}` | "-inf" | "+inf",
-          max: number | `(${number}` | "-inf" | "+inf",
-          opts: { byScore: true } & ZRangeCommandOptions,
-        ]
+        key: string,
+        min: number | `(${number}` | "-inf" | "+inf",
+        max: number | `(${number}` | "-inf" | "+inf",
+        opts: { byScore: true } & ZRangeCommandOptions,
+      ]
   ) => new ZRangeCommand<TData>(args as any, this.opts).exec(this.client);
 
   /**

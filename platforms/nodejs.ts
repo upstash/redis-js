@@ -58,6 +58,10 @@ export type RedisConfigNodejs = {
   latencyLogging?: boolean;
   agent?: any;
   keepAlive?: boolean;
+
+  /**
+   * When this flag is not disabled, new commands of this client expects the previous write commands to be finalized before executing.
+   */
   readYourWrites?: boolean;
 } & core.RedisOptions &
   RequesterConfig;

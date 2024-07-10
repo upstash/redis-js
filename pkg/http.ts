@@ -21,6 +21,10 @@ export type UpstashRequest = {
 export type UpstashResponse<TResult> = { result?: TResult; error?: string };
 
 export interface Requester {
+  /**
+  * When this flag is not disabled, new commands of this client expects the previous write commands to be finalized before executing.
+  */
+
   readYourWrites: boolean;
   upstashSyncToken: string;
   request: <TResult = unknown>(req: UpstashRequest) => Promise<UpstashResponse<TResult>>;
@@ -33,22 +37,22 @@ type ResultError = {
 export type RetryConfig =
   | false
   | {
-      /**
-       * The number of retries to attempt before giving up.
-       *
-       * @default 5
-       */
-      retries?: number;
-      /**
-       * A backoff function receives the current retry cound and returns a number in milliseconds to wait before retrying.
-       *
-       * @default
-       * ```ts
-       * Math.exp(retryCount) * 50
-       * ```
-       */
-      backoff?: (retryCount: number) => number;
-    };
+    /**
+     * The number of retries to attempt before giving up.
+     *
+     * @default 5
+     */
+    retries?: number;
+    /**
+     * A backoff function receives the current retry cound and returns a number in milliseconds to wait before retrying.
+     *
+     * @default
+     * ```ts
+     * Math.exp(retryCount) * 50
+     * ```
+     */
+    backoff?: (retryCount: number) => number;
+  };
 
 export type Options = {
   backend?: string;
@@ -99,6 +103,10 @@ export type HttpClientConfig = {
   agent?: any;
   signal?: AbortSignal;
   keepAlive?: boolean;
+
+  /**
+   * When this flag is not disabled, new commands of this client expects the previous write commands to be finalized before executing.
+   */
   readYourWrites?: boolean;
 } & RequesterConfig;
 

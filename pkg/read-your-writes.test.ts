@@ -2,9 +2,9 @@ import { keygen, newHttpClient } from "./test-utils";
 
 import { afterAll, describe, expect, test } from "bun:test";
 
+import { Redis as PublicRedis } from "../platforms/nodejs";
 import { SetCommand } from "./commands/set";
 import { Redis } from "./redis";
-import { Redis as PublicRedis } from "../platforms/nodejs"
 
 const client = newHttpClient();
 const { cleanup } = keygen();
@@ -67,12 +67,12 @@ describe("Read Your Writes Feature", () => {
   });
 
   test("should not update the sync state in case of Redis client with manuel HTTP client and opt-out ryw", async () => {
-    const optOutClient = newHttpClient()
+    const optOutClient = newHttpClient();
     const redis = new Redis(optOutClient, { readYourWrites: false });
 
     const initialSync = optOutClient.upstashSyncToken;
 
-    await redis.set('key', 'value');
+    await redis.set("key", "value");
 
     const updatedSync = optOutClient.upstashSyncToken;
 
@@ -80,16 +80,20 @@ describe("Read Your Writes Feature", () => {
   });
 
   test("should not update the sync state when public Redis interface is provided", async () => {
-    const redis = new PublicRedis({ url: process.env.UPSTASH_REDIS_REST_URL, token: process.env.UPSTASH_REDIS_REST_TOKEN, readYourWrites: false });
+    const redis = new PublicRedis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+      readYourWrites: false,
+    });
 
     // @ts-expect-error - We need the sync token for this test, which resides on the client
     const initialSync = redis.client.upstashSyncToken;
 
-    await redis.set('key', 'value');
+    await redis.set("key", "value");
 
     // @ts-expect-error - We need the sync token for this test, which resides on the client
     const updatedSync = redis.client.upstashSyncToken;
 
     expect(updatedSync).toEqual(initialSync);
-  })
+  });
 });

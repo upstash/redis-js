@@ -24,8 +24,11 @@ export interface Requester {
   /**
   * When this flag is not disabled, new commands of this client expects the previous write commands to be finalized before executing.
   */
-
   readYourWrites: boolean;
+
+  /**
+   * This token is used to ensure that the client is in sync with the server. On each request, we send this token in the header, and the server will return a new token.
+   */
   upstashSyncToken: string;
   request: <TResult = unknown>(req: UpstashRequest) => Promise<UpstashResponse<TResult>>;
 }

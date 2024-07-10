@@ -21,6 +21,7 @@ export type UpstashRequest = {
 export type UpstashResponse<TResult> = { result?: TResult; error?: string };
 
 export interface Requester {
+  readYourWrites: boolean;
   upstashSyncToken: string;
   request: <TResult = unknown>(req: UpstashRequest) => Promise<UpstashResponse<TResult>>;
 }
@@ -104,6 +105,7 @@ export type HttpClientConfig = {
 export class HttpClient implements Requester {
   public baseUrl: string;
   public headers: Record<string, string>;
+
   public readonly options: {
     backend?: string;
     agent: any;
@@ -111,9 +113,11 @@ export class HttpClient implements Requester {
     responseEncoding?: false | "base64";
     cache?: CacheSetting;
     keepAlive: boolean;
-    readYourWrites?: boolean;
+
   };
+  public readYourWrites = true;
   public upstashSyncToken = "";
+
 
   public readonly retry: {
     attempts: number;
@@ -128,9 +132,10 @@ export class HttpClient implements Requester {
       cache: config.cache,
       signal: config.signal,
       keepAlive: config.keepAlive ?? true,
-      readYourWrites: config.readYourWrites,
+
     };
     this.upstashSyncToken = "";
+    this.readYourWrites = config.readYourWrites ?? true;
 
     this.baseUrl = config.baseUrl.replace(/\/$/, "");
 
@@ -203,7 +208,6 @@ export class HttpClient implements Requester {
       keepalive: this.options.keepAlive,
       agent: this.options?.agent,
       signal: this.options.signal,
-      readYourWrites: this.options.readYourWrites,
 
       /**
        * Fastly specific
@@ -211,8 +215,11 @@ export class HttpClient implements Requester {
       backend: this.options?.backend,
     };
 
-    const newHeader = this.upstashSyncToken;
-    this.headers["upstash-sync-token"] = newHeader;
+    if (this.readYourWrites) {
+      const newHeader = this.upstashSyncToken;
+      this.headers["upstash-sync-token"] = newHeader;
+    }
+
 
     let res: Response | null = null;
     let error: Error | null = null;
@@ -245,8 +252,10 @@ export class HttpClient implements Requester {
       throw new UpstashError(`${body.error}, command was: ${JSON.stringify(req.body)}`);
     }
 
-    const headers = res.headers;
-    this.upstashSyncToken = headers.get("upstash-sync-token") ?? "";
+    if (this.readYourWrites) {
+      const headers = res.headers;
+      this.upstashSyncToken = headers.get("upstash-sync-token") ?? "";
+    }
 
     if (this.options?.responseEncoding === "base64") {
       if (Array.isArray(body)) {

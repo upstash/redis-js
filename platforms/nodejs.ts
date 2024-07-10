@@ -58,6 +58,7 @@ export type RedisConfigNodejs = {
   latencyLogging?: boolean;
   agent?: any;
   keepAlive?: boolean;
+  readYourWrites?: boolean;
 } & core.RedisOptions &
   RequesterConfig;
 
@@ -102,11 +103,11 @@ export class Redis extends core.Redis {
       return;
     }
 
-    if(!configOrRequester.url) {
+    if (!configOrRequester.url) {
       throw new Error(`[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`)
     }
 
-    if(!configOrRequester.token) {
+    if (!configOrRequester.token) {
       throw new Error(`[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`)
     }
 
@@ -134,6 +135,7 @@ export class Redis extends core.Redis {
       cache: configOrRequester.cache || "no-store",
       signal: configOrRequester.signal,
       keepAlive: configOrRequester.keepAlive,
+      readYourWrites: configOrRequester.readYourWrites,
     });
 
     super(client, {

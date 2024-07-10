@@ -79,7 +79,7 @@ describe("Read Your Writes Feature", () => {
     expect(updatedSync).toEqual(initialSync);
   });
 
-  test("should not update the sync state when public Redis interface is provided", async () => {
+  test("should not update the sync state when public Redis interface is provided with opt-out", async () => {
     const redis = new PublicRedis({
       url: process.env.UPSTASH_REDIS_REST_URL,
       token: process.env.UPSTASH_REDIS_REST_TOKEN,
@@ -96,4 +96,21 @@ describe("Read Your Writes Feature", () => {
 
     expect(updatedSync).toEqual(initialSync);
   });
+
+  test("should update the sync state when public Redis interface is provided with default behaviour", async () => {
+    const redis = new PublicRedis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    });
+
+    // @ts-expect-error - We need the sync token for this test, which resides on the client
+    const initialSync = redis.client.upstashSyncToken;
+
+    await redis.set("key", "value");
+
+    // @ts-expect-error - We need the sync token for this test, which resides on the client
+    const updatedSync = redis.client.upstashSyncToken;
+    expect(updatedSync).not.toEqual(initialSync);
+  })
+
 });

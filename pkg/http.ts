@@ -32,22 +32,22 @@ type ResultError = {
 export type RetryConfig =
   | false
   | {
-      /**
-       * The number of retries to attempt before giving up.
-       *
-       * @default 5
-       */
-      retries?: number;
-      /**
-       * A backoff function receives the current retry cound and returns a number in milliseconds to wait before retrying.
-       *
-       * @default
-       * ```ts
-       * Math.exp(retryCount) * 50
-       * ```
-       */
-      backoff?: (retryCount: number) => number;
-    };
+    /**
+     * The number of retries to attempt before giving up.
+     *
+     * @default 5
+     */
+    retries?: number;
+    /**
+     * A backoff function receives the current retry cound and returns a number in milliseconds to wait before retrying.
+     *
+     * @default
+     * ```ts
+     * Math.exp(retryCount) * 50
+     * ```
+     */
+    backoff?: (retryCount: number) => number;
+  };
 
 export type Options = {
   backend?: string;
@@ -113,13 +113,12 @@ export class HttpClient implements Requester {
     keepAlive: boolean;
     readYourWrites?: boolean;
   };
-  public _upstashSyncToken = "";
+  public upstashSyncToken = "";
 
   public readonly retry: {
     attempts: number;
     backoff: (retryCount: number) => number;
   };
-  public upstashSyncToken: string;
 
   public constructor(config: HttpClientConfig) {
     this.options = {
@@ -212,7 +211,7 @@ export class HttpClient implements Requester {
       backend: this.options?.backend,
     };
 
-    const newHeader = this._upstashSyncToken;
+    const newHeader = this.upstashSyncToken;
     this.headers["upstash-sync-token"] = newHeader;
 
     let res: Response | null = null;
@@ -247,7 +246,7 @@ export class HttpClient implements Requester {
     }
 
     const headers = res.headers;
-    this._upstashSyncToken = headers.get("upstash-sync-token") ?? "";
+    this.upstashSyncToken = headers.get("upstash-sync-token") ?? "";
 
     if (this.options?.responseEncoding === "base64") {
       if (Array.isArray(body)) {

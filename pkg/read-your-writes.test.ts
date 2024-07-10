@@ -10,16 +10,16 @@ const { cleanup } = keygen();
 afterAll(cleanup);
 describe("Read Your Writes Feature", () => {
   test("successfully retrieves Upstash-Sync-Token in the response header and updates local state", async () => {
-    const initialSync = client._upstashSyncToken;
+    const initialSync = client.upstashSyncToken;
     await new SetCommand(["key", "value"]).exec(client);
-    const updatedSync = client._upstashSyncToken;
+    const updatedSync = client.upstashSyncToken;
     await new SetCommand(["key", "value"]).exec(client);
 
     expect(updatedSync).not.toEqual(initialSync);
   });
 
   test("succesfully updates sync state with pipeline", async () => {
-    const initialSync = client._upstashSyncToken;
+    const initialSync = client.upstashSyncToken;
 
     const { pipeline } = new Redis(client);
     const p = pipeline();
@@ -30,18 +30,18 @@ describe("Read Your Writes Feature", () => {
 
     await p.exec();
 
-    const updatedSync = client._upstashSyncToken;
+    const updatedSync = client.upstashSyncToken;
 
     expect(initialSync).not.toEqual(updatedSync);
   });
 
   test("updates after each element of promise.all", async () => {
-    let currentSync = client._upstashSyncToken;
+    let currentSync = client.upstashSyncToken;
 
     const promises = Array.from({ length: 3 }, (_, i) =>
       new SetCommand([`key${i}`, `value${i}`]).exec(client).then(() => {
-        expect(client._upstashSyncToken).not.toEqual(currentSync);
-        currentSync = client._upstashSyncToken;
+        expect(client.upstashSyncToken).not.toEqual(currentSync);
+        currentSync = client.upstashSyncToken;
       }),
     );
 
@@ -53,14 +53,14 @@ describe("Read Your Writes Feature", () => {
 		return 1
 		`;
 
-    const initialSync = client._upstashSyncToken;
+    const initialSync = client.upstashSyncToken;
 
     const redis = new Redis(client);
     const script = redis.createScript(s);
 
     await script.exec([], []);
 
-    const updatedSync = client._upstashSyncToken;
+    const updatedSync = client.upstashSyncToken;
 
     expect(updatedSync).not.toEqual(initialSync);
   });

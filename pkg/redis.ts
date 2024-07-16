@@ -207,7 +207,7 @@ export class Redis {
     this.client = client;
     this.opts = opts;
     this.enableTelemetry = opts?.enableTelemetry ?? true;
-    this.enableAutoPipelining = opts?.enableAutoPipelining ?? false;
+    this.enableAutoPipelining = opts?.enableAutoPipelining ?? true;
   }
 
   get json() {

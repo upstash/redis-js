@@ -10,9 +10,6 @@
       "performance": {
         "noDelete": "off"
       },
-      "nursery": {
-        "useAwait": "error"
-      },
       "complexity": {
         "noBannedTypes": "off"
       },

@@ -60,6 +60,7 @@ import {
   JsonForgetCommand,
   JsonGetCommand,
   JsonMGetCommand,
+  JsonMSetCommand,
   JsonNumIncrByCommand,
   JsonNumMultByCommand,
   JsonObjKeysCommand,
@@ -279,6 +280,12 @@ export class Redis {
         new JsonMGetCommand<TData>(args, this.opts).exec(this.client),
 
       /**
+       * @see https://redis.io/commands/json.mset
+       */
+      mset: (...args: CommandArgs<typeof JsonMSetCommand>) =>
+        new JsonMSetCommand(args, this.opts).exec(this.client),
+
+      /**
        * @see https://redis.io/commands/json.numincrby
        */
       numincrby: (...args: CommandArgs<typeof JsonNumIncrByCommand>) =>
@@ -345,11 +352,14 @@ export class Redis {
   use = <TResult = unknown>(
     middleware: (
       r: UpstashRequest,
-      next: <TResult = unknown>(req: UpstashRequest) => Promise<UpstashResponse<TResult>>,
-    ) => Promise<UpstashResponse<TResult>>,
+      next: <TResult = unknown>(
+        req: UpstashRequest
+      ) => Promise<UpstashResponse<TResult>>
+    ) => Promise<UpstashResponse<TResult>>
   ) => {
     const makeRequest = this.client.request.bind(this.client);
-    this.client.request = (req: UpstashRequest) => middleware(req, makeRequest) as any;
+    this.client.request = (req: UpstashRequest) =>
+      middleware(req, makeRequest) as any;
   };
 
   /**
@@ -450,9 +460,10 @@ export class Redis {
     sourceKey: string,
     ...sourceKeys: string[]
   ) =>
-    new BitOpCommand([op as any, destinationKey, sourceKey, ...sourceKeys], this.opts).exec(
-      this.client,
-    );
+    new BitOpCommand(
+      [op as any, destinationKey, sourceKey, ...sourceKeys],
+      this.opts
+    ).exec(this.client);
 
   /**
    * @see https://redis.io/commands/bitpos
@@ -572,8 +583,9 @@ export class Redis {
   /**
    * @see https://redis.io/commands/geosearchstore
    */
-  geosearchstore = <TData>(...args: CommandArgs<typeof GeoSearchStoreCommand<TData>>) =>
-    new GeoSearchStoreCommand<TData>(args, this.opts).exec(this.client);
+  geosearchstore = <TData>(
+    ...args: CommandArgs<typeof GeoSearchStoreCommand<TData>>
+  ) => new GeoSearchStoreCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/get
@@ -625,8 +637,9 @@ export class Redis {
   /**
    * @see https://redis.io/commands/hgetall
    */
-  hgetall = <TData extends Record<string, unknown>>(...args: CommandArgs<typeof HGetAllCommand>) =>
-    new HGetAllCommand<TData>(args, this.opts).exec(this.client);
+  hgetall = <TData extends Record<string, unknown>>(
+    ...args: CommandArgs<typeof HGetAllCommand>
+  ) => new HGetAllCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hincrby
@@ -655,8 +668,9 @@ export class Redis {
   /**
    * @see https://redis.io/commands/hmget
    */
-  hmget = <TData extends Record<string, unknown>>(...args: CommandArgs<typeof HMGetCommand>) =>
-    new HMGetCommand<TData>(args, this.opts).exec(this.client);
+  hmget = <TData extends Record<string, unknown>>(
+    ...args: CommandArgs<typeof HMGetCommand>
+  ) => new HMGetCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hmset
@@ -673,13 +687,17 @@ export class Redis {
     <TData extends Record<string, unknown>>(
       key: string,
       count: number,
-      withValues: boolean,
+      withValues: boolean
     ): Promise<Partial<TData>>;
   } = <TData extends string | string[] | Record<string, unknown>>(
     key: string,
     count?: number,
-    withValues?: boolean,
-  ) => new HRandFieldCommand<TData>([key, count, withValues] as any, this.opts).exec(this.client);
+    withValues?: boolean
+  ) =>
+    new HRandFieldCommand<TData>(
+      [key, count, withValues] as any,
+      this.opts
+    ).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hscan
@@ -744,8 +762,15 @@ export class Redis {
   /**
    * @see https://redis.io/commands/linsert
    */
-  linsert = <TData>(key: string, direction: "before" | "after", pivot: TData, value: TData) =>
-    new LInsertCommand<TData>([key, direction, pivot, value], this.opts).exec(this.client);
+  linsert = <TData>(
+    key: string,
+    direction: "before" | "after",
+    pivot: TData,
+    value: TData
+  ) =>
+    new LInsertCommand<TData>([key, direction, pivot, value], this.opts).exec(
+      this.client
+    );
 
   /**
    * @see https://redis.io/commands/llen
@@ -1025,19 +1050,24 @@ export class Redis {
    * @see https://redis.io/commands/smismember
    */
   smismember = <TMembers extends unknown[]>(key: string, members: TMembers) =>
-    new SMIsMemberCommand<TMembers>([key, members], this.opts).exec(this.client);
+    new SMIsMemberCommand<TMembers>([key, members], this.opts).exec(
+      this.client
+    );
 
   /**
    * @see https://redis.io/commands/smembers
    */
-  smembers = <TData extends unknown[] = string[]>(...args: CommandArgs<typeof SMembersCommand>) =>
-    new SMembersCommand<TData>(args, this.opts).exec(this.client);
+  smembers = <TData extends unknown[] = string[]>(
+    ...args: CommandArgs<typeof SMembersCommand>
+  ) => new SMembersCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/smove
    */
   smove = <TData>(source: string, destination: string, member: TData) =>
-    new SMoveCommand<TData>([source, destination, member], this.opts).exec(this.client);
+    new SMoveCommand<TData>([source, destination, member], this.opts).exec(
+      this.client
+    );
 
   /**
    * @see https://redis.io/commands/spop
@@ -1199,23 +1229,27 @@ export class Redis {
    */
   zadd = <TData>(
     ...args:
-      | [key: string, scoreMember: ScoreMember<TData>, ...scoreMemberPairs: ScoreMember<TData>[]]
+      | [
+          key: string,
+          scoreMember: ScoreMember<TData>,
+          ...scoreMemberPairs: ScoreMember<TData>[]
+        ]
       | [
           key: string,
           opts: ZAddCommandOptions,
-          ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]],
+          ...scoreMemberPairs: [ScoreMember<TData>, ...ScoreMember<TData>[]]
         ]
   ) => {
     if ("score" in args[1]) {
       return new ZAddCommand<TData>(
         [args[0], args[1] as ScoreMember<TData>, ...(args.slice(2) as any)],
-        this.opts,
+        this.opts
       ).exec(this.client);
     }
 
     return new ZAddCommand<TData>(
       [args[0], args[1] as any, ...(args.slice(2) as any)],
-      this.opts,
+      this.opts
     ).exec(this.client);
   };
   /**
@@ -1240,7 +1274,9 @@ export class Redis {
    * @see https://redis.io/commands/zincrby
    */
   zincrby = <TData>(key: string, increment: number, member: TData) =>
-    new ZIncrByCommand<TData>([key, increment, member], this.opts).exec(this.client);
+    new ZIncrByCommand<TData>([key, increment, member], this.opts).exec(
+      this.client
+    );
 
   /**
    * @see https://redis.io/commands/zinterstore
@@ -1282,13 +1318,13 @@ export class Redis {
           key: string,
           min: `(${string}` | `[${string}` | "-" | "+",
           max: `(${string}` | `[${string}` | "-" | "+",
-          opts: { byLex: true } & ZRangeCommandOptions,
+          opts: { byLex: true } & ZRangeCommandOptions
         ]
       | [
           key: string,
           min: number | `(${number}` | "-inf" | "+inf",
           max: number | `(${number}` | "-inf" | "+inf",
-          opts: { byScore: true } & ZRangeCommandOptions,
+          opts: { byScore: true } & ZRangeCommandOptions
         ]
   ) => new ZRangeCommand<TData>(args as any, this.opts).exec(this.client);
 

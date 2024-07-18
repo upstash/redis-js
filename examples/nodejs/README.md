@@ -1,22 +1,24 @@
-# Nodejs v18 Example
+# Node.js v20 Example
 
-This example uses the now native fetch api, and does not require a polyfill.
+### Project Setup
 
-## How to use
+Clone the example and install dependencies
 
-1. Clone and install the example
-
-```bash
-git clone https://github.com/upstash/upstash-redis.git
-cd upstash-redis/examples/nodejs-18
+```shell
+git clone https://github.com/upstash/redis-js.git
+cd redis-js/examples/nodejs
 npm install
 ```
 
-2. Create a free Database on [upstash.com](https://console.upstash.com/redis)
-3. Copy the `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
+### Database Setup
 
-4. Run the script
+Create a Redis database using [Upstash Console](https://console.upstash.com) or [Upstash CLI](https://github.com/upstash/cli) and copy the `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` into your `.env` file.
 
-```bash
-UPSTASH_REDIS_REST_URL="" UPSTASH_REDIS_REST_TOKEN="" node ./index.js
+```shell
+UPSTASH_REDIS_REST_URL=<YOUR_URL>
+UPSTASH_REDIS_REST_TOKEN=<YOUR_TOKEN>
 ```
+
+
+### Run
+Run the script with `node index.js`

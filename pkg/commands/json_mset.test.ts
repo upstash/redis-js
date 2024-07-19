@@ -2,7 +2,6 @@ import { afterAll, expect, test } from "bun:test";
 import { keygen, newHttpClient } from "../test-utils";
 
 import { JsonGetCommand } from "./json_get";
-import { JsonSetCommand } from "./json_set";
 import { JsonMSetCommand } from "./json_mset";
 
 const client = newHttpClient();

@@ -111,6 +111,5 @@ describe("Read Your Writes Feature", () => {
     // @ts-expect-error - We need the sync token for this test, which resides on the client
     const updatedSync = redis.client.upstashSyncToken;
     expect(updatedSync).not.toEqual(initialSync);
-  })
-
+  });
 });

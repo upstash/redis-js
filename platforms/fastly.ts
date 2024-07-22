@@ -30,7 +30,7 @@ export type RedisConfigFastly = {
   keepAlive?: boolean;
 
   /**
-   * When this flag is not disabled, new commands of this client expects the previous write commands to be finalized before executing.
+   * When this flag is enabled, any subsequent commands issued by this client are guaranteed to observe the effects of all earlier writes submitted by the same client.
    */
   readYourWrites?: boolean;
 } & core.RedisOptions &

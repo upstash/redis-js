@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command.ts";
+import type { CommandOptions } from "./command.ts";
+import { Command } from "./command.ts";
 
 type RadiusOptions = "M" | "KM" | "FT" | "MI";
 type CenterPoint<TMemberType> =
@@ -63,7 +64,7 @@ export class GeoSearchCommand<
       order: "ASC" | "DESC" | "asc" | "desc",
       opts?: TOptions,
     ],
-    commandOptions?: CommandOptions<any[] | any[][], GeoSearchResponse<TOptions, TMemberType>>,
+    commandOptions?: CommandOptions<any[] | any[][], GeoSearchResponse<TOptions, TMemberType>>
   ) {
     const command: unknown[] = ["GEOSEARCH", key];
 
@@ -101,21 +102,21 @@ export class GeoSearchCommand<
         const obj = {} as any;
 
         try {
-          obj.member = JSON.parse(members[0] as string);
+          obj.member = JSON.parse(members[0]);
         } catch {
           obj.member = members[0];
         }
 
         if (opts.withDist) {
-          obj.dist = parseFloat(members[counter++]);
+          obj.dist = Number.parseFloat(members[counter++]);
         }
         if (opts.withHash) {
           obj.hash = members[counter++].toString();
         }
         if (opts.withCoord) {
           obj.coord = {
-            long: parseFloat(members[counter][0]),
-            lat: parseFloat(members[counter][1]),
+            long: Number.parseFloat(members[counter][0]),
+            lat: Number.parseFloat(members[counter][1]),
           };
         }
         return obj;
@@ -132,7 +133,7 @@ export class GeoSearchCommand<
       {
         deserialize: transform,
         ...commandOptions,
-      },
+      }
     );
   }
 }

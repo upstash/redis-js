@@ -14,7 +14,7 @@ test("returns the number of removed members", async () => {
   const member1 = randomID();
   const member2 = randomID();
   await new ZAddCommand([key, { score: 1, member: member1 }, { score: 2, member: member2 }]).exec(
-    client,
+    client
   );
   const res = await new ZRemCommand([key, member1, member2]).exec(client);
   expect(res).toEqual(2);

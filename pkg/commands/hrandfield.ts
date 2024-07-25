@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 function deserialize<TData extends Record<string, unknown>>(result: string[]): TData | null {
   if (result.length === 0) {
@@ -27,11 +28,11 @@ export class HRandFieldCommand<
   constructor(cmd: [key: string, count: number], opts?: CommandOptions<string[], string[]>);
   constructor(
     cmd: [key: string, count: number, withValues: boolean],
-    opts?: CommandOptions<string[], Partial<TData>>,
+    opts?: CommandOptions<string[], Partial<TData>>
   );
   constructor(
     cmd: [key: string, count?: number, withValues?: boolean],
-    opts?: CommandOptions<any, string | string[] | Partial<TData>>,
+    opts?: CommandOptions<any, string | string[] | Partial<TData>>
   ) {
     const command = ["hrandfield", cmd[0]] as unknown[];
     if (typeof cmd[1] === "number") {
@@ -41,7 +42,7 @@ export class HRandFieldCommand<
       command.push("WITHVALUES");
     }
     super(command, {
-      // @ts-ignore TODO:
+      // @ts-expect-error to silence compiler
       deserialize: cmd[2] ? (result) => deserialize(result as string[]) : opts?.deserialize,
       ...opts,
     });

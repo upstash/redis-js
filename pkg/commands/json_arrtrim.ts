@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/json.arrtrim
@@ -6,7 +7,7 @@ import { Command, CommandOptions } from "./command";
 export class JsonArrTrimCommand extends Command<(null | string)[], (null | number)[]> {
   constructor(
     cmd: [key: string, path?: string, start?: number, stop?: number],
-    opts?: CommandOptions<(null | string)[], (null | number)[]>,
+    opts?: CommandOptions<(null | string)[], (null | number)[]>
   ) {
     const path = cmd[1] ?? "$";
     const start = cmd[2] ?? 0;

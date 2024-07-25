@@ -11,8 +11,8 @@ describe("GEOPOS tests", () => {
     const members = ["Palermo", "Catania", "Marsala"];
     await new GeoAddCommand([
       key,
-      { longitude: 13.361389, latitude: 38.115556, member: members[0] },
-      { longitude: 15.087269, latitude: 37.502669, member: members[1] },
+      { longitude: 13.361_389, latitude: 38.115_556, member: members[0] },
+      { longitude: 15.087_269, latitude: 37.502_669, member: members[1] },
       { longitude: 12.4372, latitude: 37.7981, member: members[2] },
     ]).exec(client);
     const response = await new GeoPosCommand([key, [...members, "FooBar"]]).exec(client);
@@ -24,8 +24,8 @@ describe("GEOPOS tests", () => {
     const members = ["Palermo", "Catania", "Marsala"];
     await new GeoAddCommand([
       key,
-      { longitude: 13.361389, latitude: 38.115556, member: members[0] },
-      { longitude: 15.087269, latitude: 37.502669, member: members[1] },
+      { longitude: 13.361_389, latitude: 38.115_556, member: members[0] },
+      { longitude: 15.087_269, latitude: 37.502_669, member: members[1] },
       { longitude: 12.4372, latitude: 37.7981, member: members[2] },
     ]).exec(client);
 
@@ -39,7 +39,7 @@ describe("GEOPOS tests", () => {
     const members = ["Palermo"];
     await new GeoAddCommand([
       key,
-      { longitude: 13.361389, latitude: 38.115556, member: members[0] },
+      { longitude: 13.361_389, latitude: 38.115_556, member: members[0] },
     ]).exec(client);
     const response = await new GeoPosCommand([key, "FooBar"]).exec(client);
     expect(response).toEqual([]);
@@ -50,8 +50,8 @@ describe("GEOPOS tests", () => {
     const members = [{ name: "Palermo" }, { name: "Catania" }, { name: "Marsala" }];
     await new GeoAddCommand([
       key,
-      { longitude: 13.361389, latitude: 38.115556, member: members[0] },
-      { longitude: 15.087269, latitude: 37.502669, member: members[1] },
+      { longitude: 13.361_389, latitude: 38.115_556, member: members[0] },
+      { longitude: 15.087_269, latitude: 37.502_669, member: members[1] },
       { longitude: 12.4372, latitude: 37.7981, member: members[2] },
     ]).exec(client);
     const response = await new GeoPosCommand([key, [...members, "FooBar"]]).exec(client);

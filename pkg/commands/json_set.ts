@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/json.set
@@ -18,7 +19,7 @@ export class JsonSetCommand<
       value: TData,
       opts?: { nx: true; xx?: never } | { nx?: never; xx: true },
     ],
-    opts?: CommandOptions<"OK" | null, "OK" | null>,
+    opts?: CommandOptions<"OK" | null, "OK" | null>
   ) {
     const command = ["JSON.SET", cmd[0], cmd[1], cmd[2]];
     if (cmd[3]) {

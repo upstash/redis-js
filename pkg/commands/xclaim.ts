@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/xclaim
@@ -20,7 +21,7 @@ export class XClaimCommand extends Command<unknown[], unknown[]> {
         lastId?: number;
       },
     ],
-    opts?: CommandOptions<unknown[], unknown[]>,
+    opts?: CommandOptions<unknown[], unknown[]>
   ) {
     const ids = Array.isArray(id) ? [...id] : [id];
     const commands: unknown[] = [];
@@ -34,7 +35,7 @@ export class XClaimCommand extends Command<unknown[], unknown[]> {
     }
 
     if (options?.retryCount) {
-      commands.push("RETRYCOUNT", options?.retryCount);
+      commands.push("RETRYCOUNT", options.retryCount);
     }
 
     if (options?.force) {

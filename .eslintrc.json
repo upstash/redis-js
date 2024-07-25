@@ -1,0 +1,44 @@
+{
+  "env": {
+    "es2024": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:unicorn/recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "plugins": ["@typescript-eslint", "unicorn"],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "ignorePatterns": ["*.config.*", "examples", "dist"],
+  "rules": {
+    "no-console": ["error", { "allow": ["warn", "error"] }],
+    "@typescript-eslint/no-magic-numbers": "off",
+    "@typescript-eslint/unbound-method": "off",
+    "@typescript-eslint/prefer-as-const": "error",
+    "@typescript-eslint/consistent-type-imports": "error",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/restrict-template-expressions": "off",
+    "@typescript-eslint/consistent-type-definitions": ["error", "type"],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "varsIgnorePattern": "^_", "argsIgnorePattern": "^_" }
+    ],
+    "@typescript-eslint/prefer-ts-expect-error": "off",
+    "@typescript-eslint/no-misused-promises": [
+      "error",
+      {
+        "checksVoidReturn": false
+      }
+    ],
+    "unicorn/prevent-abbreviations": "off",
+    "no-implicit-coercion": ["error", { "boolean": true }],
+    "no-extra-boolean-cast": ["error", { "enforceForLogicalOperands": true }],
+    "no-unneeded-ternary": ["error", { "defaultAssignment": true }],
+    "unicorn/no-array-reduce": ["off"],
+    "unicorn/no-nested-ternary": "off",
+    "unicorn/no-null": "off",
+    "unicorn/filename-case": "off"
+  }
+}

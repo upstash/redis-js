@@ -58,6 +58,7 @@ export * from "./json_del";
 export * from "./json_forget";
 export * from "./json_get";
 export * from "./json_mget";
+export * from "./json_mset";
 export * from "./json_numincrby";
 export * from "./json_nummultby";
 export * from "./json_objkeys";

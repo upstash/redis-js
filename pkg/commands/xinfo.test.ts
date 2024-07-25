@@ -52,7 +52,7 @@ describe("CONSUMERS", () => {
     await new XGroupCommand([streamKey, { type: "CREATE", group, id: "0" }]).exec(client);
 
     const res = (await new XInfoCommand([streamKey, { type: "CONSUMERS", group }]).exec(
-      client,
+      client
     )) as string[];
 
     expect(res).toEqual([]);
@@ -73,7 +73,7 @@ describe("CONSUMERS", () => {
     (await new XReadGroupCommand([group, consumer, streamKey, ">"]).exec(client)) as string[];
 
     const res = (await new XInfoCommand([streamKey, { type: "CONSUMERS", group }]).exec(
-      client,
+      client
     )) as string[];
     const pendingCount = res[0][3];
 

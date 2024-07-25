@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 type NXAndXXOptions =
   | { nx: true; xx?: never }
@@ -20,7 +21,7 @@ export type ScoreMember<TData> = { score: number; member: TData };
 export class ZAddCommand<TData = string> extends Command<number | null, number | null> {
   constructor(
     [key, arg1, ...arg2]: [string, Arg2<TData>, ...ScoreMember<TData>[]],
-    opts?: CommandOptions<number | null, number | null>,
+    opts?: CommandOptions<number | null, number | null>
   ) {
     const command: unknown[] = ["zadd", key];
     if ("nx" in arg1 && arg1.nx) {

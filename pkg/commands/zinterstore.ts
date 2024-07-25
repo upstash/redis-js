@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 export type ZInterStoreCommandOptions = {
   aggregate?: "sum" | "min" | "max";
@@ -14,11 +15,11 @@ export type ZInterStoreCommandOptions = {
 export class ZInterStoreCommand extends Command<number, number> {
   constructor(
     cmd: [destination: string, numKeys: 1, key: string, opts?: ZInterStoreCommandOptions],
-    cmdOpts?: CommandOptions<number, number>,
+    cmdOpts?: CommandOptions<number, number>
   );
   constructor(
     cmd: [destination: string, numKeys: number, keys: string[], opts?: ZInterStoreCommandOptions],
-    cmdOpts?: CommandOptions<number, number>,
+    cmdOpts?: CommandOptions<number, number>
   );
   constructor(
     [destination, numKeys, keyOrKeys, opts]: [
@@ -27,7 +28,7 @@ export class ZInterStoreCommand extends Command<number, number> {
       keyOrKeys: string | string[],
       opts?: ZInterStoreCommandOptions,
     ],
-    cmdOpts?: CommandOptions<number, number>,
+    cmdOpts?: CommandOptions<number, number>
   ) {
     const command: unknown[] = ["zinterstore", destination, numKeys];
     if (Array.isArray(keyOrKeys)) {

@@ -13,8 +13,8 @@ describe("GEOSEARCH tests", () => {
     const key = newKey();
     await new GeoAddCommand([
       key,
-      { longitude: 13.361389, latitude: 38.115556, member: "Palermo" },
-      { longitude: 15.087269, latitude: 37.502669, member: "Catania" },
+      { longitude: 13.361_389, latitude: 38.115_556, member: "Palermo" },
+      { longitude: 15.087_269, latitude: 37.502_669, member: "Catania" },
     ]).exec(client);
 
     const res = await new GeoSearchCommand([
@@ -32,8 +32,8 @@ describe("GEOSEARCH tests", () => {
 
     await new GeoAddCommand([
       key,
-      { longitude: 13.361389, latitude: 38.115556, member: "Palermo" },
-      { longitude: 15.087269, latitude: 37.502669, member: "Catania" },
+      { longitude: 13.361_389, latitude: 38.115_556, member: "Palermo" },
+      { longitude: 15.087_269, latitude: 37.502_669, member: "Catania" },
     ]).exec(client);
 
     const res = await new GeoSearchCommand([
@@ -51,8 +51,8 @@ describe("GEOSEARCH tests", () => {
 
     await new GeoAddCommand([
       key,
-      { longitude: 13.361389, latitude: 38.115556, member: "Palermo" },
-      { longitude: 15.087269, latitude: 37.502669, member: "Catania" },
+      { longitude: 13.361_389, latitude: 38.115_556, member: "Palermo" },
+      { longitude: 15.087_269, latitude: 37.502_669, member: "Catania" },
     ]).exec(client);
 
     const res = await new GeoSearchCommand([
@@ -69,8 +69,8 @@ describe("GEOSEARCH tests", () => {
         dist: 88.526,
         hash: "3479099956230698",
         coord: {
-          long: 13.361389338970184,
-          lat: 38.1155563954963,
+          long: 13.361_389_338_970_184,
+          lat: 38.115_556_395_496_3,
         },
       },
       {
@@ -78,8 +78,8 @@ describe("GEOSEARCH tests", () => {
         dist: 95.9406,
         hash: "3479447370796909",
         coord: {
-          long: 15.087267458438873,
-          lat: 37.50266842333162,
+          long: 15.087_267_458_438_873,
+          lat: 37.502_668_423_331_62,
         },
       },
     ]);
@@ -90,8 +90,8 @@ describe("GEOSEARCH tests", () => {
 
     await new GeoAddCommand([
       key,
-      { longitude: 13.361389, latitude: 38.115556, member: "Palermo" },
-      { longitude: 15.087269, latitude: 37.502669, member: "Catania" },
+      { longitude: 13.361_389, latitude: 38.115_556, member: "Palermo" },
+      { longitude: 15.087_269, latitude: 37.502_669, member: "Catania" },
     ]).exec(client);
 
     const res = await new GeoSearchCommand([
@@ -121,8 +121,8 @@ describe("GEOSEARCH tests", () => {
 
     await new GeoAddCommand([
       key,
-      { longitude: 13.361389, latitude: 38.115556, member: "Palermo" },
-      { longitude: 15.087269, latitude: 37.502669, member: "Catania" },
+      { longitude: 13.361_389, latitude: 38.115_556, member: "Palermo" },
+      { longitude: 15.087_269, latitude: 37.502_669, member: "Catania" },
     ]).exec(client);
 
     const res = await new GeoSearchCommand([
@@ -136,11 +136,11 @@ describe("GEOSEARCH tests", () => {
     expect(res).toEqual([
       {
         member: "Palermo",
-        coord: { long: 13.361389338970184, lat: 38.1155563954963 },
+        coord: { long: 13.361_389_338_970_184, lat: 38.115_556_395_496_3 },
       },
       {
         member: "Catania",
-        coord: { long: 15.087267458438873, lat: 37.50266842333162 },
+        coord: { long: 15.087_267_458_438_873, lat: 37.502_668_423_331_62 },
       },
     ]);
   });
@@ -150,8 +150,8 @@ describe("GEOSEARCH tests", () => {
 
     await new GeoAddCommand([
       key,
-      { longitude: 13.361389, latitude: 38.115556, member: "Palermo" },
-      { longitude: 15.087269, latitude: 37.502669, member: "Catania" },
+      { longitude: 13.361_389, latitude: 38.115_556, member: "Palermo" },
+      { longitude: 15.087_269, latitude: 37.502_669, member: "Catania" },
     ]).exec(client);
 
     const res = await new GeoSearchCommand([
@@ -166,12 +166,12 @@ describe("GEOSEARCH tests", () => {
       {
         member: "Palermo",
         hash: "3479099956230698",
-        coord: { long: 13.361389338970184, lat: 38.1155563954963 },
+        coord: { long: 13.361_389_338_970_184, lat: 38.115_556_395_496_3 },
       },
       {
         member: "Catania",
         hash: "3479447370796909",
-        coord: { long: 15.087267458438873, lat: 37.50266842333162 },
+        coord: { long: 15.087_267_458_438_873, lat: 37.502_668_423_331_62 },
       },
     ]);
   });
@@ -180,8 +180,8 @@ describe("GEOSEARCH tests", () => {
     const key = newKey();
     await new GeoAddCommand([
       key,
-      { longitude: 13.361389, latitude: 38.115556, member: "Palermo" },
-      { longitude: 15.087269, latitude: 37.502669, member: "Catania" },
+      { longitude: 13.361_389, latitude: 38.115_556, member: "Palermo" },
+      { longitude: 15.087_269, latitude: 37.502_669, member: "Catania" },
     ]).exec(client);
 
     const res = await new GeoSearchCommand([

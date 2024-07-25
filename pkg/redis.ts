@@ -1,11 +1,17 @@
 import { createAutoPipelineProxy } from "../pkg/auto-pipeline";
+import type {
+  CommandOptions,
+  ScoreMember,
+  SetCommandOptions,
+  ZAddCommandOptions,
+  ZRangeCommandOptions,
+} from "./commands/mod";
 import {
   AppendCommand,
   BitCountCommand,
   BitFieldCommand,
   BitOpCommand,
   BitPosCommand,
-  CommandOptions,
   CopyCommand,
   DBSizeCommand,
   DecrByCommand,
@@ -60,6 +66,7 @@ import {
   JsonForgetCommand,
   JsonGetCommand,
   JsonMGetCommand,
+  JsonMSetCommand,
   JsonNumIncrByCommand,
   JsonNumMultByCommand,
   JsonObjKeysCommand,
@@ -120,13 +127,11 @@ import {
   SUnionCommand,
   SUnionStoreCommand,
   ScanCommand,
-  ScoreMember,
   ScriptExistsCommand,
   ScriptFlushCommand,
   ScriptLoadCommand,
   SetBitCommand,
   SetCommand,
-  SetCommandOptions,
   SetExCommand,
   SetNxCommand,
   SetRangeCommand,
@@ -151,7 +156,6 @@ import {
   XRevRangeCommand,
   XTrimCommand,
   ZAddCommand,
-  ZAddCommandOptions,
   ZCardCommand,
   ZCountCommand,
   ZIncrByCommand,
@@ -160,7 +164,6 @@ import {
   ZPopMaxCommand,
   ZPopMinCommand,
   ZRangeCommand,
-  ZRangeCommandOptions,
   ZRankCommand,
   ZRemCommand,
   ZRemRangeByLexCommand,
@@ -174,7 +177,7 @@ import {
 } from "./commands/mod";
 import { ZDiffStoreCommand } from "./commands/zdiffstore";
 import { ZMScoreCommand } from "./commands/zmscore";
-import { Requester, UpstashRequest, UpstashResponse } from "./http";
+import type { Requester, UpstashRequest, UpstashResponse } from "./http";
 import { Pipeline } from "./pipeline";
 import { Script } from "./script";
 import type { CommandArgs, RedisOptions, Telemetry } from "./types";
@@ -207,10 +210,11 @@ export class Redis {
     this.client = client;
     this.opts = opts;
     this.enableTelemetry = opts?.enableTelemetry ?? true;
-    this.enableAutoPipelining = opts?.enableAutoPipelining ?? false;
+
     if (opts?.readYourWrites === false) {
       this.client.readYourWrites = false;
     }
+    this.enableAutoPipelining = opts?.enableAutoPipelining ?? true;
   }
 
   get json() {
@@ -282,6 +286,12 @@ export class Redis {
         new JsonMGetCommand<TData>(args, this.opts).exec(this.client),
 
       /**
+       * @see https://redis.io/commands/json.mset
+       */
+      mset: (...args: CommandArgs<typeof JsonMSetCommand>) =>
+        new JsonMSetCommand(args, this.opts).exec(this.client),
+
+      /**
        * @see https://redis.io/commands/json.numincrby
        */
       numincrby: (...args: CommandArgs<typeof JsonNumIncrByCommand>) =>
@@ -348,8 +358,8 @@ export class Redis {
   use = <TResult = unknown>(
     middleware: (
       r: UpstashRequest,
-      next: <TResult = unknown>(req: UpstashRequest) => Promise<UpstashResponse<TResult>>,
-    ) => Promise<UpstashResponse<TResult>>,
+      next: <TResult = unknown>(req: UpstashRequest) => Promise<UpstashResponse<TResult>>
+    ) => Promise<UpstashResponse<TResult>>
   ) => {
     const makeRequest = this.client.request.bind(this.client);
     this.client.request = (req: UpstashRequest) => middleware(req, makeRequest) as any;
@@ -363,6 +373,7 @@ export class Redis {
       return;
     }
     try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - The `Requester` interface does not know about this method but it will be there
       // as long as the user uses the standard HttpClient
       this.client.mergeTelemetry(telemetry);
@@ -454,7 +465,7 @@ export class Redis {
     ...sourceKeys: string[]
   ) =>
     new BitOpCommand([op as any, destinationKey, sourceKey, ...sourceKeys], this.opts).exec(
-      this.client,
+      this.client
     );
 
   /**
@@ -664,7 +675,7 @@ export class Redis {
   /**
    * @see https://redis.io/commands/hmset
    */
-  hmset = <TData>(key: string, kv: { [field: string]: TData }) =>
+  hmset = <TData>(key: string, kv: Record<string, TData>) =>
     new HMSetCommand([key, kv], this.opts).exec(this.client);
 
   /**
@@ -676,12 +687,12 @@ export class Redis {
     <TData extends Record<string, unknown>>(
       key: string,
       count: number,
-      withValues: boolean,
+      withValues: boolean
     ): Promise<Partial<TData>>;
   } = <TData extends string | string[] | Record<string, unknown>>(
     key: string,
     count?: number,
-    withValues?: boolean,
+    withValues?: boolean
   ) => new HRandFieldCommand<TData>([key, count, withValues] as any, this.opts).exec(this.client);
 
   /**
@@ -693,7 +704,7 @@ export class Redis {
   /**
    * @see https://redis.io/commands/hset
    */
-  hset = <TData>(key: string, kv: { [field: string]: TData }) =>
+  hset = <TData>(key: string, kv: Record<string, TData>) =>
     new HSetCommand<TData>([key, kv], this.opts).exec(this.client);
 
   /**
@@ -825,13 +836,13 @@ export class Redis {
   /**
    * @see https://redis.io/commands/mset
    */
-  mset = <TData>(kv: { [key: string]: TData }) =>
+  mset = <TData>(kv: Record<string, TData>) =>
     new MSetCommand<TData>([kv], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/msetnx
    */
-  msetnx = <TData>(kv: { [key: string]: TData }) =>
+  msetnx = <TData>(kv: Record<string, TData>) =>
     new MSetNXCommand<TData>([kv], this.opts).exec(this.client);
 
   /**
@@ -1210,15 +1221,14 @@ export class Redis {
         ]
   ) => {
     if ("score" in args[1]) {
-      return new ZAddCommand<TData>(
-        [args[0], args[1] as ScoreMember<TData>, ...(args.slice(2) as any)],
-        this.opts,
-      ).exec(this.client);
+      return new ZAddCommand<TData>([args[0], args[1], ...(args.slice(2) as any)], this.opts).exec(
+        this.client
+      );
     }
 
     return new ZAddCommand<TData>(
       [args[0], args[1] as any, ...(args.slice(2) as any)],
-      this.opts,
+      this.opts
     ).exec(this.client);
   };
   /**

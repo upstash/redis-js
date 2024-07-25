@@ -119,7 +119,6 @@ bun run test
 bun run build
 ```
 
-
 ### Telemetry
 
 This library sends anonymous telemetry data to help us improve your experience.

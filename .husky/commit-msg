@@ -1,0 +1,1 @@
+bun --no -- commitlint --edit ""

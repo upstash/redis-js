@@ -44,7 +44,7 @@
     "./**"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && cp README.md ./dist/ && cp package.json ./dist/ && cp LICENSE ./dist/",
     "test": "bun test pkg",
     "fmt": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "prepare": "husky install",

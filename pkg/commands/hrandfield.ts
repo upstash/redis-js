@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 function deserialize<TData extends Record<string, unknown>>(result: string[]): TData | null {
   if (result.length === 0) {
@@ -41,7 +42,7 @@ export class HRandFieldCommand<
       command.push("WITHVALUES");
     }
     super(command, {
-      // @ts-ignore TODO:
+      // @ts-expect-error to silence compiler
       deserialize: cmd[2] ? (result) => deserialize(result as string[]) : opts?.deserialize,
       ...opts,
     });

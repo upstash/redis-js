@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 export type GeoAddCommandOptions =
   | {
@@ -10,11 +11,11 @@ export type GeoAddCommandOptions =
       xx?: boolean;
     } & { ch?: boolean });
 
-export interface GeoMember<TMemberType> {
+export type GeoMember<TMemberType> = {
   latitude: number;
   longitude: number;
   member: TMemberType;
-}
+};
 
 /**
  * @see https://redis.io/commands/geoadd

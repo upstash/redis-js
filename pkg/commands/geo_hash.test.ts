@@ -12,8 +12,8 @@ describe("GEOHASH tests", () => {
     const members = ["Palermo", "Catania"];
     await new GeoAddCommand([
       key,
-      { longitude: 13.361389, latitude: 38.115556, member: members[0] },
-      { longitude: 15.087269, latitude: 37.502669, member: members[1] },
+      { longitude: 13.361_389, latitude: 38.115_556, member: members[0] },
+      { longitude: 15.087_269, latitude: 37.502_669, member: members[1] },
     ]).exec(client);
 
     const response = await new GeoHashCommand([key, members]).exec(client);
@@ -25,8 +25,8 @@ describe("GEOHASH tests", () => {
     const members = ["Palermo", "Catania", "Marsala"];
     await new GeoAddCommand([
       key,
-      { longitude: 13.361389, latitude: 38.115556, member: members[0] },
-      { longitude: 15.087269, latitude: 37.502669, member: members[1] },
+      { longitude: 13.361_389, latitude: 38.115_556, member: members[0] },
+      { longitude: 15.087_269, latitude: 37.502_669, member: members[1] },
       { longitude: 12.4372, latitude: 37.7981, member: members[2] },
     ]).exec(client);
 
@@ -39,8 +39,8 @@ describe("GEOHASH tests", () => {
     const members = [{ name: "Palermo" }, { name: "Catania" }];
     await new GeoAddCommand([
       key,
-      { longitude: 13.361389, latitude: 38.115556, member: members[0] },
-      { longitude: 15.087269, latitude: 37.502669, member: members[1] },
+      { longitude: 13.361_389, latitude: 38.115_556, member: members[0] },
+      { longitude: 15.087_269, latitude: 37.502_669, member: members[1] },
     ]).exec(client);
 
     const response = await new GeoHashCommand([key, members]).exec(client);

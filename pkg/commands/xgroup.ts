@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command.ts";
+import type { CommandOptions } from "./command.ts";
+import { Command } from "./command.ts";
 
 type XGroupCommandType =
   | {
@@ -54,7 +55,7 @@ export class XGroupCommand<TOptions extends XGroupCommandType = XGroupCommandTyp
     const command: unknown[] = ["XGROUP"];
 
     switch (opts.type) {
-      case "CREATE":
+      case "CREATE": {
         command.push("CREATE", key, opts.group, opts.id);
         if (opts.options) {
           if (opts.options.MKSTREAM) {
@@ -65,28 +66,34 @@ export class XGroupCommand<TOptions extends XGroupCommandType = XGroupCommandTyp
           }
         }
         break;
+      }
 
-      case "CREATECONSUMER":
+      case "CREATECONSUMER": {
         command.push("CREATECONSUMER", key, opts.group, opts.consumer);
         break;
+      }
 
-      case "DELCONSUMER":
+      case "DELCONSUMER": {
         command.push("DELCONSUMER", key, opts.group, opts.consumer);
         break;
+      }
 
-      case "DESTROY":
+      case "DESTROY": {
         command.push("DESTROY", key, opts.group);
         break;
+      }
 
-      case "SETID":
+      case "SETID": {
         command.push("SETID", key, opts.group, opts.id);
-        if (opts.options && opts.options.ENTRIESREAD !== undefined) {
+        if (opts.options?.ENTRIESREAD !== undefined) {
           command.push("ENTRIESREAD", opts.options.ENTRIESREAD.toString());
         }
         break;
+      }
 
-      default:
+      default: {
         throw new Error("Invalid XGROUP");
+      }
     }
     super(command, commandOptions);
   }

@@ -122,7 +122,7 @@ describe("without options", () => {
     const res = await new ZUnionCommand([2, [key1, key2]]).exec(client);
 
     expect(res.length).toBe(2);
-    expect(res?.sort()).toEqual([member1, member2].sort());
+    expect(res.sort()).toEqual([member1, member2].sort());
   });
 });
 

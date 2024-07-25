@@ -1,5 +1,6 @@
 import { deserializeScanResponse } from "../util";
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 export type ScanCommandOptions = {
   match?: string;

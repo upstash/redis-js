@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command.ts";
+import type { CommandOptions } from "./command.ts";
+import { Command } from "./command.ts";
 
 /**
  * @see https://redis.io/commands/geohash
@@ -8,7 +9,7 @@ export class GeoHashCommand<TMember = string> extends Command<
   (string | null)[]
 > {
   constructor(
-    cmd: [string, ...(TMember[] | TMember[])],
+    cmd: [string, ...TMember[]],
     opts?: CommandOptions<(string | null)[], (string | null)[]>
   ) {
     const [key] = cmd;

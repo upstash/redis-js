@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/json.get
@@ -18,7 +19,7 @@ export class JsonGetCommand<
   ) {
     const command = ["JSON.GET"];
     if (typeof cmd[1] === "string") {
-      // @ts-ignore - we know this is a string
+      // @ts-expect-error - we know this is a string
       command.push(...cmd);
     } else {
       command.push(cmd[0]);
@@ -34,7 +35,7 @@ export class JsonGetCommand<
           command.push("SPACE", cmd[1].space);
         }
       }
-      // @ts-ignore - we know this is a string
+      // @ts-expect-error - we know this is a string
       command.push(...cmd.slice(2));
     }
 

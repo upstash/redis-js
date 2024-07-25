@@ -60,6 +60,6 @@ describe("XLEN", () => {
       const len = await new XLenCommand([key]).exec(client);
       expect(len).toBeLessThanOrEqual(20);
     },
-    { timeout: 20000 }
+    { timeout: 20_000 }
   );
 });

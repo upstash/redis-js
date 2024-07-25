@@ -31,7 +31,9 @@ test("moves the entry from left to left", async () => {
 test("moves the entry from left to right", async () => {
   const source = newKey();
   const destination = newKey();
-  const values = new Array(5).fill(0).map((_) => randomID());
+  const values = Array.from({ length: 5 })
+    .fill(0)
+    .map((_) => randomID());
 
   await new LPushCommand([source, ...values]).exec(client);
 

@@ -1,13 +1,9 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // deno-lint-ignore-file
 
-import {
-  HttpClient,
-  Requester,
-  RequesterConfig,
-  UpstashRequest,
-  UpstashResponse,
-} from "../pkg/http";
-import { Pipeline } from "../pkg/pipeline";
+import type { Requester, RequesterConfig } from "../pkg/http";
+import { HttpClient } from "../pkg/http";
+
 import * as core from "../pkg/redis";
 import { VERSION } from "../version";
 
@@ -15,11 +11,10 @@ import { VERSION } from "../version";
  * Workaround for nodejs 14, where atob is not included in the standardlib
  */
 if (typeof atob === "undefined") {
-  global.atob = (b64: string) => Buffer.from(b64, "base64").toString("utf-8");
+  global.atob = (b64: string) => Buffer.from(b64, "base64").toString("utf8");
 }
 export * as errors from "../pkg/error";
 export type * from "../pkg/commands/types";
-export type { Requester, UpstashRequest, UpstashResponse, Pipeline };
 
 /**
  * Connection credentials for upstash redis.
@@ -56,7 +51,7 @@ export type RedisConfigNodejs = {
    */
   signal?: AbortSignal;
   latencyLogging?: boolean;
-  agent?: any;
+  agent?: unknown;
   keepAlive?: boolean;
 } & core.RedisOptions &
   RequesterConfig;
@@ -95,7 +90,6 @@ export class Redis extends core.Redis {
    * const redis = new Redis(requester)
    * ```
    */
-  constructor(requesters: Requester);
   constructor(configOrRequester: RedisConfigNodejs | Requester) {
     if ("request" in configOrRequester) {
       super(configOrRequester);
@@ -133,9 +127,10 @@ export class Redis extends core.Redis {
       baseUrl: configOrRequester.url,
       retry: configOrRequester.retry,
       headers: { authorization: `Bearer ${configOrRequester.token}` },
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       agent: configOrRequester.agent,
       responseEncoding: configOrRequester.responseEncoding,
-      cache: configOrRequester.cache || "no-store",
+      cache: configOrRequester.cache ?? "no-store",
       signal: configOrRequester.signal,
       keepAlive: configOrRequester.keepAlive,
     });
@@ -149,7 +144,7 @@ export class Redis extends core.Redis {
 
     this.addTelemetry({
       runtime:
-        // @ts-ignore
+        // @ts-expect-error to silence compiler
         typeof EdgeRuntime === "string" ? "edge-light" : `node@${process.version}`,
       platform: process.env.VERCEL ? "vercel" : process.env.AWS_REGION ? "aws" : "unknown",
       sdk: `@upstash/redis@${VERSION}`,
@@ -171,21 +166,25 @@ export class Redis extends core.Redis {
    */
   static fromEnv(config?: Omit<RedisConfigNodejs, "url" | "token">): Redis {
     // @ts-ignore process will be defined in node
-    if (typeof process?.env === "undefined") {
-      throw new Error(
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (process.env === undefined) {
+      throw new TypeError(
         'Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please import from "@upstash/redis/cloudflare" instead'
       );
     }
     // @ts-ignore process will be defined in node
-    const url = process?.env.UPSTASH_REDIS_REST_URL;
+    const url = process.env.UPSTASH_REDIS_REST_URL;
     if (!url) {
       throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_URL`");
     }
     // @ts-ignore process will be defined in node
-    const token = process?.env.UPSTASH_REDIS_REST_TOKEN;
+    const token = process.env.UPSTASH_REDIS_REST_TOKEN;
     if (!token) {
       throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`");
     }
     return new Redis({ ...config, url, token });
   }
 }
+
+export { type Pipeline } from "../pkg/pipeline";
+export { type UpstashRequest, type UpstashResponse, type Requester } from "../pkg/http";

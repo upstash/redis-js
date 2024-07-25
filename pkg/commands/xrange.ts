@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 function deserialize<TData extends Record<string, Record<string, unknown>>>(
   result: [string, string[]][]
@@ -13,8 +14,8 @@ function deserialize<TData extends Record<string, Record<string, unknown>>>(
         obj[streamId] = {};
       }
       while (entries.length >= 2) {
-        const field = (entries as string[]).shift()! as string;
-        const value = (entries as string[]).shift()! as string;
+        const field = (entries as string[]).shift()!;
+        const value = (entries as string[]).shift()!;
 
         try {
           obj[streamId][field] = JSON.parse(value);

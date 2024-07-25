@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command.ts";
+import type { CommandOptions } from "./command.ts";
+import { Command } from "./command.ts";
 
 type RadiusOptions = "M" | "KM" | "FT" | "MI";
 type CenterPoint<TMemberType> =

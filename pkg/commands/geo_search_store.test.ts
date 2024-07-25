@@ -36,11 +36,11 @@ describe("GEOSSEARCHSTORE tests", () => {
     );
     expect(zrangeRes).toEqual([
       "Empire State Building",
-      1791875672666387,
+      1_791_875_672_666_387,
       "Grand Central Terminal",
-      1791875708058440,
+      1_791_875_708_058_440,
       "Central Park",
-      1791875790048608,
+      1_791_875_790_048_608,
     ]);
     expect(res).toEqual(zrangeRes.length / 2);
   });
@@ -144,9 +144,9 @@ describe("GEOSSEARCHSTORE tests", () => {
     );
     expect(zrangeRes).toEqual([
       "Empire State Building",
-      1791875672666387,
+      1_791_875_672_666_387,
       "Grand Central Terminal",
-      1791875708058440,
+      1_791_875_708_058_440,
     ]);
     expect(res).toEqual(zrangeRes.length / 2);
   });

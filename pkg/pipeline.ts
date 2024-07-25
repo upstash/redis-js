@@ -1,5 +1,11 @@
-import { Command, CommandOptions } from "./commands/command";
+import type { Command, CommandOptions } from "./commands/command";
 import { HRandFieldCommand } from "./commands/hrandfield";
+import type {
+  ScoreMember,
+  SetCommandOptions,
+  ZAddCommandOptions,
+  ZRangeCommandOptions,
+} from "./commands/mod";
 import {
   AppendCommand,
   BitCountCommand,
@@ -120,13 +126,11 @@ import {
   SUnionCommand,
   SUnionStoreCommand,
   ScanCommand,
-  ScoreMember,
   ScriptExistsCommand,
   ScriptFlushCommand,
   ScriptLoadCommand,
   SetBitCommand,
   SetCommand,
-  SetCommandOptions,
   SetExCommand,
   SetNxCommand,
   SetRangeCommand,
@@ -151,7 +155,6 @@ import {
   XRevRangeCommand,
   XTrimCommand,
   ZAddCommand,
-  ZAddCommandOptions,
   ZCardCommand,
   ZCountCommand,
   ZIncrByCommand,
@@ -160,7 +163,6 @@ import {
   ZPopMaxCommand,
   ZPopMinCommand,
   ZRangeCommand,
-  ZRangeCommandOptions,
   ZRankCommand,
   ZRemCommand,
   ZRemRangeByLexCommand,
@@ -175,8 +177,8 @@ import {
 import { ZDiffStoreCommand } from "./commands/zdiffstore";
 import { ZMScoreCommand } from "./commands/zmscore";
 import { UpstashError } from "./error";
-import { Requester, UpstashResponse } from "./http";
-import { CommandArgs } from "./types";
+import type { Requester, UpstashResponse } from "./http";
+import type { CommandArgs } from "./types";
 
 // Given a tuple of commands, returns a tuple of the response data of each command
 type InferResponseData<T extends unknown[]> = {
@@ -249,10 +251,11 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
         const result = await originalExec();
         const end = performance.now();
         const loggerResult = (end - start).toFixed(2);
+        // eslint-disable-next-line no-console
         console.log(
-          `Latency for \x1b[38;2;19;185;39m${
+          `Latency for \u001B[38;2;19;185;39m${
             this.multiExec ? ["MULTI-EXEC"] : ["PIPELINE"].toString().toUpperCase()
-          }\x1b[0m: \x1b[38;2;0;255;255m${loggerResult} ms\x1b[0m`
+          }\u001B[0m: \u001B[38;2;0;255;255m${loggerResult} ms\u001B[0m`
         );
         return result as TCommandResults;
       };
@@ -576,7 +579,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/hmset
    */
-  hmset = <TData>(key: string, kv: { [field: string]: TData }) =>
+  hmset = <TData>(key: string, kv: Record<string, TData>) =>
     this.chain(new HMSetCommand([key, kv], this.commandOptions));
 
   /**
@@ -598,7 +601,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/hset
    */
-  hset = <TData>(key: string, kv: { [field: string]: TData }) =>
+  hset = <TData>(key: string, kv: Record<string, TData>) =>
     this.chain(new HSetCommand<TData>([key, kv], this.commandOptions));
 
   /**
@@ -730,13 +733,13 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/mset
    */
-  mset = <TData>(kv: { [key: string]: TData }) =>
+  mset = <TData>(kv: Record<string, TData>) =>
     this.chain(new MSetCommand<TData>([kv], this.commandOptions));
 
   /**
    * @see https://redis.io/commands/msetnx
    */
-  msetnx = <TData>(kv: { [key: string]: TData }) =>
+  msetnx = <TData>(kv: Record<string, TData>) =>
     this.chain(new MSetNXCommand<TData>([kv], this.commandOptions));
 
   /**
@@ -1032,10 +1035,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   ) => {
     if ("score" in args[1]) {
       return this.chain(
-        new ZAddCommand<TData>(
-          [args[0], args[1] as ScoreMember<TData>, ...(args.slice(2) as any)],
-          this.commandOptions
-        )
+        new ZAddCommand<TData>([args[0], args[1], ...(args.slice(2) as any)], this.commandOptions)
       );
     }
 

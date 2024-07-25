@@ -1,6 +1,6 @@
-import type { Requester, UpstashRequest, UpstashResponse } from "../pkg/http";
-import { Pipeline } from "../pkg/pipeline";
-import { HttpClient, RequesterConfig } from "../pkg/http";
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import type { RequesterConfig } from "../pkg/http";
+import { HttpClient } from "../pkg/http";
 import * as core from "../pkg/redis";
 import { VERSION } from "../version";
 
@@ -10,7 +10,7 @@ type Env = {
 
 export * as errors from "../pkg/error";
 export type * from "../pkg/commands/types";
-export type { Requester, UpstashRequest, UpstashResponse, Pipeline };
+
 /**
  * Connection credentials for upstash redis.
  * Get them from https://console.upstash.com/redis/<uuid>
@@ -114,10 +114,10 @@ export class Redis extends core.Redis {
     },
     opts?: Omit<RedisConfigCloudflare, "url" | "token">
   ): Redis {
-    // @ts-ignore These will be defined by cloudflare
+    // @ts-expect-error These will be defined by cloudflare
     const url = env?.UPSTASH_REDIS_REST_URL ?? UPSTASH_REDIS_REST_URL;
 
-    // @ts-ignore These will be defined by cloudflare
+    // @ts-expect-error These will be defined by cloudflare
     const token = env?.UPSTASH_REDIS_REST_TOKEN ?? UPSTASH_REDIS_REST_TOKEN;
 
     if (!url) {
@@ -133,3 +133,6 @@ export class Redis extends core.Redis {
     return new Redis({ ...opts, url, token }, env);
   }
 }
+
+export { type Requester, type UpstashRequest, type UpstashResponse } from "../pkg/http";
+export { type Pipeline } from "../pkg/pipeline";

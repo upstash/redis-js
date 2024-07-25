@@ -56,7 +56,7 @@ describe("XX", () => {
       const res2 = await new GetCommand([key]).exec(client);
       expect(res2).toEqual(null);
     },
-    { timeout: 10000 }
+    { timeout: 10_000 }
   );
 
   test("should not set expiry when the key does not have an existing expiry", async () => {
@@ -81,7 +81,7 @@ describe("GT", () => {
       const res2 = await new GetCommand([key]).exec(client);
       expect(res2).toEqual(null);
     },
-    { timeout: 10000 }
+    { timeout: 10_000 }
   );
 
   test("should not set expiry when the new expiry is not greater than current one", async () => {
@@ -106,7 +106,7 @@ describe("LT", () => {
       const res2 = await new GetCommand([key]).exec(client);
       expect(res2).toEqual(null);
     },
-    { timeout: 10000 }
+    { timeout: 10_000 }
   );
 
   test("should not set expiry when the new expiry is not less than current one", async () => {

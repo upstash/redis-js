@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 export class LIndexCommand<TData = string> extends Command<unknown | null, TData | null> {
   constructor(

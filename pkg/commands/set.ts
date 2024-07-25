@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 export type SetCommandOptions = { get?: boolean } & (
   | { ex: number; px?: never; exat?: never; pxat?: never; keepTtl?: never }

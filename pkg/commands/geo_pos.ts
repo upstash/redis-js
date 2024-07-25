@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command.ts";
+import type { CommandOptions } from "./command.ts";
+import { Command } from "./command.ts";
 
 type Coordinates = {
   lng: number;
@@ -32,7 +33,7 @@ function transform(result: (string | null)[][]): Coordinates[] {
     if (!pos?.[0] || !pos?.[1]) {
       continue;
     }
-    final.push({ lng: parseFloat(pos[0]), lat: parseFloat(pos[1]) });
+    final.push({ lng: Number.parseFloat(pos[0]), lat: Number.parseFloat(pos[1]) });
   }
   return final;
 }

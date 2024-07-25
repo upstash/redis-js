@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/consistent-function-scoping */
 import { addNewItemToStream, keygen, newHttpClient } from "../test-utils";
 
 import { afterAll, describe, expect, test } from "bun:test";
@@ -15,6 +16,7 @@ describe("COUNT", () => {
 
     const res = (await new XReadCommand([streamKey, "0-0"]).exec(client)) as string[];
 
+    //@ts-expect-error to silence compiler
     expect(res[0][1][0][1]).toEqual(["field1", xmember1, "field2", xmember2]);
   });
   test("should return multiple items", async () => {
@@ -52,7 +54,7 @@ describe("IDs", () => {
       const streamKey = newKey();
       await addNewItemToStream(streamKey, client);
 
-      const res = (await new XReadCommand([streamKey, `${Date.now() - 15000}-0`]).exec(
+      const res = (await new XReadCommand([streamKey, `${Date.now() - 15_000}-0`]).exec(
         client
       )) as string[];
       expect(res).toBeInstanceOf(Array);

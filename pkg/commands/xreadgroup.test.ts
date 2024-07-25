@@ -92,7 +92,7 @@ describe("NOACK", () => {
       client
     )) as string[];
 
-    const pendingCount = xinfoRes[0][3];
+    const pendingCount = Number(xinfoRes[0][3]);
 
     expect(pendingCount).toBe(wantedCount);
   });
@@ -148,6 +148,7 @@ describe("Multiple Stream", () => {
   });
 
   test("should throw when unbalanced is array passed", () => {
+    // eslint-disable-next-line unicorn/consistent-function-scoping
     const throwable = async () => {
       const streamKey = newKey();
       const group = newKey();

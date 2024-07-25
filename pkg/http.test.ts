@@ -46,7 +46,8 @@ describe("Abort", () => {
     });
     controller.abort("Abort works!");
 
-    expect((await body).result).toEqual("Abort works!");
+    const res = await body;
+    expect(res.result).toEqual("Abort works!");
   });
 });
 

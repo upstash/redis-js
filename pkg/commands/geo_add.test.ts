@@ -2,17 +2,18 @@ import { keygen, newHttpClient, randomID } from "../test-utils";
 
 import { afterAll, describe, expect, test } from "bun:test";
 
-import { GeoAddCommand, GeoMember } from "./geo_add";
+import type { GeoMember } from "./geo_add";
+import { GeoAddCommand } from "./geo_add";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-interface Coordinate {
+type Coordinate = {
   latitude: number;
   longitude: number;
-}
+};
 
 function generateRandomPoint(radius = 100): Coordinate {
   const center = { lat: 14.23, lng: 23.12 };
@@ -20,7 +21,7 @@ function generateRandomPoint(radius = 100): Coordinate {
   const x0 = center.lng;
   const y0 = center.lat;
   // Convert Radius from meters to degrees.
-  const rd = radius / 111300;
+  const rd = radius / 111_300;
 
   const u = Math.random();
   const v = Math.random();

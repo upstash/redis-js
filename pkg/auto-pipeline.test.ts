@@ -38,7 +38,7 @@ describe("Auto pipeline", () => {
       redis.evalsha(scriptHash, [], ["Hello"]),
       redis.exists(newKey()),
       redis.expire(newKey(), 5),
-      redis.expireat(newKey(), Math.floor(new Date().getTime() / 1000) + 60),
+      redis.expireat(newKey(), Math.floor(Date.now() / 1000) + 60),
       redis.flushall(),
       redis.flushdb(),
       redis.get(newKey()),
@@ -84,7 +84,7 @@ describe("Auto pipeline", () => {
       redis.msetnx({ key3: "value", key4: "value" }),
       redis.persist(newKey()),
       redis.pexpire(newKey(), 1000),
-      redis.pexpireat(newKey(), new Date().getTime() + 1000),
+      redis.pexpireat(newKey(), Date.now() + 1000),
       redis.ping(),
       redis.psetex(newKey(), 1, "value"),
       redis.pttl(newKey()),
@@ -162,11 +162,11 @@ describe("Auto pipeline", () => {
     expect(redis.pipelineCounter).toBe(0);
 
     // following five commands are added to the pipeline
-    redis.flushdb();
-    redis.incr("baz");
-    redis.incr("baz");
-    redis.set("foo", "bar");
-    redis.incr("baz");
+    void redis.flushdb();
+    void redis.incr("baz");
+    void redis.incr("baz");
+    void redis.set("foo", "bar");
+    void redis.incr("baz");
 
     // two get calls are added to the pipeline and pipeline
     // is executed since we called await
@@ -186,7 +186,7 @@ describe("Auto pipeline", () => {
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
 
-    redis.flushdb();
+    void redis.flushdb();
 
     const res1 = await redis.incr("baz");
     // @ts-expect-error pipelineCounter is not in type but accessible

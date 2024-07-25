@@ -1,7 +1,8 @@
-import { Command } from "./commands/command";
-import { Pipeline } from "./pipeline";
-import { Redis } from "./redis";
-import { CommandArgs } from "./types";
+/* eslint-disable @typescript-eslint/ban-types */
+import type { Command } from "./commands/command";
+import type { Pipeline } from "./pipeline";
+import type { Redis } from "./redis";
+import type { CommandArgs } from "./types";
 
 // properties which are only available in redis
 type redisOnly = Exclude<keyof Redis, keyof Pipeline>;
@@ -11,6 +12,7 @@ export function createAutoPipelineProxy(_redis: Redis, json?: boolean): Redis {
     autoPipelineExecutor: AutoPipelineExecutor;
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (!redis.autoPipelineExecutor) {
     redis.autoPipelineExecutor = new AutoPipelineExecutor(redis);
   }
@@ -59,7 +61,7 @@ export function createAutoPipelineProxy(_redis: Redis, json?: boolean): Redis {
 }
 
 class AutoPipelineExecutor {
-  private pipelinePromises = new WeakMap<Pipeline, Promise<Array<unknown>>>();
+  private pipelinePromises = new WeakMap<Pipeline, Promise<unknown[]>>();
   private activePipeline: Pipeline | null = null;
   private indexInCurrentPipeline = 0;
   private redis: Redis;
@@ -72,7 +74,7 @@ class AutoPipelineExecutor {
   }
 
   async withAutoPipeline<T>(executeWithPipeline: (pipeline: Pipeline) => unknown): Promise<T> {
-    const pipeline = this.activePipeline || this.redis.pipeline();
+    const pipeline = this.activePipeline ?? this.redis.pipeline();
 
     if (!this.activePipeline) {
       this.activePipeline = pipeline;
@@ -90,6 +92,7 @@ class AutoPipelineExecutor {
         this.pipelinePromises.set(pipeline, pipelinePromise);
         this.activePipeline = null;
       }
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return this.pipelinePromises.get(pipeline)!;
     });
 
@@ -99,6 +102,6 @@ class AutoPipelineExecutor {
 
   private async deferExecution() {
     await Promise.resolve();
-    return await Promise.resolve();
+    await Promise.resolve();
   }
 }

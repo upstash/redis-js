@@ -1,11 +1,17 @@
 import { createAutoPipelineProxy } from "../pkg/auto-pipeline";
+import type {
+  CommandOptions,
+  ScoreMember,
+  SetCommandOptions,
+  ZAddCommandOptions,
+  ZRangeCommandOptions,
+} from "./commands/mod";
 import {
   AppendCommand,
   BitCountCommand,
   BitFieldCommand,
   BitOpCommand,
   BitPosCommand,
-  CommandOptions,
   CopyCommand,
   DBSizeCommand,
   DecrByCommand,
@@ -121,13 +127,11 @@ import {
   SUnionCommand,
   SUnionStoreCommand,
   ScanCommand,
-  ScoreMember,
   ScriptExistsCommand,
   ScriptFlushCommand,
   ScriptLoadCommand,
   SetBitCommand,
   SetCommand,
-  SetCommandOptions,
   SetExCommand,
   SetNxCommand,
   SetRangeCommand,
@@ -152,7 +156,6 @@ import {
   XRevRangeCommand,
   XTrimCommand,
   ZAddCommand,
-  ZAddCommandOptions,
   ZCardCommand,
   ZCountCommand,
   ZIncrByCommand,
@@ -161,7 +164,6 @@ import {
   ZPopMaxCommand,
   ZPopMinCommand,
   ZRangeCommand,
-  ZRangeCommandOptions,
   ZRankCommand,
   ZRemCommand,
   ZRemRangeByLexCommand,
@@ -175,7 +177,7 @@ import {
 } from "./commands/mod";
 import { ZDiffStoreCommand } from "./commands/zdiffstore";
 import { ZMScoreCommand } from "./commands/zmscore";
-import { Requester, UpstashRequest, UpstashResponse } from "./http";
+import type { Requester, UpstashRequest, UpstashResponse } from "./http";
 import { Pipeline } from "./pipeline";
 import { Script } from "./script";
 import type { CommandArgs, RedisOptions, Telemetry } from "./types";
@@ -367,6 +369,7 @@ export class Redis {
       return;
     }
     try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - The `Requester` interface does not know about this method but it will be there
       // as long as the user uses the standard HttpClient
       this.client.mergeTelemetry(telemetry);
@@ -668,7 +671,7 @@ export class Redis {
   /**
    * @see https://redis.io/commands/hmset
    */
-  hmset = <TData>(key: string, kv: { [field: string]: TData }) =>
+  hmset = <TData>(key: string, kv: Record<string, TData>) =>
     new HMSetCommand([key, kv], this.opts).exec(this.client);
 
   /**
@@ -697,7 +700,7 @@ export class Redis {
   /**
    * @see https://redis.io/commands/hset
    */
-  hset = <TData>(key: string, kv: { [field: string]: TData }) =>
+  hset = <TData>(key: string, kv: Record<string, TData>) =>
     new HSetCommand<TData>([key, kv], this.opts).exec(this.client);
 
   /**
@@ -829,13 +832,13 @@ export class Redis {
   /**
    * @see https://redis.io/commands/mset
    */
-  mset = <TData>(kv: { [key: string]: TData }) =>
+  mset = <TData>(kv: Record<string, TData>) =>
     new MSetCommand<TData>([kv], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/msetnx
    */
-  msetnx = <TData>(kv: { [key: string]: TData }) =>
+  msetnx = <TData>(kv: Record<string, TData>) =>
     new MSetNXCommand<TData>([kv], this.opts).exec(this.client);
 
   /**
@@ -1214,10 +1217,9 @@ export class Redis {
         ]
   ) => {
     if ("score" in args[1]) {
-      return new ZAddCommand<TData>(
-        [args[0], args[1] as ScoreMember<TData>, ...(args.slice(2) as any)],
-        this.opts
-      ).exec(this.client);
+      return new ZAddCommand<TData>([args[0], args[1], ...(args.slice(2) as any)], this.opts).exec(
+        this.client
+      );
     }
 
     return new ZAddCommand<TData>(

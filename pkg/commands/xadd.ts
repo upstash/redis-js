@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 type XAddCommandOptions = {
   nomkStream?: boolean;
@@ -32,7 +33,7 @@ export class XAddCommand extends Command<string, string> {
     [key, id, entries, opts]: [
       key: string,
       id: "*" | string,
-      entries: { [field: string]: unknown },
+      entries: Record<string, unknown>,
       opts?: XAddCommandOptions,
     ],
     commandOptions?: CommandOptions<string, string>
@@ -45,7 +46,7 @@ export class XAddCommand extends Command<string, string> {
       }
       if (opts.trim) {
         command.push(opts.trim.type, opts.trim.comparison, opts.trim.threshold);
-        if (typeof opts.trim.limit !== "undefined") {
+        if (opts.trim.limit !== undefined) {
           command.push("LIMIT", opts.trim.limit);
         }
       }

@@ -9,7 +9,7 @@ export class LmPopCommand<TValues> extends Command<
 > {
   constructor(
     cmd: [numkeys: number, keys: string[], "LEFT" | "RIGHT", count?: number],
-    opts?: CommandOptions<[string, TValues[]] | null, [string, TValues[]] | null>,
+    opts?: CommandOptions<[string, TValues[]] | null, [string, TValues[]] | null>
   ) {
     const [numkeys, keys, direction, count] = cmd;
 

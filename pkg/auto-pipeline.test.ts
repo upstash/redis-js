@@ -144,7 +144,7 @@ describe("Auto pipeline", () => {
       redis.zscore(newKey(), "member"),
       redis.zunionstore(newKey(), 1, [newKey()]),
       redis.zunion(1, [newKey()]),
-      redis.json.set(persistentKey3, '$', { log: ["one", "two"] }),
+      redis.json.set(persistentKey3, "$", { log: ["one", "two"] }),
       redis.json.arrappend(persistentKey3, "$.log", '"three"'),
     ]);
     expect(result).toBeTruthy();

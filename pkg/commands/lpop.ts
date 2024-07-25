@@ -6,7 +6,7 @@ import { Command, CommandOptions } from "./command";
 export class LPopCommand<TData = string> extends Command<unknown | null, TData | null> {
   constructor(
     cmd: [key: string, count?: number],
-    opts?: CommandOptions<unknown | null, TData | null>,
+    opts?: CommandOptions<unknown | null, TData | null>
   ) {
     super(["lpop", ...cmd], opts);
   }

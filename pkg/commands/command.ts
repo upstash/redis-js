@@ -47,12 +47,12 @@ export class Command<TResult, TData> {
    */
   constructor(
     command: (string | boolean | number | unknown)[],
-    opts?: CommandOptions<TResult, TData>,
+    opts?: CommandOptions<TResult, TData>
   ) {
     this.serialize = defaultSerializer;
     this.deserialize =
       typeof opts?.automaticDeserialization === "undefined" || opts.automaticDeserialization
-        ? opts?.deserialize ?? parseResponse
+        ? (opts?.deserialize ?? parseResponse)
         : (x) => x as unknown as TData;
 
     this.command = command.map((c) => this.serialize(c));
@@ -67,7 +67,7 @@ export class Command<TResult, TData> {
         console.log(
           `Latency for \x1b[38;2;19;185;39m${this.command[0]
             .toString()
-            .toUpperCase()}\x1b[0m: \x1b[38;2;0;255;255m${loggerResult} ms\x1b[0m`,
+            .toUpperCase()}\x1b[0m: \x1b[38;2;0;255;255m${loggerResult} ms\x1b[0m`
         );
         return result;
       };

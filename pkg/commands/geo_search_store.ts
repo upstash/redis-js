@@ -40,7 +40,7 @@ export class GeoSearchStoreCommand<
       order: "ASC" | "DESC" | "asc" | "desc",
       opts?: TOptions,
     ],
-    commandOptions?: CommandOptions<any[] | any[][], number>,
+    commandOptions?: CommandOptions<any[] | any[][], number>
   ) {
     const command: unknown[] = ["GEOSEARCHSTORE", destination, key];
 

@@ -37,7 +37,7 @@ type XReadGroupOptions = XReadGroupCommandOptions extends [
 export class XReadGroupCommand extends Command<number, unknown[]> {
   constructor(
     [group, consumer, key, id, options]: XReadGroupOptions,
-    opts?: CommandOptions<number, unknown[]>,
+    opts?: CommandOptions<number, unknown[]>
   ) {
     if (Array.isArray(key) && Array.isArray(id)) {
       if (key.length !== id.length) {
@@ -59,7 +59,7 @@ export class XReadGroupCommand extends Command<number, unknown[]> {
     commands.push(
       "STREAMS",
       ...(Array.isArray(key) ? [...key] : [key]),
-      ...(Array.isArray(id) ? [...id] : [id]),
+      ...(Array.isArray(id) ? [...id] : [id])
     );
 
     super(["XREADGROUP", "GROUP", group, consumer, ...commands], opts);

@@ -26,7 +26,7 @@ export class GeoAddCommand<TMemberType = string> extends Command<number | null, 
       GeoMember<TMemberType> | GeoAddCommandOptions,
       ...GeoMember<TMemberType>[],
     ],
-    opts?: CommandOptions<number | null, number | null>,
+    opts?: CommandOptions<number | null, number | null>
   ) {
     const command: unknown[] = ["geoadd", key];
 
@@ -45,7 +45,7 @@ export class GeoAddCommand<TMemberType = string> extends Command<number | null, 
     }
 
     command.push(
-      ...arg2.flatMap(({ latitude, longitude, member }) => [longitude, latitude, member]),
+      ...arg2.flatMap(({ latitude, longitude, member }) => [longitude, latitude, member])
     );
 
     super(command, opts);

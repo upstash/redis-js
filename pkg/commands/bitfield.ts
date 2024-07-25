@@ -17,8 +17,7 @@ export class BitFieldCommand<T = Promise<number[]>> {
     args: [key: string],
     private client: Requester,
     private opts?: CommandOptions<number[], number[]>,
-    private execOperation = (command: Command<number[], number[]>) =>
-      command.exec(this.client) as T,
+    private execOperation = (command: Command<number[], number[]>) => command.exec(this.client) as T
   ) {
     this.command = ["bitfield", ...args];
   }

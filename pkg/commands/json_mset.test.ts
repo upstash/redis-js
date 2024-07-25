@@ -23,13 +23,9 @@ test("add a new value", async () => {
 
 test("replace an existing value", async () => {
   const key = newKey();
-  const res1 = await new JsonMSetCommand([
-    { key, path: "$", value: { a: 2 } },
-  ]).exec(client);
+  const res1 = await new JsonMSetCommand([{ key, path: "$", value: { a: 2 } }]).exec(client);
   expect(res1).toEqual("OK");
-  const res2 = await new JsonMSetCommand([{ key, path: "$.a", value: 3 }]).exec(
-    client
-  );
+  const res2 = await new JsonMSetCommand([{ key, path: "$.a", value: 3 }]).exec(client);
   expect(res2).toEqual("OK");
   const res3 = await new JsonGetCommand([key, "$"]).exec(client);
   expect(res3).toEqual([{ a: 3 }]);
@@ -41,13 +37,9 @@ test("update multi-paths", async () => {
     f1: { a: 1 },
     f2: { a: 2 },
   };
-  const res1 = await new JsonMSetCommand([
-    { key, path: "$", value: data },
-  ]).exec(client);
+  const res1 = await new JsonMSetCommand([{ key, path: "$", value: data }]).exec(client);
   expect(res1).toEqual("OK");
-  const res2 = await new JsonMSetCommand([
-    { key, path: "$..a", value: 3 },
-  ]).exec(client);
+  const res2 = await new JsonMSetCommand([{ key, path: "$..a", value: 3 }]).exec(client);
   expect(res2).toEqual("OK");
   const res3 = await new JsonGetCommand<any[]>([key, "$"]).exec(client);
 

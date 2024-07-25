@@ -5,7 +5,7 @@ import { Command, CommandOptions } from "./command";
 export class ZPopMinCommand<TData> extends Command<string[], TData[]> {
   constructor(
     [key, count]: [key: string, count?: number],
-    opts?: CommandOptions<string[], TData[]>,
+    opts?: CommandOptions<string[], TData[]>
   ) {
     const command: unknown[] = ["zpopmin", key];
     if (typeof count === "number") {

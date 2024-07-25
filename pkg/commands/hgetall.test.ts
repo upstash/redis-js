@@ -35,7 +35,7 @@ test("properly return bigint precisely", async () => {
   const value2 = randomID();
   const value3 = randomUnsafeIntegerString();
   await new HSetCommand([key, { [field1]: value1, [field2]: value2, [field3]: value3 }]).exec(
-    client,
+    client
   );
 
   const res = await new HGetAllCommand([key]).exec(client);

@@ -9,7 +9,7 @@ export class JsonMSetCommand<
     | string
     | boolean
     | Record<string, unknown>
-    | (number | string | boolean | Record<string, unknown>)[]
+    | (number | string | boolean | Record<string, unknown>)[],
 > extends Command<"OK" | null, "OK" | null> {
   constructor(
     cmd: { key: string; path: string; value: TData }[],

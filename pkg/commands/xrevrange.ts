@@ -5,7 +5,7 @@ export class XRevRangeCommand<
 > extends Command<string[][], TData> {
   constructor(
     [key, end, start, count]: [key: string, end: string, start: string, count?: number],
-    opts?: CommandOptions<unknown[], TData[]>,
+    opts?: CommandOptions<unknown[], TData[]>
   ) {
     const command: unknown[] = ["XREVRANGE", key, end, start];
     if (typeof count === "number") {
@@ -19,7 +19,7 @@ export class XRevRangeCommand<
 }
 
 function deserialize<TData extends Record<string, Record<string, unknown>>>(
-  result: [string, string[]][],
+  result: [string, string[]][]
 ): TData {
   const obj: Record<string, Record<string, unknown>> = {};
   for (const e of result) {

@@ -15,7 +15,7 @@ export type ZRangeCommandOptions = {
 export class ZRangeCommand<TData extends unknown[]> extends Command<string[], TData> {
   constructor(
     cmd: [key: string, min: number, max: number, opts?: ZRangeCommandOptions],
-    cmdOpts?: CommandOptions<string[], TData>,
+    cmdOpts?: CommandOptions<string[], TData>
   );
   constructor(
     cmd: [
@@ -24,7 +24,7 @@ export class ZRangeCommand<TData extends unknown[]> extends Command<string[], TD
       max: `(${string}` | `[${string}` | "-" | "+",
       opts: { byLex: true } & ZRangeCommandOptions,
     ],
-    cmdOpts?: CommandOptions<string[], TData>,
+    cmdOpts?: CommandOptions<string[], TData>
   );
   constructor(
     cmd: [
@@ -33,7 +33,7 @@ export class ZRangeCommand<TData extends unknown[]> extends Command<string[], TD
       max: number | `(${number}` | "-inf" | "+inf",
       opts: { byScore: true } & ZRangeCommandOptions,
     ],
-    cmdOpts?: CommandOptions<string[], TData>,
+    cmdOpts?: CommandOptions<string[], TData>
   );
   constructor(
     [key, min, max, opts]: [
@@ -42,7 +42,7 @@ export class ZRangeCommand<TData extends unknown[]> extends Command<string[], TD
       max: number | string,
       opts?: ZRangeCommandOptions,
     ],
-    cmdOpts?: CommandOptions<string[], TData>,
+    cmdOpts?: CommandOptions<string[], TData>
   ) {
     const command: unknown[] = ["zrange", key, min, max];
 

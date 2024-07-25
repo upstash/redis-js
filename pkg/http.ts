@@ -167,7 +167,7 @@ export class HttpClient implements Requester {
     function merge(
       obj: Record<string, string>,
       key: string,
-      value?: string,
+      value?: string
     ): Record<string, string> {
       if (!value) {
         return obj;
@@ -284,7 +284,7 @@ function decode(raw: ResultError["result"]): ResultError["result"] {
     case "object": {
       if (Array.isArray(raw)) {
         result = raw.map((v) =>
-          typeof v === "string" ? base64decode(v) : Array.isArray(v) ? v.map(decode) : v,
+          typeof v === "string" ? base64decode(v) : Array.isArray(v) ? v.map(decode) : v
         );
       } else {
         // If it's not an array it must be null

@@ -35,7 +35,7 @@ export class XAddCommand extends Command<string, string> {
       entries: { [field: string]: unknown },
       opts?: XAddCommandOptions,
     ],
-    commandOptions?: CommandOptions<string, string>,
+    commandOptions?: CommandOptions<string, string>
   ) {
     const command: unknown[] = ["XADD", key];
 

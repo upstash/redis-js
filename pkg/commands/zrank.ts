@@ -6,7 +6,7 @@ import { Command, CommandOptions } from "./command";
 export class ZRankCommand<TData> extends Command<number | null, number | null> {
   constructor(
     cmd: [key: string, member: TData],
-    opts?: CommandOptions<number | null, number | null>,
+    opts?: CommandOptions<number | null, number | null>
   ) {
     super(["zrank", ...cmd], opts);
   }

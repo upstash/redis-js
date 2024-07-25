@@ -11,7 +11,7 @@ export class HScanCommand extends Command<
 > {
   constructor(
     [key, cursor, cmdOpts]: [key: string, cursor: string | number, cmdOpts?: ScanCommandOptions],
-    opts?: CommandOptions<[string, (string | number)[]], [string, (string | number)[]]>,
+    opts?: CommandOptions<[string, (string | number)[]], [string, (string | number)[]]>
   ) {
     const command: (number | string)[] = ["hscan", key, cursor];
     if (cmdOpts?.match) {

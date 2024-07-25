@@ -2,7 +2,7 @@ import { Command, CommandOptions } from "./command";
 
 function deserialize<TData extends Record<string, unknown>>(
   fields: string[],
-  result: (string | null)[],
+  result: (string | null)[]
 ): TData | null {
   if (result.length === 0 || result.every((field) => field === null)) {
     return null;
@@ -35,7 +35,7 @@ export class HMGetCommand<TData extends Record<string, unknown>> extends Command
 > {
   constructor(
     [key, ...fields]: [key: string, ...fields: string[]],
-    opts?: CommandOptions<(string | null)[], TData | null>,
+    opts?: CommandOptions<(string | null)[], TData | null>
   ) {
     super(["hmget", key, ...fields], {
       deserialize: (result) => deserialize<TData>(fields, result),

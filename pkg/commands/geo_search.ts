@@ -63,7 +63,7 @@ export class GeoSearchCommand<
       order: "ASC" | "DESC" | "asc" | "desc",
       opts?: TOptions,
     ],
-    commandOptions?: CommandOptions<any[] | any[][], GeoSearchResponse<TOptions, TMemberType>>,
+    commandOptions?: CommandOptions<any[] | any[][], GeoSearchResponse<TOptions, TMemberType>>
   ) {
     const command: unknown[] = ["GEOSEARCH", key];
 
@@ -132,7 +132,7 @@ export class GeoSearchCommand<
       {
         deserialize: transform,
         ...commandOptions,
-      },
+      }
     );
   }
 }

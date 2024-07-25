@@ -6,7 +6,7 @@ import { Command, CommandOptions } from "./command";
 export class ZScoreCommand<TData> extends Command<string | null, number | null> {
   constructor(
     cmd: [key: string, member: TData],
-    opts?: CommandOptions<string | null, number | null>,
+    opts?: CommandOptions<string | null, number | null>
   ) {
     super(["zscore", ...cmd], opts);
   }

@@ -27,11 +27,11 @@ export class HRandFieldCommand<
   constructor(cmd: [key: string, count: number], opts?: CommandOptions<string[], string[]>);
   constructor(
     cmd: [key: string, count: number, withValues: boolean],
-    opts?: CommandOptions<string[], Partial<TData>>,
+    opts?: CommandOptions<string[], Partial<TData>>
   );
   constructor(
     cmd: [key: string, count?: number, withValues?: boolean],
-    opts?: CommandOptions<any, string | string[] | Partial<TData>>,
+    opts?: CommandOptions<any, string | string[] | Partial<TData>>
   ) {
     const command = ["hrandfield", cmd[0]] as unknown[];
     if (typeof cmd[1] === "number") {

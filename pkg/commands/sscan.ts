@@ -11,7 +11,7 @@ export class SScanCommand extends Command<
 > {
   constructor(
     [key, cursor, opts]: [key: string, cursor: string | number, opts?: ScanCommandOptions],
-    cmdOpts?: CommandOptions<[string, (string | number)[]], [string, (string | number)[]]>,
+    cmdOpts?: CommandOptions<[string, (string | number)[]], [string, (string | number)[]]>
   ) {
     const command: (number | string)[] = ["sscan", key, cursor];
     if (opts?.match) {

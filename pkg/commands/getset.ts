@@ -6,7 +6,7 @@ import { Command, CommandOptions } from "./command";
 export class GetSetCommand<TData = string> extends Command<unknown | null, TData | null> {
   constructor(
     cmd: [key: string, value: TData],
-    opts?: CommandOptions<unknown | null, TData | null>,
+    opts?: CommandOptions<unknown | null, TData | null>
   ) {
     super(["getset", ...cmd], opts);
   }

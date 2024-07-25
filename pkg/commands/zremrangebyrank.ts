@@ -5,7 +5,7 @@ import { Command, CommandOptions } from "./command";
 export class ZRemRangeByRankCommand extends Command<number, number> {
   constructor(
     cmd: [key: string, start: number, stop: number],
-    opts?: CommandOptions<number, number>,
+    opts?: CommandOptions<number, number>
   ) {
     super(["zremrangebyrank", ...cmd], opts);
   }

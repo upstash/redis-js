@@ -5,7 +5,7 @@ import { Command, CommandOptions } from "./command";
 export class ZCountCommand extends Command<number, number> {
   constructor(
     cmd: [key: string, min: number | string, max: number | string],
-    opts?: CommandOptions<number, number>,
+    opts?: CommandOptions<number, number>
   ) {
     super(["zcount", ...cmd], opts);
   }

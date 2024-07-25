@@ -11,7 +11,7 @@ export class LMoveCommand<TData = string> extends Command<TData, TData> {
       whereFrom: "left" | "right",
       whereTo: "left" | "right",
     ],
-    opts?: CommandOptions<TData, TData>,
+    opts?: CommandOptions<TData, TData>
   ) {
     super(["lmove", ...cmd], opts);
   }

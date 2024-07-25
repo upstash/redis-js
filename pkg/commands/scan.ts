@@ -12,7 +12,7 @@ export type ScanCommandOptions = {
 export class ScanCommand extends Command<[string, string[]], [string, string[]]> {
   constructor(
     [cursor, opts]: [cursor: string | number, opts?: ScanCommandOptions],
-    cmdOpts?: CommandOptions<[string, string[]], [string, string[]]>,
+    cmdOpts?: CommandOptions<[string, string[]], [string, string[]]>
   ) {
     const command: (number | string)[] = ["scan", cursor];
     if (opts?.match) {

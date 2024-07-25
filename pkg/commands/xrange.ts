@@ -1,7 +1,7 @@
 import { Command, CommandOptions } from "./command";
 
 function deserialize<TData extends Record<string, Record<string, unknown>>>(
-  result: [string, string[]][],
+  result: [string, string[]][]
 ): TData {
   const obj: Record<string, Record<string, unknown>> = {};
   for (const e of result) {
@@ -33,7 +33,7 @@ export class XRangeCommand<TData extends Record<string, Record<string, unknown>>
 > {
   constructor(
     [key, start, end, count]: [key: string, start: string, end: string, count?: number],
-    opts?: CommandOptions<unknown[], TData[]>,
+    opts?: CommandOptions<unknown[], TData[]>
   ) {
     const command: unknown[] = ["XRANGE", key, start, end];
     if (typeof count === "number") {

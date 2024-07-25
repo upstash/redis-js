@@ -25,7 +25,7 @@ describe("COUNT", () => {
     await addNewItemToStream(streamKey, client);
 
     const res = (await new XReadCommand([streamKey, "0-0", { count: wantedLength }]).exec(
-      client,
+      client
     )) as any[];
 
     expect(res[0][1].length).toBe(wantedLength);
@@ -38,7 +38,7 @@ describe("COUNT", () => {
     await addNewItemToStream(streamKey, client);
 
     const res = (await new XReadCommand([streamKey, "0-0", { count: wantedLength }]).exec(
-      client,
+      client
     )) as any[];
 
     expect(res[0][1].length).toBe(wantedLength);
@@ -53,11 +53,11 @@ describe("IDs", () => {
       await addNewItemToStream(streamKey, client);
 
       const res = (await new XReadCommand([streamKey, `${Date.now() - 15000}-0`]).exec(
-        client,
+        client
       )) as string[];
       expect(res).toBeInstanceOf(Array);
     },
-    { retry: 3 },
+    { retry: 3 }
   );
 });
 
@@ -78,7 +78,7 @@ describe("Multiple stream", () => {
       ]).exec(client)) as string[];
       expect(res.length).toBe(wantedLength);
     },
-    { retry: 3 },
+    { retry: 3 }
   );
 
   test(
@@ -95,7 +95,7 @@ describe("Multiple stream", () => {
       ]).exec(client)) as string[];
       expect(res.length).toBe(wantedLength);
     },
-    { retry: 3 },
+    { retry: 3 }
   );
 
   test(
@@ -110,6 +110,6 @@ describe("Multiple stream", () => {
 
       expect(throwable).toThrow(UNBALANCED_XREAD_ERR);
     },
-    { retry: 3 },
+    { retry: 3 }
   );
 });

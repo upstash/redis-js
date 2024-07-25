@@ -8,7 +8,7 @@ type Env = {
   UPSTASH_DISABLE_TELEMETRY?: string;
 };
 
-export * as errors from "../pkg/error"
+export * as errors from "../pkg/error";
 export type * from "../pkg/commands/types";
 export type { Requester, UpstashRequest, UpstashResponse, Pipeline };
 /**
@@ -50,12 +50,16 @@ export class Redis extends core.Redis {
    * ```
    */
   constructor(config: RedisConfigCloudflare, env?: Env) {
-    if(!config.url) {
-      throw new Error(`[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`)
+    if (!config.url) {
+      throw new Error(
+        `[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`
+      );
     }
 
-    if(!config.token) {
-      throw new Error(`[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`)
+    if (!config.token) {
+      throw new Error(
+        `[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`
+      );
     }
 
     if (config.url.startsWith(" ") || config.url.endsWith(" ") || /\r|\n/.test(config.url)) {
@@ -87,7 +91,7 @@ export class Redis extends core.Redis {
     });
 
     if (this.enableAutoPipelining) {
-      return this.autoPipeline()
+      return this.autoPipeline();
     }
   }
 
@@ -108,7 +112,7 @@ export class Redis extends core.Redis {
       UPSTASH_REDIS_REST_TOKEN: string;
       UPSTASH_DISABLE_TELEMETRY?: string;
     },
-    opts?: Omit<RedisConfigCloudflare, "url" | "token">,
+    opts?: Omit<RedisConfigCloudflare, "url" | "token">
   ): Redis {
     // @ts-ignore These will be defined by cloudflare
     const url = env?.UPSTASH_REDIS_REST_URL ?? UPSTASH_REDIS_REST_URL;
@@ -118,12 +122,12 @@ export class Redis extends core.Redis {
 
     if (!url) {
       throw new Error(
-        "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_URL`",
+        "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_URL`"
       );
     }
     if (!token) {
       throw new Error(
-        "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_TOKEN`",
+        "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_TOKEN`"
       );
     }
     return new Redis({ ...opts, url, token }, env);

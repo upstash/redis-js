@@ -22,7 +22,7 @@ describe("XACK", () => {
     await new XGroupCommand([streamKey1, { type: "CREATE", group, id: "0" }]).exec(client);
 
     (await new XReadGroupCommand([group, consumer, streamKey1, ">", { count: 2 }]).exec(
-      client,
+      client
     )) as string[];
 
     const res = await new XAckCommand([streamKey1, group, [streamId1, streamId2]]).exec(client);
@@ -42,7 +42,7 @@ describe("XACK", () => {
     ]).exec(client);
 
     (await new XReadGroupCommand([group, consumer, streamKey1, ">", { count: 2 }]).exec(
-      client,
+      client
     )) as string[];
 
     const res = await new XAckCommand([streamKey1, group, streamId1]).exec(client);

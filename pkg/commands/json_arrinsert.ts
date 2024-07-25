@@ -9,7 +9,7 @@ export class JsonArrInsertCommand<TData extends unknown[]> extends Command<
 > {
   constructor(
     cmd: [key: string, path: string, index: number, ...values: TData],
-    opts?: CommandOptions<(null | string)[], (null | number)[]>,
+    opts?: CommandOptions<(null | string)[], (null | number)[]>
   ) {
     super(["JSON.ARRINSERT", ...cmd], opts);
   }

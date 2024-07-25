@@ -20,7 +20,7 @@ export class XClaimCommand extends Command<unknown[], unknown[]> {
         lastId?: number;
       },
     ],
-    opts?: CommandOptions<unknown[], unknown[]>,
+    opts?: CommandOptions<unknown[], unknown[]>
   ) {
     const ids = Array.isArray(id) ? [...id] : [id];
     const commands: unknown[] = [];

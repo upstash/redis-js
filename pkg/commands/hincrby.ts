@@ -6,7 +6,7 @@ import { Command, CommandOptions } from "./command";
 export class HIncrByCommand extends Command<number, number> {
   constructor(
     cmd: [key: string, field: string, increment: number],
-    opts?: CommandOptions<number, number>,
+    opts?: CommandOptions<number, number>
   ) {
     super(["hincrby", ...cmd], opts);
   }

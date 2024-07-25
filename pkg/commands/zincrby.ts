@@ -5,7 +5,7 @@ import { Command, CommandOptions } from "./command";
 export class ZIncrByCommand<TData> extends Command<number, number> {
   constructor(
     cmd: [key: string, increment: number, member: TData],
-    opts?: CommandOptions<number, number>,
+    opts?: CommandOptions<number, number>
   ) {
     super(["zincrby", ...cmd], opts);
   }

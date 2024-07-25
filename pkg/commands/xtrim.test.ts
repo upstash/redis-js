@@ -21,13 +21,13 @@ describe("XLEN", () => {
       }
       await Promise.all(promises);
       await new XTrimCommand([key, { strategy: "MAXLEN", threshold: 30, exactness: "~" }]).exec(
-        client,
+        client
       );
       const len = await new XLenCommand([key]).exec(client);
       expect(len).toBeGreaterThanOrEqual(29);
       expect(len).toBeLessThanOrEqual(31);
     },
-    { timeout: 1000 * 60 },
+    { timeout: 1000 * 60 }
   );
 
   test("should trim with zero threshold and remove everything", async () => {
@@ -38,7 +38,7 @@ describe("XLEN", () => {
     }
     await Promise.all(promises);
     await new XTrimCommand([key, { strategy: "MAXLEN", threshold: 0, exactness: "=" }]).exec(
-      client,
+      client
     );
     const len = await new XLenCommand([key]).exec(client);
     expect(len).toBeLessThanOrEqual(1);
@@ -55,11 +55,11 @@ describe("XLEN", () => {
       }
       const midRangeId = `${baseTimestamp}-10`;
       await new XTrimCommand([key, { strategy: "MINID", threshold: midRangeId, limit: 2 }]).exec(
-        client,
+        client
       );
       const len = await new XLenCommand([key]).exec(client);
       expect(len).toBeLessThanOrEqual(20);
     },
-    { timeout: 20000 },
+    { timeout: 20000 }
   );
 });

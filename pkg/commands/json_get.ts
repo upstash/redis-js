@@ -14,7 +14,7 @@ export class JsonGetCommand<
           ...path: string[],
         ]
       | [key: string, ...path: string[]],
-    opts?: CommandOptions<TData | null, TData | null>,
+    opts?: CommandOptions<TData | null, TData | null>
   ) {
     const command = ["JSON.GET"];
     if (typeof cmd[1] === "string") {

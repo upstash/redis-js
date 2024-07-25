@@ -44,7 +44,7 @@ export class XReadCommand extends Command<number, unknown[]> {
     commands.push(
       "STREAMS",
       ...(Array.isArray(key) ? [...key] : [key]),
-      ...(Array.isArray(id) ? [...id] : [id]),
+      ...(Array.isArray(id) ? [...id] : [id])
     );
 
     super(["XREAD", ...commands], opts);

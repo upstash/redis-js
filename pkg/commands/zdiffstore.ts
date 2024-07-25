@@ -6,7 +6,7 @@ import { Command, CommandOptions } from "./command";
 export class ZDiffStoreCommand extends Command<number, number> {
   constructor(
     cmd: [destination: string, numkeys: number, ...keys: string[]],
-    opts?: CommandOptions<number, number>,
+    opts?: CommandOptions<number, number>
   ) {
     super(["zdiffstore", ...cmd], opts);
   }

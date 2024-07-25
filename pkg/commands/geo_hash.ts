@@ -9,7 +9,7 @@ export class GeoHashCommand<TMember = string> extends Command<
 > {
   constructor(
     cmd: [string, ...(TMember[] | TMember[])],
-    opts?: CommandOptions<(string | null)[], (string | null)[]>,
+    opts?: CommandOptions<(string | null)[], (string | null)[]>
   ) {
     const [key] = cmd;
     // Check if the second argument is an array of strings (members).

@@ -49,7 +49,7 @@ export class XGroupCommand<TOptions extends XGroupCommandType = XGroupCommandTyp
 > {
   constructor(
     [key, opts]: [key: string, opts: TOptions],
-    commandOptions?: CommandOptions<any, any>,
+    commandOptions?: CommandOptions<any, any>
   ) {
     const command: unknown[] = ["XGROUP"];
 

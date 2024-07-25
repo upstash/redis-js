@@ -17,7 +17,7 @@ import { VERSION } from "../version";
 if (typeof atob === "undefined") {
   global.atob = (b64: string) => Buffer.from(b64, "base64").toString("utf-8");
 }
-export * as errors from "../pkg/error"
+export * as errors from "../pkg/error";
 export type * from "../pkg/commands/types";
 export type { Requester, UpstashRequest, UpstashResponse, Pipeline };
 
@@ -102,12 +102,16 @@ export class Redis extends core.Redis {
       return;
     }
 
-    if(!configOrRequester.url) {
-      throw new Error(`[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`)
+    if (!configOrRequester.url) {
+      throw new Error(
+        `[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`
+      );
     }
 
-    if(!configOrRequester.token) {
-      throw new Error(`[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`)
+    if (!configOrRequester.token) {
+      throw new Error(
+        `[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`
+      );
     }
 
     if (
@@ -140,7 +144,7 @@ export class Redis extends core.Redis {
       automaticDeserialization: configOrRequester.automaticDeserialization,
       enableTelemetry: !process.env.UPSTASH_DISABLE_TELEMETRY,
       latencyLogging: configOrRequester.latencyLogging,
-      enableAutoPipelining: configOrRequester.enableAutoPipelining
+      enableAutoPipelining: configOrRequester.enableAutoPipelining,
     });
 
     this.addTelemetry({
@@ -152,7 +156,7 @@ export class Redis extends core.Redis {
     });
 
     if (this.enableAutoPipelining) {
-      return this.autoPipeline()
+      return this.autoPipeline();
     }
   }
 
@@ -169,7 +173,7 @@ export class Redis extends core.Redis {
     // @ts-ignore process will be defined in node
     if (typeof process?.env === "undefined") {
       throw new Error(
-        'Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please import from "@upstash/redis/cloudflare" instead',
+        'Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please import from "@upstash/redis/cloudflare" instead'
       );
     }
     // @ts-ignore process will be defined in node

@@ -6,7 +6,7 @@ import { Command, CommandOptions } from "./command";
 export class HGetCommand<TData> extends Command<unknown | null, TData | null> {
   constructor(
     cmd: [key: string, field: string],
-    opts?: CommandOptions<unknown | null, TData | null>,
+    opts?: CommandOptions<unknown | null, TData | null>
   ) {
     super(["hget", ...cmd], opts);
   }

@@ -19,7 +19,7 @@ describe("when storing base64 data", () => {
       const res = await redis.get(key);
       expect(res).toEqual(value);
     },
-    { timeout: 150000 },
+    { timeout: 150000 }
   );
 
   // decode("OK") => 8

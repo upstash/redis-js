@@ -9,7 +9,7 @@ export class JsonArrAppendCommand<TData extends unknown[]> extends Command<
 > {
   constructor(
     cmd: [key: string, path: string, ...values: TData],
-    opts?: CommandOptions<(null | string)[], (null | number)[]>,
+    opts?: CommandOptions<(null | string)[], (null | number)[]>
   ) {
     super(["JSON.ARRAPPEND", ...cmd], opts);
   }

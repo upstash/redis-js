@@ -206,6 +206,9 @@ export class HttpClient implements Requester {
       backend: this.options.backend,
     };
 
+    /**
+     * We've recieved a new `upstash-sync-token` in the previous response. We use it in the next request to observe the effects of previous requests.
+     */
     if (this.readYourWrites) {
       const newHeader = this.upstashSyncToken;
       this.headers["upstash-sync-token"] = newHeader;
@@ -247,6 +250,10 @@ export class HttpClient implements Requester {
       this.upstashSyncToken = headers.get("upstash-sync-token") ?? "";
     }
 
+
+     /**
+     * We save the new `upstash-sync-token` in the response header to use it in the next request.
+     */
     if (this.readYourWrites) {
       const headers = res.headers;
       this.upstashSyncToken = headers.get("upstash-sync-token") ?? "";

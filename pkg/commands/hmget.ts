@@ -1,18 +1,19 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 function deserialize<TData extends Record<string, unknown>>(
   fields: string[],
-  result: (string | null)[],
+  result: (string | null)[]
 ): TData | null {
-  if (result.length === 0 || result.every((field) => field === null)) {
+  if (result.every((field) => field === null)) {
     return null;
   }
   const obj: Record<string, unknown> = {};
-  for (let i = 0; i < fields.length; i++) {
+  for (const [i, field] of fields.entries()) {
     try {
-      obj[fields[i]] = JSON.parse(result[i]!);
+      obj[field] = JSON.parse(result[i]!);
     } catch {
-      obj[fields[i]] = result[i];
+      obj[field] = result[i];
     }
   }
   return obj as TData;
@@ -35,7 +36,7 @@ export class HMGetCommand<TData extends Record<string, unknown>> extends Command
 > {
   constructor(
     [key, ...fields]: [key: string, ...fields: string[]],
-    opts?: CommandOptions<(string | null)[], TData | null>,
+    opts?: CommandOptions<(string | null)[], TData | null>
   ) {
     super(["hmget", key, ...fields], {
       deserialize: (result) => deserialize<TData>(fields, result),

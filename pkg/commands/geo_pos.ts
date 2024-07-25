@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command.ts";
+import type { CommandOptions } from "./command.ts";
+import { Command } from "./command.ts";
 
 type Coordinates = {
   lng: number;
@@ -11,7 +12,7 @@ type Coordinates = {
 export class GeoPosCommand<TMember = string> extends Command<(string | null)[][], Coordinates[]> {
   constructor(
     cmd: [string, ...(TMember[] | TMember[])],
-    opts?: CommandOptions<(string | null)[][], Coordinates[]>,
+    opts?: CommandOptions<(string | null)[][], Coordinates[]>
   ) {
     const [key] = cmd;
     // Check if the second argument is an array of strings (members).
@@ -32,7 +33,7 @@ function transform(result: (string | null)[][]): Coordinates[] {
     if (!pos?.[0] || !pos?.[1]) {
       continue;
     }
-    final.push({ lng: parseFloat(pos[0]), lat: parseFloat(pos[1]) });
+    final.push({ lng: Number.parseFloat(pos[0]), lat: Number.parseFloat(pos[1]) });
   }
   return final;
 }

@@ -1,12 +1,11 @@
-import type { Requester, RequesterConfig, UpstashRequest, UpstashResponse } from "../pkg/http";
-import { Pipeline } from "../pkg/pipeline";
+import type { RequesterConfig } from "../pkg/http";
+
 import { HttpClient } from "../pkg/http";
 import * as core from "../pkg/redis";
 import { VERSION } from "../version";
 
-export * as errors from "../pkg/error"
+export * as errors from "../pkg/error";
 export type * from "../pkg/commands/types";
-export type { Requester, UpstashRequest, UpstashResponse, Pipeline };
 
 /**
  * Connection credentials for upstash redis.
@@ -48,12 +47,16 @@ export class Redis extends core.Redis {
    * ```
    */
   constructor(config: RedisConfigFastly) {
-    if(!config.url) {
-      throw new Error(`[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`)
+    if (!config.url) {
+      throw new Error(
+        `[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`
+      );
     }
 
-    if(!config.token) {
-      throw new Error(`[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`)
+    if (!config.token) {
+      throw new Error(
+        `[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`
+      );
     }
 
     if (config.url.startsWith(" ") || config.url.endsWith(" ") || /\r|\n/.test(config.url)) {
@@ -74,7 +77,7 @@ export class Redis extends core.Redis {
 
     super(client, {
       automaticDeserialization: config.automaticDeserialization,
-      enableAutoPipelining: config.enableAutoPipelining
+      enableAutoPipelining: config.enableAutoPipelining,
     });
     this.addTelemetry({
       sdk: `@upstash/redis@${VERSION}`,
@@ -82,7 +85,10 @@ export class Redis extends core.Redis {
     });
 
     if (this.enableAutoPipelining) {
-      return this.autoPipeline()
+      return this.autoPipeline();
     }
   }
 }
+
+export { type Requester, type UpstashRequest, type UpstashResponse } from "../pkg/http";
+export { type Pipeline } from "../pkg/pipeline";

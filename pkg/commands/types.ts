@@ -132,10 +132,7 @@ export { type ZCardCommand } from "./zcard";
 export { type ZCountCommand } from "./zcount";
 export { type ZDiffStoreCommand } from "./zdiffstore";
 export { type ZIncrByCommand } from "./zincrby";
-export {
-  type ZInterStoreCommand,
-  ZInterStoreCommandOptions,
-} from "./zinterstore";
+export { type ZInterStoreCommand, ZInterStoreCommandOptions } from "./zinterstore";
 export { type ZLexCountCommand } from "./zlexcount";
 export { type ZMScoreCommand } from "./zmscore";
 export { type ZPopMaxCommand } from "./zpopmax";
@@ -150,7 +147,4 @@ export { type ZRevRankCommand } from "./zrevrank";
 export { type ZScanCommand } from "./zscan";
 export { type ZScoreCommand } from "./zscore";
 export { type ZUnionCommand, ZUnionCommandOptions } from "./zunion";
-export {
-  type ZUnionStoreCommand,
-  ZUnionStoreCommandOptions,
-} from "./zunionstore";
+export { type ZUnionStoreCommand, ZUnionStoreCommandOptions } from "./zunionstore";

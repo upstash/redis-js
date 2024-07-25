@@ -16,7 +16,7 @@ describe("XDEL", () => {
     await new XAddCommand([key, "*", { name: "Jane", surname: "Austen" }]).exec(client);
 
     const res = await new XAddCommand([key, "*", { name: "Toni", surname: "Morrison" }]).exec(
-      client,
+      client
     );
 
     const xdelRes = await new XDelCommand([key, res]).exec(client);
@@ -32,11 +32,11 @@ describe("XDEL", () => {
     const id1 = await new XAddCommand([key, "*", { name: "Jane", surname: "Austen" }]).exec(client);
 
     const id2 = await new XAddCommand([key, "*", { name: "Toni", surname: "Morrison" }]).exec(
-      client,
+      client
     );
 
     const id3 = await new XAddCommand([key, "*", { name: "Agatha", surname: "Christie" }]).exec(
-      client,
+      client
     );
 
     await new XAddCommand([key, "*", { name: "Ngozi", surname: "Adichie" }]).exec(client);

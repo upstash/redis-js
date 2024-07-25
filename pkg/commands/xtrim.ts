@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/xtrim
@@ -14,7 +15,7 @@ type XTrimOptions = {
 export class XTrimCommand extends Command<number, number> {
   constructor(
     [key, options]: [key: string, options: XTrimOptions],
-    opts?: CommandOptions<number, number>,
+    opts?: CommandOptions<number, number>
   ) {
     const { limit, strategy, threshold, exactness = "~" } = options;
 

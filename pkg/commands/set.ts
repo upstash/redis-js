@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 export type SetCommandOptions = { get?: boolean } & (
   | { ex: number; px?: never; exat?: never; pxat?: never; keepTtl?: never }
@@ -19,7 +20,7 @@ export class SetCommand<TData, TResult = TData | "OK" | null> extends Command<
 > {
   constructor(
     [key, value, opts]: [key: string, value: TData, opts?: SetCommandOptions],
-    cmdOpts?: CommandOptions<TResult, TData>,
+    cmdOpts?: CommandOptions<TResult, TData>
   ) {
     const command: unknown[] = ["set", key, value];
     if (opts) {

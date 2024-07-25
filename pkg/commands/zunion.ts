@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 export type ZUnionCommandOptions = {
   withScores?: boolean;
@@ -15,11 +16,11 @@ export type ZUnionCommandOptions = {
 export class ZUnionCommand<TData extends unknown[]> extends Command<string[], TData> {
   constructor(
     cmd: [numKeys: 1, key: string, opts?: ZUnionCommandOptions],
-    cmdOpts?: CommandOptions<string[], TData>,
+    cmdOpts?: CommandOptions<string[], TData>
   );
   constructor(
     cmd: [numKeys: number, keys: string[], opts?: ZUnionCommandOptions],
-    cmdOpts?: CommandOptions<string[], TData>,
+    cmdOpts?: CommandOptions<string[], TData>
   );
   constructor(
     [numKeys, keyOrKeys, opts]: [
@@ -27,7 +28,7 @@ export class ZUnionCommand<TData extends unknown[]> extends Command<string[], TD
       keyOrKeys: string | string[],
       opts?: ZUnionCommandOptions,
     ],
-    cmdOpts?: CommandOptions<string[], TData>,
+    cmdOpts?: CommandOptions<string[], TData>
   ) {
     const command: unknown[] = ["zunion", numKeys];
     if (Array.isArray(keyOrKeys)) {
@@ -44,7 +45,7 @@ export class ZUnionCommand<TData extends unknown[]> extends Command<string[], TD
       if ("aggregate" in opts) {
         command.push("aggregate", opts.aggregate);
       }
-      if (opts?.withScores) {
+      if (opts.withScores) {
         command.push("withscores");
       }
     }

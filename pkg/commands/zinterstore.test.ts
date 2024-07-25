@@ -53,7 +53,7 @@ describe("command format", () => {
           {
             weights: [2, 3],
           },
-        ]).command,
+        ]).command
       ).toEqual(["zinterstore", "destination", 2, "key1", "key2", "weights", 2, 3]);
     });
     describe("with aggregate", () => {
@@ -67,7 +67,7 @@ describe("command format", () => {
               {
                 aggregate: "sum",
               },
-            ]).command,
+            ]).command
           ).toEqual(["zinterstore", "destination", 1, "key", "aggregate", "sum"]);
         });
       });
@@ -81,7 +81,7 @@ describe("command format", () => {
               {
                 aggregate: "min",
               },
-            ]).command,
+            ]).command
           ).toEqual(["zinterstore", "destination", 1, "key", "aggregate", "min"]);
         });
       });
@@ -95,7 +95,7 @@ describe("command format", () => {
               {
                 aggregate: "max",
               },
-            ]).command,
+            ]).command
           ).toEqual(["zinterstore", "destination", 1, "key", "aggregate", "max"]);
         });
       });
@@ -111,7 +111,7 @@ describe("command format", () => {
               weights: [4, 2],
               aggregate: "max",
             },
-          ]).command,
+          ]).command
         ).toEqual([
           "zinterstore",
           "destination",

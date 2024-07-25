@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/geodist
@@ -11,7 +12,7 @@ export class GeoDistCommand<TMemberType = string> extends Command<number | null,
       member2: TMemberType,
       unit?: "M" | "KM" | "FT" | "MI",
     ],
-    opts?: CommandOptions<number | null, number | null>,
+    opts?: CommandOptions<number | null, number | null>
   ) {
     super(["GEODIST", key, member1, member2, unit], opts);
   }

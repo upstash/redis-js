@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/sunionstore
@@ -6,7 +7,7 @@ import { Command, CommandOptions } from "./command";
 export class SUnionStoreCommand extends Command<number, number> {
   constructor(
     cmd: [destination: string, key: string, ...keys: string[]],
-    opts?: CommandOptions<number, number>,
+    opts?: CommandOptions<number, number>
   ) {
     super(["sunionstore", ...cmd], opts);
   }

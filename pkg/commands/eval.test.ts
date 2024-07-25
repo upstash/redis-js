@@ -23,7 +23,7 @@ describe("with keys", () => {
     const key = newKey();
     await new SetCommand([key, value]).exec(client);
     const res = await new EvalCommand([`return redis.call("GET", KEYS[1])`, [key], []]).exec(
-      client,
+      client
     );
     expect(res).toEqual(value);
   });

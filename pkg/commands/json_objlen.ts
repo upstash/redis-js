@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/json.objlen
@@ -6,7 +7,7 @@ import { Command, CommandOptions } from "./command";
 export class JsonObjLenCommand extends Command<(number | null)[], (number | null)[]> {
   constructor(
     cmd: [key: string, path?: string],
-    opts?: CommandOptions<(number | null)[], (number | null)[]>,
+    opts?: CommandOptions<(number | null)[], (number | null)[]>
   ) {
     super(["JSON.OBJLEN", ...cmd], opts);
   }

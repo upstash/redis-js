@@ -19,7 +19,7 @@ describe("when key is not set", () => {
 describe("when key is set", () => {
   test("returns position of first set bit", async () => {
     const key = newKey();
-    const value = "\xff\xf0\x00";
+    const value = "\u00FF\u00F0\u0000";
     await new SetCommand([key, value]).exec(client);
     const res = await new BitPosCommand([key, 0]).exec(client);
     expect(res).toEqual(2);
@@ -29,7 +29,7 @@ describe("when key is set", () => {
 describe("with start", () => {
   test("returns position of first set bit", async () => {
     const key = newKey();
-    const value = "\x00\xff\xf0";
+    const value = "\u0000\u00FF\u00F0";
     await new SetCommand([key, value]).exec(client);
     const res = await new BitPosCommand([key, 0, 0]).exec(client);
     expect(res).toEqual(0);
@@ -39,7 +39,7 @@ describe("with start", () => {
 describe("with start and end", () => {
   test("returns position of first set bit", async () => {
     const key = newKey();
-    const value = "\x00\xff\xf0";
+    const value = "\u0000\u00FF\u00F0";
     await new SetCommand([key, value]).exec(client);
     const res = await new BitPosCommand([key, 1, 2, -1]).exec(client);
     expect(res).toEqual(16);

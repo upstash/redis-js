@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 export const UNBALANCED_XREADGROUP_ERR =
   "ERR Unbalanced XREADGROUP list of streams: for each stream key an ID or '$' must be specified";
@@ -37,12 +38,10 @@ type XReadGroupOptions = XReadGroupCommandOptions extends [
 export class XReadGroupCommand extends Command<number, unknown[]> {
   constructor(
     [group, consumer, key, id, options]: XReadGroupOptions,
-    opts?: CommandOptions<number, unknown[]>,
+    opts?: CommandOptions<number, unknown[]>
   ) {
-    if (Array.isArray(key) && Array.isArray(id)) {
-      if (key.length !== id.length) {
-        throw new Error(UNBALANCED_XREADGROUP_ERR);
-      }
+    if (Array.isArray(key) && Array.isArray(id) && key.length !== id.length) {
+      throw new Error(UNBALANCED_XREADGROUP_ERR);
     }
     const commands: unknown[] = [];
 
@@ -52,14 +51,14 @@ export class XReadGroupCommand extends Command<number, unknown[]> {
     if (typeof options?.blockMS === "number") {
       commands.push("BLOCK", options.blockMS);
     }
-    if (typeof options?.NOACK === "boolean" && options?.NOACK) {
+    if (typeof options?.NOACK === "boolean" && options.NOACK) {
       commands.push("NOACK");
     }
 
     commands.push(
       "STREAMS",
       ...(Array.isArray(key) ? [...key] : [key]),
-      ...(Array.isArray(id) ? [...id] : [id]),
+      ...(Array.isArray(id) ? [...id] : [id])
     );
 
     super(["XREADGROUP", "GROUP", group, consumer, ...commands], opts);

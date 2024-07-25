@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 export type GeoAddCommandOptions =
   | {
@@ -10,11 +11,11 @@ export type GeoAddCommandOptions =
       xx?: boolean;
     } & { ch?: boolean });
 
-export interface GeoMember<TMemberType> {
+export type GeoMember<TMemberType> = {
   latitude: number;
   longitude: number;
   member: TMemberType;
-}
+};
 
 /**
  * @see https://redis.io/commands/geoadd
@@ -26,7 +27,7 @@ export class GeoAddCommand<TMemberType = string> extends Command<number | null, 
       GeoMember<TMemberType> | GeoAddCommandOptions,
       ...GeoMember<TMemberType>[],
     ],
-    opts?: CommandOptions<number | null, number | null>,
+    opts?: CommandOptions<number | null, number | null>
   ) {
     const command: unknown[] = ["geoadd", key];
 
@@ -45,7 +46,7 @@ export class GeoAddCommand<TMemberType = string> extends Command<number | null, 
     }
 
     command.push(
-      ...arg2.flatMap(({ latitude, longitude, member }) => [longitude, latitude, member]),
+      ...arg2.flatMap(({ latitude, longitude, member }) => [longitude, latitude, member])
     );
 
     super(command, opts);

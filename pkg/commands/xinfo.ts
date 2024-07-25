@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 type XInfoCommands =
   | {
@@ -13,7 +14,7 @@ type XInfoCommands =
 export class XInfoCommand extends Command<number, unknown[]> {
   constructor(
     [key, options]: [key: string, options: XInfoCommands],
-    opts?: CommandOptions<number, unknown[]>,
+    opts?: CommandOptions<number, unknown[]>
   ) {
     const cmds: unknown[] = [];
     if (options.type === "CONSUMERS") {

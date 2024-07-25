@@ -31,7 +31,7 @@ describe("XCLAIM", () => {
     await new XReadGroupCommand([group, consumer3, [streamKey], [">"], { count: 1 }]).exec(client);
 
     const res = (await new XClaimCommand([streamKey, group, consumer3, 100, streamId2]).exec(
-      client,
+      client
     )) as string[];
 
     expect(res).toBeInstanceOf(Array);

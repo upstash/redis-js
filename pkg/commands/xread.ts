@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 export const UNBALANCED_XREAD_ERR =
   "ERR Unbalanced XREAD list of streams: for each stream key an ID or '$' must be specified";
@@ -27,10 +28,8 @@ type XReadOptions = XReadCommandOptions extends [infer K, infer I, ...any[]]
  */
 export class XReadCommand extends Command<number, unknown[]> {
   constructor([key, id, options]: XReadOptions, opts?: CommandOptions<number, unknown[]>) {
-    if (Array.isArray(key) && Array.isArray(id)) {
-      if (key.length !== id.length) {
-        throw new Error(UNBALANCED_XREAD_ERR);
-      }
+    if (Array.isArray(key) && Array.isArray(id) && key.length !== id.length) {
+      throw new Error(UNBALANCED_XREAD_ERR);
     }
     const commands: unknown[] = [];
 
@@ -44,7 +43,7 @@ export class XReadCommand extends Command<number, unknown[]> {
     commands.push(
       "STREAMS",
       ...(Array.isArray(key) ? [...key] : [key]),
-      ...(Array.isArray(id) ? [...id] : [id]),
+      ...(Array.isArray(id) ? [...id] : [id])
     );
 
     super(["XREAD", ...commands], opts);

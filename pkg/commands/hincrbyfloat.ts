@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/hincrbyfloat
@@ -6,7 +7,7 @@ import { Command, CommandOptions } from "./command";
 export class HIncrByFloatCommand extends Command<number, number> {
   constructor(
     cmd: [key: string, field: string, increment: number],
-    opts?: CommandOptions<number, number>,
+    opts?: CommandOptions<number, number>
   ) {
     super(["hincrbyfloat", ...cmd], opts);
   }

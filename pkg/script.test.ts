@@ -16,7 +16,7 @@ describe("create a new script", () => {
       const res = await script.eval([], ["Hello World"]);
       expect(res).toEqual("Hello World");
     },
-    { timeout: 15000 },
+    { timeout: 15_000 }
   );
 });
 

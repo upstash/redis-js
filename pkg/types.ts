@@ -31,4 +31,5 @@ export type RedisOptions = {
   latencyLogging?: boolean;
   enableTelemetry?: boolean;
   enableAutoPipelining?: boolean;
+  readYourWrites?: boolean;
 };

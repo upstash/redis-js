@@ -15,10 +15,21 @@ export type UpstashRequest = {
    * Request body will be serialized to json
    */
   body?: unknown;
+
+  upstashSyncToken?: string;
 };
 export type UpstashResponse<TResult> = { result?: TResult; error?: string };
 
-export type Requester = {
+export interface Requester {
+  /**
+   * When this flag is enabled, any subsequent commands issued by this client are guaranteed to observe the effects of all earlier writes submitted by the same client.
+   */
+  readYourWrites?: boolean;
+
+  /**
+   * This token is used to ensure that the client is in sync with the server. On each request, we send this token in the header, and the server will return a new token.
+   */
+  upstashSyncToken?: string;
   request: <TResult = unknown>(req: UpstashRequest) => Promise<UpstashResponse<TResult>>;
 };
 
@@ -95,11 +106,17 @@ export type HttpClientConfig = {
   agent?: any;
   signal?: AbortSignal;
   keepAlive?: boolean;
+
+  /**
+   * When this flag is enabled, any subsequent commands issued by this client are guaranteed to observe the effects of all earlier writes submitted by the same client.
+   */
+  readYourWrites?: boolean;
 } & RequesterConfig;
 
 export class HttpClient implements Requester {
   public baseUrl: string;
   public headers: Record<string, string>;
+
   public readonly options: {
     backend?: string;
     agent: any;
@@ -108,6 +125,8 @@ export class HttpClient implements Requester {
     cache?: CacheSetting;
     keepAlive: boolean;
   };
+  public readYourWrites: boolean;
+  public upstashSyncToken = "";
 
   public readonly retry: {
     attempts: number;
@@ -123,6 +142,8 @@ export class HttpClient implements Requester {
       signal: config.signal,
       keepAlive: config.keepAlive ?? true,
     };
+    this.upstashSyncToken = "";
+    this.readYourWrites = config.readYourWrites ?? true;
 
     this.baseUrl = config.baseUrl.replace(/\/$/, "");
 
@@ -185,6 +206,14 @@ export class HttpClient implements Requester {
       backend: this.options.backend,
     };
 
+    /**
+     * We've recieved a new `upstash-sync-token` in the previous response. We use it in the next request to observe the effects of previous requests.
+     */
+    if (this.readYourWrites) {
+      const newHeader = this.upstashSyncToken;
+      this.headers["upstash-sync-token"] = newHeader;
+    }
+
     let res: Response | null = null;
     let error: Error | null = null;
     for (let i = 0; i <= this.retry.attempts; i++) {
@@ -216,6 +245,20 @@ export class HttpClient implements Requester {
       throw new UpstashError(`${body.error}, command was: ${JSON.stringify(req.body)}`);
     }
 
+    if (this.readYourWrites) {
+      const headers = res.headers;
+      this.upstashSyncToken = headers.get("upstash-sync-token") ?? "";
+    }
+
+
+     /**
+     * We save the new `upstash-sync-token` in the response header to use it in the next request.
+     */
+    if (this.readYourWrites) {
+      const headers = res.headers;
+      this.upstashSyncToken = headers.get("upstash-sync-token") ?? "";
+    }
+
     if (this.options.responseEncoding === "base64") {
       if (Array.isArray(body)) {
         return body.map(({ result, error }) => ({
@@ -226,6 +269,7 @@ export class HttpClient implements Requester {
       const result = decode(body.result) as any;
       return { result, error: body.error };
     }
+
     return body as UpstashResponse<TResult>;
   }
 }

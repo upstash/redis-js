@@ -53,6 +53,11 @@ export type RedisConfigNodejs = {
   latencyLogging?: boolean;
   agent?: unknown;
   keepAlive?: boolean;
+
+  /**
+   * When this flag is enabled, any subsequent commands issued by this client are guaranteed to observe the effects of all earlier writes submitted by the same client.
+   */
+  readYourWrites?: boolean;
 } & core.RedisOptions &
   RequesterConfig;
 
@@ -97,15 +102,11 @@ export class Redis extends core.Redis {
     }
 
     if (!configOrRequester.url) {
-      throw new Error(
-        `[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`
-      );
+      throw new Error(`[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`)
     }
 
     if (!configOrRequester.token) {
-      throw new Error(
-        `[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`
-      );
+      throw new Error(`[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`)
     }
 
     if (
@@ -133,6 +134,7 @@ export class Redis extends core.Redis {
       cache: configOrRequester.cache ?? "no-store",
       signal: configOrRequester.signal,
       keepAlive: configOrRequester.keepAlive,
+      readYourWrites: configOrRequester.readYourWrites,
     });
 
     super(client, {

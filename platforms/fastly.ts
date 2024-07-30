@@ -27,6 +27,11 @@ export type RedisConfigFastly = {
    */
   backend: string;
   keepAlive?: boolean;
+
+  /**
+   * When this flag is enabled, any subsequent commands issued by this client are guaranteed to observe the effects of all earlier writes submitted by the same client.
+   */
+  readYourWrites?: boolean;
 } & core.RedisOptions &
   RequesterConfig;
 
@@ -48,15 +53,11 @@ export class Redis extends core.Redis {
    */
   constructor(config: RedisConfigFastly) {
     if (!config.url) {
-      throw new Error(
-        `[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`
-      );
+      throw new Error(`[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`)
     }
 
     if (!config.token) {
-      throw new Error(
-        `[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`
-      );
+      throw new Error(`[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`)
     }
 
     if (config.url.startsWith(" ") || config.url.endsWith(" ") || /\r|\n/.test(config.url)) {
@@ -73,6 +74,7 @@ export class Redis extends core.Redis {
       options: { backend: config.backend },
       responseEncoding: config.responseEncoding,
       keepAlive: config.keepAlive,
+      readYourWrites: config.readYourWrites,
     });
 
     super(client, {

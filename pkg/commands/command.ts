@@ -83,7 +83,9 @@ export class Command<TResult, TData> {
   public async exec(client: Requester): Promise<TData> {
     const { result, error } = await client.request<TResult>({
       body: this.command,
+      upstashSyncToken: client.upstashSyncToken,
     });
+
     if (error) {
       throw new UpstashError(error);
     }

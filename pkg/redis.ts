@@ -210,6 +210,10 @@ export class Redis {
     this.client = client;
     this.opts = opts;
     this.enableTelemetry = opts?.enableTelemetry ?? true;
+
+    if (opts?.readYourWrites === false) {
+      this.client.readYourWrites = false;
+    }
     this.enableAutoPipelining = opts?.enableAutoPipelining ?? true;
   }
 

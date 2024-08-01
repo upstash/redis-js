@@ -1,0 +1,15 @@
+{
+  "name": "@sst-v2/functions",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "sst bind vitest",
+    "typecheck": "tsc -noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/aws-lambda": "^8.10.142",
+    "vitest": "^2.0.5",
+    "sst": "^2.43.4"
+  }
+}

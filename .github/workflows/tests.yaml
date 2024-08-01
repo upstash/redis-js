@@ -39,7 +39,7 @@ jobs:
       - name: Build
         run: bun run build
 
-  nextjs-local:
+  vercel-functions-app-router-local:
     needs:
       - test
 
@@ -63,25 +63,25 @@ jobs:
         run: |
           bun install
           bun add @upstash/redis@../../dist
-        working-directory: ./examples/nextjs
+        working-directory: ./examples/vercel-functions-app-router
 
       - name: Build example
         run: bun run build
-        working-directory: ./examples/nextjs
+        working-directory: ./examples/vercel-functions-app-router
 
       - name: Start example
         run: bun run start &
-        working-directory: ./examples/nextjs
+        working-directory: ./examples/vercel-functions-app-router
         env:
           NEXT_PUBLIC_UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
           NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 
       - name: Test
-        run: bun test examples/nextjs/ci.test.ts
+        run: bun test examples/vercel-functions-app-router/ci.test.ts
         env:
           DEPLOYMENT_URL: http://localhost:3000
 
-  nextjs-edge-local:
+  vercel-functions-pages-router-local:
     needs:
       - test
 
@@ -105,26 +105,26 @@ jobs:
         run: |
           bun install
           bun add @upstash/redis@../../dist
-        working-directory: ./examples/nextjs_edge
+        working-directory: ./examples/vercel-functions-pages-router
 
       - name: Build example
         run: bun run build
-        working-directory: ./examples/nextjs_edge
+        working-directory: ./examples/vercel-functions-pages-router
 
       - name: Start example
         run: bun run start & sleep 5
-        working-directory: ./examples/nextjs_edge
+        working-directory: ./examples/vercel-functions-pages-router
         env:
           NEXT_PUBLIC_UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
           NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 
       - name: Test
-        run: bun test examples/nextjs_edge/ci.test.ts
+        run: bun test examples/vercel-functions-pages-router/ci.test.ts
         env:
           DEPLOYMENT_URL: http://localhost:3000
 
-  nextjs-deployed:
-    concurrency: nextjs-deployed
+  vercel-functions-app-router-deployed:
+    concurrency: vercel-functions-app-router-deployed
     runs-on: ubuntu-latest
     needs:
       - release
@@ -147,7 +147,7 @@ jobs:
 
       - name: Deploy
         run: |
-          pnpm --dir=examples/nextjs add @upstash/redis@${{needs.release.outputs.version}}
+          pnpm --dir=examples/vercel-functions-app-router add @upstash/redis@${{needs.release.outputs.version}}
           DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
         env:
@@ -155,11 +155,11 @@ jobs:
           VERCEL_PROJECT_ID: "prj_pFFK1XgNIlnW014iiuqAIQmBBuZA"
 
       - name: Test
-        run: bun test examples/nextjs/ci.test.ts
-        working-directory: examples/nextjs
+        run: bun test examples/vercel-functions-app-router/ci.test.ts
+        working-directory: examples/vercel-functions-app-router
 
-  nextjs-edge-deployed:
-    concurrency: nextjs-edge-deployed
+  vercel-functions-pages-router-deployed:
+    concurrency: vercel-functions-pages-router-deployed
     runs-on: ubuntu-latest
     needs:
       - release
@@ -182,7 +182,7 @@ jobs:
 
       - name: Deploy
         run: |
-          pnpm --dir=examples/nextjs_edge add @upstash/redis@${{needs.release.outputs.version}}
+          pnpm --dir=examples/vercel-functions-pages-router add @upstash/redis@${{needs.release.outputs.version}}
           DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
         env:
@@ -190,7 +190,7 @@ jobs:
           VERCEL_PROJECT_ID: "prj_bc5kMFz6ifbAaA7U3N86YSYqUUUI"
 
       - name: Test
-        run: bun test examples/nextjs_edge/ci.test.ts
+        run: bun test examples/vercel-functions-pages-router/ci.test.ts
 
   deno-deployed:
     concurrency: deno-deployed
@@ -572,8 +572,8 @@ jobs:
     needs:
       - nodejs-local
       # - fastly-local - not working in ci for some reason, local is fine
-      - nextjs-local
-      - nextjs-edge-local
+      - vercel-functions-app-router-local
+      - vercel-functions-pages-router-local
       - cloudflare-workers-with-typescript-local
       - cloudflare-workers-local
 

@@ -1,17 +1,12 @@
-const functions = require("@google-cloud/functions-framework");
-const { Redis } = require("@upstash/redis/with-fetch");
+const { Redis } = require("@upstash/redis");
+const functions = require('@google-cloud/functions-framework');
 
-functions.http("helloWorld", async (_req, res) => {
-  const redis = Redis.fromEnv();
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN
+});
 
-  const set = await redis.set("rng", Math.random());
-  const get = await redis.get("rng");
-
-  res.send({
-    statusCode: 200,
-    body: JSON.stringify({
-      set,
-      get,
-    }),
-  });
+functions.http('counter', async (req, res) => {
+  const count = await redis.incr("counter");
+  res.send("Counter:" + count);
 });

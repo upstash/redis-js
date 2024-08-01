@@ -1,11 +1,12 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 /**
  * @see https://redis.io/commands/spop
  */
 export class SPopCommand<TData> extends Command<string | string[] | null, TData | null> {
   constructor(
     [key, count]: [key: string, count?: number],
-    opts?: CommandOptions<string | string[] | null, TData | null>,
+    opts?: CommandOptions<string | string[] | null, TData | null>
   ) {
     const command: unknown[] = ["spop", key];
     if (typeof count === "number") {

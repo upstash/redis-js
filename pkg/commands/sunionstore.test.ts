@@ -26,5 +26,5 @@ test("writes the union to destination", async () => {
   const res2 = await new SMembersCommand([dest]).exec(client);
 
   expect(res2).toBeTruthy();
-  expect(res2!.sort()).toEqual([member1, member2].sort());
+  expect(res2.sort()).toEqual([member1, member2].sort());
 });

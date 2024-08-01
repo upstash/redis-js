@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 function deserialize<TData extends Record<string, unknown>>(result: string[]): TData | null {
   if (result.length === 0) {
@@ -12,11 +13,7 @@ function deserialize<TData extends Record<string, unknown>>(result: string[]): T
       // handle unsafe integer
       const valueIsNumberAndNotSafeInteger =
         !Number.isNaN(Number(value)) && !Number.isSafeInteger(Number(value));
-      if (valueIsNumberAndNotSafeInteger) {
-        obj[key] = value;
-      } else {
-        obj[key] = JSON.parse(value);
-      }
+      obj[key] = valueIsNumberAndNotSafeInteger ? value : JSON.parse(value);
     } catch {
       obj[key] = value;
     }

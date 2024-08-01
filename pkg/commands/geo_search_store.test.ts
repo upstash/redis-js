@@ -32,15 +32,15 @@ describe("GEOSSEARCHSTORE tests", () => {
       "ASC",
     ]).exec(client);
     const zrangeRes = await new ZRangeCommand([destination, 0, -1, { withScores: true }]).exec(
-      client,
+      client
     );
     expect(zrangeRes).toEqual([
       "Empire State Building",
-      1791875672666387,
+      1_791_875_672_666_387,
       "Grand Central Terminal",
-      1791875708058440,
+      1_791_875_708_058_440,
       "Central Park",
-      1791875790048608,
+      1_791_875_790_048_608,
     ]);
     expect(res).toEqual(zrangeRes.length / 2);
   });
@@ -68,7 +68,7 @@ describe("GEOSSEARCHSTORE tests", () => {
       { storeDist: true },
     ]).exec(client);
     const zrangeRes = await new ZRangeCommand([destination, 0, -1, { withScores: true }]).exec(
-      client,
+      client
     );
     expect(zrangeRes).toEqual([
       "Empire State Building",
@@ -104,7 +104,7 @@ describe("GEOSSEARCHSTORE tests", () => {
       { storeDist: true },
     ]).exec(client);
     const zrangeRes = await new ZRangeCommand([destination, 0, -1, { withScores: true }]).exec(
-      client,
+      client
     );
     expect(zrangeRes).toEqual([
       { name: "Empire State Building" },
@@ -140,13 +140,13 @@ describe("GEOSSEARCHSTORE tests", () => {
       { count: { limit: 2 } },
     ]).exec(client);
     const zrangeRes = await new ZRangeCommand([destination, 0, -1, { withScores: true }]).exec(
-      client,
+      client
     );
     expect(zrangeRes).toEqual([
       "Empire State Building",
-      1791875672666387,
+      1_791_875_672_666_387,
       "Grand Central Terminal",
-      1791875708058440,
+      1_791_875_708_058_440,
     ]);
     expect(res).toEqual(zrangeRes.length / 2);
   });

@@ -1,5 +1,5 @@
 import { UpstashError, UrlError } from "./error";
-import { Telemetry } from "./types";
+import type { Telemetry } from "./types";
 
 type CacheSetting =
   | "default"
@@ -15,12 +15,23 @@ export type UpstashRequest = {
    * Request body will be serialized to json
    */
   body?: unknown;
+
+  upstashSyncToken?: string;
 };
 export type UpstashResponse<TResult> = { result?: TResult; error?: string };
 
 export interface Requester {
+  /**
+   * When this flag is enabled, any subsequent commands issued by this client are guaranteed to observe the effects of all earlier writes submitted by the same client.
+   */
+  readYourWrites?: boolean;
+
+  /**
+   * This token is used to ensure that the client is in sync with the server. On each request, we send this token in the header, and the server will return a new token.
+   */
+  upstashSyncToken?: string;
   request: <TResult = unknown>(req: UpstashRequest) => Promise<UpstashResponse<TResult>>;
-}
+};
 
 type ResultError = {
   result?: string | number | null | (string | number | null)[];
@@ -95,11 +106,17 @@ export type HttpClientConfig = {
   agent?: any;
   signal?: AbortSignal;
   keepAlive?: boolean;
+
+  /**
+   * When this flag is enabled, any subsequent commands issued by this client are guaranteed to observe the effects of all earlier writes submitted by the same client.
+   */
+  readYourWrites?: boolean;
 } & RequesterConfig;
 
 export class HttpClient implements Requester {
   public baseUrl: string;
   public headers: Record<string, string>;
+
   public readonly options: {
     backend?: string;
     agent: any;
@@ -108,6 +125,8 @@ export class HttpClient implements Requester {
     cache?: CacheSetting;
     keepAlive: boolean;
   };
+  public readYourWrites: boolean;
+  public upstashSyncToken = "";
 
   public readonly retry: {
     attempts: number;
@@ -123,6 +142,8 @@ export class HttpClient implements Requester {
       signal: config.signal,
       keepAlive: config.keepAlive ?? true,
     };
+    this.upstashSyncToken = "";
+    this.readYourWrites = config.readYourWrites ?? true;
 
     this.baseUrl = config.baseUrl.replace(/\/$/, "");
 
@@ -135,7 +156,7 @@ export class HttpClient implements Requester {
      * - `[^\s]*` matches anything except white space
      * - `$` asserts the position at the end of the string.
      */
-    const urlRegex = /^https?:\/\/[^\s/$.?#].[^\s]*$/;
+    const urlRegex = /^https?:\/\/[^\s#$./?].\S*$/;
     if (!urlRegex.test(this.baseUrl)) {
       throw new UrlError(this.baseUrl);
     }
@@ -150,36 +171,19 @@ export class HttpClient implements Requester {
       this.headers["Upstash-Encoding"] = "base64";
     }
 
-    if (typeof config?.retry === "boolean" && config?.retry === false) {
-      this.retry = {
-        attempts: 1,
-        backoff: () => 0,
-      };
-    } else {
-      this.retry = {
-        attempts: config?.retry?.retries ?? 5,
-        backoff: config?.retry?.backoff ?? ((retryCount) => Math.exp(retryCount) * 50),
-      };
-    }
+    this.retry =
+      typeof config.retry === "boolean" && !config.retry
+        ? {
+            attempts: 1,
+            backoff: () => 0,
+          }
+        : {
+            attempts: config.retry?.retries ?? 5,
+            backoff: config.retry?.backoff ?? ((retryCount) => Math.exp(retryCount) * 50),
+          };
   }
 
   public mergeTelemetry(telemetry: Telemetry): void {
-    function merge(
-      obj: Record<string, string>,
-      key: string,
-      value?: string,
-    ): Record<string, string> {
-      if (!value) {
-        return obj;
-      }
-      if (obj[key]) {
-        obj[key] = [obj[key], value].join(",");
-      } else {
-        obj[key] = value;
-      }
-      return obj;
-    }
-
     this.headers = merge(this.headers, "Upstash-Telemetry-Runtime", telemetry.runtime);
     this.headers = merge(this.headers, "Upstash-Telemetry-Platform", telemetry.platform);
     this.headers = merge(this.headers, "Upstash-Telemetry-Sdk", telemetry.sdk);
@@ -193,14 +197,22 @@ export class HttpClient implements Requester {
       headers: this.headers,
       body: JSON.stringify(req.body),
       keepalive: this.options.keepAlive,
-      agent: this.options?.agent,
+      agent: this.options.agent,
       signal: this.options.signal,
 
       /**
        * Fastly specific
        */
-      backend: this.options?.backend,
+      backend: this.options.backend,
     };
+
+    /**
+     * We've recieved a new `upstash-sync-token` in the previous response. We use it in the next request to observe the effects of previous requests.
+     */
+    if (this.readYourWrites) {
+      const newHeader = this.upstashSyncToken;
+      this.headers["upstash-sync-token"] = newHeader;
+    }
 
     let res: Response | null = null;
     let error: Error | null = null;
@@ -208,7 +220,7 @@ export class HttpClient implements Requester {
       try {
         res = await fetch([this.baseUrl, ...(req.path ?? [])].join("/"), requestOptions);
         break;
-      } catch (err) {
+      } catch (error_) {
         if (this.options.signal?.aborted) {
           const myBlob = new Blob([
             JSON.stringify({ result: this.options.signal.reason ?? "Aborted" }),
@@ -220,7 +232,7 @@ export class HttpClient implements Requester {
           res = new Response(myBlob, myOptions);
           break;
         }
-        error = err as Error;
+        error = error_ as Error;
         await new Promise((r) => setTimeout(r, this.retry.backoff(i)));
       }
     }
@@ -233,7 +245,21 @@ export class HttpClient implements Requester {
       throw new UpstashError(`${body.error}, command was: ${JSON.stringify(req.body)}`);
     }
 
-    if (this.options?.responseEncoding === "base64") {
+    if (this.readYourWrites) {
+      const headers = res.headers;
+      this.upstashSyncToken = headers.get("upstash-sync-token") ?? "";
+    }
+
+
+     /**
+     * We save the new `upstash-sync-token` in the response header to use it in the next request.
+     */
+    if (this.readYourWrites) {
+      const headers = res.headers;
+      this.upstashSyncToken = headers.get("upstash-sync-token") ?? "";
+    }
+
+    if (this.options.responseEncoding === "base64") {
       if (Array.isArray(body)) {
         return body.map(({ result, error }) => ({
           result: decode(result),
@@ -243,6 +269,7 @@ export class HttpClient implements Requester {
       const result = decode(body.result) as any;
       return { result, error: body.error };
     }
+
     return body as UpstashResponse<TResult>;
   }
 }
@@ -257,6 +284,7 @@ function base64decode(b64: string): string {
     const size = binString.length;
     const bytes = new Uint8Array(size);
     for (let i = 0; i < size; i++) {
+      // eslint-disable-next-line unicorn/prefer-code-point
       bytes[i] = binString.charCodeAt(i);
     }
     dec = new TextDecoder().decode(bytes);
@@ -274,17 +302,23 @@ function base64decode(b64: string): string {
 function decode(raw: ResultError["result"]): ResultError["result"] {
   let result: any = undefined;
   switch (typeof raw) {
-    case "undefined":
+    case "undefined": {
       return raw;
+    }
 
     case "number": {
       result = raw;
       break;
     }
     case "object": {
+      // eslint-disable-next-line unicorn/prefer-ternary
       if (Array.isArray(raw)) {
         result = raw.map((v) =>
-          typeof v === "string" ? base64decode(v) : Array.isArray(v) ? v.map(decode) : v,
+          typeof v === "string"
+            ? base64decode(v)
+            : Array.isArray(v)
+              ? v.map((element) => decode(element))
+              : v
         );
       } else {
         // If it's not an array it must be null
@@ -299,9 +333,18 @@ function decode(raw: ResultError["result"]): ResultError["result"] {
       break;
     }
 
-    default:
+    default: {
       break;
+    }
   }
 
   return result;
+}
+
+function merge(obj: Record<string, string>, key: string, value?: string): Record<string, string> {
+  if (!value) {
+    return obj;
+  }
+  obj[key] = obj[key] ? [obj[key], value].join(",") : value;
+  return obj;
 }

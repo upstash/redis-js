@@ -1,6 +1,6 @@
 import Hex from "crypto-js/enc-hex.js";
 import sha1 from "crypto-js/sha1.js";
-import { Redis } from "./redis";
+import type { Redis } from "./redis";
 /**
  * Creates a new script.
  *
@@ -49,11 +49,11 @@ export class Script<TResult = unknown> {
    * Following calls will be able to use the cached script
    */
   public async exec(keys: string[], args: string[]): Promise<TResult> {
-    const res = await this.redis.evalsha(this.sha1, keys, args).catch(async (err) => {
-      if (err instanceof Error && err.message.toLowerCase().includes("noscript")) {
+    const res = await this.redis.evalsha(this.sha1, keys, args).catch(async (error) => {
+      if (error instanceof Error && error.message.toLowerCase().includes("noscript")) {
         return await this.redis.eval(this.script, keys, args);
       }
-      throw err;
+      throw error;
     });
     return res as TResult;
   }

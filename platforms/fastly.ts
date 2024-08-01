@@ -1,12 +1,11 @@
-import type { Requester, RequesterConfig, UpstashRequest, UpstashResponse } from "../pkg/http";
-import { Pipeline } from "../pkg/pipeline";
+import type { RequesterConfig } from "../pkg/http";
+
 import { HttpClient } from "../pkg/http";
 import * as core from "../pkg/redis";
 import { VERSION } from "../version";
 
-export * as errors from "../pkg/error"
+export * as errors from "../pkg/error";
 export type * from "../pkg/commands/types";
-export type { Requester, UpstashRequest, UpstashResponse, Pipeline };
 
 /**
  * Connection credentials for upstash redis.
@@ -28,6 +27,11 @@ export type RedisConfigFastly = {
    */
   backend: string;
   keepAlive?: boolean;
+
+  /**
+   * When this flag is enabled, any subsequent commands issued by this client are guaranteed to observe the effects of all earlier writes submitted by the same client.
+   */
+  readYourWrites?: boolean;
 } & core.RedisOptions &
   RequesterConfig;
 
@@ -48,11 +52,11 @@ export class Redis extends core.Redis {
    * ```
    */
   constructor(config: RedisConfigFastly) {
-    if(!config.url) {
+    if (!config.url) {
       throw new Error(`[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`)
     }
 
-    if(!config.token) {
+    if (!config.token) {
       throw new Error(`[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`)
     }
 
@@ -70,11 +74,12 @@ export class Redis extends core.Redis {
       options: { backend: config.backend },
       responseEncoding: config.responseEncoding,
       keepAlive: config.keepAlive,
+      readYourWrites: config.readYourWrites,
     });
 
     super(client, {
       automaticDeserialization: config.automaticDeserialization,
-      enableAutoPipelining: config.enableAutoPipelining
+      enableAutoPipelining: config.enableAutoPipelining,
     });
     this.addTelemetry({
       sdk: `@upstash/redis@${VERSION}`,
@@ -82,7 +87,10 @@ export class Redis extends core.Redis {
     });
 
     if (this.enableAutoPipelining) {
-      return this.autoPipeline()
+      return this.autoPipeline();
     }
   }
 }
+
+export { type Requester, type UpstashRequest, type UpstashResponse } from "../pkg/http";
+export { type Pipeline } from "../pkg/pipeline";

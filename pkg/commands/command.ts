@@ -1,5 +1,5 @@
 import { UpstashError } from "../error";
-import { Requester } from "../http";
+import type { Requester } from "../http";
 import { parseResponse } from "../util";
 
 type Serialize = (data: unknown) => string | number | boolean;
@@ -9,11 +9,13 @@ const defaultSerializer: Serialize = (c: unknown) => {
   switch (typeof c) {
     case "string":
     case "number":
-    case "boolean":
+    case "boolean": {
       return c;
+    }
 
-    default:
+    default: {
       return JSON.stringify(c);
+    }
   }
 };
 
@@ -47,12 +49,12 @@ export class Command<TResult, TData> {
    */
   constructor(
     command: (string | boolean | number | unknown)[],
-    opts?: CommandOptions<TResult, TData>,
+    opts?: CommandOptions<TResult, TData>
   ) {
     this.serialize = defaultSerializer;
     this.deserialize =
-      typeof opts?.automaticDeserialization === "undefined" || opts.automaticDeserialization
-        ? opts?.deserialize ?? parseResponse
+      opts?.automaticDeserialization === undefined || opts.automaticDeserialization
+        ? (opts?.deserialize ?? parseResponse)
         : (x) => x as unknown as TData;
 
     this.command = command.map((c) => this.serialize(c));
@@ -64,10 +66,11 @@ export class Command<TResult, TData> {
         const result = await originalExec(client);
         const end = performance.now();
         const loggerResult = (end - start).toFixed(2);
+        // eslint-disable-next-line no-console
         console.log(
-          `Latency for \x1b[38;2;19;185;39m${this.command[0]
+          `Latency for \u001B[38;2;19;185;39m${this.command[0]
             .toString()
-            .toUpperCase()}\x1b[0m: \x1b[38;2;0;255;255m${loggerResult} ms\x1b[0m`,
+            .toUpperCase()}\u001B[0m: \u001B[38;2;0;255;255m${loggerResult} ms\u001B[0m`
         );
         return result;
       };
@@ -80,12 +83,14 @@ export class Command<TResult, TData> {
   public async exec(client: Requester): Promise<TData> {
     const { result, error } = await client.request<TResult>({
       body: this.command,
+      upstashSyncToken: client.upstashSyncToken,
     });
+
     if (error) {
       throw new UpstashError(error);
     }
-    if (typeof result === "undefined") {
-      throw new Error("Request did not return a result");
+    if (result === undefined) {
+      throw new TypeError("Request did not return a result");
     }
 
     return this.deserialize(result);

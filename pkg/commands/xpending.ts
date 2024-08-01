@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/xpending
@@ -16,14 +17,14 @@ export class XPendingCommand extends Command<unknown[], unknown[]> {
         consumer?: string | string[];
       },
     ],
-    opts?: CommandOptions<unknown[], unknown[]>,
+    opts?: CommandOptions<unknown[], unknown[]>
   ) {
     const consumers =
-      typeof options?.consumer !== "undefined"
-        ? Array.isArray(options.consumer)
+      options?.consumer === undefined
+        ? []
+        : Array.isArray(options.consumer)
           ? [...options.consumer]
-          : [options.consumer]
-        : [];
+          : [options.consumer];
 
     super(
       [
@@ -36,7 +37,7 @@ export class XPendingCommand extends Command<unknown[], unknown[]> {
         count,
         ...consumers,
       ],
-      opts,
+      opts
     );
   }
 }

@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/consistent-function-scoping */
 import { keygen, newHttpClient } from "../test-utils";
 
 import { afterAll, describe, expect, test } from "bun:test";

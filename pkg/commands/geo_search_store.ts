@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command.ts";
+import type { CommandOptions } from "./command.ts";
+import { Command } from "./command.ts";
 
 type RadiusOptions = "M" | "KM" | "FT" | "MI";
 type CenterPoint<TMemberType> =
@@ -40,7 +41,7 @@ export class GeoSearchStoreCommand<
       order: "ASC" | "DESC" | "asc" | "desc",
       opts?: TOptions,
     ],
-    commandOptions?: CommandOptions<any[] | any[][], number>,
+    commandOptions?: CommandOptions<any[] | any[][], number>
   ) {
     const command: unknown[] = ["GEOSEARCHSTORE", destination, key];
 

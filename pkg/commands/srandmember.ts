@@ -1,11 +1,12 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 /**
  * @see https://redis.io/commands/srandmember
  */
 export class SRandMemberCommand<TData> extends Command<string | null, TData | null> {
   constructor(
     [key, count]: [key: string, count?: number],
-    opts?: CommandOptions<string | null, TData | null>,
+    opts?: CommandOptions<string | null, TData | null>
   ) {
     const command: unknown[] = ["srandmember", key];
     if (typeof count === "number") {

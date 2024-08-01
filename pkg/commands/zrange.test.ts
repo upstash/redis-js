@@ -25,7 +25,7 @@ describe("without options", () => {
 
     const res = await new ZRangeCommand([key, 1, 3]).exec(client);
     expect(res.length).toBe(1);
-    expect(res![0]).toEqual(member2);
+    expect(res[0]).toEqual(member2);
   });
 });
 
@@ -46,8 +46,8 @@ describe("withscores", () => {
 
     const res = await new ZRangeCommand([key, 1, 3, { withScores: true }]).exec(client);
     expect(res.length).toBe(2);
-    expect(res![0]).toEqual(member2);
-    expect(res![1]).toEqual(score2);
+    expect(res[0]).toEqual(member2);
+    expect(res[1]).toEqual(score2);
   });
 });
 
@@ -80,8 +80,8 @@ describe("byscore", () => {
     ]).exec(client);
 
     expect(res.length).toBe(2);
-    expect(res![0]).toEqual(member1);
-    expect(res![1]).toEqual(member2);
+    expect(res[0]).toEqual(member1);
+    expect(res[1]).toEqual(member2);
 
     const res2 = await new ZRangeCommand([
       key,
@@ -92,9 +92,9 @@ describe("byscore", () => {
       },
     ]).exec(client);
     expect(res2.length).toBe(3);
-    expect(res2![0]).toEqual(member1);
-    expect(res2![1]).toEqual(member2);
-    expect(res2![2]).toEqual(member3);
+    expect(res2[0]).toEqual(member1);
+    expect(res2[1]).toEqual(member2);
+    expect(res2[2]).toEqual(member3);
 
     const res3 = await new ZRangeCommand([
       key,
@@ -122,8 +122,8 @@ describe("bylex", () => {
     // everything in between a and c, excluding "a" and including "c"
     const res = await new ZRangeCommand([key, "(a", "[c", { byLex: true }]).exec(client);
     expect(res.length).toBe(2);
-    expect(res![0]).toBe("b");
-    expect(res![1]).toBe("c");
+    expect(res[0]).toBe("b");
+    expect(res[1]).toBe("c");
 
     //everything after "a", excluding a
     const res2 = await new ZRangeCommand([key, "(a", "+", { byLex: true }]).exec(client);
@@ -139,8 +139,8 @@ describe("bylex", () => {
       },
     ]).exec(client);
     expect(res3.length).toBe(2);
-    expect(res3![0]).toBe("a");
-    expect(res3![1]).toBe("b");
+    expect(res3[0]).toBe("a");
+    expect(res3[1]).toBe("b");
   });
 });
 
@@ -161,8 +161,8 @@ describe("rev", () => {
 
     const res = await new ZRangeCommand([key, 0, 7, { rev: true }]).exec(client);
     expect(res.length).toBe(2);
-    expect(res![0]).toEqual(member2);
-    expect(res![1]).toEqual(member1);
+    expect(res[0]).toEqual(member2);
+    expect(res[1]).toEqual(member1);
   });
 });
 

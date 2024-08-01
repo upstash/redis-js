@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/xautoclaim
@@ -13,7 +14,7 @@ export class XAutoClaim extends Command<unknown[], unknown[]> {
       start: string,
       options?: { count?: number; justId?: boolean },
     ],
-    opts?: CommandOptions<unknown[], unknown[]>,
+    opts?: CommandOptions<unknown[], unknown[]>
   ) {
     const commands: unknown[] = [];
 

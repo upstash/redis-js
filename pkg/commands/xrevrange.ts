@@ -1,11 +1,12 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 export class XRevRangeCommand<
   TData extends Record<string, Record<string, unknown>>,
 > extends Command<string[][], TData> {
   constructor(
     [key, end, start, count]: [key: string, end: string, start: string, count?: number],
-    opts?: CommandOptions<unknown[], TData[]>,
+    opts?: CommandOptions<unknown[], TData[]>
   ) {
     const command: unknown[] = ["XREVRANGE", key, end, start];
     if (typeof count === "number") {
@@ -19,7 +20,7 @@ export class XRevRangeCommand<
 }
 
 function deserialize<TData extends Record<string, Record<string, unknown>>>(
-  result: [string, string[]][],
+  result: [string, string[]][]
 ): TData {
   const obj: Record<string, Record<string, unknown>> = {};
   for (const e of result) {
@@ -31,8 +32,8 @@ function deserialize<TData extends Record<string, Record<string, unknown>>>(
         obj[streamId] = {};
       }
       while (entries.length >= 2) {
-        const field = (entries as string[]).shift()! as string;
-        const value = (entries as string[]).shift()! as string;
+        const field = (entries as string[]).shift()!;
+        const value = (entries as string[]).shift()!;
 
         try {
           obj[streamId][field] = JSON.parse(value);

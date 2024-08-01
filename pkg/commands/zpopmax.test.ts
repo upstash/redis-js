@@ -23,8 +23,8 @@ describe("without options", () => {
     ]).exec(client);
     const res = await new ZPopMaxCommand([key]).exec(client);
     expect(res.length).toBe(2);
-    expect(res![0]).toEqual(member2);
-    expect(res![1]).toEqual(score2);
+    expect(res[0]).toEqual(member2);
+    expect(res[1]).toEqual(score2);
   });
 });
 

@@ -11,7 +11,7 @@ export function randomID(): string {
 
   const s: string[] = [];
   for (let i = 0; i < bytes.byteLength; i++) {
-    s.push(String.fromCharCode(bytes[i]));
+    s.push(String.fromCodePoint(bytes[i]));
   }
   return btoa(s.join(""));
 }

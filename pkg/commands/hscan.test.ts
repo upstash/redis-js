@@ -15,7 +15,7 @@ describe("without options", () => {
 
     expect(res.length).toBe(2);
     expect(typeof res[0]).toBe("string");
-    expect(res![1].length > 0).toBe(true);
+    expect(res[1].length > 0).toBe(true);
   });
 });
 
@@ -27,7 +27,7 @@ describe("with match", () => {
 
     expect(res.length).toBe(2);
     expect(typeof res[0]).toBe("string");
-    expect(res![1].length > 0).toBe(true);
+    expect(res[1].length > 0).toBe(true);
   });
 });
 
@@ -39,6 +39,6 @@ describe("with count", () => {
 
     expect(res.length).toBe(2);
     expect(typeof res[0]).toBe("string");
-    expect(res![1].length > 0).toBe(true);
+    expect(res[1].length > 0).toBe(true);
   });
 });

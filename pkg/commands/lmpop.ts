@@ -1,4 +1,5 @@
-import { Command, CommandOptions } from "./command";
+import type { CommandOptions } from "./command";
+import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/lmpop
@@ -9,7 +10,7 @@ export class LmPopCommand<TValues> extends Command<
 > {
   constructor(
     cmd: [numkeys: number, keys: string[], "LEFT" | "RIGHT", count?: number],
-    opts?: CommandOptions<[string, TValues[]] | null, [string, TValues[]] | null>,
+    opts?: CommandOptions<[string, TValues[]] | null, [string, TValues[]] | null>
   ) {
     const [numkeys, keys, direction, count] = cmd;
 

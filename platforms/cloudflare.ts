@@ -1,6 +1,6 @@
-import type { Requester, UpstashRequest, UpstashResponse } from "../pkg/http";
-import { Pipeline } from "../pkg/pipeline";
-import { HttpClient, RequesterConfig } from "../pkg/http";
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import type { RequesterConfig } from "../pkg/http";
+import { HttpClient } from "../pkg/http";
 import * as core from "../pkg/redis";
 import { VERSION } from "../version";
 
@@ -8,9 +8,9 @@ type Env = {
   UPSTASH_DISABLE_TELEMETRY?: string;
 };
 
-export * as errors from "../pkg/error"
+export * as errors from "../pkg/error";
 export type * from "../pkg/commands/types";
-export type { Requester, UpstashRequest, UpstashResponse, Pipeline };
+
 /**
  * Connection credentials for upstash redis.
  * Get them from https://console.upstash.com/redis/<uuid>
@@ -30,6 +30,11 @@ export type RedisConfigCloudflare = {
    */
   signal?: AbortSignal;
   keepAlive?: boolean;
+
+  /**
+  * When this flag is enabled, any subsequent commands issued by this client are guaranteed to observe the effects of all earlier writes submitted by the same client.
+  */
+  readYourWrites?: boolean;
 } & core.RedisOptions &
   RequesterConfig &
   Env;
@@ -50,11 +55,11 @@ export class Redis extends core.Redis {
    * ```
    */
   constructor(config: RedisConfigCloudflare, env?: Env) {
-    if(!config.url) {
+    if (!config.url) {
       throw new Error(`[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`)
     }
 
-    if(!config.token) {
+    if (!config.token) {
       throw new Error(`[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`)
     }
 
@@ -72,6 +77,7 @@ export class Redis extends core.Redis {
       responseEncoding: config.responseEncoding,
       signal: config.signal,
       keepAlive: config.keepAlive,
+      readYourWrites: config.readYourWrites,
     });
 
     super(client, {
@@ -87,7 +93,7 @@ export class Redis extends core.Redis {
     });
 
     if (this.enableAutoPipelining) {
-      return this.autoPipeline()
+      return this.autoPipeline();
     }
   }
 
@@ -108,24 +114,27 @@ export class Redis extends core.Redis {
       UPSTASH_REDIS_REST_TOKEN: string;
       UPSTASH_DISABLE_TELEMETRY?: string;
     },
-    opts?: Omit<RedisConfigCloudflare, "url" | "token">,
+    opts?: Omit<RedisConfigCloudflare, "url" | "token">
   ): Redis {
-    // @ts-ignore These will be defined by cloudflare
+    // @ts-expect-error These will be defined by cloudflare
     const url = env?.UPSTASH_REDIS_REST_URL ?? UPSTASH_REDIS_REST_URL;
 
-    // @ts-ignore These will be defined by cloudflare
+    // @ts-expect-error These will be defined by cloudflare
     const token = env?.UPSTASH_REDIS_REST_TOKEN ?? UPSTASH_REDIS_REST_TOKEN;
 
     if (!url) {
       throw new Error(
-        "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_URL`",
+        "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_URL`"
       );
     }
     if (!token) {
       throw new Error(
-        "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_TOKEN`",
+        "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_TOKEN`"
       );
     }
     return new Redis({ ...opts, url, token }, env);
   }
 }
+
+export { type Requester, type UpstashRequest, type UpstashResponse } from "../pkg/http";
+export { type Pipeline } from "../pkg/pipeline";

@@ -1,5 +1,11 @@
-import { Command, CommandOptions } from "./commands/command";
+import type { Command, CommandOptions } from "./commands/command";
 import { HRandFieldCommand } from "./commands/hrandfield";
+import type {
+  ScoreMember,
+  SetCommandOptions,
+  ZAddCommandOptions,
+  ZRangeCommandOptions,
+} from "./commands/mod";
 import {
   AppendCommand,
   BitCountCommand,
@@ -59,6 +65,7 @@ import {
   JsonForgetCommand,
   JsonGetCommand,
   JsonMGetCommand,
+  JsonMSetCommand,
   JsonNumIncrByCommand,
   JsonNumMultByCommand,
   JsonObjKeysCommand,
@@ -119,13 +126,11 @@ import {
   SUnionCommand,
   SUnionStoreCommand,
   ScanCommand,
-  ScoreMember,
   ScriptExistsCommand,
   ScriptFlushCommand,
   ScriptLoadCommand,
   SetBitCommand,
   SetCommand,
-  SetCommandOptions,
   SetExCommand,
   SetNxCommand,
   SetRangeCommand,
@@ -150,7 +155,6 @@ import {
   XRevRangeCommand,
   XTrimCommand,
   ZAddCommand,
-  ZAddCommandOptions,
   ZCardCommand,
   ZCountCommand,
   ZIncrByCommand,
@@ -159,7 +163,6 @@ import {
   ZPopMaxCommand,
   ZPopMinCommand,
   ZRangeCommand,
-  ZRangeCommandOptions,
   ZRankCommand,
   ZRemCommand,
   ZRemRangeByLexCommand,
@@ -174,8 +177,8 @@ import {
 import { ZDiffStoreCommand } from "./commands/zdiffstore";
 import { ZMScoreCommand } from "./commands/zmscore";
 import { UpstashError } from "./error";
-import { Requester, UpstashResponse } from "./http";
-import { CommandArgs } from "./types";
+import type { Requester, UpstashResponse } from "./http";
+import type { CommandArgs } from "./types";
 
 // Given a tuple of commands, returns a tuple of the response data of each command
 type InferResponseData<T extends unknown[]> = {
@@ -248,10 +251,11 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
         const result = await originalExec();
         const end = performance.now();
         const loggerResult = (end - start).toFixed(2);
+        // eslint-disable-next-line no-console
         console.log(
-          `Latency for \x1b[38;2;19;185;39m${
+          `Latency for \u001B[38;2;19;185;39m${
             this.multiExec ? ["MULTI-EXEC"] : ["PIPELINE"].toString().toUpperCase()
-          }\x1b[0m: \x1b[38;2;0;255;255m${loggerResult} ms\x1b[0m`,
+          }\u001B[0m: \u001B[38;2;0;255;255m${loggerResult} ms\u001B[0m`
         );
         return result as TCommandResults;
       };
@@ -279,6 +283,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
       throw new Error("Pipeline is empty");
     }
     const path = this.multiExec ? ["multi-exec"] : ["pipeline"];
+
     const res = (await this.client.request({
       path,
       body: Object.values(this.commands).map((c) => c.command),
@@ -287,7 +292,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
     return res.map(({ error, result }, i) => {
       if (error) {
         throw new UpstashError(
-          `Command ${i + 1} [ ${this.commands[i].command[0]} ] failed: ${error}`,
+          `Command ${i + 1} [ ${this.commands[i].command[0]} ] failed: ${error}`
         );
       }
 
@@ -360,7 +365,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
     ...sourceKeys: string[]
   ) =>
     this.chain(
-      new BitOpCommand([op as any, destinationKey, sourceKey, ...sourceKeys], this.commandOptions),
+      new BitOpCommand([op as any, destinationKey, sourceKey, ...sourceKeys], this.commandOptions)
     );
 
   /**
@@ -575,7 +580,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/hmset
    */
-  hmset = <TData>(key: string, kv: { [field: string]: TData }) =>
+  hmset = <TData>(key: string, kv: Record<string, TData>) =>
     this.chain(new HMSetCommand([key, kv], this.commandOptions));
 
   /**
@@ -584,7 +589,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   hrandfield = <TData extends string | string[] | Record<string, unknown>>(
     key: string,
     count?: number,
-    withValues?: boolean,
+    withValues?: boolean
   ) =>
     this.chain(new HRandFieldCommand<TData>([key, count, withValues] as any, this.commandOptions));
 
@@ -597,7 +602,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/hset
    */
-  hset = <TData>(key: string, kv: { [field: string]: TData }) =>
+  hset = <TData>(key: string, kv: Record<string, TData>) =>
     this.chain(new HSetCommand<TData>([key, kv], this.commandOptions));
 
   /**
@@ -729,13 +734,13 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/mset
    */
-  mset = <TData>(kv: { [key: string]: TData }) =>
+  mset = <TData>(kv: Record<string, TData>) =>
     this.chain(new MSetCommand<TData>([kv], this.commandOptions));
 
   /**
    * @see https://redis.io/commands/msetnx
    */
-  msetnx = <TData>(kv: { [key: string]: TData }) =>
+  msetnx = <TData>(kv: Record<string, TData>) =>
     this.chain(new MSetNXCommand<TData>([kv], this.commandOptions));
 
   /**
@@ -1031,18 +1036,15 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   ) => {
     if ("score" in args[1]) {
       return this.chain(
-        new ZAddCommand<TData>(
-          [args[0], args[1] as ScoreMember<TData>, ...(args.slice(2) as any)],
-          this.commandOptions,
-        ),
+        new ZAddCommand<TData>([args[0], args[1], ...(args.slice(2) as any)], this.commandOptions)
       );
     }
 
     return this.chain(
       new ZAddCommand<TData>(
         [args[0], args[1] as any, ...(args.slice(2) as any)],
-        this.commandOptions,
-      ),
+        this.commandOptions
+      )
     );
   };
 
@@ -1328,6 +1330,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
        */
       mget: (...args: CommandArgs<typeof JsonMGetCommand>) =>
         this.chain(new JsonMGetCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.mset
+       */
+      mset: (...args: CommandArgs<typeof JsonMSetCommand>) =>
+        this.chain(new JsonMSetCommand(args, this.commandOptions)),
 
       /**
        * @see https://redis.io/commands/json.numincrby

@@ -95,7 +95,7 @@ for common problems. If you can't find a solution, please
 
 ## Docs
 
-See [the documentation](https://docs.upstash.com/features/javascriptsdk) for
+See [the documentation](https://upstash.com/docs/redis/sdks/ts/overview) for
 details.
 
 ## Contributing

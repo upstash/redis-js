@@ -4,7 +4,7 @@ import { Command, type CommandOptions } from "./command";
 type SubCommandArgs<TRest extends unknown[] = []> = [
   encoding: string, // u1 - u63 | i1 - i64
   offset: number | string, // <int> | #<int>
-  ...TRest,
+  ...rest: TRest,
 ];
 
 /**

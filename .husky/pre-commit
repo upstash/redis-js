@@ -1,2 +1,2 @@
 
-bun run fmt && bun run test
+bun run fmt

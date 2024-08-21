@@ -102,11 +102,15 @@ export class Redis extends core.Redis {
     }
 
     if (!configOrRequester.url) {
-      throw new Error(`[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`)
+      throw new Error(
+        `[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`
+      );
     }
 
     if (!configOrRequester.token) {
-      throw new Error(`[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`)
+      throw new Error(
+        `[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`
+      );
     }
 
     if (

@@ -32,8 +32,8 @@ export type RedisConfigCloudflare = {
   keepAlive?: boolean;
 
   /**
-  * When this flag is enabled, any subsequent commands issued by this client are guaranteed to observe the effects of all earlier writes submitted by the same client.
-  */
+   * When this flag is enabled, any subsequent commands issued by this client are guaranteed to observe the effects of all earlier writes submitted by the same client.
+   */
   readYourWrites?: boolean;
 } & core.RedisOptions &
   RequesterConfig &
@@ -56,11 +56,15 @@ export class Redis extends core.Redis {
    */
   constructor(config: RedisConfigCloudflare, env?: Env) {
     if (!config.url) {
-      throw new Error(`[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`)
+      throw new Error(
+        `[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`
+      );
     }
 
     if (!config.token) {
-      throw new Error(`[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`)
+      throw new Error(
+        `[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`
+      );
     }
 
     if (config.url.startsWith(" ") || config.url.endsWith(" ") || /\r|\n/.test(config.url)) {

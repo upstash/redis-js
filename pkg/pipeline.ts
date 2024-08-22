@@ -841,8 +841,8 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/sadd
    */
-  sadd = <TData>(key: string, ...members: TData[]) =>
-    this.chain(new SAddCommand<TData>([key, ...members], this.commandOptions));
+  sadd = <TData>(key: string, member: TData, ...members: TData[]) =>
+    this.chain(new SAddCommand<TData>([key, member, ...members], this.commandOptions));
 
   /**
    * @see https://redis.io/commands/scan

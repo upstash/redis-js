@@ -43,7 +43,7 @@ describe("Read Your Writes Feature", () => {
       new SetCommand([`key${i}`, `value${i}`]).exec(client).then(() => {
         expect(client.upstashSyncToken).not.toEqual(currentSync);
         currentSync = client.upstashSyncToken;
-      }),
+      })
     );
 
     await Promise.all(promises);

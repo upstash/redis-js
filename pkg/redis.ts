@@ -943,8 +943,8 @@ export class Redis {
   /**
    * @see https://redis.io/commands/sadd
    */
-  sadd = <TData>(key: string, ...members: TData[]) =>
-    new SAddCommand<TData>([key, ...members], this.opts).exec(this.client);
+  sadd = <TData>(key: string, member: TData, ...members: TData[]) =>
+    new SAddCommand<TData>([key, member, ...members], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/scan

@@ -31,7 +31,7 @@ export interface Requester {
    */
   upstashSyncToken?: string;
   request: <TResult = unknown>(req: UpstashRequest) => Promise<UpstashResponse<TResult>>;
-};
+}
 
 type ResultError = {
   result?: string | number | null | (string | number | null)[];
@@ -250,8 +250,7 @@ export class HttpClient implements Requester {
       this.upstashSyncToken = headers.get("upstash-sync-token") ?? "";
     }
 
-
-     /**
+    /**
      * We save the new `upstash-sync-token` in the response header to use it in the next request.
      */
     if (this.readYourWrites) {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import type { Command } from "./commands/command";
 import type { Pipeline } from "./pipeline";
 import type { Redis } from "./redis";
@@ -12,7 +11,6 @@ export function createAutoPipelineProxy(_redis: Redis, json?: boolean): Redis {
     autoPipelineExecutor: AutoPipelineExecutor;
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (!redis.autoPipelineExecutor) {
     redis.autoPipelineExecutor = new AutoPipelineExecutor(redis);
   }
@@ -45,9 +43,11 @@ export function createAutoPipelineProxy(_redis: Redis, json?: boolean): Redis {
           // pass the function as a callback
           return redis.autoPipelineExecutor.withAutoPipeline((pipeline) => {
             if (json) {
-              (pipeline.json[command as keyof Pipeline["json"]] as Function)(...args);
+              (pipeline.json[command as keyof Pipeline["json"]] as (...args: any) => unknown)(
+                ...args
+              );
             } else {
-              (pipeline[command as keyof Pipeline] as Function)(...args);
+              (pipeline[command as keyof Pipeline] as (...args: any) => unknown)(...args);
             }
           });
         };
@@ -92,7 +92,7 @@ class AutoPipelineExecutor {
         this.pipelinePromises.set(pipeline, pipelinePromise);
         this.activePipeline = null;
       }
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
       return this.pipelinePromises.get(pipeline)!;
     });
 

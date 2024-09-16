@@ -20,7 +20,7 @@ export type UpstashRequest = {
 };
 export type UpstashResponse<TResult> = { result?: TResult; error?: string };
 
-export interface Requester {
+export type Requester = {
   /**
    * When this flag is enabled, any subsequent commands issued by this client are guaranteed to observe the effects of all earlier writes submitted by the same client.
    */

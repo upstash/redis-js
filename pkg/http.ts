@@ -31,7 +31,7 @@ export type Requester = {
    */
   upstashSyncToken?: string;
   request: <TResult = unknown>(req: UpstashRequest) => Promise<UpstashResponse<TResult>>;
-}
+};
 
 type ResultError = {
   result?: string | number | null | (string | number | null)[];

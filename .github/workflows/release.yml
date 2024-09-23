@@ -44,14 +44,8 @@ jobs:
 
       - name: Publish
         if: "!github.event.release.prerelease"
-        working-directory: ./dist
-        run: |
-          npm pkg delete scripts.prepare
-          npm publish --access public
+        run: npm publish --access public
 
       - name: Publish release candidate
         if: "github.event.release.prerelease"
-        working-directory: ./dist
-        run: |
-          npm pkg delete scripts.prepare
-          npm publish --access public --tag=next
+        run: npm publish --access public --tag=next

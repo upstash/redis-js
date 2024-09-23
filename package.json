@@ -1,33 +1,51 @@
 {
   "name": "@upstash/redis",
   "version": "1.30.2",
-  "main": "./nodejs.js",
-  "module": "./nodejs.mjs",
+  "main": "./dist/nodejs.js",
+  "module": "./dist/nodejs.mjs",
+  "types": "./dist/nodejs.d.ts",
   "exports": {
     ".": {
-      "import": "./nodejs.mjs",
-      "require": "./nodejs.js"
+      "import": "./dist/nodejs.mjs",
+      "require": "./dist/nodejs.js"
     },
     "./node": {
-      "import": "./nodejs.mjs",
-      "require": "./nodejs.js"
+      "import": "./dist/nodejs.mjs",
+      "require": "./dist/nodejs.js"
     },
-    "./node.js": "./node.js",
-    "./node.mjs": "./node.mjs",
+    "./node.js": {
+      "import": "./dist/nodejs.mjs",
+      "require": "./dist/nodejs.js"
+    },
+    "./node.mjs": {
+      "import": "./dist/nodejs.mjs",
+      "require": "./dist/nodejs.js"
+    },
     "./cloudflare": {
-      "import": "./cloudflare.mjs",
-      "require": "./cloudflare.js"
+      "import": "./dist/cloudflare.mjs",
+      "require": "./dist/cloudflare.js"
     },
-    "./cloudflare.js": "./cloudflare.js",
-    "./cloudflare.mjs": "./cloudflare.mjs",
+    "./cloudflare.js": {
+      "import": "./dist/cloudflare.mjs",
+      "require": "./dist/cloudflare.js"
+    },
+    "./cloudflare.mjs": {
+      "import": "./dist/cloudflare.mjs",
+      "require": "./dist/cloudflare.js"
+    },
     "./fastly": {
-      "import": "./fastly.mjs",
-      "require": "./fastly.js"
+      "import": "./dist/fastly.mjs",
+      "require": "./dist/fastly.js"
     },
-    "./fastly.js": "./fastly.js",
-    "./fastly.mjs": "./fastly.mjs"
+    "./fastly.js": {
+      "import": "./dist/fastly.mjs",
+      "require": "./dist/fastly.js"
+    },
+    "./fastly.mjs": {
+      "import": "./dist/fastly.mjs",
+      "require": "./dist/fastly.js"
+    }
   },
-  "types": "./nodejs.d.ts",
   "description": "An HTTP/REST based Redis client built on top of Upstash REST API.",
   "repository": {
     "type": "git",
@@ -41,10 +59,10 @@
     "upstash"
   ],
   "files": [
-    "./**"
+    "dist"
   ],
   "scripts": {
-    "build": "tsup && cp README.md ./dist/ && cp package.json ./dist/ && cp LICENSE ./dist/",
+    "build": "tsup",
     "test": "bun test pkg",
     "fmt": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "prepare": "husky install",
@@ -61,19 +79,6 @@
     "url": "https://github.com/upstash/upstash-redis/issues"
   },
   "homepage": "https://github.com/upstash/upstash-redis#readme",
-  "typesVersions": {
-    "*": {
-      "nodejs": [
-        "./nodejs.d.ts"
-      ],
-      "cloudflare": [
-        "./cloudflare.d.ts"
-      ],
-      "fastly": [
-        "./fastly.d.ts"
-      ]
-    }
-  },
   "devDependencies": {
     "@biomejs/biome": "latest",
     "@commitlint/cli": "^19.3.0",

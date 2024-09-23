@@ -60,7 +60,7 @@ jobs:
       - name: Install example
         run: |
           bun install
-          bun add @upstash/redis@../../dist
+          bun add @upstash/redis@../../
         working-directory: ./examples/vercel-functions-app-router
 
       - name: Build example
@@ -102,7 +102,7 @@ jobs:
       - name: Install example
         run: |
           bun install
-          bun add @upstash/redis@../../dist
+          bun add @upstash/redis@../../
         working-directory: ./examples/vercel-functions-pages-router
 
       - name: Build example
@@ -256,7 +256,7 @@ jobs:
       - name: Install example
         run: |
           bun install
-          bun add @upstash/redis@../../dist
+          bun add @upstash/redis@../../
           npm install -g wrangler
         working-directory: examples/cloudflare-workers
 
@@ -349,7 +349,7 @@ jobs:
       - name: Install example
         run: |
           bun install
-          bun add @upstash/redis@../../dist
+          bun add @upstash/redis@../../
           npm install -g wrangler
 
         working-directory: examples/cloudflare-workers-with-typescript
@@ -450,7 +450,7 @@ jobs:
         working-directory: ./examples/fastly
         run: |
           bun install
-          bun add @upstash/redis@../../dist
+          bun add @upstash/redis@../../
           curl -L https://github.com/fastly/cli/releases/download/v1.7.0/fastly_v1.7.0_linux-amd64.tar.gz > fastly.tar.gz
           tar -xf ./fastly.tar.gz
 
@@ -556,7 +556,7 @@ jobs:
         run: bun run build
 
       - name: Install example
-        run: bun add @upstash/redis@../../dist
+        run: bun add @upstash/redis@../../
         working-directory: examples/nodejs
 
       - name: Run example
@@ -609,7 +609,4 @@ jobs:
         run: npm config set //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
 
       - name: Publish ci version
-        working-directory: ./dist
-        run: |
-          npm pkg delete scripts.prepare
-          npm publish --tag=ci --verbose
+        run: npm publish --tag=ci --verbose

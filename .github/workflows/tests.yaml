@@ -603,3 +603,7 @@ jobs:
 
       - name: Publish ci version
         run: npm publish --tag=ci --verbose
+
+      - name: Sleep for 10s
+        run: sleep 10s
+        shell: bash

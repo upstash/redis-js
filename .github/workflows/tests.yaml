@@ -603,6 +603,7 @@ jobs:
 
       - name: Publish ci version
         run: npm publish --tag=ci --verbose
+        working-directory: ./dist
 
       - name: Sleep for 10s
         run: sleep 10s

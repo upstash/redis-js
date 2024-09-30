@@ -58,7 +58,7 @@ jobs:
         run: bun run build
 
       - name: Install example
-        run: bun add @upstash/redis@../../
+        run: bun add @upstash/redis@../../dist
         working-directory: ./examples/vercel-functions-app-router
 
       - name: Build example
@@ -98,7 +98,7 @@ jobs:
         run: bun run build
 
       - name: Install example
-        run: bun add @upstash/redis@../../
+        run: bun add @upstash/redis@../../dist
         working-directory: ./examples/vercel-functions-pages-router
 
       - name: Build example
@@ -251,7 +251,7 @@ jobs:
 
       - name: Install example
         run: |
-          bun add @upstash/redis@../../
+          bun add @upstash/redis@../../dist
           npm install -g wrangler
         working-directory: examples/cloudflare-workers
 
@@ -343,7 +343,7 @@ jobs:
 
       - name: Install example
         run: |
-          bun add @upstash/redis@../../
+          bun add @upstash/redis@../../dist
           npm install -g wrangler
 
         working-directory: examples/cloudflare-workers-with-typescript
@@ -443,7 +443,7 @@ jobs:
       - name: Install example
         working-directory: ./examples/fastly
         run: |
-          bun add @upstash/redis@../../
+          bun add @upstash/redis@../../dist
           curl -L https://github.com/fastly/cli/releases/download/v1.7.0/fastly_v1.7.0_linux-amd64.tar.gz > fastly.tar.gz
           tar -xf ./fastly.tar.gz
 
@@ -549,7 +549,7 @@ jobs:
         run: bun run build
 
       - name: Install example
-        run: bun add @upstash/redis@../../
+        run: bun add @upstash/redis@../../dist
         working-directory: examples/nodejs
 
       - name: Run example

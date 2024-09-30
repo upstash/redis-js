@@ -1,49 +1,49 @@
 {
   "name": "@upstash/redis",
   "version": "1.30.2",
-  "main": "./dist/nodejs.js",
-  "module": "./dist/nodejs.mjs",
-  "types": "./dist/nodejs.d.ts",
+  "main": "./nodejs.js",
+  "module": "./nodejs.mjs",
+  "types": "./nodejs.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/nodejs.mjs",
-      "require": "./dist/nodejs.js"
+      "import": "./nodejs.mjs",
+      "require": "./nodejs.js"
     },
     "./node": {
-      "import": "./dist/nodejs.mjs",
-      "require": "./dist/nodejs.js"
+      "import": "./nodejs.mjs",
+      "require": "./nodejs.js"
     },
     "./node.js": {
-      "import": "./dist/nodejs.mjs",
-      "require": "./dist/nodejs.js"
+      "import": "./nodejs.mjs",
+      "require": "./nodejs.js"
     },
     "./node.mjs": {
-      "import": "./dist/nodejs.mjs",
-      "require": "./dist/nodejs.js"
+      "import": "./nodejs.mjs",
+      "require": "./nodejs.js"
     },
     "./cloudflare": {
-      "import": "./dist/cloudflare.mjs",
-      "require": "./dist/cloudflare.js"
+      "import": "./cloudflare.mjs",
+      "require": "./cloudflare.js"
     },
     "./cloudflare.js": {
-      "import": "./dist/cloudflare.mjs",
-      "require": "./dist/cloudflare.js"
+      "import": "./cloudflare.mjs",
+      "require": "./cloudflare.js"
     },
     "./cloudflare.mjs": {
-      "import": "./dist/cloudflare.mjs",
-      "require": "./dist/cloudflare.js"
+      "import": "./cloudflare.mjs",
+      "require": "./cloudflare.js"
     },
     "./fastly": {
-      "import": "./dist/fastly.mjs",
-      "require": "./dist/fastly.js"
+      "import": "./fastly.mjs",
+      "require": "./fastly.js"
     },
     "./fastly.js": {
-      "import": "./dist/fastly.mjs",
-      "require": "./dist/fastly.js"
+      "import": "./fastly.mjs",
+      "require": "./fastly.js"
     },
     "./fastly.mjs": {
-      "import": "./dist/fastly.mjs",
-      "require": "./dist/fastly.js"
+      "import": "./fastly.mjs",
+      "require": "./fastly.js"
     }
   },
   "description": "An HTTP/REST based Redis client built on top of Upstash REST API.",
@@ -59,10 +59,10 @@
     "upstash"
   ],
   "files": [
-    "dist"
+    "./*"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && cp package.json README.md LICENSE dist/",
     "test": "bun test pkg",
     "fmt": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "prepare": "husky install",
@@ -71,7 +71,8 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "lint:fix": "eslint . -c .ts,.tsx,.js,.jsx --fix",
     "commit": "cz",
-    "lint:format": "bun run lint:fix && bun run format"
+    "lint:format": "bun run lint:fix && bun run format",
+    "check-exports": "bun run build && cd dist && attw -P"
   },
   "author": "Andreas Thomas <dev@chronark.com>",
   "license": "MIT",

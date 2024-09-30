@@ -45,9 +45,9 @@ jobs:
       - name: Publish
         if: "!github.event.release.prerelease"
         run: npm publish --access public
-        working-directory: dist
+        working-directory: ./dist
 
       - name: Publish release candidate
         if: "github.event.release.prerelease"
         run: npm publish --access public --tag=next
-        working-directory: dist
+        working-directory: ./dist

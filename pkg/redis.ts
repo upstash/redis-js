@@ -217,6 +217,14 @@ export class Redis {
     this.enableAutoPipelining = opts?.enableAutoPipelining ?? true;
   }
 
+  get readYourWritesSyncToken(): string | undefined {
+    return this.client.upstashSyncToken;
+  }
+
+  set readYourWritesSyncToken(session: string | undefined) {
+    this.client.upstashSyncToken = session;
+  }
+
   get json() {
     return {
       /**

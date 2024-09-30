@@ -112,4 +112,29 @@ describe("Read Your Writes Feature", () => {
     const updatedSync = redis.client.upstashSyncToken;
     expect(updatedSync).not.toEqual(initialSync);
   });
+
+  test("should updat read your writes sync token using set/get", async () => {
+    const redis = new PublicRedis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    });
+
+    // should change from "" to string
+    expect(redis.readYourWritesSyncToken).toBe("");
+    await redis.set("key", "value");
+    expect(redis.readYourWritesSyncToken).not.toBe("");
+    expect(typeof redis.readYourWritesSyncToken).toBe("string");
+
+    // should change after set
+    const syncToken = redis.readYourWritesSyncToken;
+    await redis.set("key", "value");
+    expect(syncToken).not.toBe(redis.readYourWritesSyncToken);
+
+    // should be able to set
+    const newSyncToken = "my-new-sync-token";
+    redis.readYourWritesSyncToken = newSyncToken;
+    expect(redis.readYourWritesSyncToken).toBe(newSyncToken);
+
+    await redis.set("key", "value");
+  });
 });

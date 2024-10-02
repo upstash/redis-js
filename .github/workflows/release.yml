@@ -49,5 +49,5 @@ jobs:
 
       - name: Publish release candidate
         if: "github.event.release.prerelease"
-        run: npm publish --access public --tag=next
+        run: npm publish --access public --tag=canary
         working-directory: ./dist

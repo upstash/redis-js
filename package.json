@@ -57,7 +57,7 @@
     "build": "tsup && cp package.json README.md LICENSE dist/",
     "test": "bun test pkg",
     "fmt": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "prepare": "husky install",
+    "prepare": "husky",
     "lint": "eslint \"**/*.{js,ts,tsx}\" --quiet --fix",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",

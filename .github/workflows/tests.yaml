@@ -602,8 +602,10 @@ jobs:
         run: npm config set //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
 
       - name: Publish ci version
-        run: npm publish --tag=ci --verbose
         working-directory: ./dist
+        run: |
+          npm pkg delete scripts.prepare
+          npm publish --tag=ci --verbose
 
       - name: Sleep for 10s
         run: sleep 10s

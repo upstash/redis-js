@@ -22,6 +22,6 @@
     "packages/*"
   ],
   "dependencies": {
-    "@upstash/redis": "^1.34.0"
+    "@upstash/redis": "latest"
   }
 }

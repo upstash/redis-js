@@ -54,4 +54,4 @@ jobs:
         working-directory: ./dist
         run: |
           npm pkg delete scripts.prepare
-          npm publish --access public --tag=next
+          npm publish --access public --tag=canary

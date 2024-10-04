@@ -1,7 +1,7 @@
 {
     "dependencies": {
       "@google-cloud/functions-framework": "^3.0.0",
-      "@upstash/redis": "^1.31.6"
+      "@upstash/redis": "latest"
     }
   }
   

@@ -12,6 +12,6 @@
     "publish": "wrangler publish"
   },
   "dependencies": {
-    "@upstash/redis": "../../dist"
+    "@upstash/redis": "latest"
   }
 }

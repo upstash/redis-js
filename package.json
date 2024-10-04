@@ -13,14 +13,6 @@
       "import": "./nodejs.mjs",
       "require": "./nodejs.js"
     },
-    "./node.js": {
-      "import": "./nodejs.mjs",
-      "require": "./nodejs.js"
-    },
-    "./node.mjs": {
-      "import": "./nodejs.mjs",
-      "require": "./nodejs.js"
-    },
     "./cloudflare": {
       "import": "./cloudflare.mjs",
       "require": "./cloudflare.js"

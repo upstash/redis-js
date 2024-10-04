@@ -278,7 +278,10 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
     TCommandResults extends unknown[] = [] extends TCommands
       ? unknown[]
       : InferResponseData<TCommands>,
-  >(): Promise<TCommandResults> => {
+    TKeepErrors extends true | undefined = undefined,
+  >(
+    keepErrors?: TKeepErrors
+  ): Promise<TKeepErrors extends true ? UpstashResponse<any>[] : TCommandResults> => {
     if (this.commands.length === 0) {
       throw new Error("Pipeline is empty");
     }
@@ -289,15 +292,26 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
       body: Object.values(this.commands).map((c) => c.command),
     })) as UpstashResponse<any>[];
 
-    return res.map(({ error, result }, i) => {
-      if (error) {
-        throw new UpstashError(
-          `Command ${i + 1} [ ${this.commands[i].command[0]} ] failed: ${error}`
-        );
-      }
+    if (keepErrors) {
+      // @ts-expect-error
+      return res.map(({ error, result }, i) => {
+        return {
+          error: error,
+          result: this.commands[i].deserialize(result),
+        };
+      });
+    } else {
+      // @ts-expect-error
+      return res.map(({ error, result }, i) => {
+        if (error) {
+          throw new UpstashError(
+            `Command ${i + 1} [ ${this.commands[i].command[0]} ] failed: ${error}`
+          );
+        }
 
-      return this.commands[i].deserialize(result);
-    }) as TCommandResults;
+        return this.commands[i].deserialize(result);
+      }) as TCommandResults;
+    }
   };
 
   /**

@@ -287,14 +287,23 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    * const getError = result[0].error
    * ```
    */
-  exec = async <
+  async exec<
     TCommandResults extends unknown[] = [] extends TCommands
       ? unknown[]
       : InferResponseData<TCommands>,
-    TKeepErrors extends true | undefined = undefined,
-  >(options?: {
-    keepErrors: TKeepErrors;
-  }): Promise<TKeepErrors extends true ? UpstashResponse<any>[] : TCommandResults> => {
+  >(): Promise<[] extends TCommands ? unknown[] : TCommandResults>;
+  async exec<
+    TCommandResults extends unknown[] = [] extends TCommands
+      ? unknown[]
+      : InferResponseData<TCommands>,
+  >(options: {
+    keepErrors: true;
+  }): Promise<{ [K in keyof TCommandResults]: UpstashResponse<TCommandResults[K]> }>;
+  async exec<
+    TCommandResults extends unknown[] = [] extends TCommands
+      ? unknown[]
+      : InferResponseData<TCommands>,
+  >(options?: { keepErrors: true }): Promise<UpstashResponse<any>[] | TCommandResults> {
     if (this.commands.length === 0) {
       throw new Error("Pipeline is empty");
     }
@@ -305,28 +314,23 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
       body: Object.values(this.commands).map((c) => c.command),
     })) as UpstashResponse<any>[];
 
-    // eslint-disable-next-line unicorn/prefer-ternary
-    if (options?.keepErrors) {
-      // @ts-expect-error typescript fails to resolve type
-      return res.map(({ error, result }, i) => {
-        return {
-          error: error,
-          result: this.commands[i].deserialize(result),
-        };
-      });
-    } else {
-      // @ts-expect-error typescript fails to resolve type
-      return res.map(({ error, result }, i) => {
-        if (error) {
-          throw new UpstashError(
-            `Command ${i + 1} [ ${this.commands[i].command[0]} ] failed: ${error}`
-          );
-        }
+    return options?.keepErrors
+      ? res.map(({ error, result }, i) => {
+          return {
+            error: error,
+            result: this.commands[i].deserialize(result),
+          };
+        })
+      : (res.map(({ error, result }, i) => {
+          if (error) {
+            throw new UpstashError(
+              `Command ${i + 1} [ ${this.commands[i].command[0]} ] failed: ${error}`
+            );
+          }
 
-        return this.commands[i].deserialize(result);
-      }) as TCommandResults;
-    }
-  };
+          return this.commands[i].deserialize(result);
+        }) as TCommandResults);
+  }
 
   /**
    * Returns the length of pipeline before the execution

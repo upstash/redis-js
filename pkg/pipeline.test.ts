@@ -288,7 +288,7 @@ describe("keep errors", () => {
     p.evalsha("wrong-sha1", [], []);
     p.get("foo");
     p.get("bar");
-    const results = await p.exec({ keepErrors: true });
+    const results = await p.exec<[string, string, string, number, number]>({ keepErrors: true });
 
     expect(results[0].error).toBeUndefined();
     expect(results[1].error).toBeUndefined();

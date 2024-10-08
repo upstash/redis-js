@@ -296,6 +296,7 @@ describe("keep errors", () => {
     expect(results[3].error).toBeUndefined();
     expect(results[4].error).toBeUndefined();
 
+    expect(results[2].result).toBeUndefined();
     expect(results[3].result).toBe(1);
     expect(results[4].result).toBe(2);
   });

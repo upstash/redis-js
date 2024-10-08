@@ -102,37 +102,41 @@ export class Redis extends core.Redis {
     }
 
     if (!configOrRequester.url) {
-      throw new Error(
+      console.warn(
         `[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`
       );
     }
 
     if (!configOrRequester.token) {
-      throw new Error(
+      console.warn(
         `[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`
       );
     }
 
     if (
-      configOrRequester.url.startsWith(" ") ||
-      configOrRequester.url.endsWith(" ") ||
-      /\r|\n/.test(configOrRequester.url)
+      configOrRequester.url!.startsWith(" ") ||
+      configOrRequester.url!.endsWith(" ") ||
+      /\r|\n/.test(configOrRequester.url!)
     ) {
-      console.warn("The redis url contains whitespace or newline, which can cause errors!");
+      console.warn(
+        "[Upstash Redis] The redis url contains whitespace or newline, which can cause errors!"
+      );
     }
     if (
-      configOrRequester.token.startsWith(" ") ||
-      configOrRequester.token.endsWith(" ") ||
-      /\r|\n/.test(configOrRequester.token)
+      configOrRequester.token!.startsWith(" ") ||
+      configOrRequester.token!.endsWith(" ") ||
+      /\r|\n/.test(configOrRequester.token!)
     ) {
-      console.warn("The redis token contains whitespace or newline, which can cause errors!");
+      console.warn(
+        "[Upstash Redis] The redis token contains whitespace or newline, which can cause errors!"
+      );
     }
 
     const client = new HttpClient({
-      baseUrl: configOrRequester.url,
+      baseUrl: configOrRequester.url!,
       retry: configOrRequester.retry,
       headers: { authorization: `Bearer ${configOrRequester.token}` },
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
       agent: configOrRequester.agent,
       responseEncoding: configOrRequester.responseEncoding,
       cache: configOrRequester.cache ?? "no-store",
@@ -172,21 +176,21 @@ export class Redis extends core.Redis {
    */
   static fromEnv(config?: Omit<RedisConfigNodejs, "url" | "token">): Redis {
     // @ts-ignore process will be defined in node
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
     if (process.env === undefined) {
       throw new TypeError(
-        'Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please import from "@upstash/redis/cloudflare" instead'
+        '[Upstash Redis] Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please import from "@upstash/redis/cloudflare" instead'
       );
     }
-    // @ts-ignore process will be defined in node
     const url = process.env.UPSTASH_REDIS_REST_URL;
     if (!url) {
-      throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_URL`");
+      console.warn("[Upstash Redis] Unable to find environment variable: `UPSTASH_REDIS_REST_URL`");
     }
-    // @ts-ignore process will be defined in node
     const token = process.env.UPSTASH_REDIS_REST_TOKEN;
     if (!token) {
-      throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`");
+      console.warn(
+        "[Upstash Redis] Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`"
+      );
     }
     return new Redis({ ...config, url, token });
   }

@@ -53,26 +53,34 @@ export class Redis extends core.Redis {
    */
   constructor(config: RedisConfigFastly) {
     if (!config.url) {
-      throw new Error(
+      console.warn(
         `[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`
       );
     }
 
     if (!config.token) {
-      throw new Error(
+      console.warn(
         `[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`
       );
     }
 
-    if (config.url.startsWith(" ") || config.url.endsWith(" ") || /\r|\n/.test(config.url)) {
-      console.warn("The redis url contains whitespace or newline, which can cause errors!");
+    if (config.url!.startsWith(" ") || config.url!.endsWith(" ") || /\r|\n/.test(config.url!)) {
+      console.warn(
+        "[Upstash Redis] The redis url contains whitespace or newline, which can cause errors!"
+      );
     }
-    if (config.token.startsWith(" ") || config.token.endsWith(" ") || /\r|\n/.test(config.token)) {
-      console.warn("The redis token contains whitespace or newline, which can cause errors!");
+    if (
+      config.token!.startsWith(" ") ||
+      config.token!.endsWith(" ") ||
+      /\r|\n/.test(config.token!)
+    ) {
+      console.warn(
+        "[Upstash Redis] The redis token contains whitespace or newline, which can cause errors!"
+      );
     }
 
     const client = new HttpClient({
-      baseUrl: config.url,
+      baseUrl: config.url!,
       retry: config.retry,
       headers: { authorization: `Bearer ${config.token}` },
       options: { backend: config.backend },

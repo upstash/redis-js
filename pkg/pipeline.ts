@@ -273,15 +273,28 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    * p.get("key")
    * const result = p.exec<[{ greeting: string }]>()
    * ```
+   *
+   * If one of the commands get an error, the whole pipeline fails. Alternatively, you can set the keepErrors option to true in order to get the errors individually.
+   *
+   * If keepErrors is set to true, a list of objects is returned where each object corresponds to a command and is of type: `{ result: unknown, error?: string }`.
+   *
+   * ```ts
+   * const p = redis.pipeline()
+   * p.get("key")
+   *
+   * const result = await p.exec({ keepErrors: true });
+   * const getResult = result[0].result
+   * const getError = result[0].error
+   * ```
    */
   exec = async <
     TCommandResults extends unknown[] = [] extends TCommands
       ? unknown[]
       : InferResponseData<TCommands>,
     TKeepErrors extends true | undefined = undefined,
-  >(
-    keepErrors?: TKeepErrors
-  ): Promise<TKeepErrors extends true ? UpstashResponse<any>[] : TCommandResults> => {
+  >(options?: {
+    keepErrors: TKeepErrors;
+  }): Promise<TKeepErrors extends true ? UpstashResponse<any>[] : TCommandResults> => {
     if (this.commands.length === 0) {
       throw new Error("Pipeline is empty");
     }
@@ -292,8 +305,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
       body: Object.values(this.commands).map((c) => c.command),
     })) as UpstashResponse<any>[];
 
-    if (keepErrors) {
-      // @ts-expect-error
+    // eslint-disable-next-line unicorn/prefer-ternary
+    if (options?.keepErrors) {
+      // @ts-expect-error typescript fails to resolve type
       return res.map(({ error, result }, i) => {
         return {
           error: error,
@@ -301,7 +315,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
         };
       });
     } else {
-      // @ts-expect-error
+      // @ts-expect-error typescript fails to resolve type
       return res.map(({ error, result }, i) => {
         if (error) {
           throw new UpstashError(

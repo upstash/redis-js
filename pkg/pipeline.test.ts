@@ -252,3 +252,51 @@ describe("use all the things", () => {
     expect(res.length).toEqual(121);
   });
 });
+describe("keep errors", () => {
+  test("should return results in case of success", async () => {
+    const p = new Pipeline({ client });
+    p.set("foo", "1");
+    p.set("bar", "2");
+    p.get("foo");
+    p.get("bar");
+    const results = await p.exec({ keepErrors: true });
+
+    // errors are undefined
+    for (const { error } of results) {
+      expect(error).toBeUndefined();
+    }
+    expect(results[2].result).toBe(1);
+    expect(results[3].result).toBe(2);
+  });
+
+  test("should throw without keepErrors", async () => {
+    const p = new Pipeline({ client });
+    p.set("foo", "1");
+    p.set("bar", "2");
+    p.evalsha("wrong-sha1", [], []);
+    p.get("foo");
+    p.get("bar");
+    expect(() => p.exec()).toThrow(
+      "Command 3 [ evalsha ] failed: NOSCRIPT No matching script. Please use EVAL."
+    );
+  });
+
+  test("should return errors with keepErrors", async () => {
+    const p = new Pipeline({ client });
+    p.set("foo", "1");
+    p.set("bar", "2");
+    p.evalsha("wrong-sha1", [], []);
+    p.get("foo");
+    p.get("bar");
+    const results = await p.exec({ keepErrors: true });
+
+    expect(results[0].error).toBeUndefined();
+    expect(results[1].error).toBeUndefined();
+    expect(results[2].error).toBe("NOSCRIPT No matching script. Please use EVAL.");
+    expect(results[3].error).toBeUndefined();
+    expect(results[4].error).toBeUndefined();
+
+    expect(results[3].result).toBe(1);
+    expect(results[4].result).toBe(2);
+  });
+});

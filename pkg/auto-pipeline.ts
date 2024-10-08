@@ -1,6 +1,6 @@
 import type { Command } from "./commands/command";
 import { UpstashError } from "./error";
-import { UpstashResponse } from "./http";
+import type { UpstashResponse } from "./http";
 import type { Pipeline } from "./pipeline";
 import type { Redis } from "./redis";
 import type { CommandArgs } from "./types";
@@ -88,7 +88,7 @@ class AutoPipelineExecutor {
 
     const pipelineDone = this.deferExecution().then(() => {
       if (!this.pipelinePromises.has(pipeline)) {
-        const pipelinePromise = pipeline.exec(true);
+        const pipelinePromise = pipeline.exec({ keepErrors: true });
         this.pipelineCounter += 1;
 
         this.pipelinePromises.set(pipeline, pipelinePromise);

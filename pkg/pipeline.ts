@@ -215,7 +215,7 @@ interface ExecMethod<TCommands extends Command<any, any>[]> {
     TCommandResults extends unknown[] = [] extends TCommands
       ? unknown[]
       : InferResponseData<TCommands>,
-  >(): Promise<[] extends TCommands ? unknown[] : TCommandResults>;
+  >(): Promise<TCommandResults>;
   <
     TCommandResults extends unknown[] = [] extends TCommands
       ? unknown[]

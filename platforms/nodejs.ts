@@ -105,27 +105,24 @@ export class Redis extends core.Redis {
       console.warn(
         `[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`
       );
+    } else if (
+      configOrRequester.url.startsWith(" ") ||
+      configOrRequester.url.endsWith(" ") ||
+      /\r|\n/.test(configOrRequester.url)
+    ) {
+      console.warn(
+        "[Upstash Redis] The redis url contains whitespace or newline, which can cause errors!"
+      );
     }
 
     if (!configOrRequester.token) {
       console.warn(
         `[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`
       );
-    }
-
-    if (
-      configOrRequester.url!.startsWith(" ") ||
-      configOrRequester.url!.endsWith(" ") ||
-      /\r|\n/.test(configOrRequester.url!)
-    ) {
-      console.warn(
-        "[Upstash Redis] The redis url contains whitespace or newline, which can cause errors!"
-      );
-    }
-    if (
-      configOrRequester.token!.startsWith(" ") ||
-      configOrRequester.token!.endsWith(" ") ||
-      /\r|\n/.test(configOrRequester.token!)
+    } else if (
+      configOrRequester.token.startsWith(" ") ||
+      configOrRequester.token.endsWith(" ") ||
+      /\r|\n/.test(configOrRequester.token)
     ) {
       console.warn(
         "[Upstash Redis] The redis token contains whitespace or newline, which can cause errors!"

@@ -146,7 +146,7 @@ export class HttpClient implements Requester {
     this.upstashSyncToken = "";
     this.readYourWrites = config.readYourWrites ?? true;
 
-    this.baseUrl = config.baseUrl.replace(/\/$/, "");
+    this.baseUrl = (config.baseUrl || "").replace(/\/$/, "");
 
     /**
      * regex to check if the baseUrl starts with http:// or https://

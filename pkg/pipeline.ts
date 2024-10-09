@@ -185,6 +185,46 @@ type InferResponseData<T extends unknown[]> = {
   [K in keyof T]: T[K] extends Command<any, infer TData> ? TData : unknown;
 };
 
+interface ExecMethod<TCommands extends Command<any, any>[]> {
+  /**
+   * Send the pipeline request to upstash.
+   *
+   * Returns an array with the results of all pipelined commands.
+   *
+   * If all commands are statically chained from start to finish, types are inferred. You can still define a return type manually if necessary though:
+   * ```ts
+   * const p = redis.pipeline()
+   * p.get("key")
+   * const result = p.exec<[{ greeting: string }]>()
+   * ```
+   *
+   * If one of the commands get an error, the whole pipeline fails. Alternatively, you can set the keepErrors option to true in order to get the errors individually.
+   *
+   * If keepErrors is set to true, a list of objects is returned where each object corresponds to a command and is of type: `{ result: unknown, error?: string }`.
+   *
+   * ```ts
+   * const p = redis.pipeline()
+   * p.get("key")
+   *
+   * const result = await p.exec({ keepErrors: true });
+   * const getResult = result[0].result
+   * const getError = result[0].error
+   * ```
+   */
+  <
+    TCommandResults extends unknown[] = [] extends TCommands
+      ? unknown[]
+      : InferResponseData<TCommands>,
+  >(): Promise<TCommandResults>;
+  <
+    TCommandResults extends unknown[] = [] extends TCommands
+      ? unknown[]
+      : InferResponseData<TCommands>,
+  >(options: {
+    keepErrors: true;
+  }): Promise<{ [K in keyof TCommandResults]: UpstashResponse<TCommandResults[K]> }>;
+}
+
 /**
  * Upstash REST API supports command pipelining to send multiple commands in
  * batch, instead of sending each command one by one and waiting for a response.
@@ -246,9 +286,11 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
         TCommandResults extends unknown[] = [] extends TCommands
           ? unknown[]
           : InferResponseData<TCommands>,
-      >(): Promise<TCommandResults> => {
+      >(options?: {
+        keepErrors: true;
+      }): Promise<TCommandResults> => {
         const start = performance.now();
-        const result = await originalExec();
+        const result = await (options ? originalExec(options) : originalExec());
         const end = performance.now();
         const loggerResult = (end - start).toFixed(2);
         // eslint-disable-next-line no-console
@@ -262,23 +304,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
     }
   }
 
-  /**
-   * Send the pipeline request to upstash.
-   *
-   * Returns an array with the results of all pipelined commands.
-   *
-   * If all commands are statically chained from start to finish, types are inferred. You can still define a return type manually if necessary though:
-   * ```ts
-   * const p = redis.pipeline()
-   * p.get("key")
-   * const result = p.exec<[{ greeting: string }]>()
-   * ```
-   */
-  exec = async <
-    TCommandResults extends unknown[] = [] extends TCommands
-      ? unknown[]
-      : InferResponseData<TCommands>,
-  >(): Promise<TCommandResults> => {
+  exec: ExecMethod<TCommands> = async (options?: { keepErrors: true }) => {
     if (this.commands.length === 0) {
       throw new Error("Pipeline is empty");
     }
@@ -289,15 +315,22 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
       body: Object.values(this.commands).map((c) => c.command),
     })) as UpstashResponse<any>[];
 
-    return res.map(({ error, result }, i) => {
-      if (error) {
-        throw new UpstashError(
-          `Command ${i + 1} [ ${this.commands[i].command[0]} ] failed: ${error}`
-        );
-      }
+    return options?.keepErrors
+      ? res.map(({ error, result }, i) => {
+          return {
+            error: error,
+            result: this.commands[i].deserialize(result),
+          };
+        })
+      : res.map(({ error, result }, i) => {
+          if (error) {
+            throw new UpstashError(
+              `Command ${i + 1} [ ${this.commands[i].command[0]} ] failed: ${error}`
+            );
+          }
 
-      return this.commands[i].deserialize(result);
-    }) as TCommandResults;
+          return this.commands[i].deserialize(result);
+        });
   };
 
   /**

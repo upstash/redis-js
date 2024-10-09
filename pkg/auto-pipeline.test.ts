@@ -318,4 +318,49 @@ describe("Auto pipeline", () => {
 
     expect(res).toEqual(["OK", "OK", "bar", { hello: "world" }, 1, null]);
   });
+
+  test.only("should throw errors granularly", async () => {
+    // in this test, we have two methods being called parallel. both
+    // use redis, but one of them has try/catch. when the request in
+    // try fails, it shouldn't make the request in the parallel request
+    // fail
+    const redis = Redis.fromEnv({
+      enableAutoPipelining: true,
+    });
+
+    const scriptLoadCommand = new ScriptLoadCommand(["redis.call('SET', 'foobar', 'foobar')"]);
+    const scriptHash = await scriptLoadCommand.exec(client);
+    await redis.scriptFlush();
+
+    const methodOne = async () => {
+      // method with try catch
+      try {
+        await redis.evalsha(scriptHash, [], []);
+        throw new Error("test should have thrown in the command above");
+      } catch (error_) {
+        const error = error_ as Error;
+
+        if (error.message.includes("NOSCRIPT")) {
+          await scriptLoadCommand.exec(client);
+          await redis.evalsha(scriptHash, [], []);
+          return true;
+        } else {
+          throw new Error("incorrect error was thrown:", error);
+        }
+      }
+    };
+
+    const methodTwo = async () => {
+      await redis.set("barfoo", "barfoo");
+      return await redis.get("barfoo");
+    };
+
+    const [result1, result2] = await Promise.all([methodOne(), methodTwo()]);
+    expect(result1).toBeTrue();
+    expect(result2).toBe("barfoo");
+
+    // first method executed correctly
+    const result = await redis.get("foobar");
+    expect(result).toBe("foobar");
+  });
 });

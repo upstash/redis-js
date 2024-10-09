@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import type { RequesterConfig } from "../pkg/http";
 import { HttpClient } from "../pkg/http";
 import * as core from "../pkg/redis";
@@ -56,27 +55,32 @@ export class Redis extends core.Redis {
    */
   constructor(config: RedisConfigCloudflare, env?: Env) {
     if (!config.url) {
-      throw new Error(
+      console.warn(
         `[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`
+      );
+    } else if (config.url.startsWith(" ") || config.url.endsWith(" ") || /\r|\n/.test(config.url)) {
+      console.warn(
+        "[Upstash Redis] The redis url contains whitespace or newline, which can cause errors!"
       );
     }
 
     if (!config.token) {
-      throw new Error(
+      console.warn(
         `[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`
       );
-    }
-
-    if (config.url.startsWith(" ") || config.url.endsWith(" ") || /\r|\n/.test(config.url)) {
-      console.warn("The redis url contains whitespace or newline, which can cause errors!");
-    }
-    if (config.token.startsWith(" ") || config.token.endsWith(" ") || /\r|\n/.test(config.token)) {
-      console.warn("The redis token contains whitespace or newline, which can cause errors!");
+    } else if (
+      config.token.startsWith(" ") ||
+      config.token.endsWith(" ") ||
+      /\r|\n/.test(config.token!)
+    ) {
+      console.warn(
+        "[Upstash Redis] The redis token contains whitespace or newline, which can cause errors!"
+      );
     }
 
     const client = new HttpClient({
       retry: config.retry,
-      baseUrl: config.url,
+      baseUrl: config.url!,
       headers: { authorization: `Bearer ${config.token}` },
       responseEncoding: config.responseEncoding,
       signal: config.signal,
@@ -127,13 +131,13 @@ export class Redis extends core.Redis {
     const token = env?.UPSTASH_REDIS_REST_TOKEN ?? UPSTASH_REDIS_REST_TOKEN;
 
     if (!url) {
-      throw new Error(
-        "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_URL`"
+      console.warn(
+        "[Upstash Redis] Unable to find environment variable: `UPSTASH_REDIS_REST_URL`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_URL`"
       );
     }
     if (!token) {
-      throw new Error(
-        "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_TOKEN`"
+      console.warn(
+        "[Upstash Redis] Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_TOKEN`"
       );
     }
     return new Redis({ ...opts, url, token }, env);

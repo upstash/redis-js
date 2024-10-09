@@ -11,7 +11,7 @@ export class UpstashError extends Error {
 export class UrlError extends Error {
   constructor(url: string) {
     super(
-      `Upstash Redis client was passed an invalid URL. You should pass the URL together with https. Received: "${url}". `
+      `Upstash Redis client was passed an invalid URL. You should pass a URL starting with https. Received: "${url}". `
     );
     this.name = "UrlError";
   }

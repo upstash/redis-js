@@ -127,6 +127,7 @@ export class HttpClient implements Requester {
   };
   public readYourWrites: boolean;
   public upstashSyncToken = "";
+  private hasCredentials: boolean;
 
   public readonly retry: {
     attempts: number;
@@ -145,7 +146,7 @@ export class HttpClient implements Requester {
     this.upstashSyncToken = "";
     this.readYourWrites = config.readYourWrites ?? true;
 
-    this.baseUrl = config.baseUrl.replace(/\/$/, "");
+    this.baseUrl = (config.baseUrl || "").replace(/\/$/, "");
 
     /**
      * regex to check if the baseUrl starts with http:// or https://
@@ -157,7 +158,7 @@ export class HttpClient implements Requester {
      * - `$` asserts the position at the end of the string.
      */
     const urlRegex = /^https?:\/\/[^\s#$./?].\S*$/;
-    if (!urlRegex.test(this.baseUrl)) {
+    if (this.baseUrl && !urlRegex.test(this.baseUrl)) {
       throw new UrlError(this.baseUrl);
     }
 
@@ -166,6 +167,8 @@ export class HttpClient implements Requester {
 
       ...config.headers,
     };
+
+    this.hasCredentials = Boolean(this.baseUrl && this.headers.authorization.split(" ")[1]);
 
     if (this.options.responseEncoding === "base64") {
       this.headers["Upstash-Encoding"] = "base64";
@@ -205,6 +208,13 @@ export class HttpClient implements Requester {
        */
       backend: this.options.backend,
     };
+
+    if (!this.hasCredentials) {
+      console.warn(
+        "[Upstash Redis] Redis client was initialized without url or token." +
+          " Failed to execute command."
+      );
+    }
 
     /**
      * We've recieved a new `upstash-sync-token` in the previous response. We use it in the next request to observe the effects of previous requests.

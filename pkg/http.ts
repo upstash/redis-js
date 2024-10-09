@@ -210,7 +210,7 @@ export class HttpClient implements Requester {
     };
 
     if (!this.hasCredentials) {
-      throw new Error(
+      console.warn(
         "[Upstash Redis] Redis client was initialized without url or token." +
           " Failed to execute command."
       );

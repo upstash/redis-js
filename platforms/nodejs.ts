@@ -132,7 +132,7 @@ export class Redis extends core.Redis {
       baseUrl: configOrRequester.url,
       retry: configOrRequester.retry,
       headers: { authorization: `Bearer ${configOrRequester.token}` },
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
       agent: configOrRequester.agent,
       responseEncoding: configOrRequester.responseEncoding,
       cache: configOrRequester.cache ?? "no-store",
@@ -172,19 +172,19 @@ export class Redis extends core.Redis {
    */
   static fromEnv(config?: Omit<RedisConfigNodejs, "url" | "token">): Redis {
     // @ts-ignore process will be defined in node
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
     if (process.env === undefined) {
       throw new TypeError(
         'Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please import from "@upstash/redis/cloudflare" instead'
       );
     }
     // @ts-ignore process will be defined in node
-    const url = process.env.UPSTASH_REDIS_REST_URL;
+    const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
     if (!url) {
       throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_URL`");
     }
     // @ts-ignore process will be defined in node
-    const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+    const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
     if (!token) {
       throw new Error("Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`");
     }

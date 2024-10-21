@@ -139,6 +139,10 @@ jobs:
         with:
           version: latest
 
+      - name: Install @upstash/redis canary version
+        run: pnpm install @upstash/redis@${{needs.release.outputs.version}}
+        working-directory: examples/vercel-functions-app-router
+
       - name: Deploy
         run: |
           pnpm --dir=examples/vercel-functions-app-router add @upstash/redis@${{needs.release.outputs.version}}
@@ -173,6 +177,10 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: latest
+
+      - name: Install @upstash/redis canary version
+        run: pnpm install @upstash/redis@${{needs.release.outputs.version}}
+        working-directory: examples/vercel-functions-pages-router
 
       - name: Deploy
         run: |

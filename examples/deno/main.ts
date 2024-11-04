@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { Redis } from "https://esm.sh/@upstash/redis@latest";
 
 serve(async (_req: Request) => {

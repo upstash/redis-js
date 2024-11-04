@@ -243,7 +243,11 @@ export class HttpClient implements Requester {
           break;
         }
         error = error_ as Error;
-        await new Promise((r) => setTimeout(r, this.retry.backoff(i)));
+
+        // Only sleep if this is not the last attempt
+        if (i < this.retry.attempts) {
+          await new Promise((r) => setTimeout(r, this.retry.backoff(i)));
+        }
       }
     }
     if (!res) {

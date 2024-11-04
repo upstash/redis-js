@@ -5,7 +5,7 @@ describe("http", () => {
   test("should terminate after sleeping 5 times", async () => {
     // init a cient which will always get errors
     const redis = new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL,
+      url: undefined,
       token: "non-existent",
       // set retry explicitly
       retry: {

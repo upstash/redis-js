@@ -222,7 +222,7 @@ jobs:
         run: sed -i 's;@upstash/redis@latest;@upstash/redis@${{needs.release.outputs.version}};' ./examples/deno/main.ts
 
       - name: Deploy
-        run: deno run -A https://deno.land/x/deploy/deployctl.ts deploy --project=upstash-redis ./main.ts
+        run: deno run -A https://deno.land/x/deploy@1.12.0/deployctl.ts deploy --project=upstash-redis ./main.ts
         working-directory: examples/deno
         env:
           DENO_DEPLOY_TOKEN: ${{ secrets.DENO_DEPLOY_TOKEN }}

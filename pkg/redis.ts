@@ -20,6 +20,7 @@ import {
   EchoCommand,
   EvalCommand,
   EvalshaCommand,
+  ExecCommand,
   ExistsCommand,
   ExpireAtCommand,
   ExpireCommand,
@@ -530,6 +531,12 @@ export class Redis {
   evalsha = <TArgs extends unknown[], TData = unknown>(
     ...args: [sha1: string, keys: string[], args: TArgs]
   ) => new EvalshaCommand<TArgs, TData>(args, this.opts).exec(this.client);
+
+  /**
+   * Generic method to execute any Redis command.
+   */
+  exec = <TResult>(args: [command: string, ...args: (string | number | boolean)[]]) =>
+    new ExecCommand<TResult>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/exists

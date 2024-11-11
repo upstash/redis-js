@@ -12,6 +12,7 @@ export * from "./del";
 export * from "./echo";
 export * from "./eval";
 export * from "./evalsha";
+export * from "./exec";
 export * from "./exists";
 export * from "./expire";
 export * from "./expireat";

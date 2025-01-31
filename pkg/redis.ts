@@ -3,7 +3,6 @@ import type {
   CommandOptions,
   ScoreMember,
   SetCommandOptions,
-  GetExCommandOptions,
   ZAddCommandOptions,
   ZRangeCommandOptions,
 } from "./commands/mod";

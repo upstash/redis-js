@@ -149,7 +149,7 @@ describe("Auto pipeline", () => {
       redis.json.arrappend(persistentKey3, "$.log", '"three"'),
     ]);
     expect(result).toBeTruthy();
-    expect(result.length).toBe(121); // returns
+    expect(result.length).toBe(122); // returns
     // @ts-expect-error pipelineCounter is not in type but accessible120 results
     expect(redis.pipelineCounter).toBe(1);
   });

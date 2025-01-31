@@ -258,7 +258,7 @@ describe("keep errors", () => {
     const p = new Pipeline({ client });
     p.set("foo", "1");
     p.set("bar", "2");
-    p.getex("foo", {ex: 1});
+    p.getex("foo", { ex: 1 });
     p.get("bar");
     const results = await p.exec({ keepErrors: true });
 
@@ -274,11 +274,11 @@ describe("keep errors", () => {
     const p = new Pipeline({ client });
     p.set("foo", "1");
     p.set("bar", "2");
-    //p.evalsha("wrong-sha1", [], []);
-    p.getex("foo", {exat: 123});
+    p.evalsha("wrong-sha1", [], []);
+    p.get("foo");
     p.get("bar");
     expect(() => p.exec()).toThrow(
-      "Command 3 [ getex ] failed: ERR invalid expire time"
+      "Command 3 [ evalsha ] failed: NOSCRIPT No matching script. Please use EVAL."
     );
   });
 
@@ -287,7 +287,7 @@ describe("keep errors", () => {
     p.set("foo", "1");
     p.set("bar", "2");
     p.evalsha("wrong-sha1", [], []);
-    p.getex("foo", {exat: 123});
+    p.getex("foo", { exat: 123 });
     p.get("bar");
     const results = await p.exec<[string, string, string, number, number]>({ keepErrors: true });
 

@@ -34,6 +34,7 @@ import {
   GetBitCommand,
   GetCommand,
   GetDelCommand,
+  GetExCommand,
   GetRangeCommand,
   GetSetCommand,
   HDelCommand,
@@ -544,6 +545,11 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   getdel = <TData>(...args: CommandArgs<typeof GetDelCommand>) =>
     this.chain(new GetDelCommand<TData>(args, this.commandOptions));
+  /**
+   * @see https://redis.io/commands/getex
+   */
+  getex = <TData>(...args: CommandArgs<typeof GetExCommand>) =>
+    this.chain(new GetExCommand<TData>(args, this.commandOptions));
   /**
    * @see https://redis.io/commands/getrange
    */

@@ -3,6 +3,7 @@ import type {
   CommandOptions,
   ScoreMember,
   SetCommandOptions,
+  GetExCommandOptions,
   ZAddCommandOptions,
   ZRangeCommandOptions,
 } from "./commands/mod";
@@ -35,6 +36,7 @@ import {
   GetBitCommand,
   GetCommand,
   GetDelCommand,
+  GetExCommand,
   GetRangeCommand,
   GetSetCommand,
   HDelCommand,
@@ -620,6 +622,12 @@ export class Redis {
    */
   getdel = <TData>(...args: CommandArgs<typeof GetDelCommand>) =>
     new GetDelCommand<TData>(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/getex
+   */
+  getex = <TData>(...args: CommandArgs<typeof GetExCommand>) =>
+    new GetExCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/getrange

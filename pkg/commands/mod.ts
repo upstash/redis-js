@@ -27,6 +27,7 @@ export * from "./geo_search_store";
 export * from "./get";
 export * from "./getbit";
 export * from "./getdel";
+export * from "./getex";
 export * from "./getrange";
 export * from "./getset";
 export * from "./hdel";

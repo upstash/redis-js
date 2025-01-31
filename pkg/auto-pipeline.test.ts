@@ -44,6 +44,7 @@ describe("Auto pipeline", () => {
       redis.get(newKey()),
       redis.getbit(newKey(), 0),
       redis.getdel(newKey()),
+      redis.getex(newKey()),
       redis.getset(newKey(), "hello"),
       redis.hdel(newKey(), "field"),
       redis.hexists(newKey(), "field"),

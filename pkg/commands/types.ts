@@ -24,6 +24,7 @@ export { type GeoSearchStoreCommand } from "./geo_search_store";
 export { type GetCommand } from "./get";
 export { type GetBitCommand } from "./getbit";
 export { type GetDelCommand } from "./getdel";
+export { type GetExCommand } from "./getex";
 export { type GetRangeCommand } from "./getrange";
 export { type GetSetCommand } from "./getset";
 export { type HDelCommand } from "./hdel";

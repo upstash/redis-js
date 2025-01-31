@@ -320,7 +320,7 @@ describe("Auto pipeline", () => {
     expect(res).toEqual(["OK", "OK", "bar", { hello: "world" }, 1, null]);
   });
 
-  test.only("should throw errors granularly", async () => {
+  test("should throw errors granularly", async () => {
     // in this test, we have two methods being called parallel. both
     // use redis, but one of them has try/catch. when the request in
     // try fails, it shouldn't make the request in the parallel request

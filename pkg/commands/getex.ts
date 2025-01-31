@@ -1,14 +1,13 @@
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
 
-type GetExCommandOptions = (
-  { ex: number; px?: never; exat?: never; pxat?: never; persist?: never }
+type GetExCommandOptions =
+  | { ex: number; px?: never; exat?: never; pxat?: never; persist?: never }
   | { ex?: never; px: number; exat?: never; pxat?: never; persist?: never }
   | { ex?: never; px?: never; exat: number; pxat?: never; persist?: never }
   | { ex?: never; px?: never; exat?: never; pxat: number; persist?: never }
   | { ex?: never; px?: never; exat?: never; pxat?: never; persist: true }
-  | { ex?: never; px?: never; exat?: never; pxat?: never; persist?: never }
-);
+  | { ex?: never; px?: never; exat?: never; pxat?: never; persist?: never };
 
 /**
  * @see https://redis.io/commands/getex

@@ -311,7 +311,18 @@ export class HttpClient implements Requester {
             }
           }
         } catch (error) {
-          console.error("Stream reading error:", error);
+          // console.error("Stream reading error:", error);
+          if (error instanceof Error && error.name === "AbortError") {
+            // Expected error during unsubscribe, ignore
+          } else {
+            console.error("Stream reading error:", error);
+          }
+        } finally {
+          try {
+            await reader.cancel();
+          } catch {
+            //ignore
+          }
         }
       })();
 

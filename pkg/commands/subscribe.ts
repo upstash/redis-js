@@ -1,28 +1,87 @@
+import { EventEmitter } from "node:stream";
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
+import { Requester } from "../http";
+
+// eslint-disable-next-line unicorn/prefer-event-target
+export class Subscriber extends EventEmitter {
+  private subscription: SubscribeCommand;
+  private abortController: AbortController;
+  private channels: string[];
+
+  constructor(client: Requester, channels: string[]) {
+    super();
+    this.channels = channels;
+    this.abortController = new AbortController();
+    this.subscription = new SubscribeCommand(channels, {
+      signal: this.abortController.signal,
+      onMessage: (data: string) => {
+        console.log(data);
+        // Remove "data:" prefix and parse the message
+        const messageData = data.replace(/^data:\s*/, "");
+
+        // Find the first two commas
+        const firstCommaIndex = messageData.indexOf(",");
+        const secondCommaIndex = messageData.indexOf(",", firstCommaIndex + 1);
+
+        if (firstCommaIndex !== -1 && secondCommaIndex !== -1) {
+          const type = messageData.slice(0, firstCommaIndex);
+          const channel = messageData.slice(firstCommaIndex + 1, secondCommaIndex);
+          const messageStr = messageData.slice(secondCommaIndex + 1);
+
+          try {
+            const message =
+              type === "subscribe" ? Number.parseInt(messageStr) : JSON.parse(messageStr);
+            console.log("TYPE:", type, "| CHANNEL:", channel, "| MESSAGE:", message);
+            this.emit(type, message);
+            this.emit(`${type}Buffer`, { channel, message });
+            this.emit(`${type}:${channel}`, message);
+          } catch (error) {
+            this.emit("error", new Error(`Failed to parse message: ${error}`));
+          }
+        }
+      },
+    });
+
+    this.subscription.exec(client).catch((error) => {
+      if (error.name !== "AbortError") {
+        this.emit("error", error);
+      }
+    });
+  }
+
+  async unsubscribe(channels?: string[]) {
+    if (channels) {
+      for (const channel of channels) {
+        const index = this.channels.indexOf(channel);
+        if (index > -1) {
+          this.channels.splice(index, 1);
+        }
+      }
+
+      if (this.channels.length > 0) {
+        console.log("ABORTING!", this.channels);
+        this.abortController.abort();
+        this.abortController = new AbortController();
+
+        return;
+      }
+    } else {
+      this.abortController.abort();
+      this.removeAllListeners();
+      this.channels = [];
+    }
+  }
+}
 
 /**
  * @see https://redis.io/commands/subscribe
  */
 export class SubscribeCommand extends Command<number, number> {
-  private defaultMessageHandler(data: string) {
-    if (data.startsWith("message,")) {
-      // Find the index of first comma and second comma
-      const firstComma = data.indexOf(",");
-      const secondComma = data.indexOf(",", firstComma + 1);
-
-      // Extract the channel and message parts
-      const channel = data.slice(firstComma + 1, secondComma);
-      const message = data.slice(Math.max(0, secondComma + 1));
-
-      const parsedMessage = JSON.parse(message);
-      console.log("message", channel, parsedMessage);
-      return message;
-    }
-    return null;
-  }
-
-  constructor(cmd: [channel: string], opts?: CommandOptions<number, number>) {
+  constructor(
+    cmd: [...channels: string[]],
+    opts?: CommandOptions<number, number> & { signal?: AbortSignal }
+  ) {
     const sseHeaders = {
       Accept: "text/event-stream",
       "Cache-Control": "no-cache",
@@ -32,14 +91,9 @@ export class SubscribeCommand extends Command<number, number> {
     super([], {
       ...opts,
       headers: sseHeaders,
-      path: ["subscribe", cmd[0]],
+      path: ["subscribe", ...cmd],
       isStreaming: true,
-      onMessage: (data: string) => {
-        const message = this.defaultMessageHandler(data);
-        if (message && opts?.onMessage) {
-          opts.onMessage(message);
-        }
-      },
+      onMessage: opts?.onMessage,
     });
   }
 }

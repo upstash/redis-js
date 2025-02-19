@@ -33,6 +33,11 @@ export type UpstashRequest = {
    * Whether this request expects a streaming response
    */
   isStreaming?: boolean;
+
+  /**
+   * Abort signal for the request
+   */
+  signal?: AbortSignal;
 };
 export type UpstashResponse<TResult> = { result?: TResult; error?: string };
 
@@ -221,7 +226,7 @@ export class HttpClient implements Requester {
       body: JSON.stringify(req.body),
       keepalive: this.options.keepAlive,
       agent: this.options.agent,
-      signal: this.options.signal,
+      signal: req.signal ?? this.options.signal,
 
       /**
        * Fastly specific

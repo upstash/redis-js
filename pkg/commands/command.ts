@@ -43,6 +43,11 @@ export type CommandOptions<TResult, TData> = {
 
   onMessage?: (data: string) => void;
   isStreaming?: boolean;
+
+  /**
+   * Signal to abort the request
+   */
+  signal?: AbortSignal;
 };
 /**
  * Command offers default (de)serialization and the exec method to all commands.
@@ -58,6 +63,7 @@ export class Command<TResult, TData> {
   protected readonly path?: string[];
   protected readonly onMessage?: (data: string) => void;
   protected readonly isStreaming: boolean;
+  protected readonly signal?: AbortSignal;
   /**
    * Create a new command instance.
    *
@@ -78,6 +84,7 @@ export class Command<TResult, TData> {
     this.path = opts?.path;
     this.onMessage = opts?.onMessage;
     this.isStreaming = opts?.isStreaming ?? false;
+    this.signal = opts?.signal;
 
     if (opts?.latencyLogging) {
       const originalExec = this.exec.bind(this);
@@ -108,6 +115,7 @@ export class Command<TResult, TData> {
       headers: this.headers,
       onMessage: this.onMessage,
       isStreaming: this.isStreaming,
+      signal: this.signal,
     });
 
     if (error) {

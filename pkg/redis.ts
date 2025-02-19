@@ -177,6 +177,7 @@ import {
   ZUnionCommand,
   ZUnionStoreCommand,
 } from "./commands/mod";
+import { Subscriber } from "./commands/subscribe";
 import { ZDiffStoreCommand } from "./commands/zdiffstore";
 import { ZMScoreCommand } from "./commands/zmscore";
 import type { Requester, UpstashRequest, UpstashResponse } from "./http";
@@ -1105,6 +1106,10 @@ export class Redis {
   strlen = (...args: CommandArgs<typeof StrLenCommand>) =>
     new StrLenCommand(args, this.opts).exec(this.client);
 
+  subscribe = (channels: string | string[]): Subscriber => {
+    const channelArray = Array.isArray(channels) ? channels : [channels];
+    return new Subscriber(this.client, channelArray);
+  };
   /**
    * @see https://redis.io/commands/sunion
    */

@@ -1,21 +1,31 @@
-import { EventEmitter } from "node:stream";
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
 import type { Requester } from "../http";
+
+type MessageEvent = {
+  type: string;
+  data: any;
+  channel?: string;
+};
+
+type Listener = (event: MessageEvent["data"]) => void;
 
 type SubscriptionInfo = {
   command: SubscribeCommand;
   controller: AbortController;
 };
-// eslint-disable-next-line unicorn/prefer-event-target
-export class Subscriber extends EventEmitter {
+
+export class Subscriber extends EventTarget {
   private subscriptions: Map<string, SubscriptionInfo>;
   private client: Requester;
+  private listeners: Map<string, Set<Listener>>;
 
   constructor(client: Requester, channels: string[]) {
     super();
     this.client = client;
     this.subscriptions = new Map();
+    this.listeners = new Map();
+
     for (const channel of channels) {
       this.subscribeToChannel(channel);
     }
@@ -28,10 +38,7 @@ export class Subscriber extends EventEmitter {
       signal: controller.signal,
       onMessage: (data: string) => {
         // STREAM DATA PATTERN: data: message,channel1,{"msg":"Hello from channel 1!"}
-        // Remove "data:" prefix and parse the message
         const messageData = data.replace(/^data:\s*/, "");
-
-        // Find the first two commas
         const firstCommaIndex = messageData.indexOf(",");
         const secondCommaIndex = messageData.indexOf(",", firstCommaIndex + 1);
 
@@ -43,11 +50,13 @@ export class Subscriber extends EventEmitter {
           try {
             const message =
               type === "subscribe" ? Number.parseInt(messageStr) : JSON.parse(messageStr);
-            this.emit(type, message);
-            this.emit(`${type}Buffer`, { channel: channelName, message });
-            this.emit(`${type}:${channelName}`, message);
+
+            // Dispatch to all relevant listeners
+            this.dispatchToListeners(type, message);
+            this.dispatchToListeners(`${type}Buffer`, { channel: channelName, message });
+            this.dispatchToListeners(`${type}:${channelName}`, message);
           } catch (error) {
-            this.emit("error", new Error(`Failed to parse message: ${error}`));
+            this.dispatchToListeners("error", new Error(`Failed to parse message: ${error}`));
           }
         }
       },
@@ -55,7 +64,7 @@ export class Subscriber extends EventEmitter {
 
     command.exec(this.client).catch((error) => {
       if (error.name !== "AbortError") {
-        this.emit("error", error);
+        this.dispatchToListeners("error", error);
       }
     });
 
@@ -65,9 +74,28 @@ export class Subscriber extends EventEmitter {
     });
   }
 
+  private dispatchToListeners(type: string, data: any) {
+    const listeners = this.listeners.get(type);
+    if (listeners) {
+      for (const listener of listeners) {
+        listener(data);
+      }
+    }
+  }
+
+  on(type: string, listener: Listener): void {
+    if (!this.listeners.has(type)) {
+      this.listeners.set(type, new Set());
+    }
+    this.listeners.get(type)?.add(listener);
+  }
+
+  removeAllListeners(): void {
+    this.listeners.clear();
+  }
+
   async unsubscribe(channels?: string[]) {
     if (channels) {
-      // Unsubscribe from specific channels
       for (const channel of channels) {
         const subscription = this.subscriptions.get(channel);
         if (subscription) {
@@ -80,7 +108,6 @@ export class Subscriber extends EventEmitter {
         }
       }
     } else {
-      // Unsubscribe from all channels
       for (const subscription of this.subscriptions.values()) {
         try {
           subscription.controller.abort();
@@ -98,9 +125,6 @@ export class Subscriber extends EventEmitter {
   }
 }
 
-/**
- * @see https://redis.io/commands/subscribe
- */
 export class SubscribeCommand extends Command<number, number> {
   constructor(
     cmd: [...channels: string[]],

@@ -14,7 +14,6 @@ export class Subscriber extends EventEmitter {
 
   constructor(client: Requester, channels: string[]) {
     super();
-    // this.channels = channels;
     this.client = client;
     this.subscriptions = new Map();
     for (const channel of channels) {
@@ -28,9 +27,9 @@ export class Subscriber extends EventEmitter {
     const command = new SubscribeCommand([channel], {
       signal: controller.signal,
       onMessage: (data: string) => {
+        // STREAM DATA PATTERN: data: message,channel1,{"msg":"Hello from channel 1!"}
         // Remove "data:" prefix and parse the message
         const messageData = data.replace(/^data:\s*/, "");
-        // data: message,channel1, {"msg":"Hello from channel 1!"}
 
         // Find the first two commas
         const firstCommaIndex = messageData.indexOf(",");

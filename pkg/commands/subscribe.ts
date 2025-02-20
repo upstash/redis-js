@@ -182,6 +182,9 @@ export class Subscriber extends EventTarget {
   }
 }
 
+/**
+ * @see https://redis.io/commands/subscribe
+ */
 export class SubscribeCommand extends Command<number, number> {
   constructor(
     cmd: [...channels: string[]],

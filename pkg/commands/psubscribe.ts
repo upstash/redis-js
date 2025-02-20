@@ -1,5 +1,8 @@
 import { Command, type CommandOptions } from "./command";
 
+/**
+ * @see https://redis.io/commands/psubscribe
+ */
 export class PSubscribeCommand extends Command<number, number> {
   constructor(cmd: [...patterns: string[]], opts?: CommandOptions<number, number>) {
     const sseHeaders = {

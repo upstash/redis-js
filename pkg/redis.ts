@@ -916,6 +916,9 @@ export class Redis {
   psetex = <TData>(key: string, ttl: number, value: TData) =>
     new PSetEXCommand<TData>([key, ttl, value], this.opts).exec(this.client);
 
+  /**
+   * @see https://redis.io/commands/psubscribe
+   */
   psubscribe = (patterns: string | string[]): Subscriber => {
     const patternArray = Array.isArray(patterns) ? patterns : [patterns];
     return new Subscriber(this.client, patternArray, true);

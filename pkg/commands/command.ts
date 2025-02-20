@@ -41,13 +41,25 @@ export type CommandOptions<TResult, TData> = {
    */
   path?: string[];
 
-  onMessage?: (data: string) => void;
-  isStreaming?: boolean;
-
   /**
-   * Signal to abort the request
-   */
-  signal?: AbortSignal;
+   * Options for streaming requests, mainly used for subscribe, monitor commands
+   **/
+  streamOptions?: {
+    /**
+     * Callback to be called when a message is received
+     */
+    onMessage?: (data: string) => void;
+
+    /**
+     * Whether the request is streaming
+     */
+    isStreaming?: boolean;
+
+    /**
+     * Signal to abort the request
+     */
+    signal?: AbortSignal;
+  };
 };
 /**
  * Command offers default (de)serialization and the exec method to all commands.
@@ -82,9 +94,9 @@ export class Command<TResult, TData> {
     this.command = command.map((c) => this.serialize(c));
     this.headers = opts?.headers;
     this.path = opts?.path;
-    this.onMessage = opts?.onMessage;
-    this.isStreaming = opts?.isStreaming ?? false;
-    this.signal = opts?.signal;
+    this.onMessage = opts?.streamOptions?.onMessage;
+    this.isStreaming = opts?.streamOptions?.isStreaming ?? false;
+    this.signal = opts?.streamOptions?.signal;
 
     if (opts?.latencyLogging) {
       const originalExec = this.exec.bind(this);

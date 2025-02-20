@@ -35,30 +35,32 @@ export class Subscriber extends EventTarget {
     const controller = new AbortController();
 
     const command = new SubscribeCommand([channel], {
-      signal: controller.signal,
-      onMessage: (data: string) => {
-        // STREAM DATA PATTERN: data: message,channel1,{"msg":"Hello from channel 1!"}
-        const messageData = data.replace(/^data:\s*/, "");
-        const firstCommaIndex = messageData.indexOf(",");
-        const secondCommaIndex = messageData.indexOf(",", firstCommaIndex + 1);
+      streamOptions: {
+        signal: controller.signal,
+        onMessage: (data: string) => {
+          // STREAM DATA PATTERN: data: message,channel1,{"msg":"Hello from channel 1!"}
+          const messageData = data.replace(/^data:\s*/, "");
+          const firstCommaIndex = messageData.indexOf(",");
+          const secondCommaIndex = messageData.indexOf(",", firstCommaIndex + 1);
 
-        if (firstCommaIndex !== -1 && secondCommaIndex !== -1) {
-          const type = messageData.slice(0, firstCommaIndex);
-          const channelName = messageData.slice(firstCommaIndex + 1, secondCommaIndex);
-          const messageStr = messageData.slice(secondCommaIndex + 1);
+          if (firstCommaIndex !== -1 && secondCommaIndex !== -1) {
+            const type = messageData.slice(0, firstCommaIndex);
+            const channelName = messageData.slice(firstCommaIndex + 1, secondCommaIndex);
+            const messageStr = messageData.slice(secondCommaIndex + 1);
 
-          try {
-            const message =
-              type === "subscribe" ? Number.parseInt(messageStr) : JSON.parse(messageStr);
+            try {
+              const message =
+                type === "subscribe" ? Number.parseInt(messageStr) : JSON.parse(messageStr);
 
-            // Dispatch to all relevant listeners
-            this.dispatchToListeners(type, message);
-            this.dispatchToListeners(`${type}Buffer`, { channel: channelName, message });
-            this.dispatchToListeners(`${type}:${channelName}`, message);
-          } catch (error) {
-            this.dispatchToListeners("error", new Error(`Failed to parse message: ${error}`));
+              // Dispatch to all relevant listeners
+              this.dispatchToListeners(type, message);
+              this.dispatchToListeners(`${type}Buffer`, { channel: channelName, message });
+              this.dispatchToListeners(`${type}:${channelName}`, message);
+            } catch (error) {
+              this.dispatchToListeners("error", new Error(`Failed to parse message: ${error}`));
+            }
           }
-        }
+        },
       },
     });
 
@@ -140,9 +142,11 @@ export class SubscribeCommand extends Command<number, number> {
       ...opts,
       headers: sseHeaders,
       path: ["subscribe", ...cmd],
-      isStreaming: true,
-      onMessage: opts?.onMessage,
-      signal: opts?.signal,
+      streamOptions: {
+        isStreaming: true,
+        onMessage: opts?.streamOptions?.onMessage,
+        signal: opts?.streamOptions?.signal,
+      },
     });
   }
 }

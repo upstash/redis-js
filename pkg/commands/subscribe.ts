@@ -30,6 +30,7 @@ export class Subscriber extends EventEmitter {
       onMessage: (data: string) => {
         // Remove "data:" prefix and parse the message
         const messageData = data.replace(/^data:\s*/, "");
+        // data: message,channel1, {"msg":"Hello from channel 1!"}
 
         // Find the first two commas
         const firstCommaIndex = messageData.indexOf(",");

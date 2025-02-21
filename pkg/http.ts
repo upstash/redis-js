@@ -1,5 +1,6 @@
 import { UpstashError, UrlError } from "./error";
 import type { Telemetry } from "./types";
+import { mergeHeaders } from "./util";
 
 type CacheSetting =
   | "default"
@@ -16,7 +17,27 @@ export type UpstashRequest = {
    */
   body?: unknown;
 
+  /**
+   * Additional headers for the request
+   */
+  headers?: Record<string, string>;
+
   upstashSyncToken?: string;
+
+  /**
+   * Callback for handling streaming messages
+   */
+  onMessage?: (data: string) => void;
+
+  /**
+   * Whether this request expects a streaming response
+   */
+  isStreaming?: boolean;
+
+  /**
+   * Abort signal for the request
+   */
+  signal?: AbortSignal;
 };
 export type UpstashResponse<TResult> = { result?: TResult; error?: string };
 
@@ -193,15 +214,19 @@ export class HttpClient implements Requester {
   }
 
   public async request<TResult>(req: UpstashRequest): Promise<UpstashResponse<TResult>> {
+    const requestHeaders = mergeHeaders(this.headers, req.headers ?? {});
+    const requestUrl = [this.baseUrl, ...(req.path ?? [])].join("/");
+    const isEventStream = requestHeaders.Accept === "text/event-stream";
+
     const requestOptions: RequestInit & { backend?: string; agent?: any } = {
       //@ts-expect-error this should throw due to bun regression
       cache: this.options.cache,
       method: "POST",
-      headers: this.headers,
+      headers: requestHeaders,
       body: JSON.stringify(req.body),
       keepalive: this.options.keepAlive,
       agent: this.options.agent,
-      signal: this.options.signal,
+      signal: req.signal ?? this.options.signal,
 
       /**
        * Fastly specific
@@ -228,7 +253,7 @@ export class HttpClient implements Requester {
     let error: Error | null = null;
     for (let i = 0; i <= this.retry.attempts; i++) {
       try {
-        res = await fetch([this.baseUrl, ...(req.path ?? [])].join("/"), requestOptions);
+        res = await fetch(requestUrl, requestOptions);
         break;
       } catch (error_) {
         if (this.options.signal?.aborted) {
@@ -254,8 +279,8 @@ export class HttpClient implements Requester {
       throw error ?? new Error("Exhausted all retries");
     }
 
-    const body = (await res.json()) as UpstashResponse<string>;
     if (!res.ok) {
+      const body = (await res.json()) as UpstashResponse<string>;
       throw new UpstashError(`${body.error}, command was: ${JSON.stringify(req.body)}`);
     }
 
@@ -263,6 +288,48 @@ export class HttpClient implements Requester {
       const headers = res.headers;
       this.upstashSyncToken = headers.get("upstash-sync-token") ?? "";
     }
+
+    if (isEventStream && req && req.onMessage && res.body) {
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+
+      // Start reading the stream in the background
+      (async () => {
+        try {
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            const lines = chunk.split("\n");
+
+            for (const line of lines) {
+              if (line.startsWith("data: ")) {
+                const data = line.slice(6);
+                req.onMessage?.(data);
+              }
+            }
+          }
+        } catch (error) {
+          if (error instanceof Error && error.name === "AbortError") {
+            // Expected error during unsubscribe, ignore
+          } else {
+            console.error("Stream reading error:", error);
+          }
+        } finally {
+          try {
+            await reader.cancel();
+          } catch {
+            //ignore
+          }
+        }
+      })();
+
+      // Return success for streaming requests
+      return { result: 1 as TResult };
+    }
+
+    const body = (await res.json()) as UpstashResponse<string>;
 
     /**
      * We save the new `upstash-sync-token` in the response header to use it in the next request.

@@ -177,6 +177,7 @@ import {
   ZUnionCommand,
   ZUnionStoreCommand,
 } from "./commands/mod";
+import { Subscriber } from "./commands/subscribe";
 import { ZDiffStoreCommand } from "./commands/zdiffstore";
 import { ZMScoreCommand } from "./commands/zmscore";
 import type { Requester, UpstashRequest, UpstashResponse } from "./http";
@@ -916,6 +917,14 @@ export class Redis {
     new PSetEXCommand<TData>([key, ttl, value], this.opts).exec(this.client);
 
   /**
+   * @see https://redis.io/commands/psubscribe
+   */
+  psubscribe = <TMessage>(patterns: string | string[]): Subscriber<TMessage> => {
+    const patternArray = Array.isArray(patterns) ? patterns : [patterns];
+    return new Subscriber<TMessage>(this.client, patternArray, true);
+  };
+
+  /**
    * @see https://redis.io/commands/pttl
    */
   pttl = (...args: CommandArgs<typeof PTtlCommand>) =>
@@ -1105,6 +1114,13 @@ export class Redis {
   strlen = (...args: CommandArgs<typeof StrLenCommand>) =>
     new StrLenCommand(args, this.opts).exec(this.client);
 
+  /**
+   * @see https://redis.io/commands/subscribe
+   */
+  subscribe = <TMessage>(channels: string | string[]): Subscriber<TMessage> => {
+    const channelArray = Array.isArray(channels) ? channels : [channels];
+    return new Subscriber<TMessage>(this.client, channelArray);
+  };
   /**
    * @see https://redis.io/commands/sunion
    */

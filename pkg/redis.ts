@@ -919,9 +919,9 @@ export class Redis {
   /**
    * @see https://redis.io/commands/psubscribe
    */
-  psubscribe = (patterns: string | string[]): Subscriber => {
+  psubscribe = <TMessage>(patterns: string | string[]): Subscriber<TMessage> => {
     const patternArray = Array.isArray(patterns) ? patterns : [patterns];
-    return new Subscriber(this.client, patternArray, true);
+    return new Subscriber<TMessage>(this.client, patternArray, true);
   };
 
   /**
@@ -1117,9 +1117,9 @@ export class Redis {
   /**
    * @see https://redis.io/commands/subscribe
    */
-  subscribe = (channels: string | string[]): Subscriber => {
+  subscribe = <TMessage>(channels: string | string[]): Subscriber<TMessage> => {
     const channelArray = Array.isArray(channels) ? channels : [channels];
-    return new Subscriber(this.client, channelArray);
+    return new Subscriber<TMessage>(this.client, channelArray);
   };
   /**
    * @see https://redis.io/commands/sunion

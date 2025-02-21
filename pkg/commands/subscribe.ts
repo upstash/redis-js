@@ -3,25 +3,43 @@ import { Command } from "./command";
 import type { Requester } from "../http";
 import { PSubscribeCommand } from "./psubscribe";
 
-type MessageEvent = {
-  type: string;
-  data: any;
-  channel?: string;
-  pattern?: string;
-};
-
-type Listener = (event: MessageEvent["data"]) => void;
-
 type SubscriptionInfo = {
   command: SubscribeCommand;
   controller: AbortController;
   isPattern: boolean;
 };
 
-export class Subscriber extends EventTarget {
+type BaseMessageData<TMessage> = {
+  channel: string;
+  message: TMessage;
+};
+
+type PatternMessageData<TMessage> = BaseMessageData<TMessage> & {
+  pattern: string;
+};
+
+type SubscriptionCountEvent = number;
+
+type MessageEventMap<TMessage> = {
+  message: BaseMessageData<TMessage>;
+  subscribe: SubscriptionCountEvent;
+  unsubscribe: SubscriptionCountEvent;
+  pmessage: PatternMessageData<TMessage>;
+  psubscribe: SubscriptionCountEvent;
+  punsubscribe: SubscriptionCountEvent;
+  error: Error;
+  [key: `message:${string}`]: BaseMessageData<TMessage>;
+  [key: `pmessage:${string}`]: PatternMessageData<TMessage>;
+};
+
+type EventType = keyof MessageEventMap<any>;
+
+type Listener<TMessage, T extends EventType> = (event: MessageEventMap<TMessage>[T]) => void;
+
+export class Subscriber<TMessage = any> extends EventTarget {
   private subscriptions: Map<string, SubscriptionInfo>;
   private client: Requester;
-  private listeners: Map<string, Set<Listener>>;
+  private listeners: Map<string, Set<Listener<TMessage, any>>>;
 
   constructor(client: Requester, channels: string[], isPattern: boolean = false) {
     super();
@@ -102,11 +120,8 @@ export class Subscriber extends EventTarget {
 
         try {
           const message = JSON.parse(messageStr);
-
-          // Emit events for pattern messages
-          this.dispatchToListeners("pmessage", message);
-          this.dispatchToListeners(`pmessageBuffer`, { pattern, channel, message });
-          this.dispatchToListeners(`pmessage:${pattern}`, { channel, message });
+          this.dispatchToListeners("pmessage", { pattern, channel, message });
+          this.dispatchToListeners(`pmessage:${pattern}`, { pattern, channel, message });
         } catch (error) {
           this.dispatchToListeners("error", new Error(`Failed to parse message: ${error}`));
         }
@@ -116,14 +131,21 @@ export class Subscriber extends EventTarget {
         const messageStr = messageData.slice(secondCommaIndex + 1);
 
         try {
-          const message =
-            type === "subscribe" || type === "psubscribe"
-              ? Number.parseInt(messageStr)
-              : JSON.parse(messageStr);
-
-          this.dispatchToListeners(type, message);
-          this.dispatchToListeners(`${type}Buffer`, { channel, message });
-          this.dispatchToListeners(`${type}:${channel}`, message);
+          if (
+            type === "subscribe" ||
+            type === "psubscribe" ||
+            type === "unsubscribe" ||
+            type === "punsubscribe"
+          ) {
+            // For subscription events, just emit the count
+            const count = Number.parseInt(messageStr);
+            this.dispatchToListeners(type, count);
+          } else {
+            // For regular messages, emit the full object
+            const message = JSON.parse(messageStr);
+            this.dispatchToListeners(type, { channel, message });
+            this.dispatchToListeners(`${type}:${channel}`, { channel, message });
+          }
         } catch (error) {
           this.dispatchToListeners("error", new Error(`Failed to parse message: ${error}`));
         }
@@ -140,7 +162,7 @@ export class Subscriber extends EventTarget {
     }
   }
 
-  on(type: string, listener: Listener): void {
+  on<T extends keyof MessageEventMap<TMessage>>(type: T, listener: Listener<TMessage, T>): void {
     if (!this.listeners.has(type)) {
       this.listeners.set(type, new Set());
     }

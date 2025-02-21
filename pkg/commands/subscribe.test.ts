@@ -11,8 +11,8 @@ describe("Subscriber", () => {
     const receivedMessages: any[] = [];
 
     const subscriber = redis.subscribe([channel]);
-    subscriber.on("message", (message) => {
-      receivedMessages.push(message);
+    subscriber.on("message", (data) => {
+      receivedMessages.push(data.message);
     });
 
     // Wait for subscription to establish
@@ -38,8 +38,8 @@ describe("Subscriber", () => {
     const receivedMessages: any[] = [];
 
     const subscriber = redis.subscribe([channel]);
-    subscriber.on("message", (message) => {
-      receivedMessages.push(message);
+    subscriber.on("message", (data) => {
+      receivedMessages.push(data.message);
     });
 
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -68,8 +68,8 @@ describe("Subscriber", () => {
     const channelMessages: any[] = [];
 
     const subscriber = redis.subscribe([channel]);
-    subscriber.on(`message:${channel}`, (message) => {
-      channelMessages.push(message);
+    subscriber.on(`message:${channel}`, (data) => {
+      channelMessages.push(data.message);
     });
 
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -97,8 +97,8 @@ describe("Subscriber", () => {
     const subscriber1 = redis.subscribe([channel]);
     const subscriber2 = redis.subscribe([channel]);
 
-    subscriber1.on("message", (message) => messages1.push(message));
-    subscriber2.on("message", (message) => messages2.push(message));
+    subscriber1.on("message", (data) => messages1.push(data.message));
+    subscriber2.on("message", (data) => messages2.push(data.message));
 
     await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -127,8 +127,8 @@ describe("Subscriber", () => {
 
     const subscriber = redis.subscribe(channels);
 
-    subscriber.on("messageBuffer", ({ channel, message }) => {
-      messages[channel].push(message);
+    subscriber.on("message", (data) => {
+      messages[data.channel].push(data.message);
     });
 
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -162,4 +162,47 @@ describe("Subscriber", () => {
 
     await subscriber.unsubscribe();
   }, 15_000);
+
+  test("emits subscribe event with count", async () => {
+    const counts: number[] = [];
+
+    const subscriber = redis.subscribe(["test-channel"]);
+    subscriber.on("subscribe", (count) => {
+      counts.push(count);
+    });
+
+    // Wait for subscription event
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    expect(counts).toHaveLength(1);
+    expect(counts[0]).toBe(1); // First subscription should have count 1
+
+    await subscriber.unsubscribe();
+  });
+
+  test("subscription count increments correctly", async () => {
+    const counts1: number[] = [];
+    const counts2: number[] = [];
+
+    // First subscription
+    const subscriber1 = redis.subscribe(["test-channel"]);
+    subscriber1.on("subscribe", (count) => {
+      counts1.push(count);
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Second subscription to same channel
+    const subscriber2 = redis.subscribe(["test-channel"]);
+    subscriber2.on("subscribe", (count) => {
+      counts2.push(count);
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    expect(counts1[0]).toBe(1); // First subscription count
+    expect(counts2[0]).toBe(1); // Second subscription count
+
+    await Promise.all([subscriber1.unsubscribe(), subscriber2.unsubscribe()]);
+  });
 });

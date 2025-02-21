@@ -2,22 +2,30 @@ import { expect, test, describe } from "bun:test";
 import { Redis } from "../redis";
 import { newHttpClient } from "../test-utils";
 
+interface TestMessage {
+  user?: string;
+  msg?: string;
+  message?: string;
+  timestamp?: number;
+  type?: string;
+}
+
 describe("Pattern Subscriber", () => {
   const client = newHttpClient();
   const redis = new Redis(client);
 
   test("receives pattern matched messages", async () => {
     const pattern = "user:*";
-    const receivedMessages: any[] = [];
+    const receivedMessages: TestMessage[] = [];
 
-    const subscriber = redis.psubscribe([pattern]);
-    subscriber.on("pmessage", (message) => {
+    const subscriber = redis.psubscribe<TestMessage>([pattern]);
+    subscriber.on("pmessage", ({ message }) => {
       receivedMessages.push(message);
     });
 
     await new Promise((resolve) => setTimeout(resolve, 500));
 
-    const testMessage = {
+    const testMessage: TestMessage = {
       user: "testUser",
       message: "Hello, World!",
       timestamp: Date.now(),
@@ -37,10 +45,10 @@ describe("Pattern Subscriber", () => {
 
   test("handles pattern-specific messages with channel info", async () => {
     const pattern = "chat:*:messages";
-    const messages: { pattern: string; channel: string; message: any }[] = [];
+    const messages: { pattern: string; channel: string; message: TestMessage }[] = [];
 
-    const subscriber = redis.psubscribe([pattern]);
-    subscriber.on("pmessageBuffer", (data) => {
+    const subscriber = redis.psubscribe<TestMessage>([pattern]);
+    subscriber.on("pmessage", (data) => {
       messages.push(data);
     });
 
@@ -54,20 +62,22 @@ describe("Pattern Subscriber", () => {
     expect(messages).toHaveLength(2);
     expect(messages[0].pattern).toBe("chat:*:messages");
     expect(messages[0].channel).toBe("chat:room1:messages");
+    expect(messages[0].message).toEqual({ msg: "Hello Room 1" });
     expect(messages[1].channel).toBe("chat:room2:messages");
+    expect(messages[1].message).toEqual({ msg: "Hello Room 2" });
 
     await subscriber.unsubscribe();
   }, 10_000);
 
   test("handles multiple patterns", async () => {
     const patterns = ["user:*", "chat:*"];
-    const messages: Record<string, any[]> = {
+    const messages: Record<string, Array<{ channel: string; message: TestMessage }>> = {
       "user:*": [],
       "chat:*": [],
     };
 
-    const subscriber = redis.psubscribe(patterns);
-    subscriber.on("pmessageBuffer", ({ pattern, channel, message }) => {
+    const subscriber = redis.psubscribe<TestMessage>(patterns);
+    subscriber.on("pmessage", ({ pattern, channel, message }) => {
       messages[pattern].push({ channel, message });
     });
 
@@ -88,13 +98,13 @@ describe("Pattern Subscriber", () => {
 
   test("unsubscribe from specific pattern", async () => {
     const patterns = ["user:*", "chat:*"];
-    const messages: Record<string, any[]> = {
+    const messages: Record<string, Array<{ channel: string; message: TestMessage }>> = {
       "user:*": [],
       "chat:*": [],
     };
 
-    const subscriber = redis.psubscribe(patterns);
-    subscriber.on("pmessageBuffer", ({ pattern, channel, message }) => {
+    const subscriber = redis.psubscribe<TestMessage>(patterns);
+    subscriber.on("pmessage", ({ pattern, channel, message }) => {
       messages[pattern].push({ channel, message });
     });
 
@@ -129,23 +139,23 @@ describe("Pattern Subscriber", () => {
   }, 15_000);
 
   test("pattern and regular subscriptions work together", async () => {
-    const patternSubscriber = redis.psubscribe(["user:*"]);
-    const channelSubscriber = redis.subscribe(["user:123"]);
+    const patternSubscriber = redis.psubscribe<TestMessage>(["user:*"]);
+    const channelSubscriber = redis.subscribe<TestMessage>(["user:123"]);
 
-    const patternMessages: any[] = [];
-    const channelMessages: any[] = [];
+    const patternMessages: TestMessage[] = [];
+    const channelMessages: TestMessage[] = [];
 
-    patternSubscriber.on("pmessage", (message) => {
+    patternSubscriber.on("pmessage", ({ message }) => {
       patternMessages.push(message);
     });
 
-    channelSubscriber.on("message", (message) => {
+    channelSubscriber.on("message", ({ message }) => {
       channelMessages.push(message);
     });
 
     await new Promise((resolve) => setTimeout(resolve, 500));
 
-    const testMessage = { msg: "Hello" };
+    const testMessage: TestMessage = { msg: "Hello" };
     await redis.publish("user:123", testMessage);
     await new Promise((resolve) => setTimeout(resolve, 500));
 

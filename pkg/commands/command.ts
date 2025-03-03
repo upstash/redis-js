@@ -31,6 +31,35 @@ export type CommandOptions<TResult, TData> = {
    */
   automaticDeserialization?: boolean;
   latencyLogging?: boolean;
+  /**
+   * Additional headers to be sent with the request
+   */
+  headers?: Record<string, string>;
+
+  /**
+   * Path to append to the URL
+   */
+  path?: string[];
+
+  /**
+   * Options for streaming requests, mainly used for subscribe, monitor commands
+   **/
+  streamOptions?: {
+    /**
+     * Callback to be called when a message is received
+     */
+    onMessage?: (data: string) => void;
+
+    /**
+     * Whether the request is streaming
+     */
+    isStreaming?: boolean;
+
+    /**
+     * Signal to abort the request
+     */
+    signal?: AbortSignal;
+  };
 };
 /**
  * Command offers default (de)serialization and the exec method to all commands.
@@ -42,6 +71,11 @@ export class Command<TResult, TData> {
   public readonly command: (string | number | boolean)[];
   public readonly serialize: Serialize;
   public readonly deserialize: Deserialize<TResult, TData>;
+  protected readonly headers?: Record<string, string>;
+  protected readonly path?: string[];
+  protected readonly onMessage?: (data: string) => void;
+  protected readonly isStreaming: boolean;
+  protected readonly signal?: AbortSignal;
   /**
    * Create a new command instance.
    *
@@ -58,6 +92,11 @@ export class Command<TResult, TData> {
         : (x) => x as unknown as TData;
 
     this.command = command.map((c) => this.serialize(c));
+    this.headers = opts?.headers;
+    this.path = opts?.path;
+    this.onMessage = opts?.streamOptions?.onMessage;
+    this.isStreaming = opts?.streamOptions?.isStreaming ?? false;
+    this.signal = opts?.streamOptions?.signal;
 
     if (opts?.latencyLogging) {
       const originalExec = this.exec.bind(this);
@@ -83,7 +122,12 @@ export class Command<TResult, TData> {
   public async exec(client: Requester): Promise<TData> {
     const { result, error } = await client.request<TResult>({
       body: this.command,
+      path: this.path,
       upstashSyncToken: client.upstashSyncToken,
+      headers: this.headers,
+      onMessage: this.onMessage,
+      isStreaming: this.isStreaming,
+      signal: this.signal,
     });
 
     if (error) {

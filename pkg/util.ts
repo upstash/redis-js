@@ -40,3 +40,33 @@ export function parseResponse<TResult>(result: unknown): TResult {
 export function deserializeScanResponse<TResult>(result: [string, ...any]): TResult {
   return [result[0], ...parseResponse<any[]>(result.slice(1))] as TResult;
 }
+
+/**
+ * Merges multiple Records of headers into a single Record
+ * Later headers take precedence over earlier ones.
+ *
+ * @param headers - Array of header records to merge
+ * @returns A new Record containing all merged headers
+ *
+ * @example
+ * const defaultHeaders = { 'Content-Type': 'application/json' };
+ * const customHeaders = { 'Authorization': 'Bearer token' };
+ * const merged = mergeHeaders(defaultHeaders, customHeaders);
+ */
+export function mergeHeaders(
+  ...headers: (Record<string, string> | undefined)[]
+): Record<string, string> {
+  const merged: Record<string, string> = {};
+
+  for (const header of headers) {
+    if (!header) continue;
+
+    for (const [key, value] of Object.entries(header)) {
+      if (value !== undefined && value !== null) {
+        merged[key] = value;
+      }
+    }
+  }
+
+  return merged;
+}

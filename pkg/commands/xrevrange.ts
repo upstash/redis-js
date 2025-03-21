@@ -24,16 +24,16 @@ function deserialize<TData extends Record<string, Record<string, unknown>>>(
 ): TData {
   const obj: Record<string, Record<string, unknown>> = {};
   for (const e of result) {
-    while (e.length >= 2) {
-      const streamId = e.shift() as string;
-      const entries = e.shift()!;
+    for (let i = 0; i < e.length; i += 2) {
+      const streamId = e[i] as string;
+      const entries = e[i + 1];
 
       if (!(streamId in obj)) {
         obj[streamId] = {};
       }
-      while (entries.length >= 2) {
-        const field = (entries as string[]).shift()!;
-        const value = (entries as string[]).shift()!;
+      for (let j = 0; j < entries.length; j += 2) {
+        const field = (entries as string[])[j];
+        const value = (entries as string[])[j + 1];
 
         try {
           obj[streamId][field] = JSON.parse(value);

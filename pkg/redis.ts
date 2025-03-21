@@ -18,7 +18,9 @@ import {
   DecrCommand,
   DelCommand,
   EchoCommand,
+  EvalROCommand,
   EvalCommand,
+  EvalshaROCommand,
   EvalshaCommand,
   ExecCommand,
   ExistsCommand,
@@ -183,7 +185,8 @@ import { ZMScoreCommand } from "./commands/zmscore";
 import type { Requester, UpstashRequest, UpstashResponse } from "./http";
 import { Pipeline } from "./pipeline";
 import { Script } from "./script";
-import type { CommandArgs, RedisOptions, Telemetry } from "./types";
+import { ScriptRO } from "./script_ro";
+import type { CommandArgs, RedisOptions, Telemetry, ScriptOptions } from "./types";
 
 // See https://github.com/upstash/upstash-redis/issues/342
 // why we need this export
@@ -393,9 +396,13 @@ export class Redis {
     }
   };
 
-  createScript(script: string): Script {
-    return new Script(this, script);
+  createScript(script: string): Script;
+  createScript(script: string, opts: ScriptOptions & { readOnly: true }): ScriptRO;
+  createScript(script: string, opts: ScriptOptions & { readOnly?: false }): Script;
+  createScript(script: string, opts?: ScriptOptions): Script | ScriptRO {
+    return opts?.readOnly ? new ScriptRO(this, script) : new Script(this, script);
   }
+
   /**
    * Create a new pipeline that allows you to send requests in bulk.
    *
@@ -521,11 +528,25 @@ export class Redis {
     new EchoCommand(args, this.opts).exec(this.client);
 
   /**
+   * @see https://redis.io/commands/eval_ro
+   */
+  eval_ro = <TArgs extends unknown[], TData = unknown>(
+    ...args: [script: string, keys: string[], args: TArgs]
+  ) => new EvalROCommand<TArgs, TData>(args, this.opts).exec(this.client);
+
+  /**
    * @see https://redis.io/commands/eval
    */
   eval = <TArgs extends unknown[], TData = unknown>(
     ...args: [script: string, keys: string[], args: TArgs]
   ) => new EvalCommand<TArgs, TData>(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/evalsha_ro
+   */
+  evalsha_ro = <TArgs extends unknown[], TData = unknown>(
+    ...args: [sha1: string, keys: string[], args: TArgs]
+  ) => new EvalshaROCommand<TArgs, TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/evalsha

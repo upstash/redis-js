@@ -18,7 +18,9 @@ import {
   DecrCommand,
   DelCommand,
   EchoCommand,
+  EvalROCommand,
   EvalCommand,
+  EvalshaROCommand,
   EvalshaCommand,
   ExistsCommand,
   ExpireAtCommand,
@@ -450,11 +452,25 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
     this.chain(new EchoCommand(args, this.commandOptions));
 
   /**
+   * @see https://redis.io/commands/eval_ro
+   */
+  eval_ro = <TArgs extends unknown[], TData = unknown>(
+    ...args: [script: string, keys: string[], args: TArgs]
+  ) => this.chain(new EvalROCommand<TArgs, TData>(args, this.commandOptions));
+
+  /**
    * @see https://redis.io/commands/eval
    */
   eval = <TArgs extends unknown[], TData = unknown>(
     ...args: [script: string, keys: string[], args: TArgs]
   ) => this.chain(new EvalCommand<TArgs, TData>(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/evalsha_ro
+   */
+  evalsha_ro = <TArgs extends unknown[], TData = unknown>(
+    ...args: [sha1: string, keys: string[], args: TArgs]
+  ) => this.chain(new EvalshaROCommand<TArgs, TData>(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/evalsha

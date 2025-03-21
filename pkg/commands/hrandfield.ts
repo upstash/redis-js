@@ -6,9 +6,9 @@ function deserialize<TData extends Record<string, unknown>>(result: string[]): T
     return null;
   }
   const obj: Record<string, unknown> = {};
-  while (result.length >= 2) {
-    const key = result.shift()!;
-    const value = result.shift()!;
+  for (let i = 0; i < result.length; i += 2) {
+    const key = result[i];
+    const value = result[i + 1];
     try {
       obj[key] = JSON.parse(value);
     } catch {

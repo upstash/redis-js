@@ -185,7 +185,7 @@ export class Redis extends core.Redis {
     if (!url) {
       console.warn("[Upstash Redis] Unable to find environment variable: `UPSTASH_REDIS_REST_URL`");
     }
-    
+
     // @ts-ignore process will be defined in node
     const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
     if (!token) {

@@ -316,7 +316,7 @@ jobs:
         working-directory: examples/cloudflare-workers
 
       - name: Deploy
-        run: wrangler publish
+        run: wrangler deploy
         working-directory: examples/cloudflare-workers
         env:
           CLOUDFLARE_API_TOKEN: ${{secrets.CF_API_TOKEN}}
@@ -409,7 +409,7 @@ jobs:
         working-directory: examples/cloudflare-workers-with-typescript
 
       - name: Deploy
-        run: wrangler publish
+        run: wrangler deploy
         working-directory: examples/cloudflare-workers-with-typescript
         env:
           CLOUDFLARE_API_TOKEN: ${{secrets.CF_API_TOKEN}}

@@ -1,4 +1,4 @@
-import { EvalROCommand } from "./eval_ro";
+import { EvalROCommand } from "./evalRo";
 
 import { keygen, newHttpClient, randomID } from "../test-utils";
 

@@ -185,8 +185,8 @@ import { ZMScoreCommand } from "./commands/zmscore";
 import type { Requester, UpstashRequest, UpstashResponse } from "./http";
 import { Pipeline } from "./pipeline";
 import { Script } from "./script";
-import { ScriptRO } from "./script_ro";
-import type { CommandArgs, RedisOptions, Telemetry, ScriptOptions } from "./types";
+import { ScriptRO } from "./scriptRo";
+import type { CommandArgs, RedisOptions, Telemetry } from "./types";
 
 // See https://github.com/upstash/upstash-redis/issues/342
 // why we need this export
@@ -396,11 +396,39 @@ export class Redis {
     }
   };
 
+  /**
+   * Creates a new script.
+   *
+   * Scripts offer the ability to optimistically try to execute a script without having to send the
+   * entire script to the server. If the script is loaded on the server, it tries again by sending
+   * the entire script. Afterwards, the script is cached on the server.
+   *
+   * @param script - The script to create
+   * @param opts - Optional options to pass to the script `{ readonly?: boolean }`
+   * @returns A new script
+   *
+   * @example
+   * ```ts
+   * const redis = new Redis({...})
+   *
+   * const script = redis.createScript<string>("return ARGV[1];")
+   * const arg1 = await script.eval([], ["Hello World"])
+   * expect(arg1, "Hello World")
+   * ```
+   * @example
+   * ```ts
+   * const redis = new Redis({...})
+   *
+   * const script = redis.createScript<string>("return ARGV[1];", { readonly: true })
+   * const arg1 = await script.evalRo([], ["Hello World"])
+   * expect(arg1, "Hello World")
+   * ```
+   */
   createScript(script: string): Script;
-  createScript(script: string, opts: ScriptOptions & { readOnly: true }): ScriptRO;
-  createScript(script: string, opts: ScriptOptions & { readOnly?: false }): Script;
-  createScript(script: string, opts?: ScriptOptions): Script | ScriptRO {
-    return opts?.readOnly ? new ScriptRO(this, script) : new Script(this, script);
+  createScript(script: string, opts: { readonly?: false }): Script;
+  createScript(script: string, opts: { readonly: true }): ScriptRO;
+  createScript(script: string, opts?: { readonly?: boolean }): Script | ScriptRO {
+    return opts?.readonly ? new ScriptRO(this, script) : new Script(this, script);
   }
 
   /**
@@ -530,7 +558,7 @@ export class Redis {
   /**
    * @see https://redis.io/commands/eval_ro
    */
-  eval_ro = <TArgs extends unknown[], TData = unknown>(
+  evalRo = <TArgs extends unknown[], TData = unknown>(
     ...args: [script: string, keys: string[], args: TArgs]
   ) => new EvalROCommand<TArgs, TData>(args, this.opts).exec(this.client);
 
@@ -544,7 +572,7 @@ export class Redis {
   /**
    * @see https://redis.io/commands/evalsha_ro
    */
-  evalsha_ro = <TArgs extends unknown[], TData = unknown>(
+  evalshaRo = <TArgs extends unknown[], TData = unknown>(
     ...args: [sha1: string, keys: string[], args: TArgs]
   ) => new EvalshaROCommand<TArgs, TData>(args, this.opts).exec(this.client);
 

@@ -14,9 +14,9 @@ describe("create a new readonly script", () => {
       const value = randomID();
       const key = newKey();
       await redis.set(key, value);
-      const script = redis.createScript("return redis.call('GET', KEYS[1]);", { readOnly: true });
+      const script = redis.createScript("return redis.call('GET', KEYS[1]);", { readonly: true });
 
-      const res = await script.eval_ro([key], []);
+      const res = await script.evalRo([key], []);
       expect(res).toEqual(value);
     },
     { timeout: 15_000 }
@@ -29,10 +29,10 @@ describe("create a new readonly script", () => {
       const value = randomID();
       const key = newKey();
       await redis.set(key, value);
-      const script = redis.createScript("return redis.call('DEL', KEYS[1]);", { readOnly: true });
+      const script = redis.createScript("return redis.call('DEL', KEYS[1]);", { readonly: true });
 
       expect(async () => {
-        await script.eval_ro([key], []);
+        await script.evalRo([key], []);
       }).toThrow();
     },
     { timeout: 15_000 }

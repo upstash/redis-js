@@ -1,7 +1,7 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
 import { afterAll, describe, expect, test } from "bun:test";
-import { EvalshaROCommand } from "./evalsha_ro";
+import { EvalshaROCommand } from "./evalshaRo";
 import { ScriptLoadCommand } from "./script_load";
 import { SetCommand } from "./set";
 

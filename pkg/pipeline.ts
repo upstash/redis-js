@@ -454,7 +454,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/eval_ro
    */
-  eval_ro = <TArgs extends unknown[], TData = unknown>(
+  evalRo = <TArgs extends unknown[], TData = unknown>(
     ...args: [script: string, keys: string[], args: TArgs]
   ) => this.chain(new EvalROCommand<TArgs, TData>(args, this.commandOptions));
 
@@ -468,7 +468,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/evalsha_ro
    */
-  evalsha_ro = <TArgs extends unknown[], TData = unknown>(
+  evalshaRo = <TArgs extends unknown[], TData = unknown>(
     ...args: [sha1: string, keys: string[], args: TArgs]
   ) => this.chain(new EvalshaROCommand<TArgs, TData>(args, this.commandOptions));
 

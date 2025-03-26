@@ -14,7 +14,7 @@ import type { Redis } from "./redis";
  * const redis = new Redis({...})
  *
  * const script = redis.createScript<string>("return ARGV[1];", { readOnly: true })
- * const arg1 = await script.eval_ro([], ["Hello World"])
+ * const arg1 = await script.evalRo([], ["Hello World"])
  * expect(arg1, "Hello World")
  * ```
  */
@@ -32,15 +32,15 @@ export class ScriptRO<TResult = unknown> {
   /**
    * Send an `EVAL_RO` command to redis.
    */
-  public async eval_ro(keys: string[], args: string[]): Promise<TResult> {
-    return await this.redis.eval_ro(this.script, keys, args);
+  public async evalRo(keys: string[], args: string[]): Promise<TResult> {
+    return await this.redis.evalRo(this.script, keys, args);
   }
 
   /**
    * Calculates the sha1 hash of the script and then calls `EVALSHA_RO`.
    */
-  public async evalsha_ro(keys: string[], args: string[]): Promise<TResult> {
-    return await this.redis.evalsha_ro(this.sha1, keys, args);
+  public async evalshaRo(keys: string[], args: string[]): Promise<TResult> {
+    return await this.redis.evalshaRo(this.sha1, keys, args);
   }
 
   /**
@@ -50,9 +50,9 @@ export class ScriptRO<TResult = unknown> {
    * Following calls will be able to use the cached script
    */
   public async exec(keys: string[], args: string[]): Promise<TResult> {
-    const res = await this.redis.evalsha_ro(this.sha1, keys, args).catch(async (error) => {
+    const res = await this.redis.evalshaRo(this.sha1, keys, args).catch(async (error) => {
       if (error instanceof Error && error.message.toLowerCase().includes("noscript")) {
-        return await this.redis.eval_ro(this.script, keys, args);
+        return await this.redis.evalRo(this.script, keys, args);
       }
       throw error;
     });

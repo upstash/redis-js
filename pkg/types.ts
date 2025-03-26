@@ -33,7 +33,3 @@ export type RedisOptions = {
   enableAutoPipelining?: boolean;
   readYourWrites?: boolean;
 };
-
-export type ScriptOptions = {
-  readOnly?: boolean;
-};

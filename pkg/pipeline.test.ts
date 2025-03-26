@@ -136,7 +136,9 @@ describe("use all the things", () => {
       .decrby(newKey(), 1)
       .del(newKey())
       .echo("hello")
+      .evalRo("return ARGV[1]", [], ["Hello"])
       .eval("return ARGV[1]", [], ["Hello"])
+      .evalshaRo(scriptHash, [], ["Hello"])
       .evalsha(scriptHash, [], ["Hello"])
       .exists(newKey())
       .expire(newKey(), 5)
@@ -250,7 +252,7 @@ describe("use all the things", () => {
       .json.set(newKey(), "$", { hello: "world" });
 
     const res = await p.exec();
-    expect(res.length).toEqual(122);
+    expect(res.length).toEqual(124);
   });
 });
 describe("keep errors", () => {

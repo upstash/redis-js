@@ -31,6 +31,7 @@ export { type GetRangeCommand } from "./getrange";
 export { type GetSetCommand } from "./getset";
 export { type HDelCommand } from "./hdel";
 export { type HExistsCommand } from "./hexists";
+export { type HExpireCommand } from "./hexpire";
 export { type HGetCommand } from "./hget";
 export { type HGetAllCommand } from "./hgetall";
 export { type HIncrByCommand } from "./hincrby";

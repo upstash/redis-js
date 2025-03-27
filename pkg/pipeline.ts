@@ -1,4 +1,5 @@
 import type { Command, CommandOptions } from "./commands/command";
+import { HExpireCommand } from "./commands/hexpire";
 import { HRandFieldCommand } from "./commands/hrandfield";
 import type {
   ScoreMember,
@@ -589,6 +590,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   hexists = (...args: CommandArgs<typeof HExistsCommand>) =>
     this.chain(new HExistsCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/hexpire
+   */
+  hexpire = (...args: CommandArgs<typeof HExpireCommand>) =>
+    this.chain(new HExpireCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/hget

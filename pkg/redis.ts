@@ -1,4 +1,5 @@
 import { createAutoPipelineProxy } from "../pkg/auto-pipeline";
+import { HExpireCommand } from "./commands/hexpire";
 import type {
   CommandOptions,
   ScoreMember,
@@ -701,6 +702,12 @@ export class Redis {
    */
   hexists = (...args: CommandArgs<typeof HExistsCommand>) =>
     new HExistsCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/hexpire
+   */
+  hexpire = (...args: CommandArgs<typeof HExpireCommand>) =>
+    new HExpireCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hget

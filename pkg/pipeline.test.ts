@@ -152,6 +152,7 @@ describe("use all the things", () => {
       .getset(newKey(), "hello")
       .hdel(newKey(), "field")
       .hexists(newKey(), "field")
+      .hexpire(newKey(), "field", 1)
       .hget(newKey(), "field")
       .hgetall(newKey())
       .hincrby(newKey(), "field", 1)

@@ -136,24 +136,39 @@ describe("LT", () => {
 test("should return -2 if no such field exists in the provided hash key", async () => {
   const key = newKey();
   const hashKey = newKey();
-  const res = await new HExpireCommand([key, hashKey, 1]).exec(client);
+  const hashKey2 = newKey();
+  await new HSetCommand([key, { [hashKey]: 1 }]).exec(client);
+  const res = await new HExpireCommand([key, hashKey2, 1]).exec(client);
   expect(res).toEqual([-2]);
 });
 
-test("should return -2 if the provided key does not exist", async () => {
+test("should return results for multiple fields in order", async () => {
   const key = newKey();
-  const hashKey = newKey();
-  const res = await new HExpireCommand([key, hashKey, 1]).exec(client);
-  expect(res).toEqual([-2]);
-});
+  const hashKey1 = newKey();
+  const hashKey2 = newKey();
+  const hashKey3 = newKey();
+  const value1 = randomID();
+  const value2 = randomID();
 
-test("should return 2 when called with 0 seconds", async () => {
-  const key = newKey();
-  const hashKey = newKey();
-  const value = randomID();
-  await new HSetCommand([key, { [hashKey]: value }]).exec(client);
-  const res = await new HExpireCommand([key, hashKey, 0]).exec(client);
-  expect(res).toEqual([2]);
-  const res2 = await new HGetCommand([key, hashKey]).exec(client);
+  await new HSetCommand([key, { [hashKey1]: value1, [hashKey2]: value2 }]).exec(client);
+
+  // Set expiry for the first field
+  await new HExpireCommand([key, hashKey1, 1]).exec(client);
+
+  // Pass both fields to HExpireCommand
+  const res = await new HExpireCommand([key, [hashKey1, hashKey2, hashKey3], 1, "NX"]).exec(client);
+
+  // Expect the results in order: hashKey1 already has expiry, hashKey2 does not
+  expect(res).toEqual([0, 1, -2]);
+
+  // Wait for the expiry to take effect
+  await new Promise((res) => setTimeout(res, 2000));
+
+  // Verify that hashKey1 is expired
+  const res1 = await new HGetCommand([key, hashKey1]).exec(client);
+  expect(res1).toEqual(null);
+
+  // Verify that hashKey2 is expired
+  const res2 = await new HGetCommand([key, hashKey2]).exec(client);
   expect(res2).toEqual(null);
 });

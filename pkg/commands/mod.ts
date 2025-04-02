@@ -34,6 +34,7 @@ export * from "./getrange";
 export * from "./getset";
 export * from "./hdel";
 export * from "./hexists";
+export * from "./hexpire";
 export * from "./hget";
 export * from "./hgetall";
 export * from "./hincrby";

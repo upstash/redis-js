@@ -2,7 +2,7 @@ import type { CommandOptions } from "./command";
 import { Command } from "./command";
 
 type HExpireOptions = "NX" | "nx" | "XX" | "xx" | "GT" | "gt" | "LT" | "lt";
-export class HExpireCommand extends Command<("-2" | "0" | "1" | "2")[], (-2 | 0 | 1 | 2)[]> {
+export class HExpireCommand extends Command<(-2 | 0 | 1 | 2)[], (-2 | 0 | 1 | 2)[]> {
   constructor(
     cmd: [
       key: string,
@@ -10,7 +10,7 @@ export class HExpireCommand extends Command<("-2" | "0" | "1" | "2")[], (-2 | 0 
       seconds: number,
       option?: HExpireOptions,
     ],
-    opts?: CommandOptions<("-2" | "0" | "1" | "2")[], (-2 | 0 | 1 | 2)[]>
+    opts?: CommandOptions<(-2 | 0 | 1 | 2)[], (-2 | 0 | 1 | 2)[]>
   ) {
     const [key, fields, seconds, option] = cmd;
     const fieldArray = Array.isArray(fields) ? fields : [fields];

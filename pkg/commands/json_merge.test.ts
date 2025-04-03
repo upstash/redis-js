@@ -15,7 +15,8 @@ describe("JSON.MERGE", () => {
     test("Create a non-existent path-value", async () => {
       const key = newKey();
       await new JsonSetCommand([key, "$", { a: 2 }]).exec(client);
-      await new JsonMergeCommand([key, "$.b", 8]).exec(client);
+      const mergeResult = await new JsonMergeCommand([key, "$.b", 8]).exec(client);
+      expect(mergeResult).toEqual("OK");
       const res = await new JsonGetCommand([key, "$"]).exec(client);
       expect(res).toEqual([{ a: 2, b: 8 }]);
     });

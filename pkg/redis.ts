@@ -426,10 +426,10 @@ export class Redis {
    * ```
    */
 
-  createScript<TReadonly extends boolean = false>(
+  createScript<TResult = unknown, TReadonly extends boolean = false>(
     script: string,
     opts?: { readonly?: TReadonly }
-  ): TReadonly extends true ? ScriptRO : Script {
+  ): TReadonly extends true ? ScriptRO<TResult> : Script<TResult> {
     return opts?.readonly ? (new ScriptRO(this, script) as any) : (new Script(this, script) as any);
   }
 

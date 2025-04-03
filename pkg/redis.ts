@@ -425,11 +425,12 @@ export class Redis {
    * expect(arg1, "Hello World")
    * ```
    */
-  createScript(script: string): Script;
-  createScript(script: string, opts: { readonly?: false }): Script;
-  createScript(script: string, opts: { readonly: true }): ScriptRO;
-  createScript(script: string, opts?: { readonly?: boolean }): Script | ScriptRO {
-    return opts?.readonly ? new ScriptRO(this, script) : new Script(this, script);
+
+  createScript<TReadonly extends boolean = false>(
+    script: string,
+    opts?: { readonly?: TReadonly }
+  ): TReadonly extends true ? ScriptRO : Script {
+    return opts?.readonly ? (new ScriptRO(this, script) as any) : (new Script(this, script) as any);
   }
 
   /**

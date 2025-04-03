@@ -67,6 +67,7 @@ import {
   JsonDelCommand,
   JsonForgetCommand,
   JsonGetCommand,
+  JsonMergeCommand,
   JsonMGetCommand,
   JsonMSetCommand,
   JsonNumIncrByCommand,
@@ -1379,6 +1380,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
        */
       get: (...args: CommandArgs<typeof JsonGetCommand>) =>
         this.chain(new JsonGetCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/commands/json.merge
+       */
+      merge: (...args: CommandArgs<typeof JsonMergeCommand>) =>
+        this.chain(new JsonMergeCommand(args, this.commandOptions)),
 
       /**
        * @see https://redis.io/commands/json.mget

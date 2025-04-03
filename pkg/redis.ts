@@ -69,6 +69,7 @@ import {
   JsonDelCommand,
   JsonForgetCommand,
   JsonGetCommand,
+  JsonMergeCommand,
   JsonMGetCommand,
   JsonMSetCommand,
   JsonNumIncrByCommand,
@@ -292,6 +293,12 @@ export class Redis {
        */
       get: <TData>(...args: CommandArgs<typeof JsonGetCommand>) =>
         new JsonGetCommand<TData>(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/commands/json.merge
+       */
+      merge: (...args: CommandArgs<typeof JsonMergeCommand>) =>
+        new JsonMergeCommand(args, this.opts).exec(this.client),
 
       /**
        * @see https://redis.io/commands/json.mget

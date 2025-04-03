@@ -149,9 +149,10 @@ describe("Auto pipeline", () => {
       redis.zunion(1, [newKey()]),
       redis.json.set(persistentKey3, "$", { log: ["one", "two"] }),
       redis.json.arrappend(persistentKey3, "$.log", '"three"'),
+      redis.json.merge(persistentKey3, "$.log", '"three"'),
     ]);
     expect(result).toBeTruthy();
-    expect(result.length).toBe(124); // returns
+    expect(result.length).toBe(125); // returns
     // @ts-expect-error pipelineCounter is not in type but accessible120 results
     expect(redis.pipelineCounter).toBe(1);
   });

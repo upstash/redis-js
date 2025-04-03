@@ -58,6 +58,7 @@ export { type JsonClearCommand } from "./json_clear";
 export { type JsonDelCommand } from "./json_del";
 export { type JsonForgetCommand } from "./json_forget";
 export { type JsonGetCommand } from "./json_get";
+export { type JsonMergeCommand } from "./json_merge";
 export { type JsonMGetCommand } from "./json_mget";
 export { type JsonNumIncrByCommand } from "./json_numincrby";
 export { type JsonNumMultByCommand } from "./json_nummultby";

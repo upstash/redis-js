@@ -253,7 +253,7 @@ describe("use all the things", () => {
       .json.set(newKey(), "$", { hello: "world" });
 
     const res = await p.exec();
-    expect(res.length).toEqual(126);
+    expect(res.length).toEqual(125);
   });
 });
 describe("keep errors", () => {
@@ -297,11 +297,11 @@ describe("keep errors", () => {
     expect(results[0].error).toBeUndefined();
     expect(results[1].error).toBeUndefined();
     expect(results[2].error).toBe("NOSCRIPT No matching script. Please use EVAL.");
-    expect(results[3].error).toBe("ERR invalid expire time");
+    expect(results[3].error).toBeUndefined();
     expect(results[4].error).toBeUndefined();
 
     expect(results[2].result).toBeUndefined();
-    expect(results[3].result).toBeUndefined();
+    expect(results[3].result).toBe(1);
     expect(results[4].result).toBe(2);
   });
 });

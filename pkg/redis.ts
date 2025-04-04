@@ -1,4 +1,5 @@
 import { createAutoPipelineProxy } from "../pkg/auto-pipeline";
+import { HExpireCommand } from "./commands/hexpire";
 import type {
   CommandOptions,
   ScoreMember,
@@ -431,11 +432,12 @@ export class Redis {
    * expect(arg1, "Hello World")
    * ```
    */
-  createScript(script: string): Script;
-  createScript(script: string, opts: { readonly?: false }): Script;
-  createScript(script: string, opts: { readonly: true }): ScriptRO;
-  createScript(script: string, opts?: { readonly?: boolean }): Script | ScriptRO {
-    return opts?.readonly ? new ScriptRO(this, script) : new Script(this, script);
+
+  createScript<TResult = unknown, TReadonly extends boolean = false>(
+    script: string,
+    opts?: { readonly?: TReadonly }
+  ): TReadonly extends true ? ScriptRO<TResult> : Script<TResult> {
+    return opts?.readonly ? (new ScriptRO(this, script) as any) : (new Script(this, script) as any);
   }
 
   /**
@@ -708,6 +710,12 @@ export class Redis {
    */
   hexists = (...args: CommandArgs<typeof HExistsCommand>) =>
     new HExistsCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/hexpire
+   */
+  hexpire = (...args: CommandArgs<typeof HExpireCommand>) =>
+    new HExpireCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hget

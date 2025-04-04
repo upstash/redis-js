@@ -253,7 +253,7 @@ describe("use all the things", () => {
       .json.set(newKey(), "$", { hello: "world" });
 
     const res = await p.exec();
-    expect(res.length).toEqual(124);
+    expect(res.length).toEqual(126);
   });
 });
 describe("keep errors", () => {

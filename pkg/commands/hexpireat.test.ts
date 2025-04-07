@@ -8,14 +8,14 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("expires a hash key at a specific timestamp", async () => {
+test("expires a hash key at a specific timestamp with NX option", async () => {
   const key = newKey();
   const hashKey = newKey();
   const value = randomID();
   const timestamp = Math.floor(Date.now() / 1000) + 2;
 
   await new HSetCommand([key, { [hashKey]: value }]).exec(client);
-  const res = await new HExpireAtCommand([key, hashKey, timestamp]).exec(client);
+  const res = await new HExpireAtCommand([key, hashKey, timestamp, "NX"]).exec(client);
   expect(res).toEqual([1]);
 
   await new Promise((res) => setTimeout(res, 3000));

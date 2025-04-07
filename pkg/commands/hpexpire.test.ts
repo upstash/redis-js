@@ -14,7 +14,7 @@ test("expires a hash key in milliseconds", async () => {
   const value = randomID();
 
   await new HSetCommand([key, { [hashKey]: value }]).exec(client);
-  const res = await new HPExpireCommand([key, hashKey, 1000]).exec(client);
+  const res = await new HPExpireCommand([key, hashKey, 1000, "NX"]).exec(client);
   expect(res).toEqual([1]);
 
   await new Promise((res) => setTimeout(res, 1500));

@@ -15,7 +15,7 @@ test("expires a hash key at a specific timestamp in milliseconds", async () => {
   const timestamp = Date.now() + 2000;
 
   await new HSetCommand([key, { [hashKey]: value }]).exec(client);
-  const res = await new HPExpireAtCommand([key, hashKey, timestamp]).exec(client);
+  const res = await new HPExpireAtCommand([key, hashKey, timestamp, "NX"]).exec(client);
   expect(res).toEqual([1]);
 
   await new Promise((res) => setTimeout(res, 3000));

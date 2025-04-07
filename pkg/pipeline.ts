@@ -1,5 +1,4 @@
 import type { Command, CommandOptions } from "./commands/command";
-import { HExpireCommand } from "./commands/hexpire";
 import { HRandFieldCommand } from "./commands/hrandfield";
 import type {
   ScoreMember,
@@ -42,6 +41,14 @@ import {
   GetSetCommand,
   HDelCommand,
   HExistsCommand,
+  HExpireCommand,
+  HExpireAtCommand,
+  HExpireTimeCommand,
+  HTtlCommand,
+  HPExpireCommand,
+  HPExpireAtCommand,
+  HPExpireTimeCommand,
+  HPTtlCommand,
   HGetAllCommand,
   HGetCommand,
   HIncrByCommand,
@@ -597,6 +604,48 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   hexpire = (...args: CommandArgs<typeof HExpireCommand>) =>
     this.chain(new HExpireCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/hexpireat
+   */
+  hexpireat = (...args: CommandArgs<typeof HExpireAtCommand>) =>
+    this.chain(new HExpireAtCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/hexpiretime
+   */
+  hexpiretime = (...args: CommandArgs<typeof HExpireTimeCommand>) =>
+    this.chain(new HExpireTimeCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/httl
+   */
+  httl = (...args: CommandArgs<typeof HTtlCommand>) =>
+    this.chain(new HTtlCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/hpexpire
+   */
+  hpexpire = (...args: CommandArgs<typeof HPExpireCommand>) =>
+    this.chain(new HPExpireCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/hpexpireat
+   */
+  hpexpireat = (...args: CommandArgs<typeof HPExpireAtCommand>) =>
+    this.chain(new HPExpireAtCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/hpexpiretime
+   */
+  hpexpiretime = (...args: CommandArgs<typeof HPExpireTimeCommand>) =>
+    this.chain(new HPExpireTimeCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/hpttl
+   */
+  hpttl = (...args: CommandArgs<typeof HPTtlCommand>) =>
+    this.chain(new HPTtlCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/hget

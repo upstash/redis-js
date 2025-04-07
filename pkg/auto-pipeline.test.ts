@@ -51,6 +51,13 @@ describe("Auto pipeline", () => {
       redis.hdel(newKey(), "field"),
       redis.hexists(newKey(), "field"),
       redis.hexpire(newKey(), "field", 1),
+      redis.hexpireat(newKey(), "field", Math.floor(Date.now() / 1000) + 60),
+      redis.hexpiretime(newKey(), "field"),
+      redis.httl(newKey(), "field"),
+      redis.hpexpire(newKey(), "field", 1),
+      redis.hpexpireat(newKey(), "field", Math.floor(Date.now() / 1000) + 60),
+      redis.hpexpiretime(newKey(), "field"),
+      redis.hpttl(newKey(), "field"),
       redis.hget(newKey(), "field"),
       redis.hgetall(newKey()),
       redis.hincrby(newKey(), "field", 1),
@@ -153,7 +160,7 @@ describe("Auto pipeline", () => {
       redis.json.merge(persistentKey3, "$.log", '"three"'),
     ]);
     expect(result).toBeTruthy();
-    expect(result.length).toBe(126); // returns
+    expect(result.length).toBe(133); // returns
     // @ts-expect-error pipelineCounter is not in type but accessible120 results
     expect(redis.pipelineCounter).toBe(1);
   });

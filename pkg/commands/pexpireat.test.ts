@@ -29,3 +29,16 @@ test("without options", () => {
     expect(res2).toEqual(null);
   });
 });
+test("doesn't set the expiration if the second pexpire command timestamp is smaller", async () => {
+  const key = newKey();
+  const value = randomID();
+  await new SetCommand([key, value]).exec(client);
+
+  const expireAtMillisecond = Date.now() + 60_000;
+
+  const res = await new PExpireAtCommand([key, expireAtMillisecond]).exec(client);
+  expect(res).toEqual(1);
+
+  const res2 = await new PExpireAtCommand([key, expireAtMillisecond - 1000, "GT"]).exec(client);
+  expect(res2).toEqual(0);
+});

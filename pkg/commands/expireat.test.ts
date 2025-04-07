@@ -23,3 +23,33 @@ describe("without options", () => {
     expect(res2).toEqual(null);
   });
 });
+test("with NX option", async () => {
+  const key = newKey();
+  const value = randomID();
+  await new SetCommand([key, value]).exec(client);
+
+  const currentTime = Math.floor(Date.now() / 1000);
+
+  const res = await new ExpireAtCommand([key, currentTime + 1, "NX"]).exec(client);
+  expect(res).toEqual(1);
+
+  const res2 = await new ExpireAtCommand([key, currentTime + 2, "NX"]).exec(client);
+  expect(res2).toEqual(0);
+});
+
+test("with XX option", async () => {
+  const key = newKey();
+  const value = randomID();
+  await new SetCommand([key, value]).exec(client);
+
+  const currentTime = Math.floor(Date.now() / 1000);
+
+  const res = await new ExpireAtCommand([key, currentTime + 1, "XX"]).exec(client);
+  expect(res).toEqual(0);
+
+  const res2 = await new ExpireAtCommand([key, currentTime + 1]).exec(client);
+  expect(res2).toEqual(1);
+
+  const res3 = await new ExpireAtCommand([key, currentTime + 2, "XX"]).exec(client);
+  expect(res3).toEqual(1);
+});

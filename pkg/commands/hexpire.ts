@@ -1,14 +1,14 @@
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
+import type { ExpireOptions } from "./expire";
 
-type HExpireOptions = "NX" | "nx" | "XX" | "xx" | "GT" | "gt" | "LT" | "lt";
 export class HExpireCommand extends Command<(-2 | 0 | 1 | 2)[], (-2 | 0 | 1 | 2)[]> {
   constructor(
     cmd: [
       key: string,
       fields: (string | number) | (string | number)[],
       seconds: number,
-      option?: HExpireOptions,
+      option?: ExpireOptions,
     ],
     opts?: CommandOptions<(-2 | 0 | 1 | 2)[], (-2 | 0 | 1 | 2)[]>
   ) {

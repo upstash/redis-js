@@ -1,11 +1,15 @@
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
+import type { ExpireOptions } from "./expire";
 
 /**
  * @see https://redis.io/commands/expireat
  */
 export class ExpireAtCommand extends Command<"0" | "1", 0 | 1> {
-  constructor(cmd: [key: string, unix: number], opts?: CommandOptions<"0" | "1", 0 | 1>) {
+  constructor(
+    cmd: [key: string, unix: number, option?: ExpireOptions],
+    opts?: CommandOptions<"0" | "1", 0 | 1>
+  ) {
     super(["expireat", ...cmd], opts);
   }
 }

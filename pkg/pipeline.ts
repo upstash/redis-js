@@ -49,6 +49,7 @@ import {
   HPExpireAtCommand,
   HPExpireTimeCommand,
   HPTtlCommand,
+  HPersistCommand,
   HGetAllCommand,
   HGetCommand,
   HIncrByCommand,
@@ -646,6 +647,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   hpttl = (...args: CommandArgs<typeof HPTtlCommand>) =>
     this.chain(new HPTtlCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/hpersist
+   */
+  hpersist = (...args: CommandArgs<typeof HPersistCommand>) =>
+    this.chain(new HPersistCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/hget

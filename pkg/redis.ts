@@ -50,6 +50,7 @@ import {
   HPExpireAtCommand,
   HPExpireTimeCommand,
   HPTtlCommand,
+  HPersistCommand,
   HGetAllCommand,
   HGetCommand,
   HIncrByCommand,
@@ -765,6 +766,12 @@ export class Redis {
    */
   hpttl = (...args: CommandArgs<typeof HPTtlCommand>) =>
     new HPTtlCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/hpersist
+   */
+  hpersist = (...args: CommandArgs<typeof HPersistCommand>) =>
+    new HPersistCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hget

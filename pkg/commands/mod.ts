@@ -42,6 +42,7 @@ export * from "./hpexpire";
 export * from "./hpexpireat";
 export * from "./hpexpiretime";
 export * from "./hpttl";
+export * from "./hpersist";
 export * from "./hget";
 export * from "./hgetall";
 export * from "./hincrby";

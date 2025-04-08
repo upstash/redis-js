@@ -39,6 +39,7 @@ export { type HPExpireCommand } from "./hpexpire";
 export { type HPExpireAtCommand } from "./hpexpireat";
 export { type HPExpireTimeCommand } from "./hpexpiretime";
 export { type HPTtlCommand } from "./hpttl";
+export { type HPersistCommand } from "./hpersist";
 export { type HGetCommand } from "./hget";
 export { type HGetAllCommand } from "./hgetall";
 export { type HIncrByCommand } from "./hincrby";

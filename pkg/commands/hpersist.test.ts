@@ -10,7 +10,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("persists a hash key correctly", async () => {
+test("persists a hash key's field(s) correctly", async () => {
   const key = newKey();
   const hashKey = newKey();
   const value = randomID();

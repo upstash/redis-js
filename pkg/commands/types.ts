@@ -13,7 +13,7 @@ export { type EvalCommand } from "./eval";
 export { type EvalshaROCommand } from "./evalshaRo";
 export { type EvalshaCommand } from "./evalsha";
 export { type ExistsCommand } from "./exists";
-export { type ExpireCommand } from "./expire";
+export { type ExpireCommand, type ExpireOption } from "./expire";
 export { type ExpireAtCommand } from "./expireat";
 export { type FlushAllCommand } from "./flushall";
 export { type FlushDBCommand } from "./flushdb";

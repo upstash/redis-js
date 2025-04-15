@@ -40,6 +40,7 @@ export class Subscriber<TMessage = any> extends EventTarget {
   private subscriptions: Map<string, SubscriptionInfo>;
   private client: Requester;
   private listeners: Map<string, Set<Listener<TMessage, any>>>;
+  public ready: Promise<void>;
 
   constructor(client: Requester, channels: string[], isPattern: boolean = false) {
     super();
@@ -47,13 +48,9 @@ export class Subscriber<TMessage = any> extends EventTarget {
     this.subscriptions = new Map();
     this.listeners = new Map();
 
-    for (const channel of channels) {
-      if (isPattern) {
-        this.subscribeToPattern(channel);
-      } else {
-        this.subscribeToChannel(channel);
-      }
-    }
+    this.ready = isPattern
+      ? Promise.all(channels.map((c) => this.subscribeToPattern(c))).then(() => {})
+      : Promise.all(channels.map((c) => this.subscribeToChannel(c))).then(() => {});
   }
 
   private subscribeToChannel(channel: string) {
@@ -66,7 +63,7 @@ export class Subscriber<TMessage = any> extends EventTarget {
       },
     });
 
-    command.exec(this.client).catch((error) => {
+    const commandPromise = command.exec(this.client).catch((error) => {
       if (error.name !== "AbortError") {
         this.dispatchToListeners("error", error);
       }
@@ -77,6 +74,8 @@ export class Subscriber<TMessage = any> extends EventTarget {
       controller,
       isPattern: false,
     });
+
+    return commandPromise;
   }
 
   private subscribeToPattern(pattern: string) {
@@ -89,7 +88,7 @@ export class Subscriber<TMessage = any> extends EventTarget {
       },
     });
 
-    command.exec(this.client).catch((error) => {
+    const commandPromise = command.exec(this.client).catch((error) => {
       if (error.name !== "AbortError") {
         this.dispatchToListeners("error", error);
       }
@@ -100,6 +99,8 @@ export class Subscriber<TMessage = any> extends EventTarget {
       controller,
       isPattern: true,
     });
+
+    return commandPromise;
   }
 
   private handleMessage(data: string, isPattern: boolean) {

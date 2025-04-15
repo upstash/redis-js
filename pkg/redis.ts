@@ -1,5 +1,4 @@
 import { createAutoPipelineProxy } from "../pkg/auto-pipeline";
-import { HExpireCommand } from "./commands/hexpire";
 import type {
   CommandOptions,
   ScoreMember,
@@ -43,6 +42,15 @@ import {
   GetSetCommand,
   HDelCommand,
   HExistsCommand,
+  HExpireCommand,
+  HExpireAtCommand,
+  HExpireTimeCommand,
+  HTtlCommand,
+  HPExpireCommand,
+  HPExpireAtCommand,
+  HPExpireTimeCommand,
+  HPTtlCommand,
+  HPersistCommand,
   HGetAllCommand,
   HGetCommand,
   HIncrByCommand,
@@ -716,6 +724,54 @@ export class Redis {
    */
   hexpire = (...args: CommandArgs<typeof HExpireCommand>) =>
     new HExpireCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/hexpireat
+   */
+  hexpireat = (...args: CommandArgs<typeof HExpireAtCommand>) =>
+    new HExpireAtCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/hexpiretime
+   */
+  hexpiretime = (...args: CommandArgs<typeof HExpireTimeCommand>) =>
+    new HExpireTimeCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/httl
+   */
+  httl = (...args: CommandArgs<typeof HTtlCommand>) =>
+    new HTtlCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/hpexpire
+   */
+  hpexpire = (...args: CommandArgs<typeof HPExpireCommand>) =>
+    new HPExpireCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/hpexpireat
+   */
+  hpexpireat = (...args: CommandArgs<typeof HPExpireAtCommand>) =>
+    new HPExpireAtCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/hpexpiretime
+   */
+  hpexpiretime = (...args: CommandArgs<typeof HPExpireTimeCommand>) =>
+    new HPExpireTimeCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/hpttl
+   */
+  hpttl = (...args: CommandArgs<typeof HPTtlCommand>) =>
+    new HPTtlCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/hpersist
+   */
+  hpersist = (...args: CommandArgs<typeof HPersistCommand>) =>
+    new HPersistCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hget

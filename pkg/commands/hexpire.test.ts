@@ -9,6 +9,19 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
+// expire options to test
+export const TEST_EXPIRE_OPTIONS = [
+  "NX",
+  "nx",
+  "XX",
+  "xx",
+  "GT",
+  "gt",
+  "LT",
+  "lt",
+  undefined,
+] as const;
+
 test("expires a hash key correctly", async () => {
   const key = newKey();
   const hashKey = newKey();
@@ -171,4 +184,22 @@ test("should return results for multiple fields in order", async () => {
   // Verify that hashKey2 is expired
   const res2 = await new HGetCommand([key, hashKey2]).exec(client);
   expect(res2).toEqual(null);
+});
+
+test("can be defined with options or without", async () => {
+  const key = newKey();
+  const hashKey = newKey();
+  const timestamp = Math.floor(Date.now() / 1000) + 2;
+
+  for (const expireOption of TEST_EXPIRE_OPTIONS) {
+    expect(new HExpireCommand([key, hashKey, timestamp, expireOption]).command).toEqual([
+      "hexpire",
+      key,
+      timestamp,
+      ...(expireOption ? [expireOption] : []),
+      "FIELDS",
+      1,
+      hashKey,
+    ]);
+  }
 });

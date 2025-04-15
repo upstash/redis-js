@@ -44,12 +44,12 @@ test("with XX option", async () => {
 
   const currentTime = Math.floor(Date.now() / 1000);
 
-  const res = await new ExpireAtCommand([key, currentTime + 1, "XX"]).exec(client);
+  const res = await new ExpireAtCommand([key, currentTime + 10, "XX"]).exec(client);
   expect(res).toEqual(0);
 
-  const res2 = await new ExpireAtCommand([key, currentTime + 1]).exec(client);
+  const res2 = await new ExpireAtCommand([key, currentTime + 10]).exec(client);
   expect(res2).toEqual(1);
 
-  const res3 = await new ExpireAtCommand([key, currentTime + 2, "XX"]).exec(client);
+  const res3 = await new ExpireAtCommand([key, currentTime + 20, "XX"]).exec(client);
   expect(res3).toEqual(1);
 });

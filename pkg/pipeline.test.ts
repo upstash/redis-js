@@ -153,6 +153,13 @@ describe("use all the things", () => {
       .hdel(newKey(), "field")
       .hexists(newKey(), "field")
       .hexpire(newKey(), "field", 1)
+      .hexpireat(newKey(), "field", Date.now() + 1000)
+      .hexpiretime(newKey(), "field")
+      .hpersist(newKey(), "field")
+      .hpexpire(newKey(), "field", 1)
+      .hpexpireat(newKey(), "field", 1)
+      .hpexpiretime(newKey(), "field")
+      .hpttl(newKey(), "field")
       .hget(newKey(), "field")
       .hgetall(newKey())
       .hincrby(newKey(), "field", 1)
@@ -165,6 +172,7 @@ describe("use all the things", () => {
       .hset(newKey(), { field: "value" })
       .hsetnx(newKey(), "field", "value")
       .hstrlen(newKey(), "field")
+      .httl(newKey(), "field")
       .hvals(newKey())
       .incr(newKey())
       .incrby(newKey(), 1)
@@ -251,9 +259,8 @@ describe("use all the things", () => {
       .zunionstore(newKey(), 1, [newKey()])
       .zunion(1, [newKey()])
       .json.set(newKey(), "$", { hello: "world" });
-
     const res = await p.exec();
-    expect(res.length).toEqual(125);
+    expect(res.length).toEqual(133);
   });
 });
 describe("keep errors", () => {

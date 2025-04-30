@@ -197,20 +197,24 @@ describe("Auto pipeline", () => {
       latencyLogging: false,
       enableAutoPipelining: true,
     });
+
+    const key1 = newKey();
+    const key2 = newKey();
+
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
 
-    void redis.flushdb();
+    await redis.flushdb();
 
-    const res1 = await redis.incr("baz");
+    const res1 = await redis.incr(key1);
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(1);
 
-    const res2 = await redis.incr("baz");
+    const res2 = await redis.incr(key1);
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(2);
 
-    const res3 = await redis.set("foo", "bar");
+    const res3 = await redis.set(key2, "bar");
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(3);
 
@@ -225,16 +229,19 @@ describe("Auto pipeline", () => {
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
 
+    const key1 = newKey();
+    const key2 = newKey();
+
     const resArray = await Promise.all([
-      redis.flushdb(),
-      redis.incr("baz"),
-      redis.incr("baz"),
-      redis.set("foo", "bar"),
-      redis.get("foo"),
+      redis.dbsize(),
+      redis.incr(key1),
+      redis.incr(key1),
+      redis.set(key2, "bar"),
+      redis.get(key2),
     ]);
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(1);
-    expect(resArray).toEqual(["OK", 1, 2, "OK", "bar"]);
+    expect(resArray).toEqual([expect.any(Number), 1, 2, "OK", "bar"]);
   });
 
   test("should be able to utilize only redis functions 'use' like usual", async () => {

@@ -8,6 +8,14 @@ import type { CommandArgs } from "./types";
 // properties which are only available in redis
 type redisOnly = Exclude<keyof Redis, keyof Pipeline>;
 
+export const EXCLUDE_COMMANDS: Set<keyof Redis> = new Set([
+  "scan",
+  "keys",
+  "flushdb",
+  "flushall",
+  "dbsize",
+]);
+
 export function createAutoPipelineProxy(_redis: Redis, json?: boolean): Redis {
   const redis = _redis as Redis & {
     autoPipelineExecutor: AutoPipelineExecutor;
@@ -30,8 +38,9 @@ export function createAutoPipelineProxy(_redis: Redis, json?: boolean): Redis {
 
       const commandInRedisButNotPipeline =
         command in redis && !(command in redis.autoPipelineExecutor.pipeline);
+      const isCommandExcluded = EXCLUDE_COMMANDS.has(command as keyof Redis);
 
-      if (commandInRedisButNotPipeline) {
+      if (commandInRedisButNotPipeline || isCommandExcluded) {
         return redis[command as redisOnly];
       }
 

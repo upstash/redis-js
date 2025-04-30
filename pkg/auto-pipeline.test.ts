@@ -162,7 +162,8 @@ describe("Auto pipeline", () => {
     ]);
     expect(result).toBeTruthy();
     expect(result.length).toBe(134); // returns
-    // @ts-expect-error pipelineCounter is not in type but accessible120 results
+
+    // @ts-expect-error pipelineCounter is not in type but accessible results
     expect(redis.pipelineCounter).toBe(1);
   });
 
@@ -375,5 +376,34 @@ describe("Auto pipeline", () => {
     // first method executed correctly
     const result = await redis.get("foobar");
     expect(result).toBe("foobar");
+  });
+
+  describe("excluded commands", () => {
+    test("should not exclude set", async () => {
+      const redis = Redis.fromEnv();
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(0);
+
+      await redis.set("foo", "bar");
+
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(1);
+    });
+
+    test("should exclude some commands", async () => {
+      const redis = Redis.fromEnv({});
+
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(0);
+
+      await redis.scan(0, { count: 1 });
+      await redis.keys("some-random-pattern");
+      await redis.flushdb();
+      await redis.flushall();
+      await redis.dbsize();
+
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(0);
+    });
   });
 });

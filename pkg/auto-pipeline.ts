@@ -14,6 +14,16 @@ export const EXCLUDE_COMMANDS: Set<keyof Redis> = new Set([
   "flushdb",
   "flushall",
   "dbsize",
+  "hscan",
+  "hgetall",
+  "hkeys",
+  "lrange",
+  "sscan",
+  "smembers",
+  "xrange",
+  "xrevrange",
+  "zscan",
+  "zrange",
 ]);
 
 export function createAutoPipelineProxy(_redis: Redis, json?: boolean): Redis {

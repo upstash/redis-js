@@ -23,7 +23,7 @@ describe("Pattern Subscriber", () => {
       receivedMessages.push(message);
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await subscriber.ready;
 
     const testMessage: TestMessage = {
       user: "testUser",
@@ -52,7 +52,7 @@ describe("Pattern Subscriber", () => {
       messages.push(data);
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await subscriber.ready;
 
     await redis.publish("chat:room1:messages", { msg: "Hello Room 1" });
     await redis.publish("chat:room2:messages", { msg: "Hello Room 2" });
@@ -81,7 +81,7 @@ describe("Pattern Subscriber", () => {
       messages[pattern].push({ channel, message });
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await subscriber.ready;
 
     await redis.publish("user:123", { type: "user" });
     await redis.publish("chat:room1", { type: "chat" });
@@ -108,7 +108,7 @@ describe("Pattern Subscriber", () => {
       messages[pattern].push({ channel, message });
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await subscriber.ready;
 
     // Initial messages
     await redis.publish("user:123", { msg: "user1" });
@@ -153,7 +153,8 @@ describe("Pattern Subscriber", () => {
       channelMessages.push(message);
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await patternSubscriber.ready;
+    await channelSubscriber.ready;
 
     const testMessage: TestMessage = { msg: "Hello" };
     await redis.publish("user:123", testMessage);

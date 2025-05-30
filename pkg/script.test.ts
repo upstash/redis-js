@@ -21,16 +21,22 @@ describe("create a new script", () => {
 });
 
 describe("sha1", () => {
-  test("calculates the correct sha1", () => {
+  test("calculates the correct sha1", async () => {
     const redis = new Redis(client);
     const script = redis.createScript("The quick brown fox jumps over the lazy dog");
+
+    // Wait one tick
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(script.sha1).toEqual("2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
   });
 
-  test("calculates the correct sha1 for empty string", () => {
+  test("calculates the correct sha1 for empty string", async () => {
     const redis = new Redis(client);
     const script = redis.createScript("");
+
+    // Wait one tick
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(script.sha1).toEqual("da39a3ee5e6b4b0d3255bfef95601890afd80709");
   });

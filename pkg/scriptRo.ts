@@ -1,5 +1,4 @@
-import Hex from "crypto-js/enc-hex.js";
-import sha1 from "crypto-js/sha1.js";
+import { subtle } from "uncrypto";
 import type { Redis } from "./redis";
 
 /**
@@ -20,19 +19,34 @@ import type { Redis } from "./redis";
  */
 export class ScriptRO<TResult = unknown> {
   public readonly script: string;
-  public readonly sha1: string;
+  /**
+   * @deprecated This property is initialized to an empty string and will be set in the init method
+   * asynchronously. Do not use this property immidiately after the constructor.
+   *
+   * This property is only exposed for backwards compatibility and will be removed in the
+   * future major release.
+   */
+  public sha1: string;
   private readonly redis: Redis;
 
   constructor(redis: Redis, script: string) {
     this.redis = redis;
-    this.sha1 = this.digest(script);
+    this.sha1 = "";
     this.script = script;
+    void this.init(script);
+  }
+
+  private async init(script: string): Promise<void> {
+    if (this.sha1) return;
+    this.sha1 = await this.digest(script);
   }
 
   /**
    * Send an `EVAL_RO` command to redis.
    */
   public async evalRo(keys: string[], args: string[]): Promise<TResult> {
+    await this.init(this.script);
+
     return await this.redis.evalRo(this.script, keys, args);
   }
 
@@ -40,6 +54,8 @@ export class ScriptRO<TResult = unknown> {
    * Calculates the sha1 hash of the script and then calls `EVALSHA_RO`.
    */
   public async evalshaRo(keys: string[], args: string[]): Promise<TResult> {
+    await this.init(this.script);
+
     return await this.redis.evalshaRo(this.sha1, keys, args);
   }
 
@@ -50,6 +66,8 @@ export class ScriptRO<TResult = unknown> {
    * Following calls will be able to use the cached script
    */
   public async exec(keys: string[], args: string[]): Promise<TResult> {
+    await this.init(this.script);
+
     const res = await this.redis.evalshaRo(this.sha1, keys, args).catch(async (error) => {
       if (error instanceof Error && error.message.toLowerCase().includes("noscript")) {
         return await this.redis.evalRo(this.script, keys, args);
@@ -62,7 +80,10 @@ export class ScriptRO<TResult = unknown> {
   /**
    * Compute the sha1 hash of the script and return its hex representation.
    */
-  private digest(s: string): string {
-    return Hex.stringify(sha1(s));
+  private async digest(s: string): Promise<string> {
+    const data = new TextEncoder().encode(s);
+    const hashBuffer = await subtle.digest("SHA-1", data);
+    const hashArray = [...new Uint8Array(hashBuffer)];
+    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
   }
 }

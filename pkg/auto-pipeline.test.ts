@@ -172,11 +172,12 @@ describe("Auto pipeline", () => {
       latencyLogging: false,
       enableAutoPipelining: true,
     });
+    await redis.flushdb();
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
 
     // following five commands are added to the pipeline
-    void redis.flushdb();
+    void redis.del("baz");
     void redis.incr("baz");
     void redis.incr("baz");
     void redis.set("foo", "bar");

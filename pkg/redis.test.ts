@@ -3,6 +3,7 @@ import { keygen, newHttpClient, randomID } from "./test-utils";
 
 import { afterEach, describe, expect, test } from "bun:test";
 import { HttpClient } from "./http";
+import type { ScanResultStandard, ScanResultWithType } from "./commands/scan";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -246,5 +247,21 @@ describe("tests with latency logging", () => {
     await redis.set(key, value);
     const res = await redis.get(key);
     expect(res).toEqual(value);
+  });
+});
+
+const assertIsType = <T>(_arg: () => T) => {};
+
+describe("return type of scan withType", () => {
+  test("should return cursor and keys with types", async () => {
+    const redis = new Redis(client);
+
+    assertIsType<Promise<ScanResultStandard>>(() => redis.scan("0"));
+
+    assertIsType<Promise<ScanResultStandard>>(() => redis.scan("0", {}));
+
+    assertIsType<Promise<ScanResultStandard>>(() => redis.scan("0", { withType: false }));
+
+    assertIsType<Promise<ScanResultWithType>>(() => redis.scan("0", { withType: true }));
   });
 });

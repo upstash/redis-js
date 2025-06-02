@@ -5,6 +5,9 @@ import type {
   SetCommandOptions,
   ZAddCommandOptions,
   ZRangeCommandOptions,
+  ScanCommandOptions,
+  ScanResultStandard,
+  ScanResultWithType,
 } from "./commands/mod";
 import {
   AppendCommand,
@@ -1100,8 +1103,17 @@ export class Redis {
   /**
    * @see https://redis.io/commands/scan
    */
-  scan = (...args: CommandArgs<typeof ScanCommand>) =>
-    new ScanCommand(args, this.opts).exec(this.client);
+  scan(cursor: string | number): Promise<ScanResultStandard>;
+  scan<TOptions extends ScanCommandOptions>(
+    cursor: string | number,
+    opts: TOptions
+  ): Promise<TOptions extends { withType: true } ? ScanResultWithType : ScanResultStandard>;
+  scan<TOptions extends ScanCommandOptions>(
+    cursor: string | number,
+    opts?: TOptions
+  ): Promise<TOptions extends { withType: true } ? ScanResultWithType : ScanResultStandard> {
+    return new ScanCommand([cursor, opts], this.opts).exec(this.client);
+  }
 
   /**
    * @see https://redis.io/commands/scard

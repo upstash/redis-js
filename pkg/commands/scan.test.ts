@@ -2,6 +2,7 @@ import { keygen, newHttpClient, randomID } from "../test-utils";
 
 import { afterAll, expect, test } from "bun:test";
 import { FlushDBCommand } from "./flushdb";
+import type { ScanResultWithType } from "./scan";
 import { ScanCommand } from "./scan";
 import { SetCommand } from "./set";
 import { TypeCommand } from "./type";
@@ -87,5 +88,48 @@ test("with type", () => {
       const type = await new TypeCommand([key]).exec(client);
       expect(type).toEqual("string");
     }
+  });
+});
+
+test("with withType", () => {
+  test("returns cursor and keys with types", async () => {
+    await new FlushDBCommand([]).exec(client);
+    const stringKey = newKey();
+    const zsetKey = newKey();
+    const value = randomID();
+
+    // Add different types of keys
+    await new SetCommand([stringKey, value]).exec(client);
+    await new ZAddCommand([zsetKey, { score: 1, member: "abc" }]).exec(client);
+
+    // Scan with WITHTYPE option
+    let cursor = "0";
+    let foundStringKey;
+    let foundZsetKey;
+
+    do {
+      // Use the generic type parameter to specify the return type
+      const res = await new ScanCommand<ScanResultWithType>([cursor, { withType: true }]).exec(
+        client
+      );
+
+      cursor = res[0];
+      const items = res[1];
+
+      // Find our test keys in the results
+      if (!foundStringKey) {
+        foundStringKey = items.find((item) => item.key === stringKey);
+      }
+
+      if (!foundZsetKey) {
+        foundZsetKey = items.find((item) => item.key === zsetKey);
+      }
+    } while (cursor !== "0");
+
+    // Verify types are correct
+    expect(foundStringKey).toBeDefined();
+    expect(foundZsetKey).toBeDefined();
+    expect(foundStringKey?.type).toEqual("string");
+    expect(foundZsetKey?.type).toEqual("zset");
   });
 });

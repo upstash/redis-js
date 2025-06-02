@@ -1,3 +1,5 @@
+import type { ScanResultWithType } from "./commands/scan";
+
 function parseRecursive(obj: unknown): unknown {
   const parsed = Array.isArray(obj)
     ? obj.map((o) => {
@@ -39,6 +41,18 @@ export function parseResponse<TResult>(result: unknown): TResult {
  */
 export function deserializeScanResponse<TResult>(result: [string, ...any]): TResult {
   return [result[0], ...parseResponse<any[]>(result.slice(1))] as TResult;
+}
+
+export function deserializeScanWithTypesResponse(result: [string, string[]]): ScanResultWithType {
+  const [cursor, keys] = result;
+
+  const parsedKeys: ScanResultWithType[1] = [];
+
+  for (let i = 0; i < keys.length; i += 2) {
+    parsedKeys.push({ key: keys[i], type: keys[i + 1] });
+  }
+
+  return [cursor, parsedKeys];
 }
 
 /**

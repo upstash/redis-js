@@ -76,7 +76,7 @@ describe("when destructuring the redis class", () => {
   });
 });
 
-test("zadd", () => {
+describe("zadd", () => {
   test("adds the set", async () => {
     const key = newKey();
     const score = 1;
@@ -87,7 +87,7 @@ test("zadd", () => {
   });
 });
 
-test("zrange", () => {
+describe("zrange", () => {
   test("returns the range", async () => {
     const key = newKey();
     const score = 1;
@@ -99,7 +99,7 @@ test("zrange", () => {
   });
 });
 
-test("middleware", () => {
+describe("middleware", () => {
   let state = false;
   test("before", async () => {
     const r = new Redis(client);
@@ -129,7 +129,7 @@ test("middleware", () => {
   });
 });
 
-test("special data", () => {
+describe("special data", () => {
   test("with %", async () => {
     const key = newKey();
     const value = "%%12";
@@ -185,7 +185,7 @@ test("special data", () => {
   });
 });
 
-test("disable base64 encoding", () => {
+describe("disable base64 encoding", () => {
   test("emojis", async () => {
     const key = newKey();
     const value = "😀";

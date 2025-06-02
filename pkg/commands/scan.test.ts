@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 import { FlushDBCommand } from "./flushdb";
 import type { ScanResultWithType } from "./scan";
 import { ScanCommand } from "./scan";
@@ -11,7 +11,7 @@ const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
-test("without options", () => {
+describe("without options", () => {
   test("returns cursor and keys", async () => {
     const key = newKey();
     const value = randomID();
@@ -27,7 +27,7 @@ test("without options", () => {
   });
 });
 
-test("with match", () => {
+describe("with match", () => {
   test("returns cursor and keys", async () => {
     const key = newKey();
     const value = randomID();
@@ -37,7 +37,7 @@ test("with match", () => {
     const found: string[] = [];
     do {
       const res = await new ScanCommand([cursor, { match: key }]).exec(client);
-      expect(typeof res[0]).toEqual("number");
+      expect(typeof res[0]).toEqual("string");
       cursor = res[0];
       found.push(...res[1]);
     } while (cursor !== "0");
@@ -46,7 +46,7 @@ test("with match", () => {
   });
 });
 
-test("with count", () => {
+describe("with count", () => {
   test("returns cursor and keys", async () => {
     const key = newKey();
     const value = randomID();
@@ -64,7 +64,7 @@ test("with count", () => {
   });
 });
 
-test("with type", () => {
+describe("with type", () => {
   test("returns cursor and keys", async () => {
     await new FlushDBCommand([]).exec(client);
     const key1 = newKey();
@@ -91,7 +91,7 @@ test("with type", () => {
   });
 });
 
-test("with withType", () => {
+describe("with withType", () => {
   test("returns cursor and keys with types", async () => {
     await new FlushDBCommand([]).exec(client);
     const stringKey = newKey();
@@ -118,11 +118,11 @@ test("with withType", () => {
 
       // Find our test keys in the results
       if (!foundStringKey) {
-        foundStringKey = items.find((item) => item.key === stringKey);
+        foundStringKey = items.find((item) => item.key === stringKey && item.type === "string");
       }
 
       if (!foundZsetKey) {
-        foundZsetKey = items.find((item) => item.key === zsetKey);
+        foundZsetKey = items.find((item) => item.key === zsetKey && item.type === "zset");
       }
     } while (cursor !== "0");
 

@@ -3,6 +3,7 @@ import { keygen, newHttpClient, randomID } from "./test-utils";
 
 import { afterEach, describe, expect, test } from "bun:test";
 import { HttpClient } from "./http";
+import type { ScanResultStandard, ScanResultWithType } from "./commands/scan";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -75,7 +76,7 @@ describe("when destructuring the redis class", () => {
   });
 });
 
-test("zadd", () => {
+describe("zadd", () => {
   test("adds the set", async () => {
     const key = newKey();
     const score = 1;
@@ -86,7 +87,7 @@ test("zadd", () => {
   });
 });
 
-test("zrange", () => {
+describe("zrange", () => {
   test("returns the range", async () => {
     const key = newKey();
     const score = 1;
@@ -98,7 +99,7 @@ test("zrange", () => {
   });
 });
 
-test("middleware", () => {
+describe("middleware", () => {
   let state = false;
   test("before", async () => {
     const r = new Redis(client);
@@ -128,7 +129,7 @@ test("middleware", () => {
   });
 });
 
-test("special data", () => {
+describe("special data", () => {
   test("with %", async () => {
     const key = newKey();
     const value = "%%12";
@@ -184,7 +185,7 @@ test("special data", () => {
   });
 });
 
-test("disable base64 encoding", () => {
+describe("disable base64 encoding", () => {
   test("emojis", async () => {
     const key = newKey();
     const value = "😀";
@@ -246,5 +247,21 @@ describe("tests with latency logging", () => {
     await redis.set(key, value);
     const res = await redis.get(key);
     expect(res).toEqual(value);
+  });
+});
+
+const assertIsType = <T>(_arg: () => T) => {};
+
+describe("return type of scan withType", () => {
+  test("should return cursor and keys with types", async () => {
+    const redis = new Redis(client);
+
+    assertIsType<Promise<ScanResultStandard>>(() => redis.scan("0"));
+
+    assertIsType<Promise<ScanResultStandard>>(() => redis.scan("0", {}));
+
+    assertIsType<Promise<ScanResultStandard>>(() => redis.scan("0", { withType: false }));
+
+    assertIsType<Promise<ScanResultWithType>>(() => redis.scan("0", { withType: true }));
   });
 });

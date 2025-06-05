@@ -16,7 +16,7 @@ describe("Subscriber", () => {
     });
 
     // Wait for subscription to establish
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await subscriber.ready;
 
     const testMessage = {
       user: "testUser",
@@ -42,7 +42,7 @@ describe("Subscriber", () => {
       receivedMessages.push(data.message);
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await subscriber.ready;
 
     const messages = [
       { user: "user1", message: "First", timestamp: Date.now() },
@@ -72,7 +72,7 @@ describe("Subscriber", () => {
       channelMessages.push(data.message);
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await subscriber.ready;
 
     const testMessage = {
       user: "testUser",
@@ -100,7 +100,8 @@ describe("Subscriber", () => {
     subscriber1.on("message", (data) => messages1.push(data.message));
     subscriber2.on("message", (data) => messages2.push(data.message));
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await subscriber1.ready;
+    await subscriber2.ready;
 
     const testMessage = {
       user: "testUser",
@@ -131,7 +132,7 @@ describe("Subscriber", () => {
       messages[data.channel].push(data.message);
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await subscriber.ready;
 
     // Send initial messages to both channels
     await redis.publish("channel1", { test: "before1" });

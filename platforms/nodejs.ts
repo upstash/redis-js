@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // deno-lint-ignore-file
 
-import type { Requester, RequesterConfig } from "../pkg/http";
+import type { HttpClientConfig, Requester, RequesterConfig } from "../pkg/http";
 import { HttpClient } from "../pkg/http";
 
 import * as core from "../pkg/redis";
@@ -49,7 +49,7 @@ export type RedisConfigNodejs = {
    * The signal will allow aborting requests on the fly.
    * For more check: https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
    */
-  signal?: AbortSignal;
+  signal?: HttpClientConfig["signal"];
   latencyLogging?: boolean;
   agent?: unknown;
   keepAlive?: boolean;

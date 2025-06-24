@@ -1,4 +1,4 @@
-import type { RequesterConfig } from "../pkg/http";
+import type { HttpClientConfig, RequesterConfig } from "../pkg/http";
 import { HttpClient } from "../pkg/http";
 import * as core from "../pkg/redis";
 import { VERSION } from "../version";
@@ -27,7 +27,7 @@ export type RedisConfigCloudflare = {
    * The signal will allow aborting requests on the fly.
    * For more check: https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
    */
-  signal?: AbortSignal;
+  signal?: HttpClientConfig["signal"];
   keepAlive?: boolean;
 
   /**

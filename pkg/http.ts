@@ -125,7 +125,7 @@ export type HttpClientConfig = {
   options?: Options;
   retry?: RetryConfig;
   agent?: any;
-  signal?: AbortSignal;
+  signal?: AbortSignal | (() => AbortSignal);
   keepAlive?: boolean;
 
   /**
@@ -141,7 +141,7 @@ export class HttpClient implements Requester {
   public readonly options: {
     backend?: string;
     agent: any;
-    signal?: AbortSignal;
+    signal?: HttpClientConfig["signal"];
     responseEncoding?: false | "base64";
     cache?: CacheSetting;
     keepAlive: boolean;
@@ -218,6 +218,9 @@ export class HttpClient implements Requester {
     const requestUrl = [this.baseUrl, ...(req.path ?? [])].join("/");
     const isEventStream = requestHeaders.Accept === "text/event-stream";
 
+    const signal = req.signal ?? this.options.signal;
+    const isSignalFunction = typeof signal === "function";
+
     const requestOptions: RequestInit & { backend?: string; agent?: any } = {
       //@ts-expect-error this should throw due to bun regression
       cache: this.options.cache,
@@ -226,7 +229,7 @@ export class HttpClient implements Requester {
       body: JSON.stringify(req.body),
       keepalive: this.options.keepAlive,
       agent: this.options.agent,
-      signal: req.signal ?? this.options.signal,
+      signal: isSignalFunction ? signal() : signal,
 
       /**
        * Fastly specific
@@ -256,13 +259,15 @@ export class HttpClient implements Requester {
         res = await fetch(requestUrl, requestOptions);
         break;
       } catch (error_) {
-        if (this.options.signal?.aborted) {
+        if (requestOptions.signal?.aborted && isSignalFunction) {
+          throw error_;
+        } else if (requestOptions.signal?.aborted) {
           const myBlob = new Blob([
-            JSON.stringify({ result: this.options.signal.reason ?? "Aborted" }),
+            JSON.stringify({ result: requestOptions.signal.reason ?? "Aborted" }),
           ]);
           const myOptions = {
             status: 200,
-            statusText: this.options.signal.reason ?? "Aborted",
+            statusText: requestOptions.signal.reason ?? "Aborted",
           };
           res = new Response(myBlob, myOptions);
           break;

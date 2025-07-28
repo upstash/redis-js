@@ -24,6 +24,7 @@ export const EXCLUDE_COMMANDS: Set<keyof Redis> = new Set([
   "xrevrange",
   "zscan",
   "zrange",
+  "exec",
 ]);
 
 export function createAutoPipelineProxy(_redis: Redis, json?: boolean): Redis {

@@ -409,6 +409,7 @@ describe("Auto pipeline", () => {
       await redis.flushdb();
       await redis.flushall();
       await redis.dbsize();
+      await redis.exec(["SET", "foo", "bar"]);
 
       // @ts-expect-error pipelineCounter is not in type but accessible
       expect(redis.pipelineCounter).toBe(0);

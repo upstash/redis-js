@@ -7,18 +7,44 @@ export const UNBALANCED_XREAD_ERR =
 type XReadCommandOptions = [
   key: string | string[],
   id: string | string[],
-  options?: { count?: number; blockMS?: number },
+  options?: {
+    count?: number;
+    /**
+     * @deprecated block is not yet supported in Upstash Redis
+     */
+    blockMS?: number;
+  },
 ];
 
 //This type ensures users have balanced stream keys and stream ids otherwise redis server will throw an error.
 type XReadOptions = XReadCommandOptions extends [infer K, infer I, ...any[]]
   ? K extends string
     ? I extends string
-      ? [key: string, id: string, options?: { count?: number; blockMS?: number }]
+      ? [
+          key: string,
+          id: string,
+          options?: {
+            count?: number;
+            /**
+             * @deprecated block is not yet supported in Upstash Redis
+             */
+            blockMS?: number;
+          },
+        ]
       : never
     : K extends string[]
       ? I extends string[]
-        ? [key: string[], id: string[], options?: { count?: number; blockMS?: number }]
+        ? [
+            key: string[],
+            id: string[],
+            options?: {
+              count?: number;
+              /**
+               * @deprecated block is not yet supported in Upstash Redis
+               */
+              blockMS?: number;
+            },
+          ]
         : never
       : never
   : never;

@@ -4,7 +4,14 @@ import { Command } from "./command";
 export const UNBALANCED_XREADGROUP_ERR =
   "ERR Unbalanced XREADGROUP list of streams: for each stream key an ID or '$' must be specified";
 
-type Options = { count?: number; blockMS?: number; NOACK?: boolean };
+type Options = {
+  count?: number;
+  /**
+   * @deprecated block is not yet supported in Upstash Redis
+   */
+  blockMS?: number;
+  NOACK?: boolean;
+};
 type XReadGroupCommandOptions = [
   group: string,
   consumer: string,

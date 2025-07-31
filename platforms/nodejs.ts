@@ -153,7 +153,13 @@ export class Redis extends core.Redis {
       runtime:
         // @ts-expect-error to silence compiler
         typeof EdgeRuntime === "string" ? "edge-light" : `node@${process.version}`,
-      platform: process.env.VERCEL ? "vercel" : process.env.AWS_REGION ? "aws" : "unknown",
+      platform: process.env.UPSTASH_CONSOLE
+        ? "console"
+        : process.env.VERCEL
+          ? "vercel"
+          : process.env.AWS_REGION
+            ? "aws"
+            : "unknown",
       sdk: `@upstash/redis@${VERSION}`,
     });
 

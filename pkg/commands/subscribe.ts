@@ -127,7 +127,8 @@ export class Subscriber<TMessage = any> extends EventTarget {
         const messageStr = messageData.slice(thirdCommaIndex + 1);
 
         try {
-          const message = this.opts?.automaticDeserialization ? JSON.parse(messageStr) : messageStr;
+          const message =
+            this.opts?.automaticDeserialization === false ? messageStr : JSON.parse(messageStr);
 
           this.dispatchToListeners("pmessage", { pattern, channel, message });
           this.dispatchToListeners(`pmessage:${pattern}`, { pattern, channel, message });
@@ -150,9 +151,8 @@ export class Subscriber<TMessage = any> extends EventTarget {
             const count = Number.parseInt(messageStr);
             this.dispatchToListeners(type, count);
           } else {
-            const message = this.opts?.automaticDeserialization
-              ? JSON.parse(messageStr)
-              : messageStr;
+            const message =
+              this.opts?.automaticDeserialization === false ? messageStr : JSON.parse(messageStr);
 
             this.dispatchToListeners(type, { channel, message });
             this.dispatchToListeners(`${type}:${channel}`, { channel, message });

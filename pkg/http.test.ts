@@ -60,5 +60,12 @@ describe("http", () => {
     } finally {
       server.stop(true);
     }
+
+    try {
+      await redis.get("foo");
+      throw new Error("Expected to throw");
+    } catch (error) {
+      expect((error as Error).name).toBe("TimeoutError");
+    }
   });
 });

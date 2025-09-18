@@ -2,7 +2,7 @@ import type { CommandOptions } from "./command";
 import { Command } from "./command";
 import type { Requester } from "../http";
 import { PSubscribeCommand } from "./psubscribe";
-import { RedisOptions } from "../types";
+import type { RedisOptions } from "../types";
 
 type SubscriptionInfo = {
   command: SubscribeCommand;
@@ -41,13 +41,13 @@ export class Subscriber<TMessage = any> extends EventTarget {
   private subscriptions: Map<string, SubscriptionInfo>;
   private client: Requester;
   private listeners: Map<string, Set<Listener<TMessage, any>>>;
-  private opts?: RedisOptions;
+  private opts?: Pick<RedisOptions, "automaticDeserialization">;
 
   constructor(
     client: Requester,
     channels: string[],
     isPattern: boolean = false,
-    opts?: RedisOptions
+    opts?: Pick<RedisOptions, "automaticDeserialization">
   ) {
     super();
     this.client = client;

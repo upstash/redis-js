@@ -2,6 +2,7 @@ import type { CommandOptions } from "./command";
 import { Command } from "./command";
 import type { Requester } from "../http";
 import { PSubscribeCommand } from "./psubscribe";
+import { RedisOptions } from "../types";
 
 type SubscriptionInfo = {
   command: SubscribeCommand;
@@ -40,12 +41,19 @@ export class Subscriber<TMessage = any> extends EventTarget {
   private subscriptions: Map<string, SubscriptionInfo>;
   private client: Requester;
   private listeners: Map<string, Set<Listener<TMessage, any>>>;
+  private opts?: RedisOptions;
 
-  constructor(client: Requester, channels: string[], isPattern: boolean = false) {
+  constructor(
+    client: Requester,
+    channels: string[],
+    isPattern: boolean = false,
+    opts?: RedisOptions
+  ) {
     super();
     this.client = client;
     this.subscriptions = new Map();
     this.listeners = new Map();
+    this.opts = opts;
 
     for (const channel of channels) {
       if (isPattern) {
@@ -119,7 +127,8 @@ export class Subscriber<TMessage = any> extends EventTarget {
         const messageStr = messageData.slice(thirdCommaIndex + 1);
 
         try {
-          const message = JSON.parse(messageStr);
+          const message = this.opts?.automaticDeserialization ? JSON.parse(messageStr) : messageStr;
+
           this.dispatchToListeners("pmessage", { pattern, channel, message });
           this.dispatchToListeners(`pmessage:${pattern}`, { pattern, channel, message });
         } catch (error) {
@@ -141,8 +150,10 @@ export class Subscriber<TMessage = any> extends EventTarget {
             const count = Number.parseInt(messageStr);
             this.dispatchToListeners(type, count);
           } else {
-            // For regular messages, emit the full object
-            const message = JSON.parse(messageStr);
+            const message = this.opts?.automaticDeserialization
+              ? JSON.parse(messageStr)
+              : messageStr;
+
             this.dispatchToListeners(type, { channel, message });
             this.dispatchToListeners(`${type}:${channel}`, { channel, message });
           }

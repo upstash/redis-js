@@ -174,8 +174,12 @@ export class Redis extends core.Redis {
    * Use this to automatically load connection secrets from your environment
    * variables. For instance when using the Vercel integration.
    *
-   * This tries to load `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` from
-   * your environment using `process.env`.
+   * This tries to load connection details from your environment using `process.env`:
+   * - URL: `UPSTASH_REDIS_REST_URL` or fallback to `KV_REST_API_URL`
+   * - Token: `UPSTASH_REDIS_REST_TOKEN` or fallback to `KV_REST_API_TOKEN`
+   *
+   * The fallback variables provide compatibility with Vercel KV and other platforms
+   * that may use different naming conventions.
    */
   static fromEnv(config?: Omit<RedisConfigNodejs, "url" | "token">): Redis {
     // @ts-ignore process will be defined in node

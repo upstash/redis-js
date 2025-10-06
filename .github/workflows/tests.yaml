@@ -154,7 +154,6 @@ jobs:
 
       - name: Test
         run: bun test examples/vercel-functions-app-router/ci.test.ts
-        working-directory: examples/vercel-functions-app-router
 
   vercel-functions-pages-router-deployed:
     concurrency: vercel-functions-pages-router-deployed

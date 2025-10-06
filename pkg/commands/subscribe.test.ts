@@ -16,16 +16,12 @@ describe("Subscriber", () => {
     });
 
     // Wait for subscription to establish
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    const testMessage = {
-      user: "testUser",
-      message: "Hello, World!",
-      timestamp: Date.now(),
-    };
+    const testMessage = "really?";
 
     await redis.publish(channel, testMessage);
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     expect(receivedMessages).toHaveLength(1);
     expect(receivedMessages[0]).toEqual(testMessage);

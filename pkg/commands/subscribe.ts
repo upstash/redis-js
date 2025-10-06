@@ -142,7 +142,7 @@ export class Subscriber<TMessage = any> extends EventTarget {
             this.dispatchToListeners(type, count);
           } else {
             // For regular messages, emit the full object
-            const message = JSON.parse(messageStr);
+            const message = parseWithTryCatch(messageStr);
             this.dispatchToListeners(type, { channel, message });
             this.dispatchToListeners(`${type}:${channel}`, { channel, message });
           }
@@ -230,3 +230,11 @@ export class SubscribeCommand extends Command<number, number> {
     });
   }
 }
+
+const parseWithTryCatch = (str: string) => {
+  try {
+    return JSON.parse(str);
+  } catch {
+    return str;
+  }
+};

@@ -20,7 +20,7 @@ describe("Subscriber", () => {
 
     const testMessage = "really?";
 
-    await redis.publish(channel, JSON.stringify(testMessage));
+    await redis.publish(channel, testMessage);
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     expect(receivedMessages).toHaveLength(1);

@@ -1,4 +1,4 @@
-import { UpstashError, UrlError } from "./error";
+import { JSONParseError, UpstashError, UrlError } from "./error";
 import type { Telemetry } from "./types";
 import { mergeHeaders } from "./util";
 
@@ -285,8 +285,14 @@ export class HttpClient implements Requester {
     }
 
     if (!res.ok) {
-      const body = (await res.json()) as UpstashResponse<string>;
-      throw new UpstashError(`${body.error}, command was: ${JSON.stringify(req.body)}`);
+      try {
+        const body = (await res.json()) as UpstashResponse<string>;
+        throw new UpstashError(`${body.error}, command was: ${JSON.stringify(req.body)}`);
+      } catch {
+        const contentType = res.headers.get("content-type") ?? "unknown";
+
+        throw new JSONParseError(contentType);
+      }
     }
 
     if (this.readYourWrites) {
@@ -334,7 +340,14 @@ export class HttpClient implements Requester {
       return { result: 1 as TResult };
     }
 
-    const body = (await res.json()) as UpstashResponse<string>;
+    let body: UpstashResponse<string>;
+    try {
+      body = (await res.json()) as UpstashResponse<string>;
+    } catch {
+      const contentType = res.headers.get("content-type") ?? "unknown";
+
+      throw new JSONParseError(contentType);
+    }
 
     /**
      * We save the new `upstash-sync-token` in the response header to use it in the next request.

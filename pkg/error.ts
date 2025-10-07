@@ -16,3 +16,12 @@ export class UrlError extends Error {
     this.name = "UrlError";
   }
 }
+
+export class JSONParseError extends Error {
+  constructor(contentType: string) {
+    super(
+      `Unexpected non-JSON error response (content-type: ${contentType}). This usually means the URL is incorrect or content-type is not supported.`
+    );
+    this.name = "JSONParseError";
+  }
+}

@@ -1,6 +1,7 @@
 import { describe, test, expect } from "bun:test";
 import { Redis } from "../platforms/nodejs";
 import { serve } from "bun";
+import { JSONParseError } from "./error";
 
 const MOCK_SERVER_PORT = 8080;
 const SERVER_URL = `http://localhost:${MOCK_SERVER_PORT}`;
@@ -66,6 +67,78 @@ describe("http", () => {
       throw new Error("Expected to throw");
     } catch (error) {
       expect((error as Error).name).toBe("TimeoutError");
+    }
+  });
+
+  test("should throw JSONParseError on non-JSON success response", async () => {
+    const server = serve({
+      async fetch() {
+        return new Response("OK-PLAIN", {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      },
+      port: MOCK_SERVER_PORT,
+    });
+
+    const redis = new Redis({
+      url: SERVER_URL,
+      token: "non-existent",
+      enableAutoPipelining: false,
+    });
+
+    try {
+      await expect(redis.get("foo")).rejects.toThrow(JSONParseError);
+    } finally {
+      server.stop(true);
+    }
+  });
+
+  test("should throw JSONParseError on non-JSON error response", async () => {
+    const server = serve({
+      async fetch() {
+        return new Response("ERR-PLAIN", {
+          status: 500,
+          headers: { "content-type": "text/plain" },
+        });
+      },
+      port: MOCK_SERVER_PORT,
+    });
+
+    const redis = new Redis({
+      url: SERVER_URL,
+      token: "non-existent",
+      enableAutoPipelining: false,
+    });
+
+    try {
+      await expect(redis.get("foo")).rejects.toThrow(JSONParseError);
+    } finally {
+      server.stop(true);
+    }
+  });
+
+  test("should parse JSON success response", async () => {
+    const server = serve({
+      async fetch() {
+        return new Response(JSON.stringify({ result: "json-ok" }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      },
+      port: MOCK_SERVER_PORT,
+    });
+
+    const redis = new Redis({
+      url: SERVER_URL,
+      token: "non-existent",
+      enableAutoPipelining: false,
+    });
+
+    try {
+      await expect(redis.get("foo")).resolves.toBe("json-ok");
+    } finally {
+      server.stop(true);
     }
   });
 });

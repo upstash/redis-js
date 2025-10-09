@@ -285,14 +285,14 @@ export class HttpClient implements Requester {
     }
 
     if (!res.ok) {
+      let body: UpstashResponse<string>;
       try {
-        const body = (await res.json()) as UpstashResponse<string>;
-        throw new UpstashError(`${body.error}, command was: ${JSON.stringify(req.body)}`);
+        body = (await res.json()) as UpstashResponse<string>;
       } catch {
         const contentType = res.headers.get("content-type") ?? "unknown";
-
         throw new JSONParseError(contentType);
       }
+      throw new UpstashError(`${body.error}, command was: ${JSON.stringify(req.body)}`);
     }
 
     if (this.readYourWrites) {

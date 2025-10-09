@@ -42,7 +42,7 @@ describe("with count", () => {
     const res = await new ZScanCommand([key, "0", { count: 1 }]).exec(client);
 
     expect(res.length).toBe(2);
-    console.log("res", res);
+
     expect(typeof res[0]).toBe("string");
     expect(res[1].length > 0).toBe(true);
   });

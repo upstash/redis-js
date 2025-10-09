@@ -1,4 +1,4 @@
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 import { keygen, newHttpClient, randomID, randomUnsafeIntegerString } from "../test-utils";
 import { HGetAllCommand } from "./hgetall";
 import { HSetCommand } from "./hset";
@@ -20,7 +20,7 @@ test("returns all fields", async () => {
   const obj = { [field1]: value1, [field2]: value2 };
   expect(res).toEqual(obj);
 });
-test("when hash does not exist", () => {
+describe("when hash does not exist", () => {
   test("it returns null", async () => {
     const res = await new HGetAllCommand([randomID()]).exec(client);
     expect(res).toEqual(null);

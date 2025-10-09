@@ -35,6 +35,6 @@ describe("with count", () => {
     await new LPushCommand([key, value1, value2]).exec(client);
     const res = await new LPopCommand<string[]>([key, 2]).exec(client);
     expect(res).toBeTruthy();
-    expect([value1, value2]).toContain(res);
+    expect(res).toEqual([value2, value1]);
   });
 });

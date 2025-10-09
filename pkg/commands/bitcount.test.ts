@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, test, describe } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 import { keygen, newHttpClient } from "../test-utils";
 import { BitCountCommand } from "./bitcount";
 

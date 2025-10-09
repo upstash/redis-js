@@ -17,11 +17,11 @@ export class UrlError extends Error {
   }
 }
 
-export class JSONParseError extends Error {
-  constructor(contentType: string) {
-    super(
-      `Unexpected non-JSON error response (content-type: ${contentType}). This usually means the URL is incorrect or content-type is not supported.`
-    );
-    this.name = "JSONParseError";
+export class UpstashJSONParseError extends UpstashError {
+  constructor(body: string, options?: { cause: { response: Response } }) {
+    const truncatedBody = body.length > 200 ? body.substring(0, 200) + "..." : body;
+    super(`Unable to parse response body: ${truncatedBody}`);
+    this.name = "UpstashJSONParseError";
+    this.cause = options?.cause?.response;
   }
 }

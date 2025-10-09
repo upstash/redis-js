@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 import { HIncrByFloatCommand } from "./hincrbyfloat";
 import { HSetCommand } from "./hset";
 const client = newHttpClient();
@@ -8,7 +8,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("a", () => {
+describe("a", () => {
   test("increments a non-existing value", async () => {
     const key = newKey();
     const field = randomID();

@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 import { HLenCommand } from "./hlen";
 import { HMSetCommand } from "./hmset";
 
@@ -9,7 +9,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("with existing hash", () => {
+describe("with existing hash", () => {
   test("returns correct number of keys", async () => {
     const key = newKey();
     const field1 = randomID();

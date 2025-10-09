@@ -1,4 +1,4 @@
-import { JSONParseError, UpstashError, UrlError } from "./error";
+import { UpstashError, UpstashJSONParseError, UrlError } from "./error";
 import type { Telemetry } from "./types";
 import { mergeHeaders } from "./util";
 
@@ -286,11 +286,11 @@ export class HttpClient implements Requester {
 
     if (!res.ok) {
       let body: UpstashResponse<string>;
+      const rawBody = await res.text();
       try {
-        body = (await res.json()) as UpstashResponse<string>;
+        body = JSON.parse(rawBody) as UpstashResponse<string>;
       } catch {
-        const contentType = res.headers.get("content-type") ?? "unknown";
-        throw new JSONParseError(contentType);
+        throw new UpstashJSONParseError(rawBody, { cause: { response: res } });
       }
       throw new UpstashError(`${body.error}, command was: ${JSON.stringify(req.body)}`);
     }
@@ -341,12 +341,11 @@ export class HttpClient implements Requester {
     }
 
     let body: UpstashResponse<string>;
+    const rawBody = await res.text();
     try {
-      body = (await res.json()) as UpstashResponse<string>;
+      body = JSON.parse(rawBody) as UpstashResponse<string>;
     } catch {
-      const contentType = res.headers.get("content-type") ?? "unknown";
-
-      throw new JSONParseError(contentType);
+      throw new UpstashJSONParseError(rawBody, { cause: { response: res } });
     }
 
     /**

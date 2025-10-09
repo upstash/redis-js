@@ -1,7 +1,7 @@
 import { describe, test, expect } from "bun:test";
 import { Redis } from "../platforms/nodejs";
 import { serve } from "bun";
-import { JSONParseError } from "./error";
+import { UpstashJSONParseError } from "./error";
 
 const MOCK_SERVER_PORT = 8080;
 const SERVER_URL = `http://localhost:${MOCK_SERVER_PORT}`;
@@ -70,7 +70,7 @@ describe("http", () => {
     }
   });
 
-  test("should throw JSONParseError on non-JSON success response", async () => {
+  test("should throw UpstashJSONParseError on non-JSON success response", async () => {
     const server = serve({
       async fetch() {
         return new Response("OK-PLAIN", {
@@ -88,16 +88,18 @@ describe("http", () => {
     });
 
     try {
-      await expect(redis.get("foo")).rejects.toThrow(JSONParseError);
+      await expect(redis.get("foo")).rejects.toThrow(UpstashJSONParseError);
     } finally {
       server.stop(true);
     }
   });
 
-  test("should throw JSONParseError on non-JSON error response", async () => {
+  test("should throw UpstashJSONParseError on non-JSON error response", async () => {
+    const body =
+      "This is a very long error message that contains detailed information about what went wrong during the request. It includes stack traces, debugging information, and other relevant details that help developers understand the issue. This message is intentionally made longer than 200 characters to test the truncation functionality in the UpstashJSONParseError class. The truncation should show only the first 200 characters followed by three dots.";
     const server = serve({
       async fetch() {
-        return new Response("ERR-PLAIN", {
+        return new Response(body, {
           status: 500,
           headers: { "content-type": "text/plain" },
         });
@@ -112,7 +114,13 @@ describe("http", () => {
     });
 
     try {
-      await expect(redis.get("foo")).rejects.toThrow(JSONParseError);
+      const error = await redis.get("foo").catch((e) => e);
+      expect(error).toBeInstanceOf(UpstashJSONParseError);
+
+      const { message, cause } = error as UpstashJSONParseError;
+      const truncatedBody = body.length > 200 ? body.substring(0, 200) + "..." : body;
+      expect(message).toContain(`Unable to parse response body: ${truncatedBody}`);
+      expect(cause).toBeDefined();
     } finally {
       server.stop(true);
     }

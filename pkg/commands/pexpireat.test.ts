@@ -2,21 +2,21 @@ import { keygen, newHttpClient, randomID } from "../test-utils";
 import { GetCommand } from "./get";
 import { PExpireAtCommand } from "./pexpireat";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 import { SetCommand } from "./set";
 
 const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("without options", () => {
+describe("without options", () => {
   test("expires the key", async () => {
     const key = newKey();
     const value = randomID();
     await new SetCommand([key, value]).exec(client);
   });
 });
-test("without options", () => {
+describe("without options", () => {
   test("expires the key", async () => {
     const key = newKey();
     const value = randomID();

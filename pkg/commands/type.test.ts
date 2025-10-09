@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 import { HSetCommand } from "./hset";
 import { LPushCommand } from "./lpush";
 import { SAddCommand } from "./sadd";
@@ -12,7 +12,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("string", () => {
+describe("string", () => {
   test("returns the correct type", async () => {
     const key = newKey();
     const value = randomID();
@@ -22,7 +22,7 @@ test("string", () => {
   });
 });
 
-test("list", () => {
+describe("list", () => {
   test("returns the correct type", async () => {
     const key = newKey();
     const value = randomID();
@@ -32,7 +32,7 @@ test("list", () => {
   });
 });
 
-test("set", () => {
+describe("set", () => {
   test("returns the correct type", async () => {
     const key = newKey();
     const value = randomID();
@@ -42,7 +42,7 @@ test("set", () => {
   });
 });
 
-test("hash", () => {
+describe("hash", () => {
   test("returns the correct type", async () => {
     const key = newKey();
     const field = randomID();
@@ -53,7 +53,7 @@ test("hash", () => {
   });
 });
 
-test("zset", () => {
+describe("zset", () => {
   test("returns the correct type", async () => {
     const key = newKey();
     const member = randomID();
@@ -63,7 +63,7 @@ test("zset", () => {
   });
 });
 
-test("none", () => {
+describe("none", () => {
   test("returns the correct type", async () => {
     const key = newKey();
     const res = await new TypeCommand([key]).exec(client);

@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 import { SAddCommand } from "./sadd";
 import { SRandMemberCommand } from "./srandmember";
 
@@ -9,7 +9,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("without opts", () => {
+describe("without opts", () => {
   test("returns a random key", async () => {
     const key = newKey();
     const member = randomID();
@@ -19,7 +19,7 @@ test("without opts", () => {
   });
 });
 
-test("with count", () => {
+describe("with count", () => {
   test("returns a random key", async () => {
     const key = newKey();
     const member1 = randomID();

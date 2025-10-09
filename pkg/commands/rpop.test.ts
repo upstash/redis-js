@@ -27,7 +27,7 @@ describe("when list does not exist", () => {
   });
 });
 
-test("with count", () => {
+describe("with count", () => {
   test("returns 2 elements", async () => {
     const key = newKey();
     const value1 = randomID();

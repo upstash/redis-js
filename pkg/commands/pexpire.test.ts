@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 import { GetCommand } from "./get";
 import { PExpireCommand } from "./pexpire";
 import { SetCommand } from "./set";
@@ -9,7 +9,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("without options", () => {
+describe("without options", () => {
   test("expires a key correctly", async () => {
     const key = newKey();
     const value = randomID();

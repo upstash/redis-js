@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 import { HGetCommand } from "./hget";
 import { HSetCommand } from "./hset";
 import { HSetNXCommand } from "./hsetnx";
@@ -9,7 +9,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("when hash exists already", () => {
+describe("when hash exists already", () => {
   test("returns 0", async () => {
     const key = newKey();
     const field = randomID();
@@ -23,7 +23,7 @@ test("when hash exists already", () => {
     expect(res2).toEqual(value);
   });
 });
-test("when hash does not exist", () => {
+describe("when hash does not exist", () => {
   test("returns 1", async () => {
     const key = newKey();
     const field = randomID();

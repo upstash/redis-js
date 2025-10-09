@@ -1,4 +1,4 @@
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 import { keygen, newHttpClient, randomID } from "../test-utils";
 import { HRandFieldCommand } from "./hrandfield";
 import { HSetCommand } from "./hset";
@@ -7,7 +7,7 @@ const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
-test("with single field present", () => {
+describe("with single field present", () => {
   test("returns the field", async () => {
     const key = newKey();
     const field1 = randomID();
@@ -20,7 +20,7 @@ test("with single field present", () => {
   });
 });
 
-test("with multiple fields present", () => {
+describe("with multiple fields present", () => {
   test("returns a random field", async () => {
     const key = newKey();
     const fields: Record<string, string> = {};
@@ -35,7 +35,7 @@ test("with multiple fields present", () => {
   });
 });
 
-test("with withvalues", () => {
+describe("with withvalues", () => {
   test("returns a subset with values", async () => {
     const key = newKey();
     const fields: Record<string, string> = {};
@@ -51,7 +51,7 @@ test("with withvalues", () => {
     }
   });
 });
-test("when hash does not exist", () => {
+describe("when hash does not exist", () => {
   test("it returns null", async () => {
     const res = await new HRandFieldCommand([randomID()]).exec(client);
     expect(res).toEqual(null);

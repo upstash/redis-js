@@ -9,7 +9,7 @@ const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
 describe("ExecCommand", () => {
-  test("basic string operations", () => {
+  describe("basic string operations", () => {
     test("GET and SET", async () => {
       const key = newKey();
       const value = randomID();

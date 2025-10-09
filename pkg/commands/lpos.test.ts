@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 import { LPosCommand } from "./lpos";
 
 import { RPushCommand } from "./rpush";
@@ -9,7 +9,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("with single element", () => {
+describe("with single element", () => {
   test("returns 1", async () => {
     const key = newKey();
     const value1 = randomID();
@@ -20,7 +20,7 @@ test("with single element", () => {
   });
 });
 
-test("with rank", () => {
+describe("with rank", () => {
   test("returns 6", async () => {
     const key = newKey();
     await new RPushCommand([key, "a", "b", "c", 1, 2, 3, "c", "c"]).exec(client);
@@ -30,7 +30,7 @@ test("with rank", () => {
     expect(res).toEqual(6);
   });
 });
-test("with count", () => {
+describe("with count", () => {
   test("returns 2,6", async () => {
     const key = newKey();
     await new RPushCommand([key, "a", "b", "c", 1, 2, 3, "c", "c"]).exec(client);
@@ -39,7 +39,7 @@ test("with count", () => {
   });
 });
 
-test("with maxlen", () => {
+describe("with maxlen", () => {
   test("returns 2", async () => {
     const key = newKey();
     await new RPushCommand([key, "a", "b", "c", 1, 2, 3, "c", "c"]).exec(client);

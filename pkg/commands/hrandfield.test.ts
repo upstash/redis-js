@@ -31,7 +31,7 @@ describe("with multiple fields present", () => {
 
     const res = await new HRandFieldCommand<string>([key]).exec(client);
 
-    expect(fields).toInclude(res);
+    expect(fields).toHaveProperty(res);
   });
 });
 
@@ -46,7 +46,7 @@ describe("with withvalues", () => {
 
     const res = await new HRandFieldCommand<Record<string, string>>([key, 2, true]).exec(client);
     for (const [k, v] of Object.entries(res)) {
-      expect(fields).toInclude(k);
+      expect(fields).toHaveProperty(k);
       expect(fields[k]).toEqual(v);
     }
   });

@@ -289,8 +289,8 @@ export class HttpClient implements Requester {
       const rawBody = await res.text();
       try {
         body = JSON.parse(rawBody) as UpstashResponse<string>;
-      } catch {
-        throw new UpstashJSONParseError(rawBody, { cause: { response: res } });
+      } catch (error) {
+        throw new UpstashJSONParseError(rawBody, { cause: error });
       }
       throw new UpstashError(`${body.error}, command was: ${JSON.stringify(req.body)}`);
     }
@@ -344,8 +344,8 @@ export class HttpClient implements Requester {
     const rawBody = await res.text();
     try {
       body = JSON.parse(rawBody) as UpstashResponse<string>;
-    } catch {
-      throw new UpstashJSONParseError(rawBody, { cause: { response: res } });
+    } catch (error) {
+      throw new UpstashJSONParseError(rawBody, { cause: error });
     }
 
     /**

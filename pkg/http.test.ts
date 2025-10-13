@@ -114,11 +114,11 @@ describe("http", () => {
     });
 
     try {
-      const error = await redis.get("foo").catch((e) => e);
+      const error = await redis.get("foo").catch((error_) => error_);
       expect(error).toBeInstanceOf(UpstashJSONParseError);
 
       const { message, cause } = error as UpstashJSONParseError;
-      const truncatedBody = body.length > 200 ? body.substring(0, 200) + "..." : body;
+      const truncatedBody = body.length > 200 ? body.slice(0, 200) + "..." : body;
       expect(message).toContain(`Unable to parse response body: ${truncatedBody}`);
       expect(cause).toBeDefined();
     } finally {

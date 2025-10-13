@@ -3,13 +3,13 @@ import { keygen, newHttpClient, randomID } from "../test-utils";
 import { SAddCommand } from "./sadd";
 import { SIsMemberCommand } from "./sismember";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("when member exists", () => {
+describe("when member exists", () => {
   test("returns 1", async () => {
     const key = newKey();
     const value = randomID();
@@ -19,7 +19,7 @@ test("when member exists", () => {
   });
 });
 
-test("when member exists", () => {
+describe("when member exists", () => {
   test("returns 0", async () => {
     const key = newKey();
     const value1 = randomID();

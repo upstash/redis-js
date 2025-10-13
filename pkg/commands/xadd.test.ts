@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 import { XAddCommand } from "./xadd";
 import { XRangeCommand } from "./xrange";
 
@@ -9,7 +9,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("without options", () => {
+describe("without options", () => {
   test("should return valid stream id", async () => {
     const key = newKey();
     const field1 = "field1";
@@ -31,7 +31,7 @@ test("without options", () => {
   });
 });
 
-test("with NOMKSTREAM", () => {
+describe("with NOMKSTREAM", () => {
   test("should return valid stream id", async () => {
     const key = newKey();
     const field1 = "field1";
@@ -78,7 +78,7 @@ test("with NOMKSTREAM", () => {
   });
 });
 
-test("with threshold", () => {
+describe("with threshold", () => {
   test("should always return less than or equal to 5", async () => {
     const key = newKey();
     const field1 = "field1";

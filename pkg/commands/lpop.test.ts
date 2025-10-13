@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 import { LPopCommand } from "./lpop";
 
 import { LPushCommand } from "./lpush";
@@ -9,7 +9,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("when list exists", () => {
+describe("when list exists", () => {
   test("returns the first element", async () => {
     const key = newKey();
     const value = randomID();
@@ -19,7 +19,7 @@ test("when list exists", () => {
   });
 });
 
-test("when list does not exist", () => {
+describe("when list does not exist", () => {
   test("returns null", async () => {
     const key = newKey();
     const res = await new LPopCommand([key]).exec(client);
@@ -27,7 +27,7 @@ test("when list does not exist", () => {
   });
 });
 
-test("with count", () => {
+describe("with count", () => {
   test("returns 2 elements", async () => {
     const key = newKey();
     const value1 = randomID();
@@ -35,6 +35,6 @@ test("with count", () => {
     await new LPushCommand([key, value1, value2]).exec(client);
     const res = await new LPopCommand<string[]>([key, 2]).exec(client);
     expect(res).toBeTruthy();
-    expect([value1, value2]).toContain(res);
+    expect(res).toEqual([value2, value1]);
   });
 });

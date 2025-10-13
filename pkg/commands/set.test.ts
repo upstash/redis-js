@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 import { GetCommand } from "./get";
 import { SetCommand } from "./set";
 
@@ -8,7 +8,7 @@ const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
-test("without options", () => {
+describe("without options", () => {
   test("sets value", async () => {
     const key = newKey();
     const value = randomID();
@@ -19,7 +19,7 @@ test("without options", () => {
     expect(res2).toEqual(value);
   });
 });
-test("ex", () => {
+describe("ex", () => {
   test("sets value", async () => {
     const key = newKey();
     const value = randomID();
@@ -34,7 +34,7 @@ test("ex", () => {
     expect(res3).toEqual(null);
   });
 });
-test("px", () => {
+describe("px", () => {
   test("sets value", async () => {
     const key = newKey();
     const value = randomID();
@@ -51,7 +51,7 @@ test("px", () => {
   });
 });
 
-test("exat", () => {
+describe("exat", () => {
   test("sets value", async () => {
     const key = newKey();
     const value = randomID();
@@ -74,7 +74,7 @@ test("exat", () => {
   });
 });
 
-test("pxat", () => {
+describe("pxat", () => {
   test("sets value", async () => {
     const key = newKey();
     const value = randomID();
@@ -91,7 +91,7 @@ test("pxat", () => {
   });
 });
 
-test("get", () => {
+describe("get", () => {
   test("gets the old value", async () => {
     const key = newKey();
     const old = randomID();
@@ -103,7 +103,7 @@ test("get", () => {
   });
 });
 
-test("get with xx", () => {
+describe("get with xx", () => {
   test("gets the old value", async () => {
     const key = newKey();
     const old = randomID();
@@ -114,8 +114,8 @@ test("get with xx", () => {
     expect(res).toEqual(old);
   });
 });
-test("nx", () => {
-  test("when key exists", () => {
+describe("nx", () => {
+  describe("when key exists", () => {
     test("does nothing", async () => {
       const key = newKey();
       const value = randomID();
@@ -128,7 +128,7 @@ test("nx", () => {
       expect(res2).toEqual(value);
     });
   });
-  test("when key does not exists", () => {
+  describe("when key does not exists", () => {
     test("overwrites key", async () => {
       const key = newKey();
       const value = randomID();
@@ -140,8 +140,8 @@ test("nx", () => {
     });
   });
 });
-test("xx", () => {
-  test("when key exists", () => {
+describe("xx", () => {
+  describe("when key exists", () => {
     test("overwrites key", async () => {
       const key = newKey();
       const value = randomID();
@@ -154,7 +154,7 @@ test("xx", () => {
       expect(res2).toEqual(newValue);
     });
   });
-  test("when key does not exists", () => {
+  describe("when key does not exists", () => {
     test("does nothing", async () => {
       const key = newKey();
       const value = randomID();

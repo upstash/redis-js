@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 import { RPushXCommand } from "./rpushx";
 
 import { LPushCommand } from "./lpush";
@@ -9,7 +9,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("when list exists", () => {
+describe("when list exists", () => {
   test("returns the length after command", async () => {
     const key = newKey();
     await new LPushCommand([key, randomID()]).exec(client);
@@ -21,7 +21,7 @@ test("when list exists", () => {
   });
 });
 
-test("when list does not exist", () => {
+describe("when list does not exist", () => {
   test("does nothing", async () => {
     const key = newKey();
     const res = await new RPushXCommand([key, randomID()]).exec(client);

@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 import { ZAddCommand } from "./zadd";
 import { ZPopMinCommand } from "./zpopmin";
 
@@ -9,7 +9,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("without options", () => {
+describe("without options", () => {
   test("returns the popped elements", async () => {
     const key = newKey();
     const score1 = 1;
@@ -29,7 +29,7 @@ test("without options", () => {
   });
 });
 
-test("with count", () => {
+describe("with count", () => {
   test("returns the popped elements", async () => {
     const key = newKey();
     const score1 = 1;

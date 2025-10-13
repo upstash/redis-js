@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 import { SAddCommand } from "./sadd";
 import { SInterCommand } from "./sinter";
 
@@ -9,7 +9,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("with single set", () => {
+describe("with single set", () => {
   test("returns the members of the set", async () => {
     const key = newKey();
     const value1 = { v: randomID() };
@@ -22,7 +22,7 @@ test("with single set", () => {
   });
 });
 
-test("with multiple sets", () => {
+describe("with multiple sets", () => {
   test("returns the members of the set", async () => {
     const key1 = newKey();
     const key2 = newKey();

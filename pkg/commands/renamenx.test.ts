@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 import { RenameNXCommand } from "./renamenx";
 import { SetCommand } from "./set";
 
@@ -9,7 +9,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("when the key exists", () => {
+describe("when the key exists", () => {
   test("does nothing", async () => {
     const source = newKey();
     const destination = newKey();
@@ -21,7 +21,7 @@ test("when the key exists", () => {
     expect(res).toEqual(0);
   });
 });
-test("when the key does not exist", () => {
+describe("when the key does not exist", () => {
   test("renames the key", async () => {
     const source = newKey();
     const destination = newKey();

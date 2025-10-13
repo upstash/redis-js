@@ -25,7 +25,7 @@ describe("when key is set", () => {
     expect(res).toEqual(43);
   });
 
-  test("with start and end", () => {
+  describe("with start and end", () => {
     test("returns bitcount", async () => {
       const key = newKey();
       const value = "Hello World";

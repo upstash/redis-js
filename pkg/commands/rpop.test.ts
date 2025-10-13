@@ -27,7 +27,7 @@ describe("when list does not exist", () => {
   });
 });
 
-test("with count", () => {
+describe("with count", () => {
   test("returns 2 elements", async () => {
     const key = newKey();
     const value1 = randomID();
@@ -35,6 +35,6 @@ test("with count", () => {
     await new LPushCommand([key, value1, value2]).exec(client);
     const res = await new RPopCommand<string[]>([key, 2]).exec(client);
     expect(res).toBeTruthy();
-    expect(res).toContain([value1, value2]);
+    expect(res).toEqual([value1, value2]);
   });
 });

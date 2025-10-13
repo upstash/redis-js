@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 import { LPushCommand } from "./lpush";
 import { LTrimCommand } from "./ltrim";
 
@@ -9,7 +9,7 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("when the list exists", () => {
+describe("when the list exists", () => {
   test("returns ok", async () => {
     const key = newKey();
     await new LPushCommand([key, randomID()]).exec(client);
@@ -20,7 +20,7 @@ test("when the list exists", () => {
   });
 });
 
-test("when the list does not exist", () => {
+describe("when the list does not exist", () => {
   test("returns ok", async () => {
     const key = newKey();
 

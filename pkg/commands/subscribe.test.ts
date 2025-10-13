@@ -149,7 +149,7 @@ describe("Subscriber", () => {
     // Send more messages
     await redis.publish("channel1", { test: "after1" });
     await redis.publish("channel2", { test: "after2" });
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Verify only channel2 received message
     expect(messages.channel1).toHaveLength(0);
@@ -168,7 +168,7 @@ describe("Subscriber", () => {
     });
 
     // Wait for subscription event
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     expect(counts).toHaveLength(1);
     expect(counts[0]).toBe(1); // First subscription should have count 1
@@ -186,7 +186,7 @@ describe("Subscriber", () => {
       counts1.push(count);
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Second subscription to same channel
     const subscriber2 = redis.subscribe(["test-channel"]);
@@ -194,7 +194,7 @@ describe("Subscriber", () => {
       counts2.push(count);
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     expect(counts1[0]).toBe(1); // First subscription count
     expect(counts2[0]).toBe(1); // Second subscription count

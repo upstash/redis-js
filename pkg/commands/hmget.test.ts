@@ -1,6 +1,6 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test, describe } from "bun:test";
 
 import { HMGetCommand } from "./hmget";
 import { HMSetCommand } from "./hmset";
@@ -24,7 +24,7 @@ test("gets exiting values", async () => {
   expect(res2).toEqual(kv);
 });
 
-test("when the hash does not exist", () => {
+describe("when the hash does not exist", () => {
   test("returns null", async () => {
     const key = newKey();
     const res = await new HMGetCommand([key, randomID()]).exec(client);

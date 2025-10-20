@@ -89,7 +89,7 @@ export class Redis extends core.Redis {
     });
 
     super(client, {
-      enableTelemetry: !env?.UPSTASH_DISABLE_TELEMETRY,
+      enableTelemetry: config.enableTelemetry ?? !env?.UPSTASH_DISABLE_TELEMETRY,
       automaticDeserialization: config.automaticDeserialization,
       latencyLogging: config.latencyLogging,
       enableAutoPipelining: config.enableAutoPipelining,

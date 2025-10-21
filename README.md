@@ -134,3 +134,12 @@ to any truthy value.
 ```sh
 UPSTASH_DISABLE_TELEMETRY=1
 ```
+
+Alternatively, you can pass `enableTelemetry: false` when initializing the Redis client:
+
+```ts
+const redis = new Redis({
+  // ...,
+  enableTelemetry: false,
+});
+```

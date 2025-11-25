@@ -80,6 +80,11 @@ export class Redis extends core.Redis {
 
   /**
    * Create a new redis client by providing a custom `Requester` implementation
+   */
+  constructor(requester: Requester);
+
+  /**
+   * Create a new redis client by providing a custom `Requester` implementation
    *
    * @example
    * ```ts

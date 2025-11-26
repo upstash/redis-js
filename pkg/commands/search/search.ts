@@ -1,28 +1,29 @@
-import { HashIndexSchema, InferStringSchemaData, PrefixedKey, StringIndexSchema } from "./types";
+import { FlatIndexSchema, InferSchemaData, PrefixedKey, NestedIndexSchema } from "./types";
 import { flattenSchema } from "./flatten-schema";
 import type { Requester } from "../../http";
 import { ExecCommand } from "../exec";
+export { s } from "./schema-builder";
 
 type IndexProps<
-  TSchema extends StringIndexSchema | HashIndexSchema = StringIndexSchema | HashIndexSchema,
+  TSchema extends NestedIndexSchema | FlatIndexSchema = NestedIndexSchema | FlatIndexSchema,
 > =
   | {
       indexName: string;
-      schema: TSchema extends StringIndexSchema ? TSchema : never;
+      schema: TSchema extends NestedIndexSchema ? TSchema : never;
       dataType: "string";
       prefix: string;
       client: Requester;
     }
   | {
       indexName: string;
-      schema: TSchema extends HashIndexSchema ? TSchema : never;
+      schema: TSchema extends FlatIndexSchema ? TSchema : never;
       dataType: "hash";
       prefix: string | string[];
       client: Requester;
     };
 
 abstract class BaseIndex<
-  TSchema extends StringIndexSchema | HashIndexSchema,
+  TSchema extends NestedIndexSchema | FlatIndexSchema,
   TProps extends IndexProps<TSchema>,
 > {
   indexName: TProps["indexName"];
@@ -93,20 +94,22 @@ abstract class BaseIndex<
 }
 
 class HashIndex<
-  TSchema extends HashIndexSchema,
+  TSchema extends FlatIndexSchema,
   TPrefix extends string | string[],
   TProps extends IndexProps<TSchema> & { dataType: "hash"; prefix: TPrefix },
 > extends BaseIndex<TSchema, TProps> {
-  async hset(key: PrefixedKey<TPrefix>, data: InferStringSchemaData<TSchema>): Promise<string> {
+  async hset(key: PrefixedKey<TPrefix>, data: InferSchemaData<TSchema>): Promise<string> {
     const payload: string[] = [];
 
-    for (const [key, value] of Object.entries(data)) {
+    for (const [key, value] of Object.entries(data) as [
+      string,
+      string | number | boolean | Date,
+    ][]) {
       payload.push(key);
       payload.push(value.toString());
     }
 
     let command = ["HSET", key, ...payload];
-    console.log(command);
     const result = await new ExecCommand<string>(command as [string, ...string[]]).exec(
       this.client
     );
@@ -115,11 +118,11 @@ class HashIndex<
 }
 
 class StringIndex<
-  TSchema extends StringIndexSchema,
+  TSchema extends NestedIndexSchema,
   TPrefix extends string,
   TProps extends IndexProps<TSchema> & { dataType: "string"; prefix: TPrefix },
 > extends BaseIndex<TSchema, TProps> {
-  async set(key: PrefixedKey<TPrefix>, data: InferStringSchemaData<TSchema>): Promise<string> {
+  async set(key: PrefixedKey<TPrefix>, data: InferSchemaData<TSchema>): Promise<string> {
     let command = ["SET", key, JSON.stringify(data)];
     const result = await new ExecCommand<string>(command as [string, ...string[]]).exec(
       this.client
@@ -128,23 +131,23 @@ class StringIndex<
   }
 }
 
-export function createIndex<TSchema extends HashIndexSchema, TPrefix extends string | string[]>(
+export function createIndex<TSchema extends FlatIndexSchema, TPrefix extends string | string[]>(
   options: IndexProps<TSchema> & { dataType: "hash"; prefix: TPrefix }
 ): HashIndex<TSchema, TPrefix, IndexProps<TSchema> & { dataType: "hash"; prefix: TPrefix }>;
 
-export function createIndex<TSchema extends StringIndexSchema, TPrefix extends string>(
+export function createIndex<TSchema extends NestedIndexSchema, TPrefix extends string>(
   options: IndexProps<TSchema> & { dataType: "string"; prefix: TPrefix }
 ): StringIndex<TSchema, TPrefix, IndexProps<TSchema> & { dataType: "string"; prefix: TPrefix }>;
 
-export function createIndex<TSchema extends StringIndexSchema | HashIndexSchema>(
+export function createIndex<TSchema extends NestedIndexSchema | FlatIndexSchema>(
   options: IndexProps<TSchema>
 ):
   | HashIndex<
-      HashIndexSchema,
+      FlatIndexSchema,
       string | string[],
-      IndexProps<HashIndexSchema> & { dataType: "hash" }
+      IndexProps<FlatIndexSchema> & { dataType: "hash" }
     >
-  | StringIndex<StringIndexSchema, string, IndexProps<StringIndexSchema> & { dataType: "string" }> {
+  | StringIndex<NestedIndexSchema, string, IndexProps<NestedIndexSchema> & { dataType: "string" }> {
   if (options.dataType === "hash") {
     return new HashIndex(options);
   }

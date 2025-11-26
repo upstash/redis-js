@@ -1,8 +1,6 @@
 import { afterAll, describe, expect, test } from "bun:test";
 import { keygen, newHttpClient } from "../../test-utils";
-import { createIndex } from "./search";
-import { StringIndexSchema } from "./types";
-
+import { createIndex, s } from "./search";
 const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
@@ -10,11 +8,11 @@ afterAll(cleanup);
 describe("Index.create", () => {
   test("creates hash index with simple schema", async () => {
     const indexName = newKey();
-    const schema = {
-      name: "TEXT",
-      age: "U64",
-      isActive: "BOOL",
-    } as const;
+    const schema = s.hash({
+      name: s.text(),
+      age: s.unsignedInteger(),
+      isActive: s.bool(),
+    });
 
     const index = createIndex({
       indexName,
@@ -30,15 +28,15 @@ describe("Index.create", () => {
 
   test("creates string index with nested schema", async () => {
     const indexName = newKey();
-    const schema = {
-      name: "TEXT",
-      profile: {
-        age: "U64",
-        location: {
-          city: "TEXT",
-        },
-      },
-    } as const;
+    const schema = s.object({
+      name: s.text(),
+      profile: s.object({
+        age: s.unsignedInteger(),
+        location: s.object({
+          city: s.text(),
+        }),
+      }),
+    });
 
     const index = createIndex({
       indexName,
@@ -54,16 +52,10 @@ describe("Index.create", () => {
 
   test("creates hash index with detailed fields", async () => {
     const indexName = newKey();
-    const schema = {
-      name: {
-        type: "TEXT",
-        noTokenize: true,
-      },
-      age: {
-        type: "U64",
-        fast: true,
-      },
-    } as const;
+    const schema = s.hash({
+      name: s.text().noTokenize(),
+      age: s.unsignedInteger().fast(),
+    });
 
     const index = createIndex({
       indexName,
@@ -79,10 +71,10 @@ describe("Index.create", () => {
 
   test("creates hash index with multiple prefixes", async () => {
     const indexName = newKey();
-    const schema = {
-      title: "TEXT",
-      score: "I64",
-    } as const;
+    const schema = s.hash({
+      title: s.text(),
+      score: s.integer(),
+    });
 
     const index = createIndex({
       indexName,
@@ -98,28 +90,22 @@ describe("Index.create", () => {
 
   test("creates string index with complex nested schema", async () => {
     const indexName = newKey();
-    const schema = {
-      name: "TEXT",
-      user: {
-        profile: {
-          bio: {
-            type: "TEXT",
-            noStem: true,
-          },
-          age: "U64",
-        },
-        settings: {
-          notifications: "BOOL",
-        },
-      },
-      metadata: {
-        created: "DATE",
-        score: {
-          type: "I64",
-          fast: true,
-        },
-      },
-    } as const;
+    const schema = s.object({
+      name: s.text(),
+      user: s.object({
+        profile: s.object({
+          bio: s.text().noStem(),
+          age: s.unsignedInteger(),
+        }),
+        settings: s.object({
+          notifications: s.bool(),
+        }),
+      }),
+      metadata: s.object({
+        created: s.date(),
+        score: s.integer().fast(),
+      }),
+    });
 
     const index = createIndex({
       indexName,
@@ -137,10 +123,10 @@ describe("Index.create", () => {
 describe("Index.create payload structure", () => {
   test("builds correct payload for simple hash schema", async () => {
     const indexName = newKey();
-    const schema = {
-      name: "TEXT",
-      age: "U64",
-    } as const;
+    const schema = s.hash({
+      name: s.text(),
+      age: s.unsignedInteger(),
+    });
 
     const index = createIndex({
       indexName,
@@ -157,12 +143,12 @@ describe("Index.create payload structure", () => {
 
   test("builds correct payload with nested string schema", async () => {
     const indexName = newKey();
-    const schema = {
-      name: "TEXT",
-      nested: {
-        score: "I64",
-      },
-    } as const;
+    const schema = s.object({
+      name: s.text(),
+      nested: s.object({
+        score: s.integer(),
+      }),
+    });
 
     const index = createIndex({
       indexName,
@@ -179,16 +165,10 @@ describe("Index.create payload structure", () => {
 
   test("builds correct payload with detailed fields", async () => {
     const indexName = newKey();
-    const schema = {
-      name: {
-        type: "TEXT",
-        noTokenize: true,
-      },
-      score: {
-        type: "U64",
-        fast: true,
-      },
-    } as const;
+    const schema = s.hash({
+      name: s.text().noTokenize(),
+      score: s.unsignedInteger().fast(),
+    });
 
     const index = createIndex({
       indexName,
@@ -204,9 +184,9 @@ describe("Index.create payload structure", () => {
 
   test("builds correct payload with multiple prefixes", async () => {
     const indexName = newKey();
-    const schema = {
-      title: "TEXT",
-    } as const;
+    const schema = s.hash({
+      title: s.text(),
+    });
 
     const index = createIndex({
       indexName,
@@ -226,53 +206,53 @@ describe("HashIndex data methods", () => {
   test("hset builds correct command with type-safe data", async () => {
     const indexName = newKey();
     const key = newKey();
-    const schema = {
-      name: "TEXT",
-      age: "U64",
-      score: "BOOL",
-      isActive: "BOOL",
-    } satisfies StringIndexSchema;
+    const schema = s.hash({
+      name: s.text(),
+      age: s.unsignedInteger(),
+      score: s.bool(),
+      isActive: s.bool(),
+    });
 
     const index = createIndex({
       indexName,
       schema,
       dataType: "hash",
-      prefix: "user:",
+      prefix: "user2:",
       client,
     });
 
     await index.create();
 
-    const result = await index.hset(`user:${key}`, {
+    const result = await index.hset(`user2:${key}`, {
       name: "John Doe",
       score: true,
       age: 30,
       isActive: true,
     });
 
-    expect(result).toBe("OK");
+    expect(result).toBeNumber();
   });
 
   test("hset enforces prefix on keys", async () => {
     const indexName = newKey();
     const key = newKey();
-    const schema = {
-      name: "TEXT",
-      age: "U64",
-    } as const;
+    const schema = s.hash({
+      name: s.text(),
+      age: s.unsignedInteger(),
+    });
 
     const index = createIndex({
       indexName,
       schema,
       dataType: "hash",
-      prefix: "user:",
+      prefix: "user1:",
       client,
     });
 
     await index.create();
 
-    const result = await index.hset(`user:${key}`, { name: "John", age: 30 });
-    expect(result).toBe("OK");
+    const result = await index.hset(`user1:${key}`, { name: "John", age: 30 });
+    expect(result).toBeNumber();
   });
 });
 
@@ -280,25 +260,25 @@ describe("StringIndex data methods", () => {
   test("set builds correct command with type-safe nested data", async () => {
     const indexName = newKey();
     const key = newKey();
-    const schema = {
-      name: "TEXT",
-      profile: {
-        age: "U64",
-        city: "TEXT",
-      },
-    } as const;
+    const schema = s.object({
+      name: s.text(),
+      profile: s.object({
+        age: s.unsignedInteger(),
+        city: s.text(),
+      }),
+    });
 
     const index = createIndex({
       indexName,
       schema,
       dataType: "string",
-      prefix: "tuser:",
+      prefix: "tuser1:",
       client,
     });
 
     await index.create();
 
-    const result = await index.set(`tuser:${key}`, {
+    const result = await index.set(`tuser1:${key}`, {
       name: "John Doe",
       profile: {
         age: 30,
@@ -311,21 +291,21 @@ describe("StringIndex data methods", () => {
   test("set enforces prefix on keys and schema types", async () => {
     const indexName = newKey();
     const key = newKey();
-    const schema = {
-      name: "TEXT",
-      version: "U64",
-    } as const;
+    const schema = s.object({
+      name: s.text(),
+      version: s.unsignedInteger(),
+    });
 
     const index = createIndex({
       indexName,
       schema,
       dataType: "string",
-      prefix: "poc:",
+      prefix: "poc1:",
       client,
     });
     await index.create();
 
-    const result = await index.set(`poc:${key}`, { name: "Document", version: 1 });
+    const result = await index.set(`poc1:${key}`, { name: "Document", version: 1 });
     expect(result).toBe("OK");
   });
 });

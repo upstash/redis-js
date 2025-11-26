@@ -1,9 +1,9 @@
 import {
   DetailedField,
   FIELD_TYPES,
-  HashIndexSchema,
+  FlatIndexSchema,
   type FieldType,
-  type StringIndexSchema,
+  type NestedIndexSchema,
 } from "./types";
 
 type FlattenedField = {
@@ -22,12 +22,12 @@ function isDetailedField(value: any): value is DetailedField {
   return typeof value === "object" && value !== null && "type" in value && isFieldType(value.type);
 }
 
-function isNestedSchema(value: any): value is StringIndexSchema {
+function isNestedSchema(value: any): value is NestedIndexSchema {
   return typeof value === "object" && value !== null && !isDetailedField(value);
 }
 
 export function flattenSchema(
-  schema: StringIndexSchema | HashIndexSchema,
+  schema: NestedIndexSchema | FlatIndexSchema,
   pathPrefix: string[] = []
 ): FlattenedField[] {
   const fields: FlattenedField[] = [];

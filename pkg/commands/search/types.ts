@@ -23,11 +23,11 @@ export type DateField = {
 };
 
 export type DetailedField = TextField | NumericField | BoolField | DateField;
-export type StringIndexSchema = {
-  [key: string]: FieldType | DetailedField | StringIndexSchema;
+export type NestedIndexSchema = {
+  [key: string]: FieldType | DetailedField | NestedIndexSchema;
 };
 
-export type HashIndexSchema = {
+export type FlatIndexSchema = {
   [key: string]: FieldType | DetailedField;
 };
 type InferFieldType<T extends FieldType | DetailedField> = T extends "TEXT"
@@ -44,18 +44,14 @@ type InferFieldType<T extends FieldType | DetailedField> = T extends "TEXT"
             : never
           : never;
 
-export type InferStringSchemaData<TSchema extends StringIndexSchema> = {
-  [K in keyof TSchema]: TSchema[K] extends FieldType | DetailedField
+export type InferSchemaData<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
+  [K in keyof TSchema as string extends K ? never : K]: TSchema[K] extends FieldType | DetailedField
     ? InferFieldType<TSchema[K]>
-    : TSchema[K] extends StringIndexSchema
-      ? InferStringSchemaData<TSchema[K]>
+    : TSchema[K] extends NestedIndexSchema
+      ? InferSchemaData<TSchema[K]>
       : never;
 };
-export type InferHashSchemaData<TSchema extends HashIndexSchema> = {
-  [K in keyof TSchema]: TSchema[K] extends FieldType | DetailedField
-    ? InferFieldType<TSchema[K]>
-    : never;
-};
+
 export type SchemaPaths<T, Prefix extends string = ""> = {
   [K in keyof T]: K extends string
     ? T[K] extends FieldType | DetailedField

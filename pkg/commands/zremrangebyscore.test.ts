@@ -29,6 +29,11 @@ test("returns the number of removed elements", async () => {
 });
 
 test("returns the number of removed elements with inf", async () => {
-  const res = await new ZRemRangeByScoreCommand([key, 3, "+inf"]).exec(client);
+  const res = await new ZRemRangeByScoreCommand([key, "-inf", "+inf"]).exec(client);
+  expect(res).toEqual(3);
+});
+
+test("returns the number of removed elements with exclusive range", async () => {
+  const res = await new ZRemRangeByScoreCommand([key, "(1", "(3"]).exec(client);
   expect(res).toEqual(1);
 });

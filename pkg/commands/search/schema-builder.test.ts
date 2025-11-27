@@ -1,6 +1,5 @@
 import { describe, test, expect } from "bun:test";
 import { s } from "./schema-builder";
-import { createIndex } from "./search";
 
 describe("Schema Builder", () => {
   test("builds simple hash schema", () => {
@@ -44,62 +43,6 @@ describe("Schema Builder", () => {
     expect(schema.profile).toBeDefined();
     expect(schema.profile.age).toBe("U64");
     expect(schema.profile.city).toBe("TEXT");
-  });
-
-  test("works with createIndex for hash", () => {
-    const mockClient = {
-      request: async () => ({ result: "OK" }),
-    } as any;
-
-    const schema = s.object({
-      name: s.text(),
-      age: s.unsignedInteger(),
-    });
-
-    const index = createIndex({
-      indexName: "users",
-      schema,
-      dataType: "hash",
-      prefix: "user:",
-      client: mockClient,
-    });
-
-    // Type test: hset should accept correct data
-    index.hset("user:123", {
-      name: "John", // Must be string
-      age: 30, // Must be number
-    });
-  });
-
-  test("works with createIndex for string/JSON", () => {
-    const mockClient = {
-      request: async () => ({ result: "OK" }),
-    } as any;
-
-    const schema = s.object({
-      name: s.text(),
-      profile: s.object({
-        age: s.unsignedInteger(),
-        city: s.text(),
-      }),
-    });
-
-    const index = createIndex({
-      indexName: "users",
-      schema,
-      dataType: "string",
-      prefix: "user:",
-      client: mockClient,
-    });
-
-    // Type test: set should accept correct nested data
-    index.set("user:123", {
-      name: "John",
-      profile: {
-        age: 30,
-        city: "NYC",
-      },
-    });
   });
 
   test("supports all field types", () => {

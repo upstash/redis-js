@@ -371,22 +371,25 @@ describe("Real-world scenarios", () => {
 
 describe("Query Command Builder (JSON)", () => {
   test("should build basic command without TANTIVY flag", () => {
-    const command = buildQueryCommand("myindex", '{"name":"John"}');
+    const command = buildQueryCommand("SEARCH.QUERY", "myindex", '{"name":"John"}');
     expect(command).toEqual(["SEARCH.QUERY", "myindex", '{"name":"John"}']);
   });
 
   test("should build command with limit", () => {
-    const command = buildQueryCommand("myindex", '{"name":"John"}', { limit: 10 });
+    const command = buildQueryCommand("SEARCH.QUERY", "myindex", '{"name":"John"}', { limit: 10 });
     expect(command).toEqual(["SEARCH.QUERY", "myindex", '{"name":"John"}', "LIMIT", "10"]);
   });
 
   test("should build command with offset", () => {
-    const command = buildQueryCommand("myindex", '{"name":"John"}', { offset: 20 });
+    const command = buildQueryCommand("SEARCH.QUERY", "myindex", '{"name":"John"}', { offset: 20 });
     expect(command).toEqual(["SEARCH.QUERY", "myindex", '{"name":"John"}', "OFFSET", "20"]);
   });
 
   test("should build command with limit and offset", () => {
-    const command = buildQueryCommand("myindex", '{"name":"John"}', { limit: 10, offset: 20 });
+    const command = buildQueryCommand("SEARCH.QUERY", "myindex", '{"name":"John"}', {
+      limit: 10,
+      offset: 20,
+    });
     expect(command).toEqual([
       "SEARCH.QUERY",
       "myindex",
@@ -399,19 +402,21 @@ describe("Query Command Builder (JSON)", () => {
   });
 
   test("should build command with noContent", () => {
-    const command = buildQueryCommand("myindex", '{"name":"John"}', { noContent: true });
+    const command = buildQueryCommand("SEARCH.QUERY", "myindex", '{"name":"John"}', {
+      noContent: true,
+    });
     expect(command).toEqual(["SEARCH.QUERY", "myindex", '{"name":"John"}', "NOCONTENT"]);
   });
 
   test("should build command with sortBy ascending", () => {
-    const command = buildQueryCommand("myindex", '{"name":"John"}', {
+    const command = buildQueryCommand("SEARCH.QUERY", "myindex", '{"name":"John"}', {
       sortBy: { field: "age", direction: "ASC" },
     });
     expect(command).toEqual(["SEARCH.QUERY", "myindex", '{"name":"John"}', "SORTBY", "age", "ASC"]);
   });
 
   test("should build command with sortBy descending", () => {
-    const command = buildQueryCommand("myindex", '{"name":"John"}', {
+    const command = buildQueryCommand("SEARCH.QUERY", "myindex", '{"name":"John"}', {
       sortBy: { field: "price", direction: "DESC" },
     });
     expect(command).toEqual([
@@ -425,14 +430,14 @@ describe("Query Command Builder (JSON)", () => {
   });
 
   test("should build command with sortBy without direction", () => {
-    const command = buildQueryCommand("myindex", '{"name":"John"}', {
+    const command = buildQueryCommand("SEARCH.QUERY", "myindex", '{"name":"John"}', {
       sortBy: { field: "age" },
     });
     expect(command).toEqual(["SEARCH.QUERY", "myindex", '{"name":"John"}', "SORTBY", "age"]);
   });
 
   test("should build command with returnFields", () => {
-    const command = buildQueryCommand("myindex", '{"name":"John"}', {
+    const command = buildQueryCommand("SEARCH.QUERY", "myindex", '{"name":"John"}', {
       returnFields: ["name", "age"],
     });
     expect(command).toEqual([
@@ -447,7 +452,7 @@ describe("Query Command Builder (JSON)", () => {
   });
 
   test("should build command with all options", () => {
-    const command = buildQueryCommand("myindex", '{"name":"John"}', {
+    const command = buildQueryCommand("SEARCH.QUERY", "myindex", '{"name":"John"}', {
       limit: 10,
       offset: 20,
       sortBy: { field: "age", direction: "DESC" },

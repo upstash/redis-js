@@ -192,6 +192,12 @@ import {
   ZUnionCommand,
   ZUnionStoreCommand,
 } from "./commands/mod";
+import {
+  createIndex,
+  IndexProps,
+  type NestedIndexSchema,
+  type FlatIndexSchema,
+} from "./commands/search";
 import { Subscriber } from "./commands/subscribe";
 import { ZDiffStoreCommand } from "./commands/zdiffstore";
 import { ZMScoreCommand } from "./commands/zmscore";
@@ -450,6 +456,15 @@ export class Redis {
   ): TReadonly extends true ? ScriptRO<TResult> : Script<TResult> {
     return opts?.readonly ? (new ScriptRO(this, script) as any) : (new Script(this, script) as any);
   }
+
+  search = <TSchema extends NestedIndexSchema | FlatIndexSchema>(
+    props: Omit<IndexProps<TSchema>, "client">
+  ) => {
+    return createIndex<TSchema>({
+      ...props,
+      client: this.client,
+    } as IndexProps<TSchema>);
+  };
 
   /**
    * Create a new pipeline that allows you to send requests in bulk.

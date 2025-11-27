@@ -1,6 +1,7 @@
 import { afterAll, describe, expect, test } from "bun:test";
 import { keygen, newHttpClient } from "../../test-utils";
-import { createIndex, s } from "./search";
+import { createIndex } from "./search";
+import { s } from "./schema-builder";
 const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
@@ -198,117 +199,46 @@ describe("Index.create payload structure", () => {
 
     const result = await index.create();
 
+    await index.query({ title: { equals: "react" } });
+
     expect(result).toBe("OK");
   });
 });
 
-describe("HashIndex data methods", () => {
-  test("hset builds correct command with type-safe data", async () => {
-    const indexName = newKey();
-    const key = newKey();
+describe("Index.query", () => {
+  test("queries hash index with simple schema", async () => {
     const schema = s.object({
-      name: s.text(),
-      age: s.unsignedInteger(),
-      score: s.bool(),
-      isActive: s.bool(),
-    });
-
-    const index = createIndex({
-      indexName,
-      schema,
-      dataType: "hash",
-      prefix: "user2:",
-      client,
-    });
-
-    await index.create();
-
-    const result = await index.hset(`user2:${key}`, {
-      name: "John Doe",
-      score: true,
-      age: 30,
-      isActive: true,
-    });
-
-    expect(result).toBeNumber();
-  });
-
-  test("hset enforces prefix on keys", async () => {
-    const indexName = newKey();
-    const key = newKey();
-    const schema = s.object({
-      name: s.text(),
-      age: s.unsignedInteger(),
-    });
-
-    const index = createIndex({
-      indexName,
-      schema,
-      dataType: "hash",
-      prefix: "user1:",
-      client,
-    });
-
-    await index.create();
-
-    const result = await index.hset(`user1:${key}`, { name: "John", age: 30 });
-    expect(result).toBeNumber();
-  });
-});
-
-describe("StringIndex data methods", () => {
-  test("set builds correct command with type-safe nested data", async () => {
-    const indexName = newKey();
-    const key = newKey();
-    const schema = s.object({
-      name: s.text(),
-      profile: s.object({
-        age: s.unsignedInteger(),
-        city: s.text(),
+      id: s.text(),
+      content: s.object({
+        title: s.text().noStem(),
+        content: s.text(),
+        authors: s.text(),
+      }),
+      metadata: s.object({
+        dateInt: s.unsignedInteger().fast(),
+        url: s.text(),
+        updated: s.date(),
+        kind: s.text(),
       }),
     });
 
     const index = createIndex({
-      indexName,
+      indexName: "vercel-changelog",
       schema,
       dataType: "string",
-      prefix: "tuser1:",
+      prefix: "vercel-changelog:",
       client,
     });
 
-    await index.create();
-
-    const result = await index.set(`tuser1:${key}`, {
-      name: "John Doe",
-      profile: {
-        age: 30,
-        city: "New York",
+    const result = await index.query(
+      {
+        "content.title": { equals: "react" },
       },
-    });
-    expect(result).toBe("OK");
-  });
-
-  test("set enforces prefix on keys and schema types", async () => {
-    const indexName = newKey();
-    const key = newKey();
-    const schema = s.object({
-      name: s.text(),
-      version: s.unsignedInteger(),
-    });
-
-    const index = createIndex({
-      indexName,
-      schema,
-      dataType: "string",
-      prefix: "poc5:",
-      client,
-    });
-    await index.create();
-
-    const result = await index.set(`poc5:${key}`, { name: "Document", version: 1 });
-    await index.commit();
-    const result2 = await index.query({ name: { equals: "Document" } }, { returnFields: ["name"] });
-    console.log(JSON.stringify(result2, null, 2));
-    expect(result).toBe("OK");
+      {
+        noContent: true,
+        limit: 2,
+      }
+    );
+    expect(result).toBeDefined();
   });
 });

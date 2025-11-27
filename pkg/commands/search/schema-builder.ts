@@ -194,12 +194,12 @@ export const s = {
    *   })
    * })
    */
-  object<T extends Record<string, FieldBuilder | NestedIndexSchema>>(fields: T) {
+  object<T extends ObjectFieldRecord<T>>(fields: T) {
     const result: any = {};
     for (const [key, value] of Object.entries(fields)) {
-      if (typeof value === "object" && BUILD in value) {
+      if (value && typeof value === "object" && BUILD in value) {
         // It's a field builder
-        result[key] = value[BUILD]();
+        result[key] = (value as any)[BUILD]();
       } else {
         // It's a nested object/schema
         result[key] = value;
@@ -209,4 +209,14 @@ export const s = {
       [K in keyof T]: T[K] extends FieldBuilder ? ReturnType<T[K][typeof BUILD]> : T[K];
     };
   },
+};
+
+type ObjectFieldRecord<T> = {
+  [K in keyof T]: K extends string
+    ? K extends `${infer _}.${infer _}`
+      ? never
+      : T[K] extends FieldBuilder | NestedIndexSchema
+        ? T[K]
+        : never
+    : never;
 };

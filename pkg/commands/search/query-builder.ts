@@ -4,28 +4,14 @@ import type {
   NestedIndexSchema,
   FlatIndexSchema,
   SchemaPaths,
+  GetFieldAtPath,
+  ExtractFieldType,
 } from "./types";
 
-type ExtractFieldType<T> = T extends FieldType
-  ? T
-  : T extends { type: infer U }
-    ? U extends FieldType
-      ? U
-      : never
-    : never;
-
-type GetFieldAtPath<TSchema, Path extends string> = Path extends `${infer First}.${infer Rest}`
-  ? First extends keyof TSchema
-    ? GetFieldAtPath<TSchema[First], Rest>
-    : never
-  : Path extends keyof TSchema
-    ? TSchema[Path]
-    : never;
-
-type MutuallyExclusives<TFields extends string, TParameter> = {
-  [P in TFields]: { [Q in P]: TParameter } & {
-    [R in Exclude<TFields, P>]?: never;
-  };
+type AvailableOperations<TFields extends string, TParameter> = {
+  [P in TFields]: P extends "equals"
+    ? { [Q in P]: TParameter } & { [Q in Exclude<TFields, P>]?: never }
+    : { [Q in P]: TParameter };
 }[TFields];
 
 type StringOperation = "equals";
@@ -44,13 +30,13 @@ type DateOperation =
   | "greaterThanOrEquals";
 
 type OperationsForFieldType<T extends FieldType> = T extends "TEXT"
-  ? MutuallyExclusives<StringOperation, string>
+  ? AvailableOperations<StringOperation, string>
   : T extends "U64" | "I64" | "F64"
-    ? MutuallyExclusives<NumberOperation, number>
+    ? AvailableOperations<NumberOperation, number>
     : T extends "BOOL"
-      ? MutuallyExclusives<BooleanOperation, boolean>
+      ? AvailableOperations<BooleanOperation, boolean>
       : T extends "DATE"
-        ? MutuallyExclusives<DateOperation, string | Date>
+        ? AvailableOperations<DateOperation, string | Date>
         : never;
 
 type PathOperations<TSchema, TPath extends string> =
@@ -90,16 +76,6 @@ function buildQueryObject(filter: any) {
     return { $and: filter.AND.map((f: any) => buildQueryObject(f)) };
   }
 
-  // { name: { equals: "John" } },
-  const field = Object.keys(filter)[0]; // name
-  const operationObj = filter[field]; // { equals: "John" }
-  const operation = Object.keys(operationObj)[0]; // equals
-  const value = operationObj[operation]; // "John"
-
-  if (value === undefined) {
-    throw new Error(`Value for operation '${operation}' on field '${field}' cannot be undefined.`);
-  }
-
   const formatValue = (v: any): any => {
     if (v instanceof Date) {
       return v.toISOString();
@@ -107,28 +83,45 @@ function buildQueryObject(filter: any) {
     return v;
   };
 
-  switch (operation) {
-    case "equals":
-      return { [field]: formatValue(value) };
+  // { name: { equals: "John" } },
+  const field = Object.keys(filter)[0]; // name
+  const operationObj = filter[field]; // { equals: "John" }
+  const operations = Object.keys(operationObj); // ["equals", "lessThan", "lessThanOrEquals", "greaterThan", "greaterThanOrEquals"]
+  if (operations.length === 0) {
+    throw new Error(`No operations provided for field '${field}'.`);
+  }
 
-    case "lessThan":
-      return { [field]: { $range: { $lt: formatValue(value) } } };
-
-    case "lessThanOrEquals":
-      return { [field]: { $range: { $lte: formatValue(value) } } };
-
-    case "greaterThan":
-      return { [field]: { $range: { $gt: formatValue(value) } } };
-
-    case "greaterThanOrEquals":
-      return { [field]: { $range: { $gte: formatValue(value) } } };
-
-    default:
-      throw new Error(`Unsupported operation: ${operation}`);
+  if (operations.includes("equals")) {
+    const value = operationObj.equals;
+    return { [field]: formatValue(value) };
+  } else {
+    const filter = operations.reduce(
+      (acc, operation) => {
+        switch (operation) {
+          case "lessThan":
+            acc.$lt = formatValue(operationObj[operation]);
+            break;
+          case "lessThanOrEquals":
+            acc.$lte = formatValue(operationObj[operation]);
+            break;
+          case "greaterThan":
+            acc.$gt = formatValue(operationObj[operation]);
+            break;
+          case "greaterThanOrEquals":
+            acc.$gte = formatValue(operationObj[operation]);
+            break;
+          default:
+            throw new Error(`Unsupported operation: ${operation}`);
+        }
+        return acc;
+      },
+      {} as Record<string, any>
+    );
+    return { [field]: { $range: filter } };
   }
 }
 
-export type QueryOptions = {
+export type QueryOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
   /** Maximum number of results to return */
   limit?: number;
   /** Number of results to skip */
@@ -137,19 +130,20 @@ export type QueryOptions = {
   noContent?: boolean;
   /** Sort by field (requires FAST option on field) */
   sortBy?: {
-    field: string;
+    field: SchemaPaths<TSchema>;
     direction?: "ASC" | "DESC";
   };
   /** Return only specific fields */
-  returnFields?: string[];
+  returnFields?: SchemaPaths<TSchema>[];
 };
 
-export function buildQueryCommand(
+export function buildQueryCommand<TSchema extends NestedIndexSchema | FlatIndexSchema>(
+  redisCommand: "SEARCH.QUERY" | "SEARCH.COUNT",
   indexName: string,
   query: string,
-  options?: QueryOptions
+  options?: QueryOptions<TSchema>
 ): string[] {
-  const command: string[] = ["SEARCH.QUERY", indexName, query];
+  const command: string[] = [redisCommand, indexName, query];
 
   if (options?.limit !== undefined) {
     command.push("LIMIT", options.limit.toString());

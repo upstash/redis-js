@@ -4,6 +4,7 @@ import { keygen, newHttpClient, randomID } from "./test-utils";
 import { afterEach, describe, expect, test } from "bun:test";
 import { HttpClient } from "./http";
 import type { ScanResultStandard, ScanResultWithType } from "./commands/scan";
+import { s } from "./commands/search";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -263,5 +264,33 @@ describe("return type of scan withType", () => {
     assertIsType<Promise<ScanResultStandard>>(() => redis.scan("0", { withType: false }));
 
     assertIsType<Promise<ScanResultWithType>>(() => redis.scan("0", { withType: true }));
+  });
+});
+
+describe("search", () => {
+  test("should query a search index", async () => {
+    const redis = new Redis(client);
+    const schema = s.object({
+      id: s.text(),
+      content: s.object({
+        title: s.text().noStem(),
+        content: s.text(),
+        authors: s.text(),
+      }),
+      metadata: s.object({
+        dateInt: s.unsignedInteger().fast(),
+        url: s.text(),
+        updated: s.date(),
+        kind: s.text(),
+      }),
+    });
+    const idx = redis.search({
+      indexName: "vercel-changelog",
+      schema,
+      dataType: "string",
+      prefix: "vercel-changelog:",
+    });
+    const result = await idx.query({ "content.title": { equals: "react" } }, { limit: 2 });
+    expect(result).toBeDefined();
   });
 });

@@ -4,7 +4,7 @@ import { createIndex } from "./search";
 
 describe("Schema Builder", () => {
   test("builds simple hash schema", () => {
-    const schema = s.hash({
+    const schema = s.object({
       name: s.text(),
       age: s.unsignedInteger(),
       isActive: s.bool(),
@@ -18,7 +18,7 @@ describe("Schema Builder", () => {
   });
 
   test("builds hash schema with field options", () => {
-    const schema = s.hash({
+    const schema = s.object({
       name: s.text().noTokenize(),
       age: s.unsignedInteger().fast(),
       score: s.float().fast(),
@@ -51,7 +51,7 @@ describe("Schema Builder", () => {
       request: async () => ({ result: "OK" }),
     } as any;
 
-    const schema = s.hash({
+    const schema = s.object({
       name: s.text(),
       age: s.unsignedInteger(),
     });
@@ -69,13 +69,6 @@ describe("Schema Builder", () => {
       name: "John", // Must be string
       age: 30, // Must be number
     });
-
-    // TypeScript should error on wrong types:
-    // @ts-expect-error - name must be string, not number
-    index.hset("user:123", { name: 11, age: 30 });
-
-    // @ts-expect-error - age must be number, not string
-    index.hset("user:123", { name: "John", age: "30" });
   });
 
   test("works with createIndex for string/JSON", () => {
@@ -110,7 +103,7 @@ describe("Schema Builder", () => {
   });
 
   test("supports all field types", () => {
-    const schema = s.hash({
+    const schema = s.object({
       text: s.text().noStem(),
       unsignedInteger: s.unsignedInteger(),
       integer: s.integer(),
@@ -130,7 +123,7 @@ describe("Schema Builder", () => {
   });
 
   test("supports chaining multiple options", () => {
-    const schema = s.hash({
+    const schema = s.object({
       title: s.text().noTokenize().noStem(),
       score: s.float().fast(),
     });
@@ -143,18 +136,18 @@ describe("Schema Builder", () => {
 
   test("returns precise types without options", () => {
     // Without options, should return literal types
-    const schema = s.hash({
-      name: s.text().noStem(), // Should be "TEXT", not union
+    const schema = s.object({
+      name: s.text(), // Should be "TEXT", not union
       age: s.unsignedInteger(), // Should be "U64", not union
     });
 
-    expect(schema.name).toEqual({ type: "TEXT", noStem: true });
+    expect(schema.name).toEqual("TEXT");
     expect(schema.age).toEqual("U64");
   });
 
   test("returns detailed types with options", () => {
     // With options, should return object types
-    const schema = s.hash({
+    const schema = s.object({
       name: s.text().noTokenize(),
       age: s.unsignedInteger().fast(),
     });

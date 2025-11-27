@@ -8,7 +8,7 @@ afterAll(cleanup);
 describe("Index.create", () => {
   test("creates hash index with simple schema", async () => {
     const indexName = newKey();
-    const schema = s.hash({
+    const schema = s.object({
       name: s.text(),
       age: s.unsignedInteger(),
       isActive: s.bool(),
@@ -52,7 +52,7 @@ describe("Index.create", () => {
 
   test("creates hash index with detailed fields", async () => {
     const indexName = newKey();
-    const schema = s.hash({
+    const schema = s.object({
       name: s.text().noTokenize(),
       age: s.unsignedInteger().fast(),
     });
@@ -71,7 +71,7 @@ describe("Index.create", () => {
 
   test("creates hash index with multiple prefixes", async () => {
     const indexName = newKey();
-    const schema = s.hash({
+    const schema = s.object({
       title: s.text(),
       score: s.integer(),
     });
@@ -123,7 +123,7 @@ describe("Index.create", () => {
 describe("Index.create payload structure", () => {
   test("builds correct payload for simple hash schema", async () => {
     const indexName = newKey();
-    const schema = s.hash({
+    const schema = s.object({
       name: s.text(),
       age: s.unsignedInteger(),
     });
@@ -165,7 +165,7 @@ describe("Index.create payload structure", () => {
 
   test("builds correct payload with detailed fields", async () => {
     const indexName = newKey();
-    const schema = s.hash({
+    const schema = s.object({
       name: s.text().noTokenize(),
       score: s.unsignedInteger().fast(),
     });
@@ -184,7 +184,7 @@ describe("Index.create payload structure", () => {
 
   test("builds correct payload with multiple prefixes", async () => {
     const indexName = newKey();
-    const schema = s.hash({
+    const schema = s.object({
       title: s.text(),
     });
 
@@ -206,7 +206,7 @@ describe("HashIndex data methods", () => {
   test("hset builds correct command with type-safe data", async () => {
     const indexName = newKey();
     const key = newKey();
-    const schema = s.hash({
+    const schema = s.object({
       name: s.text(),
       age: s.unsignedInteger(),
       score: s.bool(),
@@ -236,7 +236,7 @@ describe("HashIndex data methods", () => {
   test("hset enforces prefix on keys", async () => {
     const indexName = newKey();
     const key = newKey();
-    const schema = s.hash({
+    const schema = s.object({
       name: s.text(),
       age: s.unsignedInteger(),
     });
@@ -300,12 +300,15 @@ describe("StringIndex data methods", () => {
       indexName,
       schema,
       dataType: "string",
-      prefix: "poc1:",
+      prefix: "poc5:",
       client,
     });
     await index.create();
 
-    const result = await index.set(`poc1:${key}`, { name: "Document", version: 1 });
+    const result = await index.set(`poc5:${key}`, { name: "Document", version: 1 });
+    await index.commit();
+    const result2 = await index.query({ name: { equals: "Document" } }, { returnFields: ["name"] });
+    console.log(JSON.stringify(result2, null, 2));
     expect(result).toBe("OK");
   });
 });

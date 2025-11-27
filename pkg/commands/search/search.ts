@@ -2,7 +2,9 @@ import { FlatIndexSchema, InferSchemaData, PrefixedKey, NestedIndexSchema } from
 import { flattenSchema } from "./flatten-schema";
 import type { Requester } from "../../http";
 import { ExecCommand } from "../exec";
+import { QueryFilter, QueryOptions, buildQuery, buildQueryCommand } from "./query-builder";
 export { s } from "./schema-builder";
+export type { QueryFilter, QueryOptions } from "./query-builder";
 
 type IndexProps<
   TSchema extends NestedIndexSchema | FlatIndexSchema = NestedIndexSchema | FlatIndexSchema,
@@ -79,6 +81,15 @@ abstract class BaseIndex<
   async commit(): Promise<string> {
     let command = ["SEARCH.COMMIT", this.indexName];
     const result = await new ExecCommand<string>(command as [string, ...string[]]).exec(
+      this.client
+    );
+    return result;
+  }
+
+  async query(filter: QueryFilter<TSchema>, options?: QueryOptions): Promise<string[]> {
+    const queryString = buildQuery(filter);
+    const command = buildQueryCommand(this.indexName, queryString, options);
+    const result = await new ExecCommand<string[]>(command as [string, ...string[]]).exec(
       this.client
     );
     return result;

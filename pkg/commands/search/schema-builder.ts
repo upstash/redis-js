@@ -184,23 +184,6 @@ export const s = {
   },
 
   /**
-   * Create a hash index schema (flat structure only)
-   * @example
-   * s.hash({
-   *   name: s.text(),
-   *   age: s.unsigned().fast(),
-   *   isActive: s.bool()
-   * })
-   */
-  hash<T extends Record<string, FieldBuilder>>(fields: T) {
-    const result: any = {};
-    for (const [key, builder] of Object.entries(fields)) {
-      result[key] = builder[BUILD]();
-    }
-    return result as { [K in keyof T]: ReturnType<T[K][typeof BUILD]> };
-  },
-
-  /**
    * Create a string/JSON index schema (supports nesting)
    * @example
    * s.object({

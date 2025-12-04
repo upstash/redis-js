@@ -10,7 +10,7 @@ env:
   UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 jobs:
   test:
-  runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
     concurrency: test
 
     name: Tests

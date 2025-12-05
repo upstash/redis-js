@@ -122,6 +122,7 @@ describe("use all the things", () => {
     const scriptHash = await new ScriptLoadCommand(["return 1"]).exec(client);
 
     p.append(newKey(), "hello")
+      .publish("test", "hello")
       .bitcount(newKey(), 0, 1)
       .bitfield(newKey())
       .set("u4", "#0", 15)
@@ -202,7 +203,6 @@ describe("use all the things", () => {
       .ping()
       .psetex(newKey(), 1, "value")
       .pttl(newKey())
-      .publish("test", "hello")
       .randomkey()
       .rename(persistentKey, persistentKey2)
       .renamenx(persistentKey2, newKey())

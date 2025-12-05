@@ -25,6 +25,7 @@ describe("Auto pipeline", () => {
 
     // all the following commands are in a single pipeline call
     const result = await Promise.all([
+      redis.publish("test", "hello"),
       redis.append(newKey(), "hello"),
       redis.bitcount(newKey(), 0, 1),
       redis.bitop("and", newKey(), newKey()),
@@ -100,7 +101,6 @@ describe("Auto pipeline", () => {
       redis.ping(),
       redis.psetex(newKey(), 1, "value"),
       redis.pttl(newKey()),
-      redis.publish("test", "hello"),
       redis.randomkey(),
       redis.rename(persistentKey, persistentKey2),
       redis.renamenx(persistentKey2, newKey()),

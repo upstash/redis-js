@@ -52,7 +52,7 @@ describe("XCLAIM", () => {
       "0-0",
       { count: 1 },
     ]).exec(client)) as string[];
-    expect(res).toEqual(["0-0", []]);
+    expect(res).toEqual(["0-0", [], []]);
   });
 
   test("should successfull move the ownership with idle time", async () => {

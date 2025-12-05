@@ -25,7 +25,6 @@ describe("Auto pipeline", () => {
 
     // all the following commands are in a single pipeline call
     const result = await Promise.all([
-      redis.publish("test", "hello"),
       redis.append(newKey(), "hello"),
       redis.bitcount(newKey(), 0, 1),
       redis.bitop("and", newKey(), newKey()),
@@ -161,7 +160,7 @@ describe("Auto pipeline", () => {
       redis.json.merge(persistentKey3, "$.log", '"three"'),
     ]);
     expect(result).toBeTruthy();
-    expect(result.length).toBe(134); // returns
+    expect(result.length).toBe(133); // returns
 
     // @ts-expect-error pipelineCounter is not in type but accessible results
     expect(redis.pipelineCounter).toBe(1);

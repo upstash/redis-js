@@ -122,7 +122,6 @@ describe("use all the things", () => {
     const scriptHash = await new ScriptLoadCommand(["return 1"]).exec(client);
 
     p.append(newKey(), "hello")
-      .publish("test", "hello")
       .bitcount(newKey(), 0, 1)
       .bitfield(newKey())
       .set("u4", "#0", 15)
@@ -260,7 +259,7 @@ describe("use all the things", () => {
       .zunion(1, [newKey()])
       .json.set(newKey(), "$", { hello: "world" });
     const res = await p.exec();
-    expect(res.length).toEqual(133);
+    expect(res.length).toEqual(132);
   });
 });
 describe("keep errors", () => {

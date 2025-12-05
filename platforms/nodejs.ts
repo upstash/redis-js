@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 // deno-lint-ignore-file
 
 import type { HttpClientConfig, Requester, RequesterConfig } from "../pkg/http";
@@ -147,22 +146,33 @@ export class Redis extends core.Redis {
       readYourWrites: configOrRequester.readYourWrites,
     });
 
+    const safeEnv: Record<string, string | undefined> =
+      typeof process === "object" && process && typeof process.env === "object" && process.env
+        ? process.env
+        : {};
+
     super(client, {
       automaticDeserialization: configOrRequester.automaticDeserialization,
-      enableTelemetry: configOrRequester.enableTelemetry ?? !process.env.UPSTASH_DISABLE_TELEMETRY,
+      enableTelemetry: configOrRequester.enableTelemetry ?? !safeEnv.UPSTASH_DISABLE_TELEMETRY,
       latencyLogging: configOrRequester.latencyLogging,
       enableAutoPipelining: configOrRequester.enableAutoPipelining,
     });
 
+    const nodeVersion = typeof process === "object" && process ? process.version : undefined;
+
     this.addTelemetry({
       runtime:
         // @ts-expect-error to silence compiler
-        typeof EdgeRuntime === "string" ? "edge-light" : `node@${process.version}`,
-      platform: process.env.UPSTASH_CONSOLE
+        typeof EdgeRuntime === "string"
+          ? "edge-light"
+          : nodeVersion
+            ? `node@${nodeVersion}`
+            : "unknown",
+      platform: safeEnv.UPSTASH_CONSOLE
         ? "console"
-        : process.env.VERCEL
+        : safeEnv.VERCEL
           ? "vercel"
-          : process.env.AWS_REGION
+          : safeEnv.AWS_REGION
             ? "aws"
             : "unknown",
       sdk: `@upstash/redis@${VERSION}`,
@@ -187,21 +197,22 @@ export class Redis extends core.Redis {
    * that may use different naming conventions.
    */
   static fromEnv(config?: Omit<RedisConfigNodejs, "url" | "token">): Redis {
-    // @ts-ignore process will be defined in node
-
-    if (process.env === undefined) {
+    if (
+      typeof process !== "object" ||
+      !process ||
+      typeof process.env !== "object" ||
+      !process.env
+    ) {
       throw new TypeError(
         '[Upstash Redis] Unable to get environment variables, `process.env` is undefined. If you are deploying to cloudflare, please import from "@upstash/redis/cloudflare" instead'
       );
     }
 
-    // @ts-ignore process will be defined in node
     const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
     if (!url) {
       console.warn("[Upstash Redis] Unable to find environment variable: `UPSTASH_REDIS_REST_URL`");
     }
 
-    // @ts-ignore process will be defined in node
     const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
     if (!token) {
       console.warn(

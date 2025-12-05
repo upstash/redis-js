@@ -124,11 +124,21 @@ export class Redis extends core.Redis {
     },
     opts?: Omit<RedisConfigCloudflare, "url" | "token">
   ): Redis {
-    // @ts-expect-error These will be defined by cloudflare
-    const url = env?.UPSTASH_REDIS_REST_URL ?? UPSTASH_REDIS_REST_URL;
+    const url =
+      env?.UPSTASH_REDIS_REST_URL ??
+      // @ts-expect-error These will be defined by cloudflare
+      (typeof UPSTASH_REDIS_REST_URL === "string"
+        ? // @ts-expect-error These will be defined by cloudflare
+          UPSTASH_REDIS_REST_URL
+        : undefined);
 
-    // @ts-expect-error These will be defined by cloudflare
-    const token = env?.UPSTASH_REDIS_REST_TOKEN ?? UPSTASH_REDIS_REST_TOKEN;
+    const token =
+      env?.UPSTASH_REDIS_REST_TOKEN ??
+      // @ts-expect-error These will be defined by cloudflare
+      (typeof UPSTASH_REDIS_REST_TOKEN === "string"
+        ? // @ts-expect-error These will be defined by cloudflare
+          UPSTASH_REDIS_REST_TOKEN
+        : undefined);
 
     if (!url) {
       console.warn(

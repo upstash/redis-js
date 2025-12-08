@@ -140,14 +140,18 @@ export class Redis extends core.Redis {
           UPSTASH_REDIS_REST_TOKEN
         : undefined);
 
-    if (!url) {
+    const messageInfo =
+      !url && !token
+        ? "Unable to find environment variables: `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`"
+        : url
+          ? token
+            ? undefined
+            : "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`"
+          : "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`";
+
+    if (messageInfo) {
       console.warn(
-        "[Upstash Redis] Unable to find environment variable: `UPSTASH_REDIS_REST_URL`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_URL`"
-      );
-    }
-    if (!token) {
-      console.warn(
-        "[Upstash Redis] Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`. Please add it via `wrangler secret put UPSTASH_REDIS_REST_TOKEN`"
+        `[Upstash Redis] ${messageInfo}. Please add it via \`wrangler secret put ${url ? "UPSTASH_REDIS_REST_TOKEN" : "UPSTASH_REDIS_REST_URL"}\` and provide it as an argument to the \`Redis.fromEnv\` function`
       );
     }
     return new Redis({ ...opts, url, token }, env);

@@ -92,6 +92,7 @@ export type InferSchemaData<TSchema> = {
 // Query Options Types
 // These are the options that can be used for the query command
 export type QueryOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
+  filter: QueryFilter<TSchema>;
   /** Maximum number of results to return */
   limit?: number;
   /** Number of results to skip */

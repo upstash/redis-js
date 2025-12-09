@@ -1,5 +1,5 @@
 import { flattenSchema } from "./utils";
-import { CreateSearchIndexProps } from "./search";
+import type { CreateSearchIndexProps } from "./search";
 import type { NestedIndexSchema, FlatIndexSchema, QueryOptions } from "./types";
 
 export function buildQueryCommand<TSchema extends NestedIndexSchema | FlatIndexSchema>(

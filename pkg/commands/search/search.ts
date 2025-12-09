@@ -1,4 +1,4 @@
-import {
+import type {
   FlatIndexSchema,
   NestedIndexSchema,
   QueryOptions,
@@ -41,7 +41,7 @@ export class SearchIndex<
   }
 
   async waitIndexing(): Promise<string> {
-    let command = ["SEARCH.COMMIT", this.indexName];
+    const command = ["SEARCH.COMMIT", this.indexName];
     const result = await new ExecCommand<string>(command as [string, ...string[]]).exec(
       this.client
     );
@@ -49,7 +49,7 @@ export class SearchIndex<
   }
 
   async describe(): Promise<IndexDescription> {
-    let command = ["SEARCH.DESCRIBE", this.indexName];
+    const command = ["SEARCH.DESCRIBE", this.indexName];
     const rawResult = await new ExecCommand<any>(command as [string, ...string[]]).exec(
       this.client
     );
@@ -57,10 +57,9 @@ export class SearchIndex<
   }
 
   async query<TOptions extends QueryOptions<TSchema>>(
-    filter: QueryFilter<TSchema>,
-    options?: TOptions
+    options: TOptions
   ): Promise<QueryResponse<TSchema, TOptions>> {
-    const queryString = JSON.stringify(filter);
+    const queryString = JSON.stringify(options.filter);
     const command = buildQueryCommand<TSchema>(
       "SEARCH.QUERY",
       this.indexName,
@@ -83,7 +82,7 @@ export class SearchIndex<
   }
 
   async drop(): Promise<string> {
-    let command = ["SEARCH.DROP", this.indexName];
+    const command = ["SEARCH.DROP", this.indexName];
     const result = await new ExecCommand<string>(command as [string, ...string[]]).exec(
       this.client
     );

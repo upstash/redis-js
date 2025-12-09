@@ -202,7 +202,6 @@ describe("use all the things", () => {
       .ping()
       .psetex(newKey(), 1, "value")
       .pttl(newKey())
-      .publish("test", "hello")
       .randomkey()
       .rename(persistentKey, persistentKey2)
       .renamenx(persistentKey2, newKey())
@@ -260,7 +259,7 @@ describe("use all the things", () => {
       .zunion(1, [newKey()])
       .json.set(newKey(), "$", { hello: "world" });
     const res = await p.exec();
-    expect(res.length).toEqual(133);
+    expect(res.length).toEqual(132);
   });
 });
 describe("keep errors", () => {

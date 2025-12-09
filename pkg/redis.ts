@@ -193,8 +193,10 @@ import {
   ZUnionStoreCommand,
 } from "./commands/mod";
 import {
-  createIndex,
-  IndexProps,
+  createSearchIndex,
+  getSearchIndex,
+  type CreateSearchIndexProps,
+  type SearchIndexProps,
   type NestedIndexSchema,
   type FlatIndexSchema,
 } from "./commands/search";
@@ -457,13 +459,22 @@ export class Redis {
     return opts?.readonly ? (new ScriptRO(this, script) as any) : (new Script(this, script) as any);
   }
 
-  search = <TSchema extends NestedIndexSchema | FlatIndexSchema>(
-    props: Omit<IndexProps<TSchema>, "client">
+  createSearchIndex = <TSchema extends NestedIndexSchema | FlatIndexSchema>(
+    props: Omit<CreateSearchIndexProps<TSchema>, "client">
   ) => {
-    return createIndex<TSchema>({
+    return createSearchIndex<TSchema>({
       ...props,
       client: this.client,
-    } as IndexProps<TSchema>);
+    } as CreateSearchIndexProps<TSchema>);
+  };
+
+  getSearchIndex = <TSchema extends NestedIndexSchema | FlatIndexSchema>(
+    props: Omit<SearchIndexProps<TSchema>, "client">
+  ) => {
+    return getSearchIndex<TSchema>({
+      ...props,
+      client: this.client,
+    } as SearchIndexProps<TSchema>);
   };
 
   /**

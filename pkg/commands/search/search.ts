@@ -1,90 +1,46 @@
 import {
   FlatIndexSchema,
   NestedIndexSchema,
-  parseQueryResponse,
-  parseDescribeResponse,
-  parseCountResponse,
-  QueryResponse,
+  QueryOptions,
+  QueryFilter,
   IndexDescription,
+  QueryResponse,
 } from "./types";
-import { flattenSchema } from "./flatten-schema";
 import type { Requester } from "../../http";
 import { ExecCommand } from "../exec";
-import { QueryFilter, QueryOptions, buildQuery, buildQueryCommand } from "./query-builder";
-export type { QueryFilter, QueryOptions } from "./query-builder";
-export type { IndexDescription, QueryResponse, QueryResult } from "./types";
+import { buildCreateIndexCommand, buildQueryCommand } from "./command-builder";
+import { parseCountResponse, parseDescribeResponse, parseQueryResponse } from "./utils";
 
-export type IndexProps<TSchema extends NestedIndexSchema | FlatIndexSchema> =
-  | {
-      indexName: string;
-      schema: TSchema extends NestedIndexSchema ? TSchema : never;
-      dataType: "string";
-      prefix: string;
-      client: Requester;
-    }
-  | {
-      indexName: string;
-      schema: TSchema extends FlatIndexSchema ? TSchema : never;
-      dataType: "hash";
-      prefix: string | string[];
-      client: Requester;
-    };
+export type CreateSearchIndexProps<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
+  indexName: string;
+  prefix: string | string[];
+  language?: "english" | "turkish";
+  client: Requester;
+} & (
+  | { dataType: "string"; schema: TSchema extends NestedIndexSchema ? TSchema : never }
+  | { dataType: "hash"; schema: TSchema extends FlatIndexSchema ? TSchema : never }
+);
+
+export type SearchIndexProps<TSchema extends NestedIndexSchema | FlatIndexSchema> = Pick<
+  CreateSearchIndexProps<TSchema>,
+  "indexName" | "client"
+> & { schema?: CreateSearchIndexProps<TSchema>["schema"] };
 
 export class SearchIndex<
   TSchema extends NestedIndexSchema | FlatIndexSchema,
-  TProps extends IndexProps<TSchema>,
+  TProps extends SearchIndexProps<TSchema>,
 > {
   indexName: TProps["indexName"];
-  schema: TSchema;
-  dataType: TProps["dataType"];
-  prefix: TProps["prefix"];
+  schema?: TSchema;
   client: Requester;
 
-  constructor({ indexName, schema, dataType, prefix, client }: TProps) {
+  constructor({ indexName, schema, client }: TProps) {
     this.indexName = indexName;
     this.schema = schema;
-    this.dataType = dataType;
-    this.prefix = prefix;
     this.client = client;
   }
 
-  async create(): Promise<string> {
-    const prefixArray = Array.isArray(this.prefix) ? this.prefix : [this.prefix];
-
-    const payload: string[] = [
-      this.indexName,
-      "ON",
-      this.dataType.toUpperCase(),
-      "PREFIX",
-      prefixArray.length.toString(),
-      ...prefixArray,
-      "SCHEMA",
-    ];
-
-    const fields = flattenSchema(this.schema);
-
-    for (const field of fields) {
-      payload.push(field.path, field.type);
-
-      if (field.fast) {
-        payload.push("FAST");
-      }
-      if (field.noTokenize) {
-        payload.push("NOTOKENIZE");
-      }
-      if (field.noStem) {
-        payload.push("NOSTEM");
-      }
-    }
-
-    let command = ["SEARCH.CREATE", ...payload];
-    const result = await new ExecCommand<string>(command as [string, ...string[]]).exec(
-      this.client
-    );
-    return result;
-  }
-
-  async commit(): Promise<string> {
+  async waitIndexing(): Promise<string> {
     let command = ["SEARCH.COMMIT", this.indexName];
     const result = await new ExecCommand<string>(command as [string, ...string[]]).exec(
       this.client
@@ -104,7 +60,7 @@ export class SearchIndex<
     filter: QueryFilter<TSchema>,
     options?: TOptions
   ): Promise<QueryResponse<TSchema, TOptions>> {
-    const queryString = buildQuery(filter);
+    const queryString = JSON.stringify(filter);
     const command = buildQueryCommand<TSchema>(
       "SEARCH.QUERY",
       this.indexName,
@@ -114,21 +70,19 @@ export class SearchIndex<
     const rawResult = await new ExecCommand<string[]>(command as [string, ...string[]]).exec(
       this.client
     );
-
     return parseQueryResponse<TSchema, TOptions>(rawResult, options);
   }
 
-  async count(filter: QueryFilter<TSchema>, options?: QueryOptions<TSchema>): Promise<number> {
-    const queryString = buildQuery(filter);
-    const command = buildQueryCommand("SEARCH.COUNT", this.indexName, queryString, options);
-
+  async count(filter: QueryFilter<TSchema>): Promise<number> {
+    const queryString = JSON.stringify(filter);
+    const command = buildQueryCommand("SEARCH.COUNT", this.indexName, queryString);
     const rawResult = await new ExecCommand<any>(command as [string, ...string[]]).exec(
       this.client
     );
     return parseCountResponse(rawResult);
   }
 
-  async delete(): Promise<string> {
+  async drop(): Promise<string> {
     let command = ["SEARCH.DROP", this.indexName];
     const result = await new ExecCommand<string>(command as [string, ...string[]]).exec(
       this.client
@@ -137,8 +91,17 @@ export class SearchIndex<
   }
 }
 
-export function createIndex<TSchema extends NestedIndexSchema | FlatIndexSchema>(
-  props: IndexProps<TSchema>
+export async function createSearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema>(
+  props: CreateSearchIndexProps<TSchema>
 ) {
-  return new SearchIndex<TSchema, IndexProps<TSchema>>(props);
+  const { indexName, schema, client } = props;
+  const createIndexCommand = buildCreateIndexCommand<TSchema>(props);
+  await new ExecCommand<string>(createIndexCommand as [string, ...string[]]).exec(client);
+  return getSearchIndex({ indexName, schema, client });
+}
+
+export function getSearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema>(
+  props: SearchIndexProps<TSchema>
+) {
+  return new SearchIndex<TSchema, SearchIndexProps<TSchema>>(props);
 }

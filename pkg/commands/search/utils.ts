@@ -2,6 +2,9 @@ import {
   DetailedField,
   FIELD_TYPES,
   FlatIndexSchema,
+  IndexDescription,
+  QueryOptions,
+  QueryResponse,
   type FieldType,
   type NestedIndexSchema,
 } from "./types";
@@ -56,4 +59,43 @@ export function flattenSchema(
   }
 
   return fields;
+}
+
+export function parseQueryResponse<
+  TSchema extends NestedIndexSchema | FlatIndexSchema,
+  TOptions extends QueryOptions<TSchema> | undefined = undefined,
+>(rawResponse: any[], options?: TOptions): QueryResponse<TSchema, TOptions> {
+  const results: any[] = [];
+
+  if (options && "noContent" in options && options.noContent) {
+    for (const item of rawResponse) {
+      results.push({
+        key: item[0],
+        score: item[1],
+      });
+    }
+  } else {
+    for (const item of rawResponse) {
+      const fields = Array.isArray(item[2])
+        ? item[2].map((field: any) => ({
+            [field[0]]: field[1],
+          }))
+        : [];
+      results.push({
+        key: item[0],
+        score: item[1],
+        fields,
+      });
+    }
+  }
+
+  return results;
+}
+
+export function parseDescribeResponse(rawResponse: any): IndexDescription {
+  return rawResponse as IndexDescription;
+}
+
+export function parseCountResponse(rawResponse: any): number {
+  return typeof rawResponse === "number" ? rawResponse : parseInt(rawResponse, 10);
 }

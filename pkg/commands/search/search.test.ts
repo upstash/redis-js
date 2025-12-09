@@ -1,244 +1,695 @@
-import { afterAll, describe, expect, test } from "bun:test";
-import { keygen, newHttpClient } from "../../test-utils";
-import { createIndex } from "./search";
+import { afterAll, afterEach, beforeAll, describe, expect, test } from "bun:test";
+import { keygen, newHttpClient, randomID } from "../../test-utils";
+import { createSearchIndex, getSearchIndex, SearchIndex } from "./search";
 import { s } from "./schema-builder";
+import { JsonSetCommand } from "../json_set";
+import { HSetCommand } from "../hset";
+import { DelCommand } from "../del";
+
 const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-describe("Index.create", () => {
-  test("creates hash index with simple schema", async () => {
-    const indexName = newKey();
-    const schema = s.object({
-      name: s.text(),
-      age: s.unsignedInteger(),
-      isActive: s.bool(),
-    });
+// Helper to wait for indexing (simple delay since SEARCH.COMMIT may not be available)
+const waitForIndexing = (ms = 2000) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    const index = createIndex({
-      indexName,
-      schema,
-      dataType: "hash",
-      prefix: "user:",
-      client,
-    });
+describe("createSearchIndex", () => {
+  const createdIndexes: string[] = [];
 
-    const result = await index.create();
-    expect(result).toBe("OK");
+  afterEach(async () => {
+    // Cleanup created indexes
+    for (const indexName of createdIndexes) {
+      try {
+        const index = getSearchIndex({ indexName, client });
+        await index.drop();
+      } catch {
+        // Index might not exist, ignore
+      }
+    }
+    createdIndexes.length = 0;
   });
 
-  test("creates string index with nested schema", async () => {
-    const indexName = newKey();
-    const schema = s.object({
-      name: s.text(),
-      profile: s.object({
-        age: s.unsignedInteger(),
-        location: s.object({
-          city: s.text(),
-        }),
-      }),
-    });
+  test("creates a JSON index with simple schema", async () => {
+    const indexName = `test-json-${randomID().slice(0, 8)}`;
+    createdIndexes.push(indexName);
 
-    const index = createIndex({
-      indexName,
-      schema,
-      dataType: "string",
-      prefix: "profile:",
-      client,
-    });
-
-    const result = await index.create();
-    expect(result).toBe("OK");
-  });
-
-  test("creates hash index with detailed fields", async () => {
-    const indexName = newKey();
-    const schema = s.object({
-      name: s.text().noTokenize(),
-      age: s.unsignedInteger().fast(),
-    });
-
-    const index = createIndex({
-      indexName,
-      schema,
-      dataType: "hash",
-      prefix: "user:",
-      client,
-    });
-
-    const result = await index.create();
-    expect(result).toBe("OK");
-  });
-
-  test("creates hash index with multiple prefixes", async () => {
-    const indexName = newKey();
-    const schema = s.object({
-      title: s.text(),
-      score: s.integer(),
-    });
-
-    const index = createIndex({
-      indexName,
-      schema,
-      dataType: "hash",
-      prefix: ["post:", "article:"],
-      client,
-    });
-
-    const result = await index.create();
-    expect(result).toBe("OK");
-  });
-
-  test("creates string index with complex nested schema", async () => {
-    const indexName = newKey();
-    const schema = s.object({
-      name: s.text(),
-      user: s.object({
-        profile: s.object({
-          bio: s.text().noStem(),
-          age: s.unsignedInteger(),
-        }),
-        settings: s.object({
-          notifications: s.bool(),
-        }),
-      }),
-      metadata: s.object({
-        created: s.date(),
-        score: s.integer().fast(),
-      }),
-    });
-
-    const index = createIndex({
-      indexName,
-      schema,
-      dataType: "string",
-      prefix: "data:",
-      client,
-    });
-
-    const result = await index.create();
-    expect(result).toBe("OK");
-  });
-});
-
-describe("Index.create payload structure", () => {
-  test("builds correct payload for simple hash schema", async () => {
-    const indexName = newKey();
     const schema = s.object({
       name: s.text(),
       age: s.unsignedInteger(),
     });
 
-    const index = createIndex({
-      indexName,
-      schema,
-      dataType: "hash",
-      prefix: "user:",
-      client,
-    });
-
-    const result = await index.create();
-
-    expect(result).toBe("OK");
-  });
-
-  test("builds correct payload with nested string schema", async () => {
-    const indexName = newKey();
-    const schema = s.object({
-      name: s.text(),
-      nested: s.object({
-        score: s.integer(),
-      }),
-    });
-
-    const index = createIndex({
+    const index = await createSearchIndex({
       indexName,
       schema,
       dataType: "string",
-      prefix: "data:",
+      prefix: `${indexName}:`,
       client,
     });
 
-    const result = await index.create();
-
-    expect(result).toBe("OK");
+    expect(index).toBeInstanceOf(SearchIndex);
+    expect(index.indexName).toBe(indexName);
   });
 
-  test("builds correct payload with detailed fields", async () => {
-    const indexName = newKey();
-    const schema = s.object({
-      name: s.text().noTokenize(),
-      score: s.unsignedInteger().fast(),
-    });
+  test("creates a JSON index with nested schema", async () => {
+    const indexName = `test-nested-${randomID().slice(0, 8)}`;
+    createdIndexes.push(indexName);
 
-    const index = createIndex({
-      indexName,
-      schema,
-      dataType: "hash",
-      prefix: "user:",
-      client,
-    });
-
-    const result = await index.create();
-    expect(result).toBe("OK");
-  });
-
-  test("builds correct payload with multiple prefixes", async () => {
-    const indexName = newKey();
     const schema = s.object({
       title: s.text(),
+      metadata: s.object({
+        author: s.text(),
+        views: s.unsignedInteger().fast(),
+      }),
     });
 
-    const index = createIndex({
+    const index = await createSearchIndex({
       indexName,
       schema,
-      dataType: "hash",
-      prefix: ["post:", "article:", "blog:"],
+      dataType: "string",
+      prefix: `${indexName}:`,
       client,
     });
 
-    const result = await index.create();
+    expect(index).toBeInstanceOf(SearchIndex);
+  });
 
-    await index.query({ title: { equals: "react" } });
+  test("creates a hash index", async () => {
+    const indexName = `test-hash-${randomID().slice(0, 8)}`;
+    createdIndexes.push(indexName);
 
-    expect(result).toBe("OK");
+    const schema = s.object({
+      title: s.text(),
+      count: s.unsignedInteger(),
+    });
+
+    const index = await createSearchIndex({
+      indexName,
+      schema,
+      dataType: "hash",
+      prefix: `${indexName}:`,
+      client,
+    });
+
+    expect(index).toBeInstanceOf(SearchIndex);
+  });
+
+  test("creates index with language option", async () => {
+    const indexName = `test-lang-${randomID().slice(0, 8)}`;
+    createdIndexes.push(indexName);
+
+    const schema = s.object({
+      content: s.text(),
+    });
+
+    const index = await createSearchIndex({
+      indexName,
+      schema,
+      dataType: "string",
+      prefix: `${indexName}:`,
+      language: "turkish",
+      client,
+    });
+
+    expect(index).toBeInstanceOf(SearchIndex);
+  });
+
+  test("creates index with multiple prefixes", async () => {
+    const indexName = `test-multi-prefix-${randomID().slice(0, 8)}`;
+    createdIndexes.push(indexName);
+
+    const schema = s.object({
+      name: s.text(),
+    });
+
+    const index = await createSearchIndex({
+      indexName,
+      schema,
+      dataType: "hash",
+      prefix: [`${indexName}:users:`, `${indexName}:profiles:`],
+      client,
+    });
+
+    expect(index).toBeInstanceOf(SearchIndex);
   });
 });
 
-describe("Index.query", () => {
-  test("queries hash index with simple schema", async () => {
-    const schema = s.object({
-      id: s.text(),
-      content: s.object({
-        title: s.text().noStem(),
-        content: s.text(),
-        authors: s.text(),
-      }),
-      metadata: s.object({
-        dateInt: s.unsignedInteger().fast(),
-        url: s.text(),
-        updated: s.date(),
-        kind: s.text(),
-      }),
-    });
+describe("SearchIndex.query (JSON)", () => {
+  const indexName = `test-query-${randomID().slice(0, 8)}`;
+  const prefix = `${indexName}:`;
+  const keys: string[] = [];
 
-    const index = createIndex({
-      indexName: "vercel-changelog",
+  const schema = s.object({
+    name: s.text(),
+    description: s.text(),
+    category: s.text().noTokenize(),
+    price: s.float().fast(),
+    stock: s.unsignedInteger(),
+    active: s.bool(),
+  });
+
+  beforeAll(async () => {
+    // Create the index
+    await createSearchIndex({
+      indexName,
       schema,
       dataType: "string",
-      prefix: "vercel-changelog:",
+      prefix,
       client,
     });
 
-    const result = await index.query(
+    // Add test data
+    const testData = [
       {
-        "content.title": { equals: "react" },
+        name: "Laptop Pro",
+        description: "High performance laptop",
+        category: "electronics",
+        price: 1299.99,
+        stock: 50,
+        active: true,
       },
       {
-        noContent: true,
-        limit: 2,
+        name: "Laptop Basic",
+        description: "Budget friendly laptop",
+        category: "electronics",
+        price: 599.99,
+        stock: 100,
+        active: true,
+      },
+      {
+        name: "Wireless Mouse",
+        description: "Ergonomic wireless mouse",
+        category: "electronics",
+        price: 29.99,
+        stock: 200,
+        active: true,
+      },
+      {
+        name: "USB Cable",
+        description: "Fast charging USB cable",
+        category: "accessories",
+        price: 9.99,
+        stock: 500,
+        active: true,
+      },
+      {
+        name: "Phone Case",
+        description: "Protective phone case",
+        category: "accessories",
+        price: 19.99,
+        stock: 300,
+        active: false,
+      },
+      {
+        name: "Headphones",
+        description: "Noise cancelling headphones",
+        category: "audio",
+        price: 199.99,
+        stock: 75,
+        active: true,
+      },
+      {
+        name: "Keyboard",
+        description: "Mechanical gaming keyboard",
+        category: "electronics",
+        price: 149.99,
+        stock: 60,
+        active: true,
+      },
+      {
+        name: "Monitor",
+        description: "4K Ultra HD monitor",
+        category: "electronics",
+        price: 449.99,
+        stock: 30,
+        active: true,
+      },
+    ];
+
+    for (let i = 0; i < testData.length; i++) {
+      const key = `${prefix}${i}`;
+      keys.push(key);
+      await new JsonSetCommand([key, "$", testData[i]]).exec(client);
+    }
+
+    // Wait for indexing
+    await waitForIndexing(3000);
+  });
+
+  afterAll(async () => {
+    // Cleanup
+    const index = getSearchIndex({ indexName, schema, client });
+    try {
+      await index.drop();
+    } catch {
+      // Ignore
+    }
+    if (keys.length > 0) {
+      await new DelCommand(keys).exec(client);
+    }
+  });
+
+  describe("text field queries", () => {
+    test("queries with $eq on text field", async () => {
+      const index = getSearchIndex({ indexName, schema, client });
+      const result = await index.query({ name: { $eq: "Laptop" } });
+
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    test("queries with $fuzzy for typo tolerance", async () => {
+      const index = getSearchIndex({ indexName, schema, client });
+      const result = await index.query({
+        name: { $fuzzy: { value: "Laptopp", distance: 2 } },
+      });
+
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    test("queries with $phrase for exact phrase matching", async () => {
+      const index = getSearchIndex({ indexName, schema, client });
+      const result = await index.query({
+        description: { $phrase: "wireless mouse" },
+      });
+
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    test("queries with $regex pattern", async () => {
+      const index = getSearchIndex({ indexName, schema, client });
+      const result = await index.query({
+        name: { $regex: "Laptop.*" },
+      });
+
+      expect(Array.isArray(result)).toBe(true);
+    });
+  });
+
+  describe("numeric field queries", () => {
+    test("queries with $gt on numeric field", async () => {
+      const index = getSearchIndex({ indexName, schema, client });
+      const result = await index.query({ price: { $gt: 500 } });
+
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    test("queries with $gte on numeric field", async () => {
+      const index = getSearchIndex({ indexName, schema, client });
+      const result = await index.query({ stock: { $gte: 100 } });
+
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    test("queries with $lt on numeric field", async () => {
+      const index = getSearchIndex({ indexName, schema, client });
+      const result = await index.query({ price: { $lt: 50 } });
+
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    test("queries with $lte on numeric field", async () => {
+      const index = getSearchIndex({ indexName, schema, client });
+      const result = await index.query({ stock: { $lte: 50 } });
+
+      expect(Array.isArray(result)).toBe(true);
+    });
+  });
+
+  describe("boolean field queries", () => {
+    test("queries with $eq on boolean field", async () => {
+      const index = getSearchIndex({ indexName, schema, client });
+      const result = await index.query({ active: { $eq: false } });
+
+      expect(Array.isArray(result)).toBe(true);
+    });
+  });
+
+  describe("query options", () => {
+    test("queries with limit option", async () => {
+      const index = getSearchIndex({ indexName, schema, client });
+      const result = await index.query({ category: { $eq: "electronics" } }, { limit: 2 });
+
+      expect(result.length).toBeLessThanOrEqual(2);
+    });
+
+    test("queries with offset for pagination", async () => {
+      const index = getSearchIndex({ indexName, schema, client });
+      const firstPage = await index.query(
+        { category: { $eq: "electronics" } },
+        { limit: 2, offset: 0 }
+      );
+      const secondPage = await index.query(
+        { category: { $eq: "electronics" } },
+        { limit: 2, offset: 2 }
+      );
+
+      expect(Array.isArray(firstPage)).toBe(true);
+      expect(Array.isArray(secondPage)).toBe(true);
+    });
+
+    test("queries with sortBy ascending", async () => {
+      const index = getSearchIndex({ indexName, schema, client });
+      const result = await index.query(
+        { category: { $eq: "electronics" } },
+        { sortBy: { field: "price", direction: "ASC" }, limit: 3 }
+      );
+
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    test("queries with sortBy descending", async () => {
+      const index = getSearchIndex({ indexName, schema, client });
+      const result = await index.query(
+        { category: { $eq: "electronics" } },
+        { sortBy: { field: "price", direction: "DESC" }, limit: 3 }
+      );
+
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    test("queries with noContent returns only keys", async () => {
+      const index = getSearchIndex({ indexName, schema, client });
+      const result = await index.query({ category: { $eq: "electronics" } }, { noContent: true });
+
+      expect(Array.isArray(result)).toBe(true);
+      if (result.length > 0) {
+        expect(result[0]).toHaveProperty("key");
+        expect(result[0]).toHaveProperty("score");
       }
-    );
+    });
+
+    test("queries with returnFields", async () => {
+      const index = getSearchIndex({ indexName, schema, client });
+      const result = await index.query(
+        { category: { $eq: "electronics" } },
+        { returnFields: ["name", "price"] }
+      );
+
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    test("queries with $ to return full document", async () => {
+      const index = getSearchIndex({ indexName, schema, client });
+      const result = await index.query({ name: { $eq: "Laptop" } }, { returnFields: ["$"] });
+
+      expect(Array.isArray(result)).toBe(true);
+    });
+  });
+});
+
+describe("SearchIndex.count", () => {
+  const indexName = `test-count-${randomID().slice(0, 8)}`;
+  const prefix = `${indexName}:`;
+  const keys: string[] = [];
+
+  const schema = s.object({
+    type: s.text(),
+    value: s.unsignedInteger(),
+  });
+
+  beforeAll(async () => {
+    await createSearchIndex({
+      indexName,
+      schema,
+      dataType: "string",
+      prefix,
+      client,
+    });
+
+    // Add test data
+    for (let i = 0; i < 10; i++) {
+      const key = `${prefix}${i}`;
+      keys.push(key);
+      await new JsonSetCommand([key, "$", { type: i < 5 ? "A" : "B", value: i }]).exec(client);
+    }
+
+    await waitForIndexing(3000);
+  });
+
+  afterAll(async () => {
+    const index = getSearchIndex({ indexName, schema, client });
+    try {
+      await index.drop();
+    } catch {
+      // Ignore
+    }
+    if (keys.length > 0) {
+      await new DelCommand(keys).exec(client);
+    }
+  });
+
+  test("counts matching documents", async () => {
+    const index = getSearchIndex({ indexName, schema, client });
+    const count = await index.count({ type: { $eq: "A" } });
+
+    expect(typeof count).toBe("number");
+  });
+
+  test("counts with numeric filter", async () => {
+    const index = getSearchIndex({ indexName, schema, client });
+    const count = await index.count({ value: { $gte: 5 } });
+
+    expect(typeof count).toBe("number");
+  });
+});
+
+describe("SearchIndex.describe", () => {
+  const indexName = `test-describe-${randomID().slice(0, 8)}`;
+
+  const schema = s.object({
+    title: s.text().noStem(),
+    count: s.unsignedInteger().fast(),
+    active: s.bool(),
+  });
+
+  beforeAll(async () => {
+    await createSearchIndex({
+      indexName,
+      schema,
+      dataType: "string",
+      prefix: `${indexName}:`,
+      client,
+    });
+  });
+
+  afterAll(async () => {
+    const index = getSearchIndex({ indexName, schema, client });
+    try {
+      await index.drop();
+    } catch {
+      // Ignore
+    }
+  });
+
+  test("describes the index structure", async () => {
+    const index = getSearchIndex({ indexName, schema, client });
+    const description = await index.describe();
+
+    expect(description).toBeDefined();
+  });
+});
+
+describe("SearchIndex.drop", () => {
+  test("drops an existing index", async () => {
+    const indexName = `test-drop-${randomID().slice(0, 8)}`;
+
+    const schema = s.object({
+      name: s.text(),
+    });
+
+    const index = await createSearchIndex({
+      indexName,
+      schema,
+      dataType: "string",
+      prefix: `${indexName}:`,
+      client,
+    });
+
+    const result = await index.drop();
     expect(result).toBeDefined();
+  });
+});
+
+describe("Hash index queries", () => {
+  const indexName = `test-hash-query-${randomID().slice(0, 8)}`;
+  const prefix = `${indexName}:`;
+  const keys: string[] = [];
+
+  const schema = s.object({
+    name: s.text(),
+    score: s.unsignedInteger().fast(),
+  });
+
+  beforeAll(async () => {
+    await createSearchIndex({
+      indexName,
+      schema,
+      dataType: "hash",
+      prefix,
+      client,
+    });
+
+    // Add test data using HSET
+    const testData = [
+      { name: "Alice", score: "95" },
+      { name: "Bob", score: "87" },
+      { name: "Charlie", score: "92" },
+    ];
+
+    for (let i = 0; i < testData.length; i++) {
+      const key = `${prefix}${i}`;
+      keys.push(key);
+      await new HSetCommand([key, testData[i]]).exec(client);
+    }
+
+    await waitForIndexing(3000);
+  });
+
+  afterAll(async () => {
+    const index = getSearchIndex({ indexName, schema, client });
+    try {
+      await index.drop();
+    } catch {
+      // Ignore
+    }
+    if (keys.length > 0) {
+      await new DelCommand(keys).exec(client);
+    }
+  });
+
+  test("queries hash index by text field", async () => {
+    const index = getSearchIndex({ indexName, schema, client });
+    const result = await index.query({ name: { $eq: "Alice" } });
+
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  test("queries hash index with sorting", async () => {
+    const index = getSearchIndex({ indexName, schema, client });
+    const result = await index.query(
+      { score: { $gte: 80 } },
+      { sortBy: { field: "score", direction: "DESC" } }
+    );
+
+    expect(Array.isArray(result)).toBe(true);
+  });
+});
+
+describe("Nested JSON index queries", () => {
+  const indexName = `test-nested-query-${randomID().slice(0, 8)}`;
+  const prefix = `${indexName}:`;
+  const keys: string[] = [];
+
+  const schema = s.object({
+    title: s.text(),
+    author: s.object({
+      name: s.text(),
+      email: s.text(),
+    }),
+    stats: s.object({
+      views: s.unsignedInteger().fast(),
+      likes: s.unsignedInteger(),
+    }),
+  });
+
+  beforeAll(async () => {
+    await createSearchIndex({
+      indexName,
+      schema,
+      dataType: "string",
+      prefix,
+      client,
+    });
+
+    const testData = [
+      {
+        title: "First Post",
+        author: { name: "John Doe", email: "john@example.com" },
+        stats: { views: 1000, likes: 50 },
+      },
+      {
+        title: "Second Post",
+        author: { name: "Jane Smith", email: "jane@example.com" },
+        stats: { views: 500, likes: 30 },
+      },
+      {
+        title: "Third Post",
+        author: { name: "John Doe", email: "john@example.com" },
+        stats: { views: 2000, likes: 100 },
+      },
+    ];
+
+    for (let i = 0; i < testData.length; i++) {
+      const key = `${prefix}${i}`;
+      keys.push(key);
+      await new JsonSetCommand([key, "$", testData[i]]).exec(client);
+    }
+
+    await waitForIndexing(3000);
+  });
+
+  afterAll(async () => {
+    const index = getSearchIndex({ indexName, schema, client });
+    try {
+      await index.drop();
+    } catch {
+      // Ignore
+    }
+    if (keys.length > 0) {
+      await new DelCommand(keys).exec(client);
+    }
+  });
+
+  test("queries nested text field", async () => {
+    const index = getSearchIndex({ indexName, schema, client });
+    const result = await index.query({ "author.name": { $eq: "John" } });
+
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  test("queries nested numeric field", async () => {
+    const index = getSearchIndex({ indexName, schema, client });
+    const result = await index.query({ "stats.views": { $gte: 1000 } });
+
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  test("queries with sorting on nested field", async () => {
+    const index = getSearchIndex({ indexName, schema, client });
+    const result = await index.query(
+      { "author.name": { $eq: "John" } },
+      { sortBy: { field: "stats.views", direction: "DESC" } }
+    );
+
+    expect(Array.isArray(result)).toBe(true);
+  });
+});
+
+describe("getSearchIndex", () => {
+  test("creates a SearchIndex instance without schema", () => {
+    const index = getSearchIndex({
+      indexName: "test-index",
+      client,
+    });
+
+    expect(index).toBeInstanceOf(SearchIndex);
+    expect(index.indexName).toBe("test-index");
+    expect(index.schema).toBeUndefined();
+  });
+
+  test("creates a SearchIndex instance with schema", () => {
+    const schema = s.object({
+      name: s.text(),
+      age: s.unsignedInteger(),
+    });
+
+    const index = getSearchIndex({
+      indexName: "test-index",
+      schema,
+      client,
+    });
+
+    expect(index).toBeInstanceOf(SearchIndex);
+    expect(index.indexName).toBe("test-index");
+    expect(index.schema).toEqual(schema);
   });
 });

@@ -89,26 +89,33 @@ export type InferSchemaData<TSchema> = {
         : never;
 };
 
-export type QueryOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> =
+// Query Options Types
+// These are the options that can be used for the query command
+export type QueryOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
+  /** Maximum number of results to return */
+  limit?: number;
+  /** Number of results to skip */
+  offset?: number;
+  /** Sort by field (requires FAST option on field) */
+  sortBy?: {
+    field: SchemaPaths<TSchema>;
+    direction?: "ASC" | "DESC";
+  };
+} & (
   | {
-      limit?: number;
-      offset?: number;
       noContent: true;
-      sortBy?: {
-        field: SchemaPaths<TSchema>;
-        direction?: "ASC" | "DESC";
-      };
     }
   | {
-      limit?: number;
-      offset?: number;
       noContent?: false;
-      sortBy?: {
-        field: SchemaPaths<TSchema>;
-        direction?: "ASC" | "DESC";
+      highlight?: {
+        fields: SchemaPaths<TSchema>[];
+        preTag?: string;
+        postTag?: string;
       };
+      /** Return only specific fields */
       returnFields?: (SchemaPaths<TSchema> | "$")[];
-    };
+    }
+);
 
 type FieldValuePair<TSchema, TField extends string> = TField extends "$"
   ? { $: InferSchemaData<TSchema> }
@@ -129,69 +136,96 @@ export type QueryResult<
         fields: Array<FieldValuePair<TSchema, SchemaPaths<TSchema> | "$">>;
       };
 
+// Query Filter Types
+// These are the operations that can be used for each field type
+type StringOperationMap<T extends string> = {
+  $eq: T;
+  $ne: T;
+  $in: T[];
+  $fuzzy: T | { value: T; distance?: number; transpositionCostOne?: boolean };
+  $phrase: T;
+  $regex: T;
+};
+
+type NumberOperationMap<T extends number> = {
+  $eq: T;
+  $ne: T;
+  $in: T[];
+  $gt: T;
+  $gte: T;
+  $lt: T;
+  $lte: T;
+};
+
+type BooleanOperationMap<T extends boolean> = {
+  $eq: T;
+  $ne: T;
+  $in: T[];
+};
+
+type DateOperationMap<T extends string | Date> = {
+  $eq: T;
+  $ne: T;
+  $in: T[];
+};
+
+// Create union types for each field type
+type StringOperations = {
+  [K in keyof StringOperationMap<string>]: { [P in K]: StringOperationMap<string>[K] };
+}[keyof StringOperationMap<string>];
+
+type NumberOperations = {
+  [K in keyof NumberOperationMap<number>]: { [P in K]: NumberOperationMap<number>[K] };
+}[keyof NumberOperationMap<number>];
+
+type BooleanOperations = {
+  [K in keyof BooleanOperationMap<boolean>]: { [P in K]: BooleanOperationMap<boolean>[K] };
+}[keyof BooleanOperationMap<boolean>];
+
+type DateOperations = {
+  [K in keyof DateOperationMap<string | Date>]: { [P in K]: DateOperationMap<string | Date>[K] };
+}[keyof DateOperationMap<string | Date>];
+
+// Create a union type for all operations for a given field type
+type OperationsForFieldType<T extends FieldType> = T extends "TEXT"
+  ? StringOperations
+  : T extends "U64" | "I64" | "F64"
+    ? NumberOperations
+    : T extends "BOOL"
+      ? BooleanOperations
+      : T extends "DATE"
+        ? DateOperations
+        : never;
+
+// Create a union type for all operations for a given path
+type PathOperations<TSchema, TPath extends string> =
+  GetFieldAtPath<TSchema, TPath> extends infer Field
+    ? Field extends FieldType | DetailedField
+      ? OperationsForFieldType<ExtractFieldType<Field>>
+      : never
+    : never;
+
+// Create a type for a query leaf
+type QueryLeaf<TSchema> = {
+  [Path in SchemaPaths<TSchema>]: {
+    [K in Path]: PathOperations<TSchema, Path>;
+  };
+}[SchemaPaths<TSchema>];
+
+// Create a type for a query filter
+export type QueryFilter<TSchema extends NestedIndexSchema | FlatIndexSchema> =
+  | QueryLeaf<TSchema>
+  | { $must: QueryFilter<TSchema> }
+  | { $should: QueryFilter<TSchema> }
+  | { $not: QueryFilter<TSchema> }
+  | { $and: QueryFilter<TSchema> }
+  | { $or: QueryFilter<TSchema> }
+  | { $boost: { query: QueryFilter<TSchema>; value: number } };
+
 export type QueryResponse<
   TSchema extends NestedIndexSchema | FlatIndexSchema,
   TOptions extends QueryOptions<TSchema> | undefined = undefined,
 > = Array<QueryResult<TSchema, TOptions>>;
-
-export function parseQueryResponse<
-  TSchema extends NestedIndexSchema | FlatIndexSchema,
-  TOptions extends QueryOptions<TSchema> | undefined = undefined,
->(rawResponse: any[], options?: TOptions): QueryResponse<TSchema, TOptions> {
-  const results: any[] = [];
-
-  const isStructured = Array.isArray(rawResponse[0]);
-
-  if (options && "noContent" in options && options.noContent) {
-    if (isStructured) {
-      for (const item of rawResponse) {
-        results.push({
-          key: item[0],
-          score: item[1],
-        });
-      }
-    } else {
-      for (let i = 0; i < rawResponse.length; i += 2) {
-        results.push({
-          key: rawResponse[i],
-          score: rawResponse[i + 1],
-        });
-      }
-    }
-  } else {
-    if (isStructured) {
-      for (const item of rawResponse) {
-        const fields = Array.isArray(item[2])
-          ? item[2].map((field: any) => ({
-              [field[0]]: field[1],
-            }))
-          : [];
-
-        results.push({
-          key: item[0],
-          score: item[1],
-          fields,
-        });
-      }
-    } else {
-      for (let i = 0; i < rawResponse.length; i += 3) {
-        const fields = Array.isArray(rawResponse[i + 2])
-          ? rawResponse[i + 2].map((field: any) => ({
-              [field[0]]: field[1],
-            }))
-          : [];
-
-        results.push({
-          key: rawResponse[i],
-          score: rawResponse[i + 1],
-          fields,
-        });
-      }
-    }
-  }
-
-  return results as QueryResponse<TSchema, TOptions>;
-}
 
 export type IndexDescription = {
   indexName: string;
@@ -206,11 +240,3 @@ export type IndexDescription = {
     fast?: boolean;
   }>;
 };
-
-export function parseDescribeResponse(rawResponse: any): IndexDescription {
-  return rawResponse as IndexDescription;
-}
-
-export function parseCountResponse(rawResponse: any): number {
-  return typeof rawResponse === "number" ? rawResponse : parseInt(rawResponse, 10);
-}

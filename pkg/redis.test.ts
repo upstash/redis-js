@@ -284,13 +284,11 @@ describe("search", () => {
         kind: s.text(),
       }),
     });
-    const idx = redis.search({
+    const idx = redis.getSearchIndex({
       indexName: "vercel-changelog",
       schema,
-      dataType: "string",
-      prefix: "vercel-changelog:",
     });
-    const result = await idx.query({ "content.title": { equals: "react" } }, { limit: 2 });
+    const result = await idx.query({ "content.title": { $eq: "react" } }, { limit: 2 });
     expect(result).toBeDefined();
   });
 });

@@ -251,7 +251,7 @@ describe("SearchIndex.query (JSON)", () => {
   describe("text field queries", () => {
     test("queries with $eq on text field", async () => {
       const index = getSearchIndex({ indexName, schema, client });
-      const result = await index.query({ name: { $eq: "Laptop" } });
+      const result = await index.query({ filter: { name: { $eq: "Laptop" } } });
 
       expect(Array.isArray(result)).toBe(true);
     });
@@ -259,7 +259,7 @@ describe("SearchIndex.query (JSON)", () => {
     test("queries with $fuzzy for typo tolerance", async () => {
       const index = getSearchIndex({ indexName, schema, client });
       const result = await index.query({
-        name: { $fuzzy: { value: "Laptopp", distance: 2 } },
+        filter: { name: { $fuzzy: { value: "Laptopp", distance: 2 } } },
       });
 
       expect(Array.isArray(result)).toBe(true);
@@ -268,7 +268,7 @@ describe("SearchIndex.query (JSON)", () => {
     test("queries with $phrase for exact phrase matching", async () => {
       const index = getSearchIndex({ indexName, schema, client });
       const result = await index.query({
-        description: { $phrase: "wireless mouse" },
+        filter: { description: { $phrase: "wireless mouse" } },
       });
 
       expect(Array.isArray(result)).toBe(true);
@@ -277,7 +277,7 @@ describe("SearchIndex.query (JSON)", () => {
     test("queries with $regex pattern", async () => {
       const index = getSearchIndex({ indexName, schema, client });
       const result = await index.query({
-        name: { $regex: "Laptop.*" },
+        filter: { name: { $regex: "Laptop.*" } },
       });
 
       expect(Array.isArray(result)).toBe(true);
@@ -287,28 +287,30 @@ describe("SearchIndex.query (JSON)", () => {
   describe("numeric field queries", () => {
     test("queries with $gt on numeric field", async () => {
       const index = getSearchIndex({ indexName, schema, client });
-      const result = await index.query({ price: { $gt: 500 } });
+      const result = await index.query({ filter: { price: { $gt: 500 } } });
 
       expect(Array.isArray(result)).toBe(true);
     });
 
     test("queries with $gte on numeric field", async () => {
       const index = getSearchIndex({ indexName, schema, client });
-      const result = await index.query({ stock: { $gte: 100 } });
+      const result = await index.query({ filter: { stock: { $gte: 100 } } });
 
       expect(Array.isArray(result)).toBe(true);
     });
 
     test("queries with $lt on numeric field", async () => {
       const index = getSearchIndex({ indexName, schema, client });
-      const result = await index.query({ price: { $lt: 50 } });
+      const result = await index.query({ filter: { price: { $lt: 50 } } });
 
       expect(Array.isArray(result)).toBe(true);
     });
 
     test("queries with $lte on numeric field", async () => {
       const index = getSearchIndex({ indexName, schema, client });
-      const result = await index.query({ stock: { $lte: 50 } });
+      const result = await index.query({
+        filter: { stock: { $lte: 50 } },
+      });
 
       expect(Array.isArray(result)).toBe(true);
     });
@@ -317,7 +319,7 @@ describe("SearchIndex.query (JSON)", () => {
   describe("boolean field queries", () => {
     test("queries with $eq on boolean field", async () => {
       const index = getSearchIndex({ indexName, schema, client });
-      const result = await index.query({ active: { $eq: false } });
+      const result = await index.query({ filter: { active: { $eq: false } } });
 
       expect(Array.isArray(result)).toBe(true);
     });
@@ -326,21 +328,23 @@ describe("SearchIndex.query (JSON)", () => {
   describe("query options", () => {
     test("queries with limit option", async () => {
       const index = getSearchIndex({ indexName, schema, client });
-      const result = await index.query({ category: { $eq: "electronics" } }, { limit: 2 });
+      const result = await index.query({ filter: { category: { $eq: "electronics" } }, limit: 2 });
 
       expect(result.length).toBeLessThanOrEqual(2);
     });
 
     test("queries with offset for pagination", async () => {
       const index = getSearchIndex({ indexName, schema, client });
-      const firstPage = await index.query(
-        { category: { $eq: "electronics" } },
-        { limit: 2, offset: 0 }
-      );
-      const secondPage = await index.query(
-        { category: { $eq: "electronics" } },
-        { limit: 2, offset: 2 }
-      );
+      const firstPage = await index.query({
+        filter: { category: { $eq: "electronics" } },
+        limit: 2,
+        offset: 0,
+      });
+      const secondPage = await index.query({
+        filter: { category: { $eq: "electronics" } },
+        limit: 2,
+        offset: 2,
+      });
 
       expect(Array.isArray(firstPage)).toBe(true);
       expect(Array.isArray(secondPage)).toBe(true);
@@ -348,27 +352,32 @@ describe("SearchIndex.query (JSON)", () => {
 
     test("queries with sortBy ascending", async () => {
       const index = getSearchIndex({ indexName, schema, client });
-      const result = await index.query(
-        { category: { $eq: "electronics" } },
-        { sortBy: { field: "price", direction: "ASC" }, limit: 3 }
-      );
+      const result = await index.query({
+        filter: { category: { $eq: "electronics" } },
+        sortBy: { field: "price", direction: "ASC" },
+        limit: 3,
+      });
 
       expect(Array.isArray(result)).toBe(true);
     });
 
     test("queries with sortBy descending", async () => {
       const index = getSearchIndex({ indexName, schema, client });
-      const result = await index.query(
-        { category: { $eq: "electronics" } },
-        { sortBy: { field: "price", direction: "DESC" }, limit: 3 }
-      );
+      const result = await index.query({
+        filter: { category: { $eq: "electronics" } },
+        sortBy: { field: "price", direction: "DESC" },
+        limit: 3,
+      });
 
       expect(Array.isArray(result)).toBe(true);
     });
 
     test("queries with noContent returns only keys", async () => {
       const index = getSearchIndex({ indexName, schema, client });
-      const result = await index.query({ category: { $eq: "electronics" } }, { noContent: true });
+      const result = await index.query({
+        filter: { category: { $eq: "electronics" } },
+        noContent: true,
+      });
 
       expect(Array.isArray(result)).toBe(true);
       if (result.length > 0) {
@@ -379,17 +388,21 @@ describe("SearchIndex.query (JSON)", () => {
 
     test("queries with returnFields", async () => {
       const index = getSearchIndex({ indexName, schema, client });
-      const result = await index.query(
-        { category: { $eq: "electronics" } },
-        { returnFields: ["name", "price"] }
-      );
+      const result = await index.query({
+        filter: { category: { $eq: "electronics" } },
+        returnFields: ["name", "price"],
+      });
 
       expect(Array.isArray(result)).toBe(true);
     });
 
     test("queries with $ to return full document", async () => {
       const index = getSearchIndex({ indexName, schema, client });
-      const result = await index.query({ name: { $eq: "Laptop" } }, { returnFields: ["$"] });
+      const result = await index.query({
+        filter: { name: { $eq: "Laptop" } },
+        noContent: false,
+        returnFields: ["$"],
+      });
 
       expect(Array.isArray(result)).toBe(true);
     });
@@ -558,17 +571,17 @@ describe("Hash index queries", () => {
 
   test("queries hash index by text field", async () => {
     const index = getSearchIndex({ indexName, schema, client });
-    const result = await index.query({ name: { $eq: "Alice" } });
+    const result = await index.query({ filter: { name: { $eq: "Alice" } } });
 
     expect(Array.isArray(result)).toBe(true);
   });
 
   test("queries hash index with sorting", async () => {
     const index = getSearchIndex({ indexName, schema, client });
-    const result = await index.query(
-      { score: { $gte: 80 } },
-      { sortBy: { field: "score", direction: "DESC" } }
-    );
+    const result = await index.query({
+      filter: { score: { $gte: 80 } },
+      sortBy: { field: "score", direction: "DESC" },
+    });
 
     expect(Array.isArray(result)).toBe(true);
   });
@@ -641,25 +654,25 @@ describe("Nested JSON index queries", () => {
 
   test("queries nested text field", async () => {
     const index = getSearchIndex({ indexName, schema, client });
-    const result = await index.query({ "author.name": { $eq: "John" } });
+    const result = await index.query({ filter: { "author.name": { $eq: "John" } } });
 
     expect(Array.isArray(result)).toBe(true);
   });
 
   test("queries nested numeric field", async () => {
     const index = getSearchIndex({ indexName, schema, client });
-    const result = await index.query({ "stats.views": { $gte: 1000 } });
+    const result = await index.query({ filter: { "stats.views": { $gte: 1000 } } });
 
     expect(Array.isArray(result)).toBe(true);
   });
 
   test("queries with sorting on nested field", async () => {
     const index = getSearchIndex({ indexName, schema, client });
-    const result = await index.query(
-      { "author.name": { $eq: "John" } },
-      { sortBy: { field: "stats.views", direction: "DESC" } }
-    );
-
+    const result = await index.query({
+      filter: { "author.name": { $eq: "John" } },
+      sortBy: { field: "stats.views", direction: "DESC" },
+      highlight: { fields: ["author.name"] },
+    });
     expect(Array.isArray(result)).toBe(true);
   });
 });

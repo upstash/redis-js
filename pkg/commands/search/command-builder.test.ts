@@ -7,83 +7,93 @@ describe("buildQueryCommand", () => {
 
   describe("basic query", () => {
     test("builds simple query command", () => {
-      const command = buildQueryCommand<TestSchema>(
-        "SEARCH.QUERY",
-        "test-index",
-        '{"name":"John"}'
-      );
+      const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "John" } },
+      });
 
-      expect(command).toEqual(["SEARCH.QUERY", "test-index", '{"name":"John"}']);
+      expect(command).toEqual(["SEARCH.QUERY", "test-index", '{"name":{"$eq":"John"}}']);
     });
 
     test("builds count command", () => {
-      const command = buildQueryCommand<TestSchema>(
-        "SEARCH.COUNT",
-        "test-index",
-        '{"name":"John"}'
-      );
+      const command = buildQueryCommand<TestSchema>("SEARCH.COUNT", "test-index", {
+        filter: { name: { $eq: "John" } },
+      });
 
-      expect(command).toEqual(["SEARCH.COUNT", "test-index", '{"name":"John"}']);
+      expect(command).toEqual(["SEARCH.COUNT", "test-index", '{"name":{"$eq":"John"}}']);
     });
   });
 
   describe("with options", () => {
     test("adds LIMIT option", () => {
-      const command = buildQueryCommand<TestSchema>(
-        "SEARCH.QUERY",
-        "test-index",
-        '{"name":"John"}',
-        { limit: 10 }
-      );
-
-      expect(command).toEqual(["SEARCH.QUERY", "test-index", '{"name":"John"}', "LIMIT", "10"]);
-    });
-
-    test("adds OFFSET option", () => {
-      const command = buildQueryCommand<TestSchema>(
-        "SEARCH.QUERY",
-        "test-index",
-        '{"name":"John"}',
-        { offset: 5 }
-      );
-
-      expect(command).toEqual(["SEARCH.QUERY", "test-index", '{"name":"John"}', "OFFSET", "5"]);
-    });
-
-    test("adds NOCONTENT option", () => {
-      const command = buildQueryCommand<TestSchema>(
-        "SEARCH.QUERY",
-        "test-index",
-        '{"name":"John"}',
-        { noContent: true }
-      );
-
-      expect(command).toEqual(["SEARCH.QUERY", "test-index", '{"name":"John"}', "NOCONTENT"]);
-    });
-
-    test("adds SORTBY option without direction", () => {
-      const command = buildQueryCommand<TestSchema>(
-        "SEARCH.QUERY",
-        "test-index",
-        '{"name":"John"}',
-        { sortBy: { field: "age" } }
-      );
-
-      expect(command).toEqual(["SEARCH.QUERY", "test-index", '{"name":"John"}', "SORTBY", "age"]);
-    });
-
-    test("adds SORTBY option with ASC direction", () => {
-      const command = buildQueryCommand<TestSchema>(
-        "SEARCH.QUERY",
-        "test-index",
-        '{"name":"John"}',
-        { sortBy: { field: "age", direction: "ASC" } }
-      );
+      const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "John" } },
+        limit: 10,
+      });
 
       expect(command).toEqual([
         "SEARCH.QUERY",
         "test-index",
-        '{"name":"John"}',
+        '{"name":{"$eq":"John"}}',
+        "LIMIT",
+        "10",
+      ]);
+    });
+
+    test("adds OFFSET option", () => {
+      const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "John" } },
+        offset: 5,
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"name":{"$eq":"John"}}',
+        "OFFSET",
+        "5",
+      ]);
+    });
+
+    test("adds NOCONTENT option", () => {
+      const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "John" } },
+        noContent: true,
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"name":{"$eq":"John"}}',
+        "NOCONTENT",
+      ]);
+    });
+
+    test("adds SORTBY option without direction", () => {
+      const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "John" } },
+        sortBy: { field: "age" },
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"name":{"$eq":"John"}}',
+        "SORTBY",
+        "age",
+        "ASC",
+      ]);
+    });
+
+    test("adds SORTBY option with ASC direction", () => {
+      const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "John" } },
+        sortBy: { field: "age", direction: "ASC" },
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"name":{"$eq":"John"}}',
         "SORTBY",
         "age",
         "ASC",
@@ -91,17 +101,15 @@ describe("buildQueryCommand", () => {
     });
 
     test("adds SORTBY option with DESC direction", () => {
-      const command = buildQueryCommand<TestSchema>(
-        "SEARCH.QUERY",
-        "test-index",
-        '{"name":"John"}',
-        { sortBy: { field: "age", direction: "DESC" } }
-      );
+      const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "John" } },
+        sortBy: { field: "age", direction: "DESC" },
+      });
 
       expect(command).toEqual([
         "SEARCH.QUERY",
         "test-index",
-        '{"name":"John"}',
+        '{"name":{"$eq":"John"}}',
         "SORTBY",
         "age",
         "DESC",
@@ -109,17 +117,15 @@ describe("buildQueryCommand", () => {
     });
 
     test("adds HIGHLIGHT option with fields only", () => {
-      const command = buildQueryCommand<TestSchema>(
-        "SEARCH.QUERY",
-        "test-index",
-        '{"name":"John"}',
-        { highlight: { fields: ["name"] } }
-      );
+      const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "John" } },
+        highlight: { fields: ["name"] },
+      });
 
       expect(command).toEqual([
         "SEARCH.QUERY",
         "test-index",
-        '{"name":"John"}',
+        '{"name":{"$eq":"John"}}',
         "HIGHLIGHT",
         "FIELDS",
         "1",
@@ -128,17 +134,15 @@ describe("buildQueryCommand", () => {
     });
 
     test("adds HIGHLIGHT option with tags", () => {
-      const command = buildQueryCommand<TestSchema>(
-        "SEARCH.QUERY",
-        "test-index",
-        '{"name":"John"}',
-        { highlight: { fields: ["name"], preTag: "<b>", postTag: "</b>" } }
-      );
+      const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "John" } },
+        highlight: { fields: ["name"], preTag: "<b>", postTag: "</b>" },
+      });
 
       expect(command).toEqual([
         "SEARCH.QUERY",
         "test-index",
-        '{"name":"John"}',
+        '{"name":{"$eq":"John"}}',
         "HIGHLIGHT",
         "FIELDS",
         "1",
@@ -150,17 +154,15 @@ describe("buildQueryCommand", () => {
     });
 
     test("adds RETURN option with single field", () => {
-      const command = buildQueryCommand<TestSchema>(
-        "SEARCH.QUERY",
-        "test-index",
-        '{"name":"John"}',
-        { returnFields: ["name"] }
-      );
+      const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "John" } },
+        returnFields: ["name"],
+      });
 
       expect(command).toEqual([
         "SEARCH.QUERY",
         "test-index",
-        '{"name":"John"}',
+        '{"name":{"$eq":"John"}}',
         "RETURN",
         "1",
         "name",
@@ -168,17 +170,15 @@ describe("buildQueryCommand", () => {
     });
 
     test("adds RETURN option with multiple fields", () => {
-      const command = buildQueryCommand<TestSchema>(
-        "SEARCH.QUERY",
-        "test-index",
-        '{"name":"John"}',
-        { returnFields: ["name", "age"] }
-      );
+      const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "John" } },
+        returnFields: ["name", "age"],
+      });
 
       expect(command).toEqual([
         "SEARCH.QUERY",
         "test-index",
-        '{"name":"John"}',
+        '{"name":{"$eq":"John"}}',
         "RETURN",
         "2",
         "name",
@@ -187,17 +187,15 @@ describe("buildQueryCommand", () => {
     });
 
     test("adds RETURN option with $ (full document)", () => {
-      const command = buildQueryCommand<TestSchema>(
-        "SEARCH.QUERY",
-        "test-index",
-        '{"name":"John"}',
-        { returnFields: ["$"] }
-      );
+      const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "John" } },
+        returnFields: ["$"],
+      });
 
       expect(command).toEqual([
         "SEARCH.QUERY",
         "test-index",
-        '{"name":"John"}',
+        '{"name":{"$eq":"John"}}',
         "RETURN",
         "1",
         "$",
@@ -205,22 +203,18 @@ describe("buildQueryCommand", () => {
     });
 
     test("combines multiple options", () => {
-      const command = buildQueryCommand<TestSchema>(
-        "SEARCH.QUERY",
-        "test-index",
-        '{"name":"John"}',
-        {
-          limit: 10,
-          offset: 5,
-          sortBy: { field: "age", direction: "DESC" },
-          returnFields: ["name", "age"],
-        }
-      );
+      const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "John" } },
+        limit: 10,
+        offset: 5,
+        sortBy: { field: "age", direction: "DESC" },
+        returnFields: ["name", "age"],
+      });
 
       expect(command).toEqual([
         "SEARCH.QUERY",
         "test-index",
-        '{"name":"John"}',
+        '{"name":{"$eq":"John"}}',
         "LIMIT",
         "10",
         "OFFSET",

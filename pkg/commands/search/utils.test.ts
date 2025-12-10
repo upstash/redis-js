@@ -220,7 +220,10 @@ describe("parseQueryResponse", () => {
         ["doc:2", "0.85"],
       ];
 
-      const result = parseQueryResponse(rawResponse, { noContent: true });
+      const result = parseQueryResponse(rawResponse, {
+        filter: { category: { $eq: "electronics" } },
+        noContent: true,
+      });
 
       expect(result).toEqual([
         { key: "doc:1", score: "0.95" },

@@ -5,9 +5,9 @@ import type { NestedIndexSchema, FlatIndexSchema, QueryOptions } from "./types";
 export function buildQueryCommand<TSchema extends NestedIndexSchema | FlatIndexSchema>(
   redisCommand: "SEARCH.QUERY" | "SEARCH.COUNT",
   indexName: string,
-  query: string,
   options?: QueryOptions<TSchema>
 ): string[] {
+  const query = JSON.stringify(options?.filter);
   const command: string[] = [redisCommand, indexName, query];
 
   if (options?.limit !== undefined) {
@@ -24,9 +24,7 @@ export function buildQueryCommand<TSchema extends NestedIndexSchema | FlatIndexS
 
   if (options?.sortBy) {
     command.push("SORTBY", options.sortBy.field);
-    if (options.sortBy.direction) {
-      command.push(options.sortBy.direction);
-    }
+    command.push(options.sortBy.direction ?? "ASC");
   }
 
   if (options && "highlight" in options && options.highlight) {

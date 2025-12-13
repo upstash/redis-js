@@ -25,8 +25,15 @@ import {
   ExistsCommand,
   ExpireAtCommand,
   ExpireCommand,
+  FCallCommand,
+  FCallRoCommand,
   FlushAllCommand,
   FlushDBCommand,
+  FunctionDeleteCommand,
+  FunctionFlushCommand,
+  FunctionListCommand,
+  FunctionLoadCommand,
+  FunctionStatsCommand,
   GeoAddCommand,
   GeoDistCommand,
   GeoHashCommand,
@@ -1521,6 +1528,51 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
        */
       type: (...args: CommandArgs<typeof JsonTypeCommand>) =>
         this.chain(new JsonTypeCommand(args, this.commandOptions)),
+    };
+  }
+
+  get functions() {
+    return {
+      /**
+       * @see https://redis.io/docs/latest/commands/function-load/
+       */
+      load: (...args: CommandArgs<typeof FunctionLoadCommand>) =>
+        this.chain(new FunctionLoadCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/docs/latest/commands/function-list/
+       */
+      list: (...args: CommandArgs<typeof FunctionListCommand>) =>
+        this.chain(new FunctionListCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/docs/latest/commands/function-delete/
+       */
+      delete: (...args: CommandArgs<typeof FunctionDeleteCommand>) =>
+        this.chain(new FunctionDeleteCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/docs/latest/commands/function-flush/
+       */
+      flush: (...args: CommandArgs<typeof FunctionFlushCommand>) =>
+        this.chain(new FunctionFlushCommand(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/docs/latest/commands/function-stats/
+       */
+      stats: () => this.chain(new FunctionStatsCommand(this.commandOptions)),
+
+      /**
+       * @see https://redis.io/docs/latest/commands/fcall/
+       */
+      call: <TData = unknown>(...args: CommandArgs<typeof FCallCommand<TData>>) =>
+        this.chain(new FCallCommand<TData>(args, this.commandOptions)),
+
+      /**
+       * @see https://redis.io/docs/latest/commands/fcall_ro/
+       */
+      callRo: <TData = unknown>(...args: CommandArgs<typeof FCallRoCommand<TData>>) =>
+        this.chain(new FCallRoCommand<TData>(args, this.commandOptions)),
     };
   }
 }

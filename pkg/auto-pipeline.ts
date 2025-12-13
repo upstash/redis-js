@@ -27,7 +27,12 @@ export const EXCLUDE_COMMANDS: Set<keyof Redis> = new Set([
   "exec",
 ]);
 
-export function createAutoPipelineProxy(_redis: Redis, json?: boolean): Redis {
+type AutoPipelineNamespace = "root" | "json" | "functions";
+
+export function createAutoPipelineProxy(
+  _redis: Redis,
+  namespace: AutoPipelineNamespace = "root"
+): Redis {
   const redis = _redis as Redis & {
     autoPipelineExecutor: AutoPipelineExecutor;
   };
@@ -43,41 +48,50 @@ export function createAutoPipelineProxy(_redis: Redis, json?: boolean): Redis {
         return redis.autoPipelineExecutor.pipelineCounter;
       }
 
-      if (command === "json") {
-        return createAutoPipelineProxy(redis, true);
+      // Namespace switching
+      if (namespace === "root" && command === "json") {
+        return createAutoPipelineProxy(redis, "json");
+      }
+      if (namespace === "root" && command === "functions") {
+        return createAutoPipelineProxy(redis, "functions");
       }
 
-      const commandInRedisButNotPipeline =
-        command in redis && !(command in redis.autoPipelineExecutor.pipeline);
-      const isCommandExcluded = EXCLUDE_COMMANDS.has(command as keyof Redis);
+      // Root-level: some commands should bypass auto pipelining
+      if (namespace === "root") {
+        const commandInRedisButNotPipeline =
+          command in redis && !(command in redis.autoPipelineExecutor.pipeline);
+        const isCommandExcluded = EXCLUDE_COMMANDS.has(command as keyof Redis);
 
-      if (commandInRedisButNotPipeline || isCommandExcluded) {
-        return redis[command as redisOnly];
+        if (commandInRedisButNotPipeline || isCommandExcluded) {
+          return redis[command as redisOnly];
+        }
       }
 
-      // If the method is a function on the pipeline, wrap it with the executor logic
-      const isFunction = json
-        ? typeof redis.autoPipelineExecutor.pipeline.json[command as keyof Pipeline["json"]] ===
-          "function"
-        : typeof redis.autoPipelineExecutor.pipeline[command as keyof Pipeline] === "function";
+      const pipeline = redis.autoPipelineExecutor.pipeline;
+      const targetFunction =
+        namespace === "json"
+          ? pipeline.json[command as keyof typeof pipeline.json]
+          : namespace === "functions"
+            ? pipeline.functions[command as keyof typeof pipeline.functions]
+            : pipeline[command as keyof Pipeline];
+
+      const isFunction = typeof targetFunction === "function";
       if (isFunction) {
         return (...args: CommandArgs<typeof Command>) => {
-          // pass the function as a callback
           return redis.autoPipelineExecutor.withAutoPipeline((pipeline) => {
-            if (json) {
-              (pipeline.json[command as keyof Pipeline["json"]] as (...args: any) => unknown)(
-                ...args
-              );
-            } else {
-              (pipeline[command as keyof Pipeline] as (...args: any) => unknown)(...args);
-            }
+            const targetFunction =
+              namespace === "json"
+                ? pipeline.json[command as keyof typeof pipeline.json]
+                : namespace === "functions"
+                  ? pipeline.functions[command as keyof typeof pipeline.functions]
+                  : pipeline[command as keyof Pipeline];
+
+            (targetFunction as any)(...args);
           });
         };
       }
 
-      // if the property is not a function, a property of redis or "pipelineCounter"
-      // simply return it from pipeline
-      return redis.autoPipelineExecutor.pipeline[command as keyof Pipeline];
+      return targetFunction;
     },
   }) as Redis;
 }

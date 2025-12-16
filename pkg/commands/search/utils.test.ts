@@ -26,7 +26,7 @@ describe("flattenSchema", () => {
 
     test("flattens flat schema with detailed field types", () => {
       const schema = s.object({
-        name: s.text().noTokenize(),
+        name: s.string().noTokenize(),
         age: s.number("U64"),
       });
 
@@ -40,9 +40,9 @@ describe("flattenSchema", () => {
 
     test("flattens schema with all field options", () => {
       const schema = s.object({
-        title: s.text().noTokenize().noStem(),
+        title: s.string().noTokenize().noStem(),
         count: s.number("U64"),
-        active: s.bool().fast(),
+        active: s.boolean().fast(),
         date: s.date().fast(),
       });
 
@@ -60,10 +60,10 @@ describe("flattenSchema", () => {
   describe("nested schemas", () => {
     test("flattens single level nested schema", () => {
       const schema = s.object({
-        name: s.text(),
+        name: s.string(),
         profile: s.object({
           age: s.number("U64"),
-          city: s.text(),
+          city: s.string(),
         }),
       });
 
@@ -80,7 +80,7 @@ describe("flattenSchema", () => {
       const schema = s.object({
         data: s.object({
           metadata: s.object({
-            tags: s.text(),
+            tags: s.string(),
             count: s.number("U64"),
           }),
         }),
@@ -96,10 +96,10 @@ describe("flattenSchema", () => {
 
     test("flattens complex nested schema with mixed types", () => {
       const schema = s.object({
-        id: s.text(),
+        id: s.string(),
         content: s.object({
-          title: s.text().noStem(),
-          body: s.text(),
+          title: s.string().noStem(),
+          body: s.string(),
         }),
         metadata: s.object({
           created: s.date().fast(),
@@ -124,11 +124,11 @@ describe("flattenSchema", () => {
   describe("all field types", () => {
     test("handles all supported field types", () => {
       const schema = s.object({
-        text: s.text(),
+        text: s.string(),
         unsignedInt: s.number("U64"),
         signedInt: s.number("I64"),
         float: s.number("F64"),
-        bool: s.bool(),
+        bool: s.boolean(),
         date: s.date(),
       });
 
@@ -336,7 +336,7 @@ describe("deserializeDescribeResponse", () => {
     const result = deserializeDescribeResponse(rawResponse);
 
     expect(result).toEqual({
-      indexName: "test-index",
+      name: "test-index",
       dataType: "hash",
       prefixes: ["user:"],
       language: "english",
@@ -362,7 +362,7 @@ describe("deserializeDescribeResponse", () => {
     const result = deserializeDescribeResponse(rawResponse);
 
     expect(result).toEqual({
-      indexName: "doc",
+      name: "doc",
       dataType: "string",
       prefixes: ["doc:"],
       schema: {
@@ -397,7 +397,7 @@ describe("deserializeDescribeResponse", () => {
     const result = deserializeDescribeResponse(rawResponse);
 
     expect(result).toEqual({
-      indexName: "vercel-changelog",
+      name: "vercel-changelog",
       dataType: "string",
       prefixes: ["vercel-changelog:"],
       language: "english",
@@ -436,7 +436,7 @@ describe("deserializeDescribeResponse", () => {
     const result = deserializeDescribeResponse(rawResponse);
 
     expect(result).toEqual({
-      indexName: "test",
+      name: "test",
       dataType: "hash",
       prefixes: ["test:"],
       schema: {

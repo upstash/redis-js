@@ -34,7 +34,7 @@ describe("createIndex", () => {
     createdIndexes.push(name);
 
     const schema = s.object({
-      name: s.text(),
+      name: s.string(),
       age: s.number(),
     });
 
@@ -55,9 +55,9 @@ describe("createIndex", () => {
     createdIndexes.push(name);
 
     const schema = s.object({
-      title: s.text(),
+      title: s.string(),
       metadata: s.object({
-        author: s.text(),
+        author: s.string(),
         views: s.number("U64"),
       }),
     });
@@ -78,7 +78,7 @@ describe("createIndex", () => {
     createdIndexes.push(name);
 
     const schema = s.object({
-      title: s.text(),
+      title: s.string(),
       count: s.number("U64"),
     });
 
@@ -98,7 +98,7 @@ describe("createIndex", () => {
     createdIndexes.push(name);
 
     const schema = s.object({
-      content: s.text(),
+      content: s.string(),
     });
 
     const index = await createIndex({
@@ -118,7 +118,7 @@ describe("createIndex", () => {
     createdIndexes.push(name);
 
     const schema = s.object({
-      name: s.text(),
+      name: s.string(),
     });
 
     const index = await createIndex({
@@ -139,12 +139,12 @@ describe("SearchIndex.query (JSON)", () => {
   const keys: string[] = [];
 
   const schema = s.object({
-    name: s.text(),
-    description: s.text(),
-    category: s.text().noTokenize(),
+    name: s.string(),
+    description: s.string(),
+    category: s.string().noTokenize(),
     price: s.number(),
     stock: s.number("U64"),
-    active: s.bool(),
+    active: s.boolean(),
   });
 
   beforeAll(async () => {
@@ -414,7 +414,7 @@ describe("SearchIndex.count", () => {
   const keys: string[] = [];
 
   const schema = s.object({
-    type: s.text(),
+    type: s.string(),
     value: s.number("U64"),
   });
 
@@ -468,9 +468,9 @@ describe("SearchIndex.describe", () => {
   const name = `test-describe-${randomID().slice(0, 8)}`;
 
   const schema = s.object({
-    title: s.text().noStem(),
+    title: s.string().noStem(),
     count: s.number("U64"),
-    active: s.bool(),
+    active: s.boolean(),
   });
 
   beforeAll(async () => {
@@ -505,7 +505,7 @@ describe("SearchIndex.drop", () => {
     const name = `test-drop-${randomID().slice(0, 8)}`;
 
     const schema = s.object({
-      name: s.text(),
+      name: s.string(),
     });
 
     const index = await createIndex({
@@ -527,7 +527,7 @@ describe("Hash index queries", () => {
   const keys: string[] = [];
 
   const schema = s.object({
-    name: s.text(),
+    name: s.string(),
     score: s.number("U64"),
   });
 
@@ -592,10 +592,10 @@ describe("Nested JSON index queries", () => {
   const keys: string[] = [];
 
   const schema = s.object({
-    title: s.text(),
+    title: s.string(),
     author: s.object({
-      name: s.text(),
-      email: s.text(),
+      name: s.string(),
+      email: s.string(),
     }),
     stats: s.object({
       views: s.number("U64"),
@@ -687,7 +687,7 @@ describe("index", () => {
 
   test("creates a SearchIndex instance with schema", () => {
     const schema = s.object({
-      name: s.text(),
+      name: s.string(),
       age: s.number("U64"),
     });
 

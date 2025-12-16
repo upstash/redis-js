@@ -219,7 +219,7 @@ describe("buildCreateIndexCommand", () => {
   describe("hash index", () => {
     test("builds simple hash index command", () => {
       const schema = s.object({
-        name: s.text(),
+        name: s.string(),
         age: s.number("U64"),
       });
 
@@ -253,7 +253,7 @@ describe("buildCreateIndexCommand", () => {
 
     test("builds hash index with multiple prefixes", () => {
       const schema = s.object({
-        name: s.text(),
+        name: s.string(),
       });
 
       const props = {
@@ -283,7 +283,7 @@ describe("buildCreateIndexCommand", () => {
 
     test("builds hash index with field options", () => {
       const schema = s.object({
-        name: s.text().noTokenize().noStem(),
+        name: s.string().noTokenize().noStem(),
         age: s.number("U64"),
       });
 
@@ -318,7 +318,7 @@ describe("buildCreateIndexCommand", () => {
 
     test("builds hash index with language option", () => {
       const schema = s.object({
-        name: s.text(),
+        name: s.string(),
       });
 
       const props = {
@@ -352,10 +352,10 @@ describe("buildCreateIndexCommand", () => {
   describe("string/JSON index", () => {
     test("builds nested string index command", () => {
       const schema = s.object({
-        name: s.text(),
+        name: s.string(),
         profile: s.object({
           age: s.number("U64"),
-          city: s.text(),
+          city: s.string(),
         }),
       });
 
@@ -392,7 +392,7 @@ describe("buildCreateIndexCommand", () => {
       const schema = s.object({
         data: s.object({
           metadata: s.object({
-            tags: s.text(),
+            tags: s.string(),
           }),
         }),
       });
@@ -425,11 +425,11 @@ describe("buildCreateIndexCommand", () => {
   describe("all field types", () => {
     test("builds index with all field types", () => {
       const schema = s.object({
-        title: s.text(),
+        title: s.string(),
         count: s.number("U64"),
         value: s.number("I64"),
         score: s.number("F64"),
-        active: s.bool(),
+        active: s.boolean(),
         createdAt: s.date(),
       });
 

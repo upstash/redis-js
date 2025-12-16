@@ -108,13 +108,13 @@ type FieldBuilder =
   | DateFieldBuilder<{ fast: boolean }>;
 
 export const s = {
-  text(): TextFieldBuilder {
+  string(): TextFieldBuilder {
     return new TextFieldBuilder();
   },
   number<T extends NumericField["type"] = "F64">(type: T = "F64" as T): NumericFieldBuilder<T> {
     return new NumericFieldBuilder(type);
   },
-  bool(): BoolFieldBuilder {
+  boolean(): BoolFieldBuilder {
     return new BoolFieldBuilder();
   },
   date(): DateFieldBuilder {

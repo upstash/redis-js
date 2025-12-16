@@ -4,9 +4,9 @@ import { s } from "./schema-builder";
 describe("Schema Builder", () => {
   test("builds simple hash schema", () => {
     const schema = s.object({
-      name: s.text(),
+      name: s.string(),
       age: s.number("U64"),
-      isActive: s.bool(),
+      isActive: s.boolean(),
     });
 
     expect(schema).toEqual({
@@ -18,7 +18,7 @@ describe("Schema Builder", () => {
 
   test("builds hash schema with field options", () => {
     const schema = s.object({
-      name: s.text().noTokenize(),
+      name: s.string().noTokenize(),
       age: s.number("U64"),
       score: s.number("F64"),
     });
@@ -32,10 +32,10 @@ describe("Schema Builder", () => {
 
   test("builds nested string schema", () => {
     const schema = s.object({
-      name: s.text(),
+      name: s.string(),
       profile: s.object({
         age: s.number("U64"),
-        city: s.text(),
+        city: s.string(),
       }),
     });
 
@@ -47,11 +47,11 @@ describe("Schema Builder", () => {
 
   test("supports all field types", () => {
     const schema = s.object({
-      text: s.text().noStem(),
+      text: s.string().noStem(),
       unsignedInteger: s.number("U64"),
       integer: s.number("I64"),
       float: s.number("F64"),
-      bool: s.bool(),
+      bool: s.boolean(),
       date: s.date(),
     });
 
@@ -67,7 +67,7 @@ describe("Schema Builder", () => {
 
   test("supports chaining multiple options", () => {
     const schema = s.object({
-      title: s.text().noTokenize().noStem(),
+      title: s.string().noTokenize().noStem(),
       score: s.number("F64"),
     });
 
@@ -80,7 +80,7 @@ describe("Schema Builder", () => {
   test("returns precise types without options", () => {
     // Without options, should return literal types
     const schema = s.object({
-      name: s.text(), // Should be "TEXT", not union
+      name: s.string(), // Should be "TEXT", not union
       age: s.number("U64"), // Should be { type: "U64", fast: true }
     });
 
@@ -91,7 +91,7 @@ describe("Schema Builder", () => {
   test("returns detailed types with options", () => {
     // With options, should return object types
     const schema = s.object({
-      name: s.text().noTokenize(),
+      name: s.string().noTokenize(),
       age: s.number("U64"),
     });
 

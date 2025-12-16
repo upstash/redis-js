@@ -109,21 +109,47 @@ export type QueryOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> = 
   };
 };
 
-export type FieldValuePair<TSchema, TField extends string> = TField extends "$"
-  ? { $: InferSchemaData<TSchema> }
-  : TField extends SchemaPaths<TSchema>
-    ? { [K in TField]: GetFieldValueType<TSchema, TField> }
-    : never;
+/**
+ * Converts dot notation paths to nested object structure type
+ * e.g. "content.title" | "content.author" becomes { content: { title: ..., author: ... } }
+ */
+type PathToNestedObject<
+  TSchema,
+  Path extends string,
+  Value,
+> = Path extends `${infer First}.${infer Rest}`
+  ? { [K in First]: PathToNestedObject<TSchema, Rest, Value> }
+  : { [K in Path]: Value };
 
-// Helper to extract the fields array element type from QueryResult
-export type QueryResultFields<
-  TSchema extends NestedIndexSchema | FlatIndexSchema,
-  TOptions extends QueryOptions<TSchema> | undefined = undefined,
-> = TOptions extends { select: infer TFields }
-  ? {} extends TFields
-    ? never
-    : FieldValuePair<TSchema, keyof TFields & SchemaPaths<TSchema>>
-  : FieldValuePair<TSchema, SchemaPaths<TSchema> | "$">;
+/**
+ * Merges intersection of objects into a single object type with proper nesting
+ */
+type DeepMerge<T> = T extends object
+  ? {
+      [K in keyof T]: T[K] extends object ? DeepMerge<T[K]> : T[K];
+    }
+  : T;
+
+/**
+ * Build nested result type from selected paths
+ */
+type BuildNestedResult<TSchema, TFields> = DeepMerge<
+  UnionToIntersection<
+    {
+      [Path in keyof TFields & SchemaPaths<TSchema>]: PathToNestedObject<
+        TSchema,
+        Path & string,
+        GetFieldValueType<TSchema, Path & string>
+      >;
+    }[keyof TFields & SchemaPaths<TSchema>]
+  >
+>;
+
+type UnionToIntersection<U> = (U extends unknown ? (k: U) => void : never) extends (
+  k: infer I
+) => void
+  ? I
+  : never;
 
 export type QueryResult<
   TSchema extends NestedIndexSchema | FlatIndexSchema,
@@ -134,12 +160,12 @@ export type QueryResult<
     : {
         key: string;
         score: string;
-        fields: Array<FieldValuePair<TSchema, keyof TFields & SchemaPaths<TSchema>>>;
+        data: BuildNestedResult<TSchema, TFields>;
       }
   : {
       key: string;
       score: string;
-      fields: Array<FieldValuePair<TSchema, SchemaPaths<TSchema> | "$">>;
+      data: InferSchemaData<TSchema>;
     };
 
 // Query Filter Types
@@ -228,12 +254,12 @@ export type QueryFilter<TSchema extends NestedIndexSchema | FlatIndexSchema> =
   | { $or: QueryFilter<TSchema> }
   | { $boost: { query: QueryFilter<TSchema>; value: number } };
 
-export type IndexDescription = {
-  indexName: string;
+export type IndexDescription<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
+  name: string;
   dataType: "hash" | "string";
   prefixes: string[];
-  language?: string;
-  schema: FlatIndexSchema;
+  language?: Language;
+  schema: Record<SchemaPaths<TSchema>, FieldType>;
 };
 
 export type Language =

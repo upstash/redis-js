@@ -46,12 +46,12 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
     return result;
   }
 
-  async describe(): Promise<IndexDescription> {
+  async describe(): Promise<IndexDescription<TSchema>> {
     const command = ["SEARCH.DESCRIBE", this.name];
     const rawResult = await new ExecCommand<any>(command as [string, ...string[]]).exec(
       this.client
     );
-    return deserializeDescribeResponse(rawResult);
+    return deserializeDescribeResponse<TSchema>(rawResult);
   }
 
   async query<TOptions extends QueryOptions<TSchema>>(

@@ -148,7 +148,7 @@ describe("flattenSchema", () => {
 
 describe("deserializeQueryResponse", () => {
   describe("with content", () => {
-    test("parses query response with fields", () => {
+    test("parses query response with fields as merged data object", () => {
       const rawResponse = [
         [
           "doc:1",
@@ -174,12 +174,12 @@ describe("deserializeQueryResponse", () => {
         {
           key: "doc:1",
           score: "0.95",
-          fields: [{ name: "John" }, { age: "30" }],
+          data: { name: "John", age: "30" },
         },
         {
           key: "doc:2",
           score: "0.85",
-          fields: [{ name: "Jane" }, { age: "25" }],
+          data: { name: "Jane", age: "25" },
         },
       ]);
     });
@@ -193,7 +193,7 @@ describe("deserializeQueryResponse", () => {
         {
           key: "doc:1",
           score: "1.0",
-          fields: [],
+          data: {},
         },
       ]);
     });
@@ -207,7 +207,67 @@ describe("deserializeQueryResponse", () => {
         {
           key: "doc:1",
           score: "1.0",
-          fields: [],
+          data: {},
+        },
+      ]);
+    });
+
+    test("handles $ key (full document) by unwrapping it", () => {
+      const rawResponse = [
+        [
+          "doc:1",
+          "0.95",
+          [
+            [
+              "$",
+              {
+                id: "123",
+                content: { title: "Hello", body: "World" },
+                metadata: { views: 100 },
+              },
+            ],
+          ],
+        ],
+      ];
+
+      const result = deserializeQueryResponse(rawResponse);
+
+      expect(result).toEqual([
+        {
+          key: "doc:1",
+          score: "0.95",
+          data: {
+            id: "123",
+            content: { title: "Hello", body: "World" },
+            metadata: { views: 100 },
+          },
+        },
+      ]);
+    });
+
+    test("converts dot notation keys to nested objects", () => {
+      const rawResponse = [
+        [
+          "doc:1",
+          "0.95",
+          [
+            ["content.title", "Hello"],
+            ["content.body", "World"],
+            ["metadata.views", 100],
+          ],
+        ],
+      ];
+
+      const result = deserializeQueryResponse(rawResponse);
+
+      expect(result).toEqual([
+        {
+          key: "doc:1",
+          score: "0.95",
+          data: {
+            content: { title: "Hello", body: "World" },
+            metadata: { views: 100 },
+          },
         },
       ]);
     });
@@ -248,7 +308,7 @@ describe("deserializeQueryResponse", () => {
         {
           key: "doc:1",
           score: "1.0",
-          fields: [{ field: "value" }],
+          data: { field: "value" },
         },
       ]);
     });
@@ -256,7 +316,7 @@ describe("deserializeQueryResponse", () => {
 });
 
 describe("deserializeDescribeResponse", () => {
-  test("deserializes raw key-value array response to IndexDescription", () => {
+  test("deserializes raw key-value array response", () => {
     const rawResponse = [
       "name",
       "test-index",
@@ -307,6 +367,85 @@ describe("deserializeDescribeResponse", () => {
       prefixes: ["doc:"],
       schema: {
         title: "TEXT",
+      },
+    });
+  });
+
+  test("keeps dot notation for nested fields", () => {
+    const rawResponse = [
+      "name",
+      "vercel-changelog",
+      "type",
+      "STRING",
+      "prefixes",
+      ["vercel-changelog:"],
+      "language",
+      "english",
+      "schema",
+      [
+        ["id", "TEXT"],
+        ["content.title", "TEXT"],
+        ["content.content", "TEXT"],
+        ["content.authors", "TEXT"],
+        ["metadata.dateInt", "U64"],
+        ["metadata.url", "TEXT"],
+        ["metadata.updated", "TEXT"],
+        ["metadata.kind", "TEXT"],
+      ],
+    ];
+
+    const result = deserializeDescribeResponse(rawResponse);
+
+    expect(result).toEqual({
+      indexName: "vercel-changelog",
+      dataType: "string",
+      prefixes: ["vercel-changelog:"],
+      language: "english",
+      schema: {
+        id: "TEXT",
+        "content.title": "TEXT",
+        "content.content": "TEXT",
+        "content.authors": "TEXT",
+        "metadata.dateInt": "U64",
+        "metadata.url": "TEXT",
+        "metadata.updated": "TEXT",
+        "metadata.kind": "TEXT",
+      },
+    });
+  });
+
+  test("parses all field types", () => {
+    const rawResponse = [
+      "name",
+      "test",
+      "type",
+      "HASH",
+      "prefixes",
+      ["test:"],
+      "schema",
+      [
+        ["text", "TEXT"],
+        ["date", "DATE"],
+        ["unsigned", "U64"],
+        ["signed", "I64"],
+        ["float", "F64"],
+        ["flag", "BOOL"],
+      ],
+    ];
+
+    const result = deserializeDescribeResponse(rawResponse);
+
+    expect(result).toEqual({
+      indexName: "test",
+      dataType: "hash",
+      prefixes: ["test:"],
+      schema: {
+        text: "TEXT",
+        date: "DATE",
+        unsigned: "U64",
+        signed: "I64",
+        float: "F64",
+        flag: "BOOL",
       },
     });
   });

@@ -278,17 +278,14 @@ describe("search", () => {
         authors: s.text(),
       }),
       metadata: s.object({
-        dateInt: s.unsignedInteger().fast(),
+        dateInt: s.number("U64"),
         url: s.text(),
         updated: s.date(),
         kind: s.text(),
       }),
     });
-    const idx = redis.getSearchIndex({
-      indexName: "vercel-changelog",
-      schema,
-    });
-    const result = await idx.query({ "content.title": { $eq: "react" } }, { limit: 2 });
+    const idx = redis.search.index("vercel-changelog", schema);
+    const result = await idx.query({ filter: { "content.title": { $eq: "react" } }, limit: 2 });
     expect(result).toBeDefined();
   });
 });

@@ -9,7 +9,7 @@ export type TextField = {
 
 export type NumericField = {
   type: "U64" | "I64" | "F64";
-  fast?: boolean;
+  fast: true;
 };
 
 export type BoolField = {
@@ -98,44 +98,49 @@ export type QueryOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> = 
   /** Number of results to skip */
   offset?: number;
   /** Sort by field (requires FAST option on field) */
-  sortBy?: {
-    field: SchemaPaths<TSchema>;
-    direction?: "ASC" | "DESC";
+  orderBy?: {
+    [K in SchemaPaths<TSchema>]: { [P in K]: "ASC" | "DESC" };
+  }[SchemaPaths<TSchema>];
+  select?: Partial<{ [K in SchemaPaths<TSchema>]: true }>; // {}
+  highlight?: {
+    fields: SchemaPaths<TSchema>[];
+    preTag?: string;
+    postTag?: string;
   };
-} & (
-  | {
-      noContent: true;
-    }
-  | {
-      noContent?: false;
-      highlight?: {
-        fields: SchemaPaths<TSchema>[];
-        preTag?: string;
-        postTag?: string;
-      };
-      /** Return only specific fields */
-      returnFields?: (SchemaPaths<TSchema> | "$")[];
-    }
-);
+};
 
-type FieldValuePair<TSchema, TField extends string> = TField extends "$"
+export type FieldValuePair<TSchema, TField extends string> = TField extends "$"
   ? { $: InferSchemaData<TSchema> }
   : TField extends SchemaPaths<TSchema>
     ? { [K in TField]: GetFieldValueType<TSchema, TField> }
     : never;
 
+// Helper to extract the fields array element type from QueryResult
+export type QueryResultFields<
+  TSchema extends NestedIndexSchema | FlatIndexSchema,
+  TOptions extends QueryOptions<TSchema> | undefined = undefined,
+> = TOptions extends { select: infer TFields }
+  ? {} extends TFields
+    ? never
+    : FieldValuePair<TSchema, keyof TFields & SchemaPaths<TSchema>>
+  : FieldValuePair<TSchema, SchemaPaths<TSchema> | "$">;
+
 export type QueryResult<
   TSchema extends NestedIndexSchema | FlatIndexSchema,
   TOptions extends QueryOptions<TSchema> | undefined = undefined,
-> = TOptions extends { noContent: true }
-  ? { key: string; score: string }
-  : TOptions extends { returnFields: infer TFields extends readonly string[] }
-    ? { key: string; score: string; fields: Array<FieldValuePair<TSchema, TFields[number]>> } // Specific fields only
+> = TOptions extends { select: infer TFields }
+  ? {} extends TFields
+    ? { key: string; score: string }
     : {
         key: string;
         score: string;
-        fields: Array<FieldValuePair<TSchema, SchemaPaths<TSchema> | "$">>;
-      };
+        fields: Array<FieldValuePair<TSchema, keyof TFields & SchemaPaths<TSchema>>>;
+      }
+  : {
+      key: string;
+      score: string;
+      fields: Array<FieldValuePair<TSchema, SchemaPaths<TSchema> | "$">>;
+    };
 
 // Query Filter Types
 // These are the operations that can be used for each field type
@@ -223,21 +228,30 @@ export type QueryFilter<TSchema extends NestedIndexSchema | FlatIndexSchema> =
   | { $or: QueryFilter<TSchema> }
   | { $boost: { query: QueryFilter<TSchema>; value: number } };
 
-export type QueryResponse<
-  TSchema extends NestedIndexSchema | FlatIndexSchema,
-  TOptions extends QueryOptions<TSchema> | undefined = undefined,
-> = Array<QueryResult<TSchema, TOptions>>;
-
 export type IndexDescription = {
   indexName: string;
   dataType: "hash" | "string";
   prefixes: string[];
   language?: string;
-  fields: Array<{
-    name: string;
-    type: FieldType;
-    noTokenize?: boolean;
-    noStem?: boolean;
-    fast?: boolean;
-  }>;
+  schema: FlatIndexSchema;
 };
+
+export type Language =
+  | "english"
+  | "arabic"
+  | "danish"
+  | "dutch"
+  | "finnish"
+  | "french"
+  | "german"
+  | "greek"
+  | "hungarian"
+  | "italian"
+  | "norwegian"
+  | "portuguese"
+  | "romanian"
+  | "russian"
+  | "spanish"
+  | "swedish"
+  | "tamil"
+  | "turkish";

@@ -1,14 +1,14 @@
 import { flattenSchema } from "./utils";
-import type { CreateSearchIndexProps } from "./search";
+import type { createIndexProps } from "./search";
 import type { NestedIndexSchema, FlatIndexSchema, QueryOptions } from "./types";
 
 export function buildQueryCommand<TSchema extends NestedIndexSchema | FlatIndexSchema>(
   redisCommand: "SEARCH.QUERY" | "SEARCH.COUNT",
-  indexName: string,
+  name: string,
   options?: QueryOptions<TSchema>
 ): string[] {
   const query = JSON.stringify(options?.filter);
-  const command: string[] = [redisCommand, indexName, query];
+  const command: string[] = [redisCommand, name, query];
 
   if (options?.limit !== undefined) {
     command.push("LIMIT", options.limit.toString());
@@ -18,16 +18,18 @@ export function buildQueryCommand<TSchema extends NestedIndexSchema | FlatIndexS
     command.push("OFFSET", options.offset.toString());
   }
 
-  if (options?.noContent) {
+  if (options?.select && Object.keys(options.select).length === 0) {
     command.push("NOCONTENT");
   }
 
-  if (options?.sortBy) {
-    command.push("SORTBY", options.sortBy.field);
-    command.push(options.sortBy.direction ?? "ASC");
+  if (options?.orderBy) {
+    command.push("SORTBY");
+    Object.entries(options.orderBy).forEach(([field, direction]) => {
+      command.push(field, direction as "ASC" | "DESC");
+    });
   }
 
-  if (options && "highlight" in options && options.highlight) {
+  if (options?.highlight) {
     command.push(
       "HIGHLIGHT",
       "FIELDS",
@@ -39,26 +41,25 @@ export function buildQueryCommand<TSchema extends NestedIndexSchema | FlatIndexS
     }
   }
 
-  if (
-    options &&
-    "returnFields" in options &&
-    options.returnFields &&
-    options.returnFields.length > 0
-  ) {
-    command.push("RETURN", options.returnFields.length.toString(), ...options.returnFields);
+  if (options?.select && Object.keys(options.select).length > 0) {
+    command.push(
+      "RETURN",
+      Object.keys(options.select).length.toString(),
+      ...Object.keys(options.select)
+    );
   }
 
   return command;
 }
 
 export function buildCreateIndexCommand<TSchema extends NestedIndexSchema | FlatIndexSchema>(
-  props: CreateSearchIndexProps<TSchema>
+  props: createIndexProps<TSchema>
 ): string[] {
-  const { indexName, schema, dataType, prefix, language } = props;
+  const { name, schema, dataType, prefix, language } = props;
   const prefixArray = Array.isArray(prefix) ? prefix : [prefix];
 
   const payload: string[] = [
-    indexName,
+    name,
     "ON",
     dataType.toUpperCase(),
     "PREFIX",

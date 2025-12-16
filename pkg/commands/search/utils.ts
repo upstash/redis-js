@@ -4,7 +4,8 @@ import {
   FlatIndexSchema,
   IndexDescription,
   QueryOptions,
-  QueryResponse,
+  QueryResult,
+  QueryResultFields,
   type FieldType,
   type NestedIndexSchema,
 } from "./types";
@@ -61,41 +62,69 @@ export function flattenSchema(
   return fields;
 }
 
-export function parseQueryResponse<
+export function deserializeQueryResponse<
   TSchema extends NestedIndexSchema | FlatIndexSchema,
   TOptions extends QueryOptions<TSchema> | undefined = undefined,
->(rawResponse: any[], options?: TOptions): QueryResponse<TSchema, TOptions> {
-  const results: any[] = [];
+>(rawResponse: unknown[], options?: TOptions): QueryResult<TSchema, TOptions>[] {
+  const hasEmptySelect = options?.select && Object.keys(options.select).length === 0;
 
-  if (options && "noContent" in options && options.noContent) {
-    for (const item of rawResponse) {
-      results.push({
-        key: item[0],
-        score: item[1],
-      });
+  return rawResponse.map((itemRaw) => {
+    const raw = itemRaw as [string, string, unknown[]?];
+    const key = raw[0];
+    const score = raw[1];
+    const rawFields = raw[2];
+
+    if (hasEmptySelect) {
+      return { key, score } as QueryResult<TSchema, TOptions>;
     }
-  } else {
-    for (const item of rawResponse) {
-      const fields = Array.isArray(item[2])
-        ? item[2].map((field: any) => ({
-            [field[0]]: field[1],
-          }))
-        : [];
-      results.push({
-        key: item[0],
-        score: item[1],
-        fields,
-      });
+
+    const fields = Array.isArray(rawFields)
+      ? rawFields.map((fieldRaw) => kvArrayToObject<QueryResultFields<TSchema, TOptions>>(fieldRaw))
+      : [];
+
+    return { key, score, fields } as unknown as QueryResult<TSchema, TOptions>;
+  });
+}
+
+export function deserializeDescribeResponse(rawResponse: unknown): IndexDescription {
+  const raw = kvArrayToObject<{
+    name: string;
+    type: string;
+    prefixes: string[];
+    language?: string;
+    schema: unknown[];
+  }>(rawResponse);
+
+  const schema: FlatIndexSchema = {};
+  if (Array.isArray(raw.schema)) {
+    for (const fieldRaw of raw.schema) {
+      if (Array.isArray(fieldRaw) && fieldRaw.length >= 2) {
+        const fieldName = fieldRaw[0] as string;
+        const fieldType = fieldRaw[1] as FieldType;
+        schema[fieldName] = fieldType;
+      }
     }
   }
 
-  return results;
-}
-
-export function parseDescribeResponse(rawResponse: any): IndexDescription {
-  return rawResponse as IndexDescription;
+  return {
+    indexName: raw.name,
+    dataType: raw.type.toLowerCase() as "hash" | "string",
+    prefixes: raw.prefixes,
+    ...(raw.language && { language: raw.language }),
+    schema,
+  };
 }
 
 export function parseCountResponse(rawResponse: any): number {
   return typeof rawResponse === "number" ? rawResponse : parseInt(rawResponse, 10);
+}
+
+export function kvArrayToObject<T extends Record<string, unknown>>(v: unknown): T {
+  if (typeof v === "object" && v !== null && !Array.isArray(v)) return v as T;
+  if (!Array.isArray(v)) return {} as T;
+  const obj: T = {} as T;
+  for (let i = 0; i < v.length; i += 2) {
+    if (typeof v[i] === "string") obj[v[i] as keyof T] = v[i + 1] as T[keyof T];
+  }
+  return obj;
 }

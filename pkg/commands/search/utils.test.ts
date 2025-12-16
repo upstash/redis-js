@@ -1,8 +1,8 @@
 import { describe, test, expect } from "bun:test";
 import {
   flattenSchema,
-  parseQueryResponse,
-  parseDescribeResponse,
+  deserializeQueryResponse,
+  deserializeDescribeResponse,
   parseCountResponse,
 } from "./utils";
 import { s } from "./schema-builder";
@@ -27,7 +27,7 @@ describe("flattenSchema", () => {
     test("flattens flat schema with detailed field types", () => {
       const schema = s.object({
         name: s.text().noTokenize(),
-        age: s.unsignedInteger().fast(),
+        age: s.number("U64"),
       });
 
       const result = flattenSchema(schema);
@@ -41,7 +41,7 @@ describe("flattenSchema", () => {
     test("flattens schema with all field options", () => {
       const schema = s.object({
         title: s.text().noTokenize().noStem(),
-        count: s.unsignedInteger().fast(),
+        count: s.number("U64"),
         active: s.bool().fast(),
         date: s.date().fast(),
       });
@@ -62,7 +62,7 @@ describe("flattenSchema", () => {
       const schema = s.object({
         name: s.text(),
         profile: s.object({
-          age: s.unsignedInteger(),
+          age: s.number("U64"),
           city: s.text(),
         }),
       });
@@ -71,7 +71,7 @@ describe("flattenSchema", () => {
 
       expect(result).toEqual([
         { path: "name", type: "TEXT" },
-        { path: "profile.age", type: "U64" },
+        { path: "profile.age", type: "U64", fast: true },
         { path: "profile.city", type: "TEXT" },
       ]);
     });
@@ -81,7 +81,7 @@ describe("flattenSchema", () => {
         data: s.object({
           metadata: s.object({
             tags: s.text(),
-            count: s.unsignedInteger(),
+            count: s.number("U64"),
           }),
         }),
       });
@@ -90,7 +90,7 @@ describe("flattenSchema", () => {
 
       expect(result).toEqual([
         { path: "data.metadata.tags", type: "TEXT" },
-        { path: "data.metadata.count", type: "U64" },
+        { path: "data.metadata.count", type: "U64", fast: true },
       ]);
     });
 
@@ -104,7 +104,7 @@ describe("flattenSchema", () => {
         metadata: s.object({
           created: s.date().fast(),
           updated: s.date(),
-          views: s.unsignedInteger().fast(),
+          views: s.number("U64"),
         }),
       });
 
@@ -125,9 +125,9 @@ describe("flattenSchema", () => {
     test("handles all supported field types", () => {
       const schema = s.object({
         text: s.text(),
-        unsignedInt: s.unsignedInteger(),
-        signedInt: s.integer(),
-        float: s.float(),
+        unsignedInt: s.number("U64"),
+        signedInt: s.number("I64"),
+        float: s.number("F64"),
         bool: s.bool(),
         date: s.date(),
       });
@@ -136,9 +136,9 @@ describe("flattenSchema", () => {
 
       expect(result).toEqual([
         { path: "text", type: "TEXT" },
-        { path: "unsignedInt", type: "U64" },
-        { path: "signedInt", type: "I64" },
-        { path: "float", type: "F64" },
+        { path: "unsignedInt", type: "U64", fast: true },
+        { path: "signedInt", type: "I64", fast: true },
+        { path: "float", type: "F64", fast: true },
         { path: "bool", type: "BOOL" },
         { path: "date", type: "DATE" },
       ]);
@@ -146,7 +146,7 @@ describe("flattenSchema", () => {
   });
 });
 
-describe("parseQueryResponse", () => {
+describe("deserializeQueryResponse", () => {
   describe("with content", () => {
     test("parses query response with fields", () => {
       const rawResponse = [
@@ -168,7 +168,7 @@ describe("parseQueryResponse", () => {
         ],
       ];
 
-      const result = parseQueryResponse(rawResponse);
+      const result = deserializeQueryResponse(rawResponse);
 
       expect(result).toEqual([
         {
@@ -187,7 +187,7 @@ describe("parseQueryResponse", () => {
     test("handles empty fields array", () => {
       const rawResponse = [["doc:1", "1.0", []]];
 
-      const result = parseQueryResponse(rawResponse);
+      const result = deserializeQueryResponse(rawResponse);
 
       expect(result).toEqual([
         {
@@ -201,7 +201,7 @@ describe("parseQueryResponse", () => {
     test("handles missing fields (non-array)", () => {
       const rawResponse = [["doc:1", "1.0", null]];
 
-      const result = parseQueryResponse(rawResponse);
+      const result = deserializeQueryResponse(rawResponse);
 
       expect(result).toEqual([
         {
@@ -220,9 +220,9 @@ describe("parseQueryResponse", () => {
         ["doc:2", "0.85"],
       ];
 
-      const result = parseQueryResponse(rawResponse, {
+      const result = deserializeQueryResponse(rawResponse, {
         filter: { category: { $eq: "electronics" } },
-        noContent: true,
+        select: {},
       });
 
       expect(result).toEqual([
@@ -234,7 +234,7 @@ describe("parseQueryResponse", () => {
 
   describe("edge cases", () => {
     test("handles empty response", () => {
-      const result = parseQueryResponse([]);
+      const result = deserializeQueryResponse([]);
 
       expect(result).toEqual([]);
     });
@@ -242,7 +242,7 @@ describe("parseQueryResponse", () => {
     test("handles single result", () => {
       const rawResponse = [["doc:1", "1.0", [["field", "value"]]]];
 
-      const result = parseQueryResponse(rawResponse);
+      const result = deserializeQueryResponse(rawResponse);
 
       expect(result).toEqual([
         {
@@ -255,22 +255,60 @@ describe("parseQueryResponse", () => {
   });
 });
 
-describe("parseDescribeResponse", () => {
-  test("returns the raw response as IndexDescription", () => {
-    const rawResponse = {
+describe("deserializeDescribeResponse", () => {
+  test("deserializes raw key-value array response to IndexDescription", () => {
+    const rawResponse = [
+      "name",
+      "test-index",
+      "type",
+      "HASH",
+      "prefixes",
+      ["user:"],
+      "language",
+      "english",
+      "schema",
+      [
+        ["name", "TEXT"],
+        ["age", "U64"],
+      ],
+    ];
+
+    const result = deserializeDescribeResponse(rawResponse);
+
+    expect(result).toEqual({
       indexName: "test-index",
       dataType: "hash",
       prefixes: ["user:"],
       language: "english",
-      fields: [
-        { name: "name", type: "TEXT" },
-        { name: "age", type: "U64", fast: true },
-      ],
-    };
+      schema: {
+        name: "TEXT",
+        age: "U64",
+      },
+    });
+  });
 
-    const result = parseDescribeResponse(rawResponse);
+  test("handles response without optional language", () => {
+    const rawResponse = [
+      "name",
+      "doc",
+      "type",
+      "STRING",
+      "prefixes",
+      ["doc:"],
+      "schema",
+      [["title", "TEXT"]],
+    ];
 
-    expect(result).toEqual(rawResponse as IndexDescription);
+    const result = deserializeDescribeResponse(rawResponse);
+
+    expect(result).toEqual({
+      indexName: "doc",
+      dataType: "string",
+      prefixes: ["doc:"],
+      schema: {
+        title: "TEXT",
+      },
+    });
   });
 });
 

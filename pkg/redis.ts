@@ -193,9 +193,9 @@ import {
   ZUnionStoreCommand,
 } from "./commands/mod";
 import {
-  createSearchIndex,
-  getSearchIndex,
-  type CreateSearchIndexProps,
+  createIndex,
+  index,
+  type createIndexProps,
   type SearchIndexProps,
   type NestedIndexSchema,
   type FlatIndexSchema,
@@ -459,23 +459,25 @@ export class Redis {
     return opts?.readonly ? (new ScriptRO(this, script) as any) : (new Script(this, script) as any);
   }
 
-  createSearchIndex = <TSchema extends NestedIndexSchema | FlatIndexSchema>(
-    props: Omit<CreateSearchIndexProps<TSchema>, "client">
-  ) => {
-    return createSearchIndex<TSchema>({
-      ...props,
-      client: this.client,
-    } as CreateSearchIndexProps<TSchema>);
-  };
+  get search() {
+    return {
+      createIndex: <TSchema extends NestedIndexSchema | FlatIndexSchema>(
+        props: Omit<createIndexProps<TSchema>, "client">
+      ) => {
+        return createIndex<TSchema>({
+          ...props,
+          client: this.client,
+        } as createIndexProps<TSchema>);
+      },
 
-  getSearchIndex = <TSchema extends NestedIndexSchema | FlatIndexSchema>(
-    props: Omit<SearchIndexProps<TSchema>, "client">
-  ) => {
-    return getSearchIndex<TSchema>({
-      ...props,
-      client: this.client,
-    } as SearchIndexProps<TSchema>);
-  };
+      index: <TSchema extends NestedIndexSchema | FlatIndexSchema>(
+        name: string,
+        schema?: TSchema extends NestedIndexSchema ? TSchema : never
+      ) => {
+        return index<TSchema>(this.client, name, schema);
+      },
+    };
+  }
 
   /**
    * Create a new pipeline that allows you to send requests in bulk.

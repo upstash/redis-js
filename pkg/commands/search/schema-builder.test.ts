@@ -5,13 +5,13 @@ describe("Schema Builder", () => {
   test("builds simple hash schema", () => {
     const schema = s.object({
       name: s.text(),
-      age: s.unsignedInteger(),
+      age: s.number("U64"),
       isActive: s.bool(),
     });
 
     expect(schema).toEqual({
       name: "TEXT",
-      age: "U64",
+      age: { type: "U64", fast: true },
       isActive: "BOOL",
     });
   });
@@ -19,8 +19,8 @@ describe("Schema Builder", () => {
   test("builds hash schema with field options", () => {
     const schema = s.object({
       name: s.text().noTokenize(),
-      age: s.unsignedInteger().fast(),
-      score: s.float().fast(),
+      age: s.number("U64"),
+      score: s.number("F64"),
     });
 
     expect(schema).toEqual({
@@ -34,32 +34,32 @@ describe("Schema Builder", () => {
     const schema = s.object({
       name: s.text(),
       profile: s.object({
-        age: s.unsignedInteger(),
+        age: s.number("U64"),
         city: s.text(),
       }),
     });
 
     expect(schema.name).toBe("TEXT");
     expect(schema.profile).toBeDefined();
-    expect(schema.profile.age).toBe("U64");
+    expect(schema.profile.age).toEqual({ type: "U64", fast: true });
     expect(schema.profile.city).toBe("TEXT");
   });
 
   test("supports all field types", () => {
     const schema = s.object({
       text: s.text().noStem(),
-      unsignedInteger: s.unsignedInteger(),
-      integer: s.integer(),
-      float: s.float(),
+      unsignedInteger: s.number("U64"),
+      integer: s.number("I64"),
+      float: s.number("F64"),
       bool: s.bool(),
       date: s.date(),
     });
 
     expect(schema).toEqual({
       text: { type: "TEXT", noStem: true },
-      unsignedInteger: "U64",
-      integer: "I64",
-      float: "F64",
+      unsignedInteger: { type: "U64", fast: true },
+      integer: { type: "I64", fast: true },
+      float: { type: "F64", fast: true },
       bool: "BOOL",
       date: "DATE",
     });
@@ -68,7 +68,7 @@ describe("Schema Builder", () => {
   test("supports chaining multiple options", () => {
     const schema = s.object({
       title: s.text().noTokenize().noStem(),
-      score: s.float().fast(),
+      score: s.number("F64"),
     });
 
     expect(schema).toEqual({
@@ -81,18 +81,18 @@ describe("Schema Builder", () => {
     // Without options, should return literal types
     const schema = s.object({
       name: s.text(), // Should be "TEXT", not union
-      age: s.unsignedInteger(), // Should be "U64", not union
+      age: s.number("U64"), // Should be { type: "U64", fast: true }
     });
 
     expect(schema.name).toEqual("TEXT");
-    expect(schema.age).toEqual("U64");
+    expect(schema.age).toEqual({ type: "U64", fast: true });
   });
 
   test("returns detailed types with options", () => {
     // With options, should return object types
     const schema = s.object({
       name: s.text().noTokenize(),
-      age: s.unsignedInteger().fast(),
+      age: s.number("U64"),
     });
 
     expect(schema.name).toEqual({ type: "TEXT", noTokenize: true });

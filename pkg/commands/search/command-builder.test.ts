@@ -57,7 +57,7 @@ describe("buildQueryCommand", () => {
     test("adds NOCONTENT option", () => {
       const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
         filter: { name: { $eq: "John" } },
-        noContent: true,
+        select: {},
       });
 
       expect(command).toEqual([
@@ -71,7 +71,7 @@ describe("buildQueryCommand", () => {
     test("adds SORTBY option without direction", () => {
       const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
         filter: { name: { $eq: "John" } },
-        sortBy: { field: "age" },
+        orderBy: { age: "ASC" },
       });
 
       expect(command).toEqual([
@@ -87,7 +87,7 @@ describe("buildQueryCommand", () => {
     test("adds SORTBY option with ASC direction", () => {
       const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
         filter: { name: { $eq: "John" } },
-        sortBy: { field: "age", direction: "ASC" },
+        orderBy: { age: "ASC" },
       });
 
       expect(command).toEqual([
@@ -103,7 +103,7 @@ describe("buildQueryCommand", () => {
     test("adds SORTBY option with DESC direction", () => {
       const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
         filter: { name: { $eq: "John" } },
-        sortBy: { field: "age", direction: "DESC" },
+        orderBy: { age: "DESC" },
       });
 
       expect(command).toEqual([
@@ -156,7 +156,7 @@ describe("buildQueryCommand", () => {
     test("adds RETURN option with single field", () => {
       const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
         filter: { name: { $eq: "John" } },
-        returnFields: ["name"],
+        select: { name: true },
       });
 
       expect(command).toEqual([
@@ -172,7 +172,7 @@ describe("buildQueryCommand", () => {
     test("adds RETURN option with multiple fields", () => {
       const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
         filter: { name: { $eq: "John" } },
-        returnFields: ["name", "age"],
+        select: { name: true, age: true },
       });
 
       expect(command).toEqual([
@@ -186,29 +186,13 @@ describe("buildQueryCommand", () => {
       ]);
     });
 
-    test("adds RETURN option with $ (full document)", () => {
-      const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
-        filter: { name: { $eq: "John" } },
-        returnFields: ["$"],
-      });
-
-      expect(command).toEqual([
-        "SEARCH.QUERY",
-        "test-index",
-        '{"name":{"$eq":"John"}}',
-        "RETURN",
-        "1",
-        "$",
-      ]);
-    });
-
     test("combines multiple options", () => {
       const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
         filter: { name: { $eq: "John" } },
         limit: 10,
         offset: 5,
-        sortBy: { field: "age", direction: "DESC" },
-        returnFields: ["name", "age"],
+        orderBy: { age: "DESC" },
+        select: { name: true, age: true },
       });
 
       expect(command).toEqual([
@@ -236,11 +220,11 @@ describe("buildCreateIndexCommand", () => {
     test("builds simple hash index command", () => {
       const schema = s.object({
         name: s.text(),
-        age: s.unsignedInteger(),
+        age: s.number("U64"),
       });
 
       const props = {
-        indexName: "test-index",
+        name: "test-index",
         schema,
         dataType: "hash" as const,
         prefix: "user:",
@@ -248,6 +232,7 @@ describe("buildCreateIndexCommand", () => {
       };
 
       const command = buildCreateIndexCommand(props);
+      console.log(command);
 
       expect(command).toEqual([
         "SEARCH.CREATE",
@@ -262,6 +247,7 @@ describe("buildCreateIndexCommand", () => {
         "TEXT",
         "age",
         "U64",
+        "FAST",
       ]);
     });
 
@@ -271,7 +257,7 @@ describe("buildCreateIndexCommand", () => {
       });
 
       const props = {
-        indexName: "test-index",
+        name: "test-index",
         schema,
         dataType: "hash" as const,
         prefix: ["user:", "profile:"],
@@ -298,11 +284,11 @@ describe("buildCreateIndexCommand", () => {
     test("builds hash index with field options", () => {
       const schema = s.object({
         name: s.text().noTokenize().noStem(),
-        age: s.unsignedInteger().fast(),
+        age: s.number("U64"),
       });
 
       const props = {
-        indexName: "test-index",
+        name: "test-index",
         schema,
         dataType: "hash" as const,
         prefix: "user:",
@@ -336,7 +322,7 @@ describe("buildCreateIndexCommand", () => {
       });
 
       const props = {
-        indexName: "test-index",
+        name: "test-index",
         schema,
         dataType: "hash" as const,
         prefix: "user:",
@@ -368,13 +354,13 @@ describe("buildCreateIndexCommand", () => {
       const schema = s.object({
         name: s.text(),
         profile: s.object({
-          age: s.unsignedInteger(),
+          age: s.number("U64"),
           city: s.text(),
         }),
       });
 
       const props = {
-        indexName: "test-index",
+        name: "test-index",
         schema,
         dataType: "string" as const,
         prefix: "user:",
@@ -396,6 +382,7 @@ describe("buildCreateIndexCommand", () => {
         "TEXT",
         "profile.age",
         "U64",
+        "FAST",
         "profile.city",
         "TEXT",
       ]);
@@ -411,7 +398,7 @@ describe("buildCreateIndexCommand", () => {
       });
 
       const props = {
-        indexName: "test-index",
+        name: "test-index",
         schema,
         dataType: "string" as const,
         prefix: "doc:",
@@ -439,15 +426,15 @@ describe("buildCreateIndexCommand", () => {
     test("builds index with all field types", () => {
       const schema = s.object({
         title: s.text(),
-        count: s.unsignedInteger(),
-        value: s.integer(),
-        score: s.float(),
+        count: s.number("U64"),
+        value: s.number("I64"),
+        score: s.number("F64"),
         active: s.bool(),
         createdAt: s.date(),
       });
 
       const props = {
-        indexName: "test-index",
+        name: "test-index",
         schema,
         dataType: "hash" as const,
         prefix: "item:",
@@ -469,10 +456,13 @@ describe("buildCreateIndexCommand", () => {
         "TEXT",
         "count",
         "U64",
+        "FAST",
         "value",
         "I64",
+        "FAST",
         "score",
         "F64",
+        "FAST",
         "active",
         "BOOL",
         "createdAt",

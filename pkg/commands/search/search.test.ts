@@ -1,6 +1,6 @@
 import { afterAll, afterEach, beforeAll, describe, expect, test } from "bun:test";
 import { keygen, newHttpClient, randomID } from "../../test-utils";
-import { createSearchIndex, getSearchIndex, SearchIndex } from "./search";
+import { createIndex, index as getIndex, SearchIndex } from "./search";
 import { s } from "./schema-builder";
 import { JsonSetCommand } from "../json_set";
 import { HSetCommand } from "../hset";
@@ -13,14 +13,14 @@ afterAll(cleanup);
 // Helper to wait for indexing (simple delay since SEARCH.COMMIT may not be available)
 const waitForIndexing = (ms = 2000) => new Promise((resolve) => setTimeout(resolve, ms));
 
-describe("createSearchIndex", () => {
+describe("createIndex", () => {
   const createdIndexes: string[] = [];
 
   afterEach(async () => {
     // Cleanup created indexes
-    for (const indexName of createdIndexes) {
+    for (const name of createdIndexes) {
       try {
-        const index = getSearchIndex({ indexName, client });
+        const index = getIndex(client, name);
         await index.drop();
       } catch {
         // Index might not exist, ignore
@@ -30,43 +30,43 @@ describe("createSearchIndex", () => {
   });
 
   test("creates a JSON index with simple schema", async () => {
-    const indexName = `test-json-${randomID().slice(0, 8)}`;
-    createdIndexes.push(indexName);
+    const name = `test-json-${randomID().slice(0, 8)}`;
+    createdIndexes.push(name);
 
     const schema = s.object({
       name: s.text(),
-      age: s.unsignedInteger(),
+      age: s.number(),
     });
 
-    const index = await createSearchIndex({
-      indexName,
+    const index = await createIndex({
+      name: name,
       schema,
       dataType: "string",
-      prefix: `${indexName}:`,
+      prefix: `${name}:`,
       client,
     });
 
     expect(index).toBeInstanceOf(SearchIndex);
-    expect(index.indexName).toBe(indexName);
+    expect(index.name).toBe(name);
   });
 
   test("creates a JSON index with nested schema", async () => {
-    const indexName = `test-nested-${randomID().slice(0, 8)}`;
-    createdIndexes.push(indexName);
+    const name = `test-nested-${randomID().slice(0, 8)}`;
+    createdIndexes.push(name);
 
     const schema = s.object({
       title: s.text(),
       metadata: s.object({
         author: s.text(),
-        views: s.unsignedInteger().fast(),
+        views: s.number("U64"),
       }),
     });
 
-    const index = await createSearchIndex({
-      indexName,
+    const index = await createIndex({
+      name,
       schema,
       dataType: "string",
-      prefix: `${indexName}:`,
+      prefix: `${name}:`,
       client,
     });
 
@@ -74,19 +74,19 @@ describe("createSearchIndex", () => {
   });
 
   test("creates a hash index", async () => {
-    const indexName = `test-hash-${randomID().slice(0, 8)}`;
-    createdIndexes.push(indexName);
+    const name = `test-hash-${randomID().slice(0, 8)}`;
+    createdIndexes.push(name);
 
     const schema = s.object({
       title: s.text(),
-      count: s.unsignedInteger(),
+      count: s.number("U64"),
     });
 
-    const index = await createSearchIndex({
-      indexName,
+    const index = await createIndex({
+      name,
       schema,
       dataType: "hash",
-      prefix: `${indexName}:`,
+      prefix: `${name}:`,
       client,
     });
 
@@ -94,18 +94,18 @@ describe("createSearchIndex", () => {
   });
 
   test("creates index with language option", async () => {
-    const indexName = `test-lang-${randomID().slice(0, 8)}`;
-    createdIndexes.push(indexName);
+    const name = `test-lang-${randomID().slice(0, 8)}`;
+    createdIndexes.push(name);
 
     const schema = s.object({
       content: s.text(),
     });
 
-    const index = await createSearchIndex({
-      indexName,
+    const index = await createIndex({
+      name,
       schema,
       dataType: "string",
-      prefix: `${indexName}:`,
+      prefix: `${name}:`,
       language: "turkish",
       client,
     });
@@ -114,18 +114,18 @@ describe("createSearchIndex", () => {
   });
 
   test("creates index with multiple prefixes", async () => {
-    const indexName = `test-multi-prefix-${randomID().slice(0, 8)}`;
-    createdIndexes.push(indexName);
+    const name = `test-multi-prefix-${randomID().slice(0, 8)}`;
+    createdIndexes.push(name);
 
     const schema = s.object({
       name: s.text(),
     });
 
-    const index = await createSearchIndex({
-      indexName,
+    const index = await createIndex({
+      name,
       schema,
       dataType: "hash",
-      prefix: [`${indexName}:users:`, `${indexName}:profiles:`],
+      prefix: [`${name}:users:`, `${name}:profiles:`],
       client,
     });
 
@@ -134,23 +134,23 @@ describe("createSearchIndex", () => {
 });
 
 describe("SearchIndex.query (JSON)", () => {
-  const indexName = `test-query-${randomID().slice(0, 8)}`;
-  const prefix = `${indexName}:`;
+  const name = `test-query-${randomID().slice(0, 8)}`;
+  const prefix = `${name}:`;
   const keys: string[] = [];
 
   const schema = s.object({
     name: s.text(),
     description: s.text(),
     category: s.text().noTokenize(),
-    price: s.float().fast(),
-    stock: s.unsignedInteger(),
+    price: s.number(),
+    stock: s.number("U64"),
     active: s.bool(),
   });
 
   beforeAll(async () => {
     // Create the index
-    await createSearchIndex({
-      indexName,
+    await createIndex({
+      name,
       schema,
       dataType: "string",
       prefix,
@@ -237,7 +237,7 @@ describe("SearchIndex.query (JSON)", () => {
 
   afterAll(async () => {
     // Cleanup
-    const index = getSearchIndex({ indexName, schema, client });
+    const index = getIndex(client, name, schema);
     try {
       await index.drop();
     } catch {
@@ -250,14 +250,14 @@ describe("SearchIndex.query (JSON)", () => {
 
   describe("text field queries", () => {
     test("queries with $eq on text field", async () => {
-      const index = getSearchIndex({ indexName, schema, client });
+      const index = getIndex(client, name, schema);
       const result = await index.query({ filter: { name: { $eq: "Laptop" } } });
 
       expect(Array.isArray(result)).toBe(true);
     });
 
     test("queries with $fuzzy for typo tolerance", async () => {
-      const index = getSearchIndex({ indexName, schema, client });
+      const index = getIndex(client, name, schema);
       const result = await index.query({
         filter: { name: { $fuzzy: { value: "Laptopp", distance: 2 } } },
       });
@@ -266,7 +266,7 @@ describe("SearchIndex.query (JSON)", () => {
     });
 
     test("queries with $phrase for exact phrase matching", async () => {
-      const index = getSearchIndex({ indexName, schema, client });
+      const index = getIndex(client, name, schema);
       const result = await index.query({
         filter: { description: { $phrase: "wireless mouse" } },
       });
@@ -275,7 +275,7 @@ describe("SearchIndex.query (JSON)", () => {
     });
 
     test("queries with $regex pattern", async () => {
-      const index = getSearchIndex({ indexName, schema, client });
+      const index = getIndex(client, name, schema);
       const result = await index.query({
         filter: { name: { $regex: "Laptop.*" } },
       });
@@ -286,28 +286,28 @@ describe("SearchIndex.query (JSON)", () => {
 
   describe("numeric field queries", () => {
     test("queries with $gt on numeric field", async () => {
-      const index = getSearchIndex({ indexName, schema, client });
+      const index = getIndex(client, name, schema);
       const result = await index.query({ filter: { price: { $gt: 500 } } });
 
       expect(Array.isArray(result)).toBe(true);
     });
 
     test("queries with $gte on numeric field", async () => {
-      const index = getSearchIndex({ indexName, schema, client });
+      const index = getIndex(client, name, schema);
       const result = await index.query({ filter: { stock: { $gte: 100 } } });
 
       expect(Array.isArray(result)).toBe(true);
     });
 
     test("queries with $lt on numeric field", async () => {
-      const index = getSearchIndex({ indexName, schema, client });
+      const index = getIndex(client, name, schema);
       const result = await index.query({ filter: { price: { $lt: 50 } } });
 
       expect(Array.isArray(result)).toBe(true);
     });
 
     test("queries with $lte on numeric field", async () => {
-      const index = getSearchIndex({ indexName, schema, client });
+      const index = getIndex(client, name, schema);
       const result = await index.query({
         filter: { stock: { $lte: 50 } },
       });
@@ -318,7 +318,7 @@ describe("SearchIndex.query (JSON)", () => {
 
   describe("boolean field queries", () => {
     test("queries with $eq on boolean field", async () => {
-      const index = getSearchIndex({ indexName, schema, client });
+      const index = getIndex(client, name, schema);
       const result = await index.query({ filter: { active: { $eq: false } } });
 
       expect(Array.isArray(result)).toBe(true);
@@ -327,14 +327,14 @@ describe("SearchIndex.query (JSON)", () => {
 
   describe("query options", () => {
     test("queries with limit option", async () => {
-      const index = getSearchIndex({ indexName, schema, client });
+      const index = getIndex(client, name, schema);
       const result = await index.query({ filter: { category: { $eq: "electronics" } }, limit: 2 });
 
       expect(result.length).toBeLessThanOrEqual(2);
     });
 
     test("queries with offset for pagination", async () => {
-      const index = getSearchIndex({ indexName, schema, client });
+      const index = getIndex(client, name, schema);
       const firstPage = await index.query({
         filter: { category: { $eq: "electronics" } },
         limit: 2,
@@ -351,10 +351,10 @@ describe("SearchIndex.query (JSON)", () => {
     });
 
     test("queries with sortBy ascending", async () => {
-      const index = getSearchIndex({ indexName, schema, client });
+      const index = getIndex(client, name, schema);
       const result = await index.query({
         filter: { category: { $eq: "electronics" } },
-        sortBy: { field: "price", direction: "ASC" },
+        orderBy: { price: "ASC" },
         limit: 3,
       });
 
@@ -362,10 +362,10 @@ describe("SearchIndex.query (JSON)", () => {
     });
 
     test("queries with sortBy descending", async () => {
-      const index = getSearchIndex({ indexName, schema, client });
+      const index = getIndex(client, name, schema);
       const result = await index.query({
         filter: { category: { $eq: "electronics" } },
-        sortBy: { field: "price", direction: "DESC" },
+        orderBy: { price: "DESC" },
         limit: 3,
       });
 
@@ -373,10 +373,10 @@ describe("SearchIndex.query (JSON)", () => {
     });
 
     test("queries with noContent returns only keys", async () => {
-      const index = getSearchIndex({ indexName, schema, client });
+      const index = getIndex(client, name, schema);
       const result = await index.query({
         filter: { category: { $eq: "electronics" } },
-        noContent: true,
+        select: {},
       });
 
       expect(Array.isArray(result)).toBe(true);
@@ -387,21 +387,20 @@ describe("SearchIndex.query (JSON)", () => {
     });
 
     test("queries with returnFields", async () => {
-      const index = getSearchIndex({ indexName, schema, client });
+      const index = getIndex(client, name, schema);
       const result = await index.query({
         filter: { category: { $eq: "electronics" } },
-        returnFields: ["name", "price"],
+        select: { category: true },
+        highlight: { fields: [] },
       });
 
       expect(Array.isArray(result)).toBe(true);
     });
 
     test("queries with $ to return full document", async () => {
-      const index = getSearchIndex({ indexName, schema, client });
+      const index = getIndex(client, name, schema);
       const result = await index.query({
         filter: { name: { $eq: "Laptop" } },
-        noContent: false,
-        returnFields: ["$"],
       });
 
       expect(Array.isArray(result)).toBe(true);
@@ -410,18 +409,18 @@ describe("SearchIndex.query (JSON)", () => {
 });
 
 describe("SearchIndex.count", () => {
-  const indexName = `test-count-${randomID().slice(0, 8)}`;
-  const prefix = `${indexName}:`;
+  const name = `test-count-${randomID().slice(0, 8)}`;
+  const prefix = `${name}:`;
   const keys: string[] = [];
 
   const schema = s.object({
     type: s.text(),
-    value: s.unsignedInteger(),
+    value: s.number("U64"),
   });
 
   beforeAll(async () => {
-    await createSearchIndex({
-      indexName,
+    await createIndex({
+      name,
       schema,
       dataType: "string",
       prefix,
@@ -439,7 +438,7 @@ describe("SearchIndex.count", () => {
   });
 
   afterAll(async () => {
-    const index = getSearchIndex({ indexName, schema, client });
+    const index = getIndex(client, name, schema);
     try {
       await index.drop();
     } catch {
@@ -451,41 +450,41 @@ describe("SearchIndex.count", () => {
   });
 
   test("counts matching documents", async () => {
-    const index = getSearchIndex({ indexName, schema, client });
-    const count = await index.count({ type: { $eq: "A" } });
+    const index = getIndex(client, name, schema);
+    const count = await index.count({ filter: { type: { $eq: "A" } } });
 
     expect(typeof count).toBe("number");
   });
 
   test("counts with numeric filter", async () => {
-    const index = getSearchIndex({ indexName, schema, client });
-    const count = await index.count({ value: { $gte: 5 } });
+    const index = getIndex(client, name, schema);
+    const count = await index.count({ filter: { value: { $gte: 5 } } });
 
     expect(typeof count).toBe("number");
   });
 });
 
 describe("SearchIndex.describe", () => {
-  const indexName = `test-describe-${randomID().slice(0, 8)}`;
+  const name = `test-describe-${randomID().slice(0, 8)}`;
 
   const schema = s.object({
     title: s.text().noStem(),
-    count: s.unsignedInteger().fast(),
+    count: s.number("U64"),
     active: s.bool(),
   });
 
   beforeAll(async () => {
-    await createSearchIndex({
-      indexName,
+    await createIndex({
+      name,
       schema,
       dataType: "string",
-      prefix: `${indexName}:`,
+      prefix: `${name}:`,
       client,
     });
   });
 
   afterAll(async () => {
-    const index = getSearchIndex({ indexName, schema, client });
+    const index = getIndex(client, name, schema);
     try {
       await index.drop();
     } catch {
@@ -494,7 +493,7 @@ describe("SearchIndex.describe", () => {
   });
 
   test("describes the index structure", async () => {
-    const index = getSearchIndex({ indexName, schema, client });
+    const index = getIndex(client, name, schema);
     const description = await index.describe();
 
     expect(description).toBeDefined();
@@ -503,17 +502,17 @@ describe("SearchIndex.describe", () => {
 
 describe("SearchIndex.drop", () => {
   test("drops an existing index", async () => {
-    const indexName = `test-drop-${randomID().slice(0, 8)}`;
+    const name = `test-drop-${randomID().slice(0, 8)}`;
 
     const schema = s.object({
       name: s.text(),
     });
 
-    const index = await createSearchIndex({
-      indexName,
+    const index = await createIndex({
+      name,
       schema,
       dataType: "string",
-      prefix: `${indexName}:`,
+      prefix: `${name}:`,
       client,
     });
 
@@ -523,18 +522,18 @@ describe("SearchIndex.drop", () => {
 });
 
 describe("Hash index queries", () => {
-  const indexName = `test-hash-query-${randomID().slice(0, 8)}`;
-  const prefix = `${indexName}:`;
+  const name = `test-hash-query-${randomID().slice(0, 8)}`;
+  const prefix = `${name}:`;
   const keys: string[] = [];
 
   const schema = s.object({
     name: s.text(),
-    score: s.unsignedInteger().fast(),
+    score: s.number("U64"),
   });
 
   beforeAll(async () => {
-    await createSearchIndex({
-      indexName,
+    await createIndex({
+      name,
       schema,
       dataType: "hash",
       prefix,
@@ -558,7 +557,7 @@ describe("Hash index queries", () => {
   });
 
   afterAll(async () => {
-    const index = getSearchIndex({ indexName, schema, client });
+    const index = getIndex(client, name, schema);
     try {
       await index.drop();
     } catch {
@@ -570,17 +569,17 @@ describe("Hash index queries", () => {
   });
 
   test("queries hash index by text field", async () => {
-    const index = getSearchIndex({ indexName, schema, client });
+    const index = getIndex(client, name, schema);
     const result = await index.query({ filter: { name: { $eq: "Alice" } } });
 
     expect(Array.isArray(result)).toBe(true);
   });
 
   test("queries hash index with sorting", async () => {
-    const index = getSearchIndex({ indexName, schema, client });
+    const index = getIndex(client, name, schema);
     const result = await index.query({
       filter: { score: { $gte: 80 } },
-      sortBy: { field: "score", direction: "DESC" },
+      orderBy: { score: "DESC" },
     });
 
     expect(Array.isArray(result)).toBe(true);
@@ -588,8 +587,8 @@ describe("Hash index queries", () => {
 });
 
 describe("Nested JSON index queries", () => {
-  const indexName = `test-nested-query-${randomID().slice(0, 8)}`;
-  const prefix = `${indexName}:`;
+  const name = `test-nested-query-${randomID().slice(0, 8)}`;
+  const prefix = `${name}:`;
   const keys: string[] = [];
 
   const schema = s.object({
@@ -599,14 +598,14 @@ describe("Nested JSON index queries", () => {
       email: s.text(),
     }),
     stats: s.object({
-      views: s.unsignedInteger().fast(),
-      likes: s.unsignedInteger(),
+      views: s.number("U64"),
+      likes: s.number("U64"),
     }),
   });
 
   beforeAll(async () => {
-    await createSearchIndex({
-      indexName,
+    await createIndex({
+      name,
       schema,
       dataType: "string",
       prefix,
@@ -641,7 +640,7 @@ describe("Nested JSON index queries", () => {
   });
 
   afterAll(async () => {
-    const index = getSearchIndex({ indexName, schema, client });
+    const index = getIndex(client, name, schema);
     try {
       await index.drop();
     } catch {
@@ -653,56 +652,49 @@ describe("Nested JSON index queries", () => {
   });
 
   test("queries nested text field", async () => {
-    const index = getSearchIndex({ indexName, schema, client });
+    const index = getIndex(client, name, schema);
     const result = await index.query({ filter: { "author.name": { $eq: "John" } } });
 
     expect(Array.isArray(result)).toBe(true);
   });
 
   test("queries nested numeric field", async () => {
-    const index = getSearchIndex({ indexName, schema, client });
+    const index = getIndex(client, name, schema);
     const result = await index.query({ filter: { "stats.views": { $gte: 1000 } } });
 
     expect(Array.isArray(result)).toBe(true);
   });
 
   test("queries with sorting on nested field", async () => {
-    const index = getSearchIndex({ indexName, schema, client });
+    const index = getIndex(client, name, schema);
     const result = await index.query({
       filter: { "author.name": { $eq: "John" } },
-      sortBy: { field: "stats.views", direction: "DESC" },
-      highlight: { fields: ["author.name"] },
+      select: { "author.email": true },
+      orderBy: { "stats.views": "DESC" },
     });
     expect(Array.isArray(result)).toBe(true);
   });
 });
 
-describe("getSearchIndex", () => {
+describe("index", () => {
   test("creates a SearchIndex instance without schema", () => {
-    const index = getSearchIndex({
-      indexName: "test-index",
-      client,
-    });
+    const index = getIndex(client, "test-index");
 
     expect(index).toBeInstanceOf(SearchIndex);
-    expect(index.indexName).toBe("test-index");
+    expect(index.name).toBe("test-index");
     expect(index.schema).toBeUndefined();
   });
 
   test("creates a SearchIndex instance with schema", () => {
     const schema = s.object({
       name: s.text(),
-      age: s.unsignedInteger(),
+      age: s.number("U64"),
     });
 
-    const index = getSearchIndex({
-      indexName: "test-index",
-      schema,
-      client,
-    });
+    const index = getIndex(client, "test-index", schema);
 
     expect(index).toBeInstanceOf(SearchIndex);
-    expect(index.indexName).toBe("test-index");
+    expect(index.name).toBe("test-index");
     expect(index.schema).toEqual(schema);
   });
 });

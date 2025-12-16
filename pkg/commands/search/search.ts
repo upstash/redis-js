@@ -64,12 +64,12 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
     return deserializeQueryResponse<TSchema, TOptions>(rawResult, options);
   }
 
-  async count({ filter }: { filter: QueryFilter<TSchema> }): Promise<number> {
+  async count({ filter }: { filter: QueryFilter<TSchema> }): Promise<{ count: number }> {
     const command = buildQueryCommand("SEARCH.COUNT", this.name, { filter });
     const rawResult = await new ExecCommand<any>(command as [string, ...string[]]).exec(
       this.client
     );
-    return parseCountResponse(rawResult);
+    return { count: parseCountResponse(rawResult) };
   }
 
   async drop(): Promise<string> {

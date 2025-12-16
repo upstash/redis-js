@@ -105,7 +105,13 @@ export function deserializeQueryResponse<
 export function deserializeDescribeResponse<TSchema extends NestedIndexSchema | FlatIndexSchema>(
   rawResponse: unknown
 ): IndexDescription<TSchema> {
-  const raw = kvArrayToObject<IndexDescription<TSchema>>(rawResponse);
+  const raw = kvArrayToObject<{
+    name: string;
+    type: "hash" | "string";
+    prefixes: string[];
+    language?: Language;
+    schema: unknown[];
+  }>(rawResponse);
 
   const schema: Record<string, FieldType> = {};
   if (Array.isArray(raw.schema)) {
@@ -120,7 +126,7 @@ export function deserializeDescribeResponse<TSchema extends NestedIndexSchema | 
 
   return {
     name: raw.name,
-    dataType: raw.dataType,
+    dataType: raw.type.toLowerCase() as "hash" | "string",
     prefixes: raw.prefixes,
     ...(raw.language && { language: raw.language as Language }),
     schema,

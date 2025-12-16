@@ -451,16 +451,16 @@ describe("SearchIndex.count", () => {
 
   test("counts matching documents", async () => {
     const index = getIndex(client, name, schema);
-    const count = await index.count({ filter: { type: { $eq: "A" } } });
+    const result = await index.count({ filter: { type: { $eq: "A" } } });
 
-    expect(typeof count).toBe("number");
+    expect(typeof result.count).toBe("number");
   });
 
   test("counts with numeric filter", async () => {
     const index = getIndex(client, name, schema);
-    const count = await index.count({ filter: { value: { $gte: 5 } } });
+    const result = await index.count({ filter: { value: { $gte: 5 } } });
 
-    expect(typeof count).toBe("number");
+    expect(typeof result.count).toBe("number");
   });
 });
 

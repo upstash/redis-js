@@ -1,4 +1,5 @@
 import {
+  DescribeFieldInfo,
   DetailedField,
   FIELD_TYPES,
   FlatIndexSchema,
@@ -102,6 +103,34 @@ export function deserializeQueryResponse<
   });
 }
 
+/**
+ * Parses a raw field array from SEARCH.DESCRIBE into a DescribeFieldInfo object.
+ * Raw format: ["fieldName", "TYPE", "OPTION1", "OPTION2", ...]
+ * Options can be: NOTOKENIZE, NOSTEM, FAST
+ */
+function parseFieldInfo(fieldRaw: unknown[]): DescribeFieldInfo {
+  const fieldType = fieldRaw[1] as FieldType;
+  const options = fieldRaw.slice(2) as string[];
+
+  const fieldInfo: DescribeFieldInfo = { type: fieldType };
+
+  for (const option of options) {
+    switch (option.toUpperCase()) {
+      case "NOTOKENIZE":
+        fieldInfo.noTokenize = true;
+        break;
+      case "NOSTEM":
+        fieldInfo.noStem = true;
+        break;
+      case "FAST":
+        fieldInfo.fast = true;
+        break;
+    }
+  }
+
+  return fieldInfo;
+}
+
 export function deserializeDescribeResponse<TSchema extends NestedIndexSchema | FlatIndexSchema>(
   rawResponse: unknown
 ): IndexDescription<TSchema> {
@@ -113,13 +142,12 @@ export function deserializeDescribeResponse<TSchema extends NestedIndexSchema | 
     schema: unknown[];
   }>(rawResponse);
 
-  const schema: Record<string, FieldType> = {};
+  const schema: Record<string, DescribeFieldInfo> = {};
   if (Array.isArray(raw.schema)) {
     for (const fieldRaw of raw.schema) {
       if (Array.isArray(fieldRaw) && fieldRaw.length >= 2) {
         const fieldName = fieldRaw[0] as string;
-        const fieldType = fieldRaw[1] as FieldType;
-        schema[fieldName] = fieldType;
+        schema[fieldName] = parseFieldInfo(fieldRaw);
       }
     }
   }
@@ -130,7 +158,7 @@ export function deserializeDescribeResponse<TSchema extends NestedIndexSchema | 
     prefixes: raw.prefixes,
     ...(raw.language && { language: raw.language as Language }),
     schema,
-  };
+  } as IndexDescription<TSchema>;
 }
 
 export function parseCountResponse(rawResponse: any): number {

@@ -316,7 +316,7 @@ describe("deserializeQueryResponse", () => {
 });
 
 describe("deserializeDescribeResponse", () => {
-  test("deserializes raw key-value array response", () => {
+  test("deserializes raw key-value array response with field info", () => {
     const rawResponse = [
       "name",
       "test-index",
@@ -341,8 +341,8 @@ describe("deserializeDescribeResponse", () => {
       prefixes: ["user:"],
       language: "english",
       schema: {
-        name: "TEXT",
-        age: "U64",
+        name: { type: "TEXT" },
+        age: { type: "U64" },
       },
     });
   });
@@ -366,7 +366,7 @@ describe("deserializeDescribeResponse", () => {
       dataType: "string",
       prefixes: ["doc:"],
       schema: {
-        title: "TEXT",
+        title: { type: "TEXT" },
       },
     });
   });
@@ -402,14 +402,14 @@ describe("deserializeDescribeResponse", () => {
       prefixes: ["vercel-changelog:"],
       language: "english",
       schema: {
-        id: "TEXT",
-        "content.title": "TEXT",
-        "content.content": "TEXT",
-        "content.authors": "TEXT",
-        "metadata.dateInt": "U64",
-        "metadata.url": "TEXT",
-        "metadata.updated": "TEXT",
-        "metadata.kind": "TEXT",
+        id: { type: "TEXT" },
+        "content.title": { type: "TEXT" },
+        "content.content": { type: "TEXT" },
+        "content.authors": { type: "TEXT" },
+        "metadata.dateInt": { type: "U64" },
+        "metadata.url": { type: "TEXT" },
+        "metadata.updated": { type: "TEXT" },
+        "metadata.kind": { type: "TEXT" },
       },
     });
   });
@@ -440,12 +440,44 @@ describe("deserializeDescribeResponse", () => {
       dataType: "hash",
       prefixes: ["test:"],
       schema: {
-        text: "TEXT",
-        date: "DATE",
-        unsigned: "U64",
-        signed: "I64",
-        float: "F64",
-        flag: "BOOL",
+        text: { type: "TEXT" },
+        date: { type: "DATE" },
+        unsigned: { type: "U64" },
+        signed: { type: "I64" },
+        float: { type: "F64" },
+        flag: { type: "BOOL" },
+      },
+    });
+  });
+
+  test("parses field options (NOTOKENIZE, NOSTEM, FAST)", () => {
+    const rawResponse = [
+      "name",
+      "test",
+      "type",
+      "HASH",
+      "prefixes",
+      ["test:"],
+      "schema",
+      [
+        ["title", "TEXT", "NOTOKENIZE", "NOSTEM"],
+        ["count", "U64", "FAST"],
+        ["active", "BOOL", "FAST"],
+        ["description", "TEXT"],
+      ],
+    ];
+
+    const result = deserializeDescribeResponse(rawResponse);
+
+    expect(result).toEqual({
+      name: "test",
+      dataType: "hash",
+      prefixes: ["test:"],
+      schema: {
+        title: { type: "TEXT", noTokenize: true, noStem: true },
+        count: { type: "U64", fast: true },
+        active: { type: "BOOL", fast: true },
+        description: { type: "TEXT" },
       },
     });
   });

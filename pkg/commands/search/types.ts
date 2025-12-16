@@ -254,12 +254,19 @@ export type QueryFilter<TSchema extends NestedIndexSchema | FlatIndexSchema> =
   | { $or: QueryFilter<TSchema> }
   | { $boost: { query: QueryFilter<TSchema>; value: number } };
 
+export type DescribeFieldInfo = {
+  type: FieldType;
+  noTokenize?: boolean;
+  noStem?: boolean;
+  fast?: boolean;
+};
+
 export type IndexDescription<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
   name: string;
   dataType: "hash" | "string";
   prefixes: string[];
   language?: Language;
-  schema: Record<SchemaPaths<TSchema>, FieldType>;
+  schema: Record<SchemaPaths<TSchema>, DescribeFieldInfo>;
 };
 
 export type Language =

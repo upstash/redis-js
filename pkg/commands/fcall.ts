@@ -9,6 +9,6 @@ export class FCallCommand<TData> extends Command<unknown, TData> {
     [fn, keys, args]: [fn: string, keys?: string[], args?: string[]],
     opts?: CommandOptions<unknown, TData>
   ) {
-    super(["fcall", fn, ...(keys ? [keys.length, ...keys] : []), ...(args ?? [])], opts);
+    super(["fcall", fn, ...(keys ? [keys.length, ...keys] : [0]), ...(args ?? [])], opts);
   }
 }

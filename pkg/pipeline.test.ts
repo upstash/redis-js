@@ -261,9 +261,9 @@ describe("use all the things", () => {
       .functions.load({
         code: "#!lua name=mylib\nredis.register_function('f', function() return 'ok' end)\n",
       })
-      .functions.list({})
+      .functions.list()
       .functions.stats()
-      .functions.flush({});
+      .functions.flush();
 
     const res = await p.exec();
     expect(res.length).toEqual(136);

@@ -28,7 +28,10 @@ type RedisFunctionLibrary = {
  * @see https://redis.io/docs/latest/commands/function-list/
  */
 export class FunctionListCommand extends Command<unknown, RedisFunctionLibrary[]> {
-  constructor([args]: [FunctionListArgs], opts?: CommandOptions<unknown, RedisFunctionLibrary[]>) {
+  constructor(
+    [args]: [args?: FunctionListArgs],
+    opts?: CommandOptions<unknown, RedisFunctionLibrary[]>
+  ) {
     const command: (string | number | boolean)[] = ["function", "list"];
     if (args?.libraryName) {
       command.push("libraryname", args.libraryName);

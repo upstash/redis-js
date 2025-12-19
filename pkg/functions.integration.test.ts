@@ -18,10 +18,12 @@ function newLibraryName() {
 describe("redis.functions (integration)", () => {
   const lib = newLibraryName();
 
+  const ECHO_FUNCTION_DESCRIPTION = "An example function that echoes the first argument";
+
   const code = [
     `#!lua name=${lib}`,
     // Basic functions
-    "redis.register_function('echo', function(keys, args) return args[1] end)",
+    `redis.register_function{function_name='echo', callback=function(keys, args) return args[1] end, description='${ECHO_FUNCTION_DESCRIPTION}'}`,
     "redis.register_function('set_value', function(keys, args) return redis.call('SET', keys[1], args[1]) end)",
     // RO-flagged function (should work with FCALL_RO)
     "redis.register_function{function_name='ro_get', callback=function(keys, args) return redis.call('GET', keys[1]) end, flags={'no-writes'}}",
@@ -88,7 +90,7 @@ describe("redis.functions (integration)", () => {
     );
   });
 
-  test("calling a no-write function with a callRo call rejects", async () => {
+  test("calling a write function incorrectly flagged as no-writes with callRo rejects", async () => {
     const key = newKey();
     const value = `v_${Date.now()}`;
 
@@ -106,6 +108,7 @@ describe("redis.functions (integration)", () => {
 
     expect(listRes[0]?.functions.sort((a, b) => a.name.localeCompare(b.name))).toEqual([
       { name: "bad_ro_write", flags: ["no-writes"], description: undefined },
+      // TODO: Function descriptions return null for now, will be fixed in the next deployment
       { name: "echo", flags: [], description: undefined },
       { name: "plain_get", flags: [], description: undefined },
       { name: "ro_get", flags: ["no-writes"], description: undefined },

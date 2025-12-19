@@ -4,7 +4,7 @@ import { FunctionListCommand } from "./function_list";
 
 describe("FUNCTION LIST", () => {
   test("builds correct command", () => {
-    const c1 = new FunctionListCommand([undefined]);
+    const c1 = new FunctionListCommand([]);
     expect(c1.command).toEqual(["function", "list"]);
 
     const c2 = new FunctionListCommand([{ libraryName: "mylib", withCode: true }]);
@@ -12,7 +12,7 @@ describe("FUNCTION LIST", () => {
   });
 
   test("deserializes RESP2-style kv arrays", () => {
-    const cmd = new FunctionListCommand([undefined]);
+    const cmd = new FunctionListCommand([]);
     const raw = [
       [
         "library_name",

@@ -92,7 +92,7 @@ export type InferSchemaData<TSchema> = {
 // Query Options Types
 // These are the options that can be used for the query command
 export type QueryOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
-  filter: QueryFilter<TSchema>;
+  filter: RootQueryFilter<TSchema>;
   /** Maximum number of results to return */
   limit?: number;
   /** Number of results to skip */
@@ -241,7 +241,7 @@ type OperationsForFieldType<T extends FieldType> = T extends "TEXT"
 type PathOperations<TSchema, TPath extends string> =
   GetFieldAtPath<TSchema, TPath> extends infer Field
     ? Field extends FieldType | DetailedField
-      ? OperationsForFieldType<ExtractFieldType<Field>>
+      ? OperationsForFieldType<ExtractFieldType<Field>> | FieldValueType<ExtractFieldType<Field>>
       : never
     : never;
 
@@ -259,9 +259,7 @@ type QueryLeaf<TSchema> = {
 };
 
 type BoolBase<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
-  [P in SchemaPaths<TSchema>]?: never;
-} & {
-  [key: string]: QueryFilter<TSchema> | number | undefined;
+  [P in SchemaPaths<TSchema>]?: PathOperations<TSchema, P>;
 };
 
 // $and: all conditions must match
@@ -383,6 +381,32 @@ export type QueryFilter<TSchema extends NestedIndexSchema | FlatIndexSchema> =
   | ShouldNotNode<TSchema>
   | MustNotNode<TSchema>
   | BoolNode<TSchema>;
+
+// Create a type for root-level queries (restricts $or from mixing with fields)
+export type RootQueryFilter<TSchema extends NestedIndexSchema | FlatIndexSchema> =
+  | QueryLeaf<TSchema>
+  | AndNode<TSchema>
+  | RootOrNode<TSchema>
+  | MustNode<TSchema>
+  | ShouldNode<TSchema>
+  | MustShouldNode<TSchema>
+  | NotNode<TSchema>
+  | AndNotNode<TSchema>
+  | ShouldNotNode<TSchema>
+  | MustNotNode<TSchema>
+  | BoolNode<TSchema>;
+
+// Restricted version of OrNode that doesn't allow field operations at root level
+type RootOrNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
+  [P in SchemaPaths<TSchema>]?: never; // No field operations at root level with $or
+} & {
+  $or: QueryFilter<TSchema>;
+  $boost?: number;
+  $and?: never;
+  $must?: never;
+  $should?: never;
+  $mustNot?: never;
+};
 
 export type DescribeFieldInfo = {
   type: FieldType;

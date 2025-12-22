@@ -1554,8 +1554,7 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
       /**
        * @see https://redis.io/docs/latest/commands/function-flush/
        */
-      flush: (...args: CommandArgs<typeof FunctionFlushCommand>) =>
-        this.chain(new FunctionFlushCommand(args, this.commandOptions)),
+      flush: () => this.chain(new FunctionFlushCommand(this.commandOptions)),
 
       /**
        * @see https://redis.io/docs/latest/commands/function-stats/

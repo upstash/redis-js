@@ -416,8 +416,7 @@ export class Redis {
       /**
        * @see https://redis.io/docs/latest/commands/function-flush/
        */
-      flush: (...args: CommandArgs<typeof FunctionFlushCommand>) =>
-        new FunctionFlushCommand(args, this.opts).exec(this.client),
+      flush: () => new FunctionFlushCommand(this.opts).exec(this.client),
 
       /**
        * @see https://redis.io/docs/latest/commands/function-stats/

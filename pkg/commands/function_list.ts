@@ -2,13 +2,17 @@ import { kvArrayToObject } from "../util";
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
 
-type FunctionListArgs = {
+export type FunctionListArgs = {
   /**
-   * Pattern for matching library names.
+   * Pattern for matching library names. Supports glob patterns.
+   *
+   * Example: "my_library_*"
    */
   libraryName?: string;
   /**
    * Includes the library source code in the response.
+   *
+   * @default false
    */
   withCode?: boolean;
 };

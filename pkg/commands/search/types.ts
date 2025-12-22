@@ -203,19 +203,27 @@ type DateOperationMap<T extends string | Date> = {
 
 // Create union types for each field type
 type StringOperations = {
-  [K in keyof StringOperationMap<string>]: { [P in K]: StringOperationMap<string>[K] };
+  [K in keyof StringOperationMap<string>]: { [P in K]: StringOperationMap<string>[K] } & {
+    $boost?: number;
+  };
 }[keyof StringOperationMap<string>];
 
 type NumberOperations = {
-  [K in keyof NumberOperationMap<number>]: { [P in K]: NumberOperationMap<number>[K] };
+  [K in keyof NumberOperationMap<number>]: { [P in K]: NumberOperationMap<number>[K] } & {
+    $boost?: number;
+  };
 }[keyof NumberOperationMap<number>];
 
 type BooleanOperations = {
-  [K in keyof BooleanOperationMap<boolean>]: { [P in K]: BooleanOperationMap<boolean>[K] };
+  [K in keyof BooleanOperationMap<boolean>]: { [P in K]: BooleanOperationMap<boolean>[K] } & {
+    $boost?: number;
+  };
 }[keyof BooleanOperationMap<boolean>];
 
 type DateOperations = {
-  [K in keyof DateOperationMap<string | Date>]: { [P in K]: DateOperationMap<string | Date>[K] };
+  [K in keyof DateOperationMap<string | Date>]: { [P in K]: DateOperationMap<string | Date>[K] } & {
+    $boost?: number;
+  };
 }[keyof DateOperationMap<string | Date>];
 
 // Create a union type for all operations for a given field type
@@ -237,22 +245,120 @@ type PathOperations<TSchema, TPath extends string> =
       : never
     : never;
 
-// Create a type for a query leaf
+// Create a type for a query leaf (only field paths, no boolean operators)
 type QueryLeaf<TSchema> = {
-  [Path in SchemaPaths<TSchema>]: {
-    [K in Path]: PathOperations<TSchema, Path>;
-  };
-}[SchemaPaths<TSchema>];
+  // allowed schema paths
+  [K in SchemaPaths<TSchema>]?: PathOperations<TSchema, K>;
+} & {
+  $and?: never;
+  $or?: never;
+  $must?: never;
+  $should?: never;
+  $mustNot?: never;
+  $boost?: never;
+};
+
+type BoolBase<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
+  [P in SchemaPaths<TSchema>]?: never;
+};
+
+// $and: all conditions must match
+type AndNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
+  $and: QueryFilter<TSchema>;
+  $boost?: number;
+  $or?: never;
+  $must?: never;
+  $should?: never;
+  $mustNot?: never;
+};
+
+// $or: at least one condition must match
+type OrNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
+  $or: QueryFilter<TSchema>;
+  $boost?: number;
+  $and?: never;
+  $must?: never;
+  $should?: never;
+  $mustNot?: never;
+};
+
+// $must only
+type MustNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
+  $must: QueryFilter<TSchema>;
+  $boost?: number;
+  $and?: never;
+  $or?: never;
+  $should?: never;
+  $mustNot?: never;
+};
+
+// $should only
+type ShouldNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
+  $should: QueryFilter<TSchema>;
+  $boost?: number;
+  $and?: never;
+  $or?: never;
+  $must?: never;
+  $mustNot?: never;
+};
+
+// $must + $should combined
+type MustShouldNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
+  $must: QueryFilter<TSchema>;
+  $should: QueryFilter<TSchema>;
+  $boost?: number;
+  $and?: never;
+  $or?: never;
+};
+
+// $mustNot only
+type NotNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
+  $mustNot: QueryFilter<TSchema>;
+  $and?: never;
+  $or?: never;
+  $must?: never;
+  $should?: never;
+};
+
+// $should + $mustNot combined
+type ShouldNotNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
+  $should: QueryFilter<TSchema>;
+  $mustNot: QueryFilter<TSchema>;
+  $and?: never;
+  $or?: never;
+  $must?: never;
+};
+
+type MustNotNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
+  $must: QueryFilter<TSchema>;
+  $mustNot: QueryFilter<TSchema>;
+  $and?: never;
+  $or?: never;
+  $should?: never;
+};
+
+// Full boolean node: $must + $should + $mustNot
+type BoolNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
+  $must: QueryFilter<TSchema>;
+  $should: QueryFilter<TSchema>;
+  $mustNot: QueryFilter<TSchema>;
+  $boost?: number;
+  $and?: never;
+  $or?: never;
+};
 
 // Create a type for a query filter
 export type QueryFilter<TSchema extends NestedIndexSchema | FlatIndexSchema> =
   | QueryLeaf<TSchema>
-  | { $must: QueryFilter<TSchema> }
-  | { $should: QueryFilter<TSchema> }
-  | { $not: QueryFilter<TSchema> }
-  | { $and: QueryFilter<TSchema> }
-  | { $or: QueryFilter<TSchema> }
-  | { $boost: { query: QueryFilter<TSchema>; value: number } };
+  | AndNode<TSchema>
+  | OrNode<TSchema>
+  | MustNode<TSchema>
+  | ShouldNode<TSchema>
+  | MustShouldNode<TSchema>
+  | NotNode<TSchema>
+  | ShouldNotNode<TSchema>
+  | MustNotNode<TSchema>
+  | BoolNode<TSchema>;
 
 export type DescribeFieldInfo = {
   type: FieldType;

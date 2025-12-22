@@ -6,9 +6,9 @@ import { Command } from "./command";
  */
 export class FCallCommand<TData> extends Command<unknown, TData> {
   constructor(
-    [fn, keys, args]: [fn: string, keys?: string[], args?: string[]],
+    [functionName, keys, args]: [functionName: string, keys?: string[], args?: string[]],
     opts?: CommandOptions<unknown, TData>
   ) {
-    super(["fcall", fn, ...(keys ? [keys.length, ...keys] : [0]), ...(args ?? [])], opts);
+    super(["fcall", functionName, ...(keys ? [keys.length, ...keys] : [0]), ...(args ?? [])], opts);
   }
 }

@@ -29,8 +29,15 @@ import {
   ExistsCommand,
   ExpireAtCommand,
   ExpireCommand,
+  FCallCommand,
+  FCallRoCommand,
   FlushAllCommand,
   FlushDBCommand,
+  FunctionDeleteCommand,
+  FunctionFlushCommand,
+  FunctionListCommand,
+  FunctionLoadCommand,
+  FunctionStatsCommand,
   GeoAddCommand,
   GeoDistCommand,
   GeoHashCommand,
@@ -383,6 +390,52 @@ export class Redis {
        */
       type: (...args: CommandArgs<typeof JsonTypeCommand>) =>
         new JsonTypeCommand(args, this.opts).exec(this.client),
+    };
+  }
+
+  get functions() {
+    return {
+      /**
+       * @see https://redis.io/docs/latest/commands/function-load/
+       */
+      load: (...args: CommandArgs<typeof FunctionLoadCommand>) =>
+        new FunctionLoadCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/docs/latest/commands/function-list/
+       */
+      list: (...args: CommandArgs<typeof FunctionListCommand>) =>
+        new FunctionListCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/docs/latest/commands/function-delete/
+       */
+      delete: (...args: CommandArgs<typeof FunctionDeleteCommand>) =>
+        new FunctionDeleteCommand(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/docs/latest/commands/function-flush/
+       */
+      flush: () => new FunctionFlushCommand(this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/docs/latest/commands/function-stats/
+       *
+       * Note: `running_script` field is not supported and therefore not included in the type.
+       */
+      stats: () => new FunctionStatsCommand(this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/docs/latest/commands/fcall/
+       */
+      call: <TData = unknown>(...args: CommandArgs<typeof FCallCommand<TData>>) =>
+        new FCallCommand<TData>(args, this.opts).exec(this.client),
+
+      /**
+       * @see https://redis.io/docs/latest/commands/fcall_ro/
+       */
+      callRo: <TData = unknown>(...args: CommandArgs<typeof FCallRoCommand<TData>>) =>
+        new FCallRoCommand<TData>(args, this.opts).exec(this.client),
     };
   }
   /**

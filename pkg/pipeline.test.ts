@@ -257,9 +257,16 @@ describe("use all the things", () => {
       .zscore(newKey(), "member")
       .zunionstore(newKey(), 1, [newKey()])
       .zunion(1, [newKey()])
-      .json.set(newKey(), "$", { hello: "world" });
+      .json.set(newKey(), "$", { hello: "world" })
+      .functions.load({
+        code: "#!lua name=mylib\nredis.register_function('f', function() return 'ok' end)\n",
+      })
+      .functions.list()
+      .functions.stats()
+      .functions.flush();
+
     const res = await p.exec();
-    expect(res.length).toEqual(132);
+    expect(res.length).toEqual(136);
   });
 });
 describe("keep errors", () => {

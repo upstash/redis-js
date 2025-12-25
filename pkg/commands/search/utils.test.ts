@@ -6,7 +6,6 @@ import {
   parseCountResponse,
 } from "./utils";
 import { s } from "./schema-builder";
-import { IndexDescription } from "./types";
 
 describe("flattenSchema", () => {
   describe("flat schemas", () => {
@@ -280,10 +279,7 @@ describe("deserializeQueryResponse", () => {
         ["doc:2", "0.85"],
       ];
 
-      const result = deserializeQueryResponse(rawResponse, {
-        filter: { category: { $eq: "electronics" } },
-        select: {},
-      });
+      const result = deserializeQueryResponse(rawResponse);
 
       expect(result).toEqual([
         { key: "doc:1", score: "0.95" },

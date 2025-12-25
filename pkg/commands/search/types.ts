@@ -199,6 +199,10 @@ type DateOperationMap<T extends string | Date> = {
   $eq: T;
   $ne: T;
   $in: T[];
+  $gt: T;
+  $gte: T;
+  $lte: T;
+  $lt: T;
 };
 
 // Create union types for each field type
@@ -390,7 +394,6 @@ export type RootQueryFilter<TSchema extends NestedIndexSchema | FlatIndexSchema>
   | MustNode<TSchema>
   | ShouldNode<TSchema>
   | MustShouldNode<TSchema>
-  | NotNode<TSchema>
   | AndNotNode<TSchema>
   | ShouldNotNode<TSchema>
   | MustNotNode<TSchema>
@@ -417,7 +420,7 @@ export type DescribeFieldInfo = {
 
 export type IndexDescription<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
   name: string;
-  dataType: "hash" | "string";
+  dataType: "hash" | "string" | "json";
   prefixes: string[];
   language?: Language;
   schema: Record<SchemaPaths<TSchema>, DescribeFieldInfo>;

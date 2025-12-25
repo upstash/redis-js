@@ -304,7 +304,25 @@ describe("SearchIndex.query (string)", () => {
       expect(result.length).toBeGreaterThan(0);
     });
 
+    test("queries with $fuzzy for typo tolerance - simple string", async () => {
+      const index = getIndex(client, name, schema);
+      const result = await index.query({
+        filter: { name: { $fuzzy: "laptopp" } },
+      });
+
+      expect(result.length).toBeGreaterThan(0);
+    });
+
     test("queries with $phrase for exact phrase matching", async () => {
+      const index = getIndex(client, name, schema);
+      const result = await index.query({
+        filter: { description: { $phrase: { value: "wireless mouse", prefix: true } } },
+      });
+
+      expect(result.length).toBeGreaterThan(0);
+    });
+
+    test("queries with $phrase for exact phrase matching - simple string", async () => {
       const index = getIndex(client, name, schema);
       const result = await index.query({
         filter: { description: { $phrase: "wireless mouse" } },

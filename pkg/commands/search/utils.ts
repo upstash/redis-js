@@ -66,16 +66,14 @@ export function flattenSchema(
 export function deserializeQueryResponse<
   TSchema extends NestedIndexSchema | FlatIndexSchema,
   TOptions extends QueryOptions<TSchema> | undefined = undefined,
->(rawResponse: unknown[], options?: TOptions): QueryResult<TSchema, TOptions>[] {
-  const hasEmptySelect = options?.select && Object.keys(options.select).length === 0;
-
+>(rawResponse: unknown[]): QueryResult<TSchema, TOptions>[] {
   return rawResponse.map((itemRaw) => {
     const raw = itemRaw as [string, string, unknown[]?];
     const key = raw[0];
     const score = raw[1];
     const rawFields = raw[2];
 
-    if (hasEmptySelect) {
+    if (rawFields === undefined) {
       return { key, score } as QueryResult<TSchema, TOptions>;
     }
 
@@ -84,121 +82,95 @@ export function deserializeQueryResponse<
     }
 
     // Merge all field objects into a single object
-    const mergedFields: Record<string, unknown> = {};
-    for (const fieldRaw of rawFields) {
-      const fieldObj = kvArrayToObject<Record<string, unknown>>(fieldRaw);
-      Object.assign(mergedFields, fieldObj);
+    let data: Record<string, unknown> = {};
+
+    for (const fieldRaw of rawFields as [string, unknown][]) {
+      const key = fieldRaw[0];
+      const value = fieldRaw[1];
+
+      const pathParts = key.split(".");
+      if (pathParts.length == 1) {
+        data[key] = value;
+      } else {
+        let currentObj = data;
+        for (let i = 0; i < pathParts.length - 1; i++) {
+          const pathPart = pathParts[i];
+          if (!(pathPart in currentObj)) {
+            currentObj[pathPart] = {};
+          }
+
+          currentObj = currentObj[pathPart] as Record<string, unknown>;
+        }
+
+        currentObj[pathParts[pathParts.length - 1]] = value;
+      }
     }
 
     // If $ key exists (full document), use its contents directly
-    if ("$" in mergedFields) {
-      const data = mergedFields["$"] as Record<string, unknown>;
-      return { key, score, data } as QueryResult<TSchema, TOptions>;
+    if ("$" in data) {
+      data = data["$"] as Record<string, unknown>;
     }
-
-    // Otherwise, convert dot notation keys to nested structure
-    const data = dotNotationToNested(mergedFields);
 
     return { key, score, data } as QueryResult<TSchema, TOptions>;
   });
 }
 
-/**
- * Parses a raw field array from SEARCH.DESCRIBE into a DescribeFieldInfo object.
- * Raw format: ["fieldName", "TYPE", "OPTION1", "OPTION2", ...]
- * Options can be: NOTOKENIZE, NOSTEM, FAST
- */
-function parseFieldInfo(fieldRaw: unknown[]): DescribeFieldInfo {
-  const fieldType = fieldRaw[1] as FieldType;
-  const options = fieldRaw.slice(2) as string[];
-
-  const fieldInfo: DescribeFieldInfo = { type: fieldType };
-
-  for (const option of options) {
-    switch (option.toUpperCase()) {
-      case "NOTOKENIZE":
-        fieldInfo.noTokenize = true;
-        break;
-      case "NOSTEM":
-        fieldInfo.noStem = true;
-        break;
-      case "FAST":
-        fieldInfo.fast = true;
-        break;
-    }
-  }
-
-  return fieldInfo;
-}
-
 export function deserializeDescribeResponse<TSchema extends NestedIndexSchema | FlatIndexSchema>(
-  rawResponse: unknown
+  rawResponse: unknown[]
 ): IndexDescription<TSchema> {
-  const raw = kvArrayToObject<{
-    name: string;
-    type: "hash" | "string";
-    prefixes: string[];
-    language?: Language;
-    schema: unknown[];
-  }>(rawResponse);
+  const description = {} as IndexDescription<TSchema>;
 
-  const schema: Record<string, DescribeFieldInfo> = {};
-  if (Array.isArray(raw.schema)) {
-    for (const fieldRaw of raw.schema) {
-      if (Array.isArray(fieldRaw) && fieldRaw.length >= 2) {
-        const fieldName = fieldRaw[0] as string;
-        schema[fieldName] = parseFieldInfo(fieldRaw);
-      }
+  for (let i = 0; i < rawResponse.length; i += 2) {
+    const descriptor = rawResponse[i] as string;
+    switch (descriptor) {
+      case "name":
+        description["name"] = rawResponse[i + 1] as string;
+        break;
+      case "type":
+        description["dataType"] = (rawResponse[i + 1] as string).toLowerCase() as
+          | "hash"
+          | "string"
+          | "json";
+        break;
+      case "prefixes":
+        description["prefixes"] = rawResponse[i + 1] as string[];
+        break;
+      case "language":
+        description["language"] = rawResponse[i + 1] as Language;
+        break;
+      case "schema":
+        const schema: Record<string, DescribeFieldInfo> = {};
+        for (const fieldDescription of rawResponse[i + 1] as string[][]) {
+          const fieldName = fieldDescription[0];
+          const fieldInfo: DescribeFieldInfo = { type: fieldDescription[1] as FieldType };
+
+          if (fieldDescription.length > 2) {
+            for (let j = 2; j < fieldDescription.length; j++) {
+              const fieldOption = fieldDescription[j];
+              switch (fieldOption) {
+                case "NOSTEM":
+                  fieldInfo.noStem = true;
+                  break;
+                case "NOTOKENIZE":
+                  fieldInfo.noTokenize = true;
+                  break;
+                case "FAST":
+                  fieldInfo.fast = true;
+                  break;
+              }
+            }
+          }
+
+          schema[fieldName] = fieldInfo;
+        }
+        description["schema"] = schema;
+        break;
     }
   }
 
-  return {
-    name: raw.name,
-    dataType: raw.type.toLowerCase() as "hash" | "string",
-    prefixes: raw.prefixes,
-    ...(raw.language && { language: raw.language as Language }),
-    schema,
-  } as IndexDescription<TSchema>;
+  return description;
 }
 
 export function parseCountResponse(rawResponse: any): number {
   return typeof rawResponse === "number" ? rawResponse : parseInt(rawResponse, 10);
-}
-
-export function kvArrayToObject<T extends Record<string, unknown>>(v: unknown): T {
-  if (typeof v === "object" && v !== null && !Array.isArray(v)) return v as T;
-  if (!Array.isArray(v)) return {} as T;
-  const obj: T = {} as T;
-  for (let i = 0; i < v.length; i += 2) {
-    if (typeof v[i] === "string") obj[v[i] as keyof T] = v[i + 1] as T[keyof T];
-  }
-  return obj;
-}
-
-/**
- * Converts dot notation keys to nested objects
- * e.g. { "content.title": "Hello", "content.author": "John" }
- * becomes { content: { title: "Hello", author: "John" } }
- */
-export function dotNotationToNested<T extends Record<string, unknown>>(
-  obj: Record<string, unknown>
-): T {
-  const result: Record<string, unknown> = {};
-
-  for (const [key, value] of Object.entries(obj)) {
-    const parts = key.split(".");
-    let current = result;
-
-    for (let i = 0; i < parts.length - 1; i++) {
-      const part = parts[i];
-      if (!(part in current)) {
-        current[part] = {};
-      }
-      current = current[part] as Record<string, unknown>;
-    }
-
-    current[parts[parts.length - 1]] = value;
-  }
-
-  return result as T;
 }

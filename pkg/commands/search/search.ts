@@ -19,6 +19,7 @@ export type createIndexProps<TSchema extends NestedIndexSchema | FlatIndexSchema
   client: Requester;
 } & (
   | { dataType: "string"; schema: TSchema extends NestedIndexSchema ? TSchema : never }
+  | { dataType: "json"; schema: TSchema extends NestedIndexSchema ? TSchema : never }
   | { dataType: "hash"; schema: TSchema extends FlatIndexSchema ? TSchema : never }
 );
 
@@ -40,7 +41,7 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
   }
 
   async waitIndexing(): Promise<string> {
-    const command = ["SEARCH.COMMIT", this.name];
+    const command = ["SEARCH.WAITINDEXING", this.name];
     const result = await new ExecCommand<string>(command as [string, ...string[]]).exec(
       this.client
     );
@@ -62,7 +63,7 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
     const rawResult = await new ExecCommand<string[]>(command as [string, ...string[]]).exec(
       this.client
     );
-    return deserializeQueryResponse<TSchema, QueryOptions<TSchema>>(rawResult, options);
+    return deserializeQueryResponse<TSchema, QueryOptions<TSchema>>(rawResult);
   }
 
   async count({ filter }: { filter: RootQueryFilter<TSchema> }): Promise<{ count: number }> {

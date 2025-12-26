@@ -179,7 +179,7 @@ type StringOperationMap<T extends string> = {
     | T
     | { value: T }
     | { value: T; slop: number; prefix?: never }
-    | { value: T; prefix: boolean; slop?: number };
+    | { value: T; prefix: boolean; slop?: never };
   $regex: T;
 };
 

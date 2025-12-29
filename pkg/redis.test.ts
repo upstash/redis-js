@@ -271,17 +271,17 @@ describe("search", () => {
   test("should query a search index", async () => {
     const redis = new Redis(client);
     const schema = s.object({
-      id: s.text(),
+      id: s.string(),
       content: s.object({
-        title: s.text().noStem(),
-        content: s.text(),
-        authors: s.text(),
+        title: s.string().noStem(),
+        content: s.string(),
+        authors: s.string(),
       }),
       metadata: s.object({
         dateInt: s.number("U64"),
-        url: s.text(),
+        url: s.string(),
         updated: s.date(),
-        kind: s.text(),
+        kind: s.string(),
       }),
     });
     const idx = redis.search.index("vercel-changelog", schema);

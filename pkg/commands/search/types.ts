@@ -273,7 +273,7 @@ type BoolBase<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
 
 // $and: all conditions must match
 type AndNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $and: QueryFilter<TSchema>;
+  $and: QueryFilter<TSchema> | QueryFilter<TSchema>[];
   $boost?: number;
   $or?: never;
   $must?: never;
@@ -283,7 +283,7 @@ type AndNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSc
 
 // $or: at least one condition must match
 type OrNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $or: QueryFilter<TSchema>;
+  $or: QueryFilter<TSchema> | QueryFilter<TSchema>[];
   $boost?: number;
   $and?: never;
   $must?: never;
@@ -293,7 +293,7 @@ type OrNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSch
 
 // $must only
 type MustNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $must: QueryFilter<TSchema>;
+  $must: QueryFilter<TSchema> | QueryFilter<TSchema>[];
   $boost?: number;
   $and?: never;
   $or?: never;
@@ -303,7 +303,7 @@ type MustNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TS
 
 // $should only
 type ShouldNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $should: QueryFilter<TSchema>;
+  $should: QueryFilter<TSchema> | QueryFilter<TSchema>[];
   $boost?: number;
   $and?: never;
   $or?: never;
@@ -313,15 +313,15 @@ type ShouldNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<
 
 // $must + $should combined
 type MustShouldNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $must: QueryFilter<TSchema>;
-  $should: QueryFilter<TSchema>;
+  $must: QueryFilter<TSchema> | QueryFilter<TSchema>[];
+  $should: QueryFilter<TSchema> | QueryFilter<TSchema>[];
   $and?: never;
   $or?: never;
 };
 
 // $mustNot only
 type NotNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $mustNot: QueryFilter<TSchema>;
+  $mustNot: QueryFilter<TSchema> | QueryFilter<TSchema>[];
   $boost?: number;
   $and?: never;
   $or?: never;
@@ -330,8 +330,8 @@ type NotNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSc
 };
 
 type AndNotNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $and: QueryFilter<TSchema>;
-  $mustNot: QueryFilter<TSchema>;
+  $and: QueryFilter<TSchema> | QueryFilter<TSchema>[];
+  $mustNot: QueryFilter<TSchema> | QueryFilter<TSchema>[];
   $boost?: number;
   $or?: never;
   $must?: never;
@@ -339,8 +339,8 @@ type AndNotNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<
 };
 
 type OrNotNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $or: QueryFilter<TSchema>;
-  $mustNot: QueryFilter<TSchema>;
+  $or: QueryFilter<TSchema> | QueryFilter<TSchema>[];
+  $mustNot: QueryFilter<TSchema> | QueryFilter<TSchema>[];
   $boost?: number;
   $and?: never;
   $must?: never;
@@ -349,8 +349,8 @@ type OrNotNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<T
 
 // $should + $mustNot combined
 type ShouldNotNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $should: QueryFilter<TSchema>;
-  $mustNot: QueryFilter<TSchema>;
+  $should: QueryFilter<TSchema> | QueryFilter<TSchema>[];
+  $mustNot: QueryFilter<TSchema> | QueryFilter<TSchema>[];
   $boost?: number;
   $and?: never;
   $or?: never;
@@ -358,8 +358,8 @@ type ShouldNotNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBa
 };
 
 type MustNotNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $must: QueryFilter<TSchema>;
-  $mustNot: QueryFilter<TSchema>;
+  $must: QueryFilter<TSchema> | QueryFilter<TSchema>[];
+  $mustNot: QueryFilter<TSchema> | QueryFilter<TSchema>[];
   $boost?: number;
   $and?: never;
   $or?: never;
@@ -368,9 +368,9 @@ type MustNotNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase
 
 // Full boolean node: $must + $should + $mustNot
 type BoolNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $must: QueryFilter<TSchema>;
-  $should: QueryFilter<TSchema>;
-  $mustNot: QueryFilter<TSchema>;
+  $must: QueryFilter<TSchema> | QueryFilter<TSchema>[];
+  $should: QueryFilter<TSchema> | QueryFilter<TSchema>[];
+  $mustNot: QueryFilter<TSchema> | QueryFilter<TSchema>[];
   $boost?: number;
   $and?: never;
   $or?: never;
@@ -408,7 +408,7 @@ export type RootQueryFilter<TSchema extends NestedIndexSchema | FlatIndexSchema>
 type RootOrNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
   [P in SchemaPaths<TSchema>]?: never; // No field operations at root level with $or
 } & {
-  $or: QueryFilter<TSchema>;
+  $or: QueryFilter<TSchema> | QueryFilter<TSchema>[];
   $boost?: number;
   $and?: never;
   $must?: never;

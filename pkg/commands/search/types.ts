@@ -92,7 +92,7 @@ export type InferSchemaData<TSchema> = {
 // Query Options Types
 // These are the options that can be used for the query command
 export type QueryOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
-  filter: RootQueryFilter<TSchema>;
+  filter?: RootQueryFilter<TSchema>;
   /** Maximum number of results to return */
   limit?: number;
   /** Number of results to skip */
@@ -155,7 +155,8 @@ export type QueryResult<
   TSchema extends NestedIndexSchema | FlatIndexSchema,
   TOptions extends QueryOptions<TSchema> | undefined = undefined,
 > = TOptions extends { select: infer TFields }
-  ? {} extends TFields
+  ? // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    {} extends TFields
     ? { key: string; score: string }
     : {
         key: string;

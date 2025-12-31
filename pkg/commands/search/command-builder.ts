@@ -7,7 +7,7 @@ export function buildQueryCommand<TSchema extends NestedIndexSchema | FlatIndexS
   name: string,
   options?: QueryOptions<TSchema>
 ): string[] {
-  const query = JSON.stringify(options?.filter);
+  const query = JSON.stringify(options?.filter ?? {});
   const command: string[] = [redisCommand, name, query];
 
   if (options?.limit !== undefined) {
@@ -24,9 +24,9 @@ export function buildQueryCommand<TSchema extends NestedIndexSchema | FlatIndexS
 
   if (options?.orderBy) {
     command.push("SORTBY");
-    Object.entries(options.orderBy).forEach(([field, direction]) => {
+    for (const [field, direction] of Object.entries(options.orderBy)) {
       command.push(field, direction as "ASC" | "DESC");
-    });
+    }
   }
 
   if (options?.highlight) {

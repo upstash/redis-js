@@ -232,7 +232,6 @@ describe("buildCreateIndexCommand", () => {
       };
 
       const command = buildCreateIndexCommand(props);
-      console.log(command);
 
       expect(command).toEqual([
         "SEARCH.CREATE",

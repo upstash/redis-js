@@ -1,6 +1,6 @@
 import { afterAll, afterEach, beforeAll, describe, expect, test } from "bun:test";
 import { newHttpClient, randomID } from "../../test-utils";
-import { createIndex, index as getIndex, index, SearchIndex } from "./search";
+import { createIndex, index as getIndex, SearchIndex } from "./search";
 import { s } from "./schema-builder";
 import { JsonSetCommand } from "../json_set";
 import { SetCommand } from "../set";
@@ -265,10 +265,10 @@ describe("SearchIndex.query (string)", () => {
       },
     ];
 
-    for (let i = 0; i < testData.length; i++) {
+    for (const [i, testDatum] of testData.entries()) {
       const key = `${prefix}${i}`;
       keys.push(key);
-      await new SetCommand([key, JSON.stringify(testData[i])]).exec(client);
+      await new SetCommand([key, JSON.stringify(testDatum)]).exec(client);
     }
 
     await index.waitIndexing();
@@ -555,10 +555,10 @@ describe("SearchIndex.query (json)", () => {
       },
     ];
 
-    for (let i = 0; i < testData.length; i++) {
+    for (const [i, testDatum] of testData.entries()) {
       const key = `${prefix}${i}`;
       keys.push(key);
-      await new JsonSetCommand([key, "$", testData[i]]).exec(client);
+      await new JsonSetCommand([key, "$", testDatum]).exec(client);
     }
 
     await index.waitIndexing();
@@ -883,10 +883,10 @@ describe("Hash index queries", () => {
       { name: "Charlie", score: "92" },
     ];
 
-    for (let i = 0; i < testData.length; i++) {
+    for (const [i, testDatum] of testData.entries()) {
       const key = `${prefix}${i}`;
       keys.push(key);
-      await new HSetCommand([key, testData[i]]).exec(client);
+      await new HSetCommand([key, testDatum]).exec(client);
     }
 
     await index.waitIndexing();
@@ -966,10 +966,10 @@ describe("Nested string index queries", () => {
       },
     ];
 
-    for (let i = 0; i < testData.length; i++) {
+    for (const [i, testDatum] of testData.entries()) {
       const key = `${prefix}${i}`;
       keys.push(key);
-      await new SetCommand([key, JSON.stringify(testData[i])]).exec(client);
+      await new SetCommand([key, JSON.stringify(testDatum)]).exec(client);
     }
 
     await index.waitIndexing();
@@ -1057,10 +1057,10 @@ describe("Nested json index queries", () => {
       },
     ];
 
-    for (let i = 0; i < testData.length; i++) {
+    for (const [i, testDatum] of testData.entries()) {
       const key = `${prefix}${i}`;
       keys.push(key);
-      await new JsonSetCommand([key, "$", testData[i]]).exec(client);
+      await new JsonSetCommand([key, "$", testDatum]).exec(client);
     }
 
     await index.waitIndexing();

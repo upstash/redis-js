@@ -57,7 +57,7 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
   }
 
   async query(
-    options: QueryOptions<TSchema>
+    options?: QueryOptions<TSchema>
   ): Promise<QueryResult<TSchema, QueryOptions<TSchema>>[]> {
     const command = buildQueryCommand<TSchema>("SEARCH.QUERY", this.name, options);
     const rawResult = await new ExecCommand<string[]>(command as [string, ...string[]]).exec(

@@ -123,6 +123,7 @@ export const s = {
   object<T extends ObjectFieldRecord<T>>(fields: T) {
     const result: any = {};
     for (const [key, value] of Object.entries(fields)) {
+      // eslint-disable-next-line unicorn/prefer-ternary
       if (value && typeof value === "object" && BUILD in value) {
         // It's a field builder
         result[key] = (value as any)[BUILD]();

@@ -1,15 +1,13 @@
-import {
+import type {
   DescribeFieldInfo,
   DetailedField,
-  FIELD_TYPES,
   FlatIndexSchema,
   IndexDescription,
   Language,
   QueryOptions,
   QueryResult,
-  type FieldType,
-  type NestedIndexSchema,
 } from "./types";
+import { FIELD_TYPES, type FieldType, type NestedIndexSchema } from "./types";
 
 type FlattenedField = {
   path: string;
@@ -102,7 +100,7 @@ export function deserializeQueryResponse<
           currentObj = currentObj[pathPart] as Record<string, unknown>;
         }
 
-        currentObj[pathParts[pathParts.length - 1]] = value;
+        currentObj[pathParts.at(-1)] = value;
       }
     }
 
@@ -123,22 +121,26 @@ export function deserializeDescribeResponse<TSchema extends NestedIndexSchema | 
   for (let i = 0; i < rawResponse.length; i += 2) {
     const descriptor = rawResponse[i] as string;
     switch (descriptor) {
-      case "name":
+      case "name": {
         description["name"] = rawResponse[i + 1] as string;
         break;
-      case "type":
+      }
+      case "type": {
         description["dataType"] = (rawResponse[i + 1] as string).toLowerCase() as
           | "hash"
           | "string"
           | "json";
         break;
-      case "prefixes":
+      }
+      case "prefixes": {
         description["prefixes"] = rawResponse[i + 1] as string[];
         break;
-      case "language":
+      }
+      case "language": {
         description["language"] = rawResponse[i + 1] as Language;
         break;
-      case "schema":
+      }
+      case "schema": {
         const schema: Record<string, DescribeFieldInfo> = {};
         for (const fieldDescription of rawResponse[i + 1] as string[][]) {
           const fieldName = fieldDescription[0];
@@ -148,15 +150,18 @@ export function deserializeDescribeResponse<TSchema extends NestedIndexSchema | 
             for (let j = 2; j < fieldDescription.length; j++) {
               const fieldOption = fieldDescription[j];
               switch (fieldOption) {
-                case "NOSTEM":
+                case "NOSTEM": {
                   fieldInfo.noStem = true;
                   break;
-                case "NOTOKENIZE":
+                }
+                case "NOTOKENIZE": {
                   fieldInfo.noTokenize = true;
                   break;
-                case "FAST":
+                }
+                case "FAST": {
                   fieldInfo.fast = true;
                   break;
+                }
               }
             }
           }
@@ -165,6 +170,7 @@ export function deserializeDescribeResponse<TSchema extends NestedIndexSchema | 
         }
         description["schema"] = schema;
         break;
+      }
     }
   }
 
@@ -172,5 +178,5 @@ export function deserializeDescribeResponse<TSchema extends NestedIndexSchema | 
 }
 
 export function parseCountResponse(rawResponse: any): number {
-  return typeof rawResponse === "number" ? rawResponse : parseInt(rawResponse, 10);
+  return typeof rawResponse === "number" ? rawResponse : Number.parseInt(rawResponse, 10);
 }

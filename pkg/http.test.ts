@@ -2,6 +2,7 @@ import { describe, test, expect } from "bun:test";
 import { Redis } from "../platforms/nodejs";
 import { serve } from "bun";
 import { UpstashJSONParseError } from "./error";
+import { HttpClient } from "./http";
 
 const MOCK_SERVER_PORT = 8080;
 const SERVER_URL = `http://localhost:${MOCK_SERVER_PORT}`;
@@ -118,7 +119,7 @@ describe("http", () => {
       expect(error).toBeInstanceOf(UpstashJSONParseError);
 
       const { message, cause } = error as UpstashJSONParseError;
-      const truncatedBody = body.length > 200 ? body.slice(0, 200) + "..." : body;
+      const truncatedBody = body.length > 200 ? `${body.slice(0, 200)}...` : body;
       expect(message).toContain(`Unable to parse response body: ${truncatedBody}`);
       expect(cause).toBeDefined();
     } finally {
@@ -145,6 +146,68 @@ describe("http", () => {
 
     try {
       await expect(redis.get("foo")).resolves.toBe("json-ok");
+    } finally {
+      server.stop(true);
+    }
+  });
+
+  test("should handle streaming data split across two chunks", async () => {
+    const receivedMessages: string[] = [];
+
+    const server = serve({
+      async fetch() {
+        // Create a ReadableStream that sends a data line split across two chunks
+        const stream = new ReadableStream({
+          start(controller) {
+            // First chunk: partial data line
+            const encoder = new TextEncoder();
+            controller.enqueue(encoder.encode('data: {"id":"msg1","co'));
+
+            // Simulate a small delay between chunks
+            setTimeout(() => {
+              // Second chunk: rest of the data line plus newline
+              controller.enqueue(encoder.encode('ntent":"hello"}\n'));
+
+              // Send another complete message to verify buffer is properly cleared
+              controller.enqueue(encoder.encode('data: {"id":"msg2","content":"world"}\n'));
+
+              controller.close();
+            }, 10);
+          },
+        });
+
+        return new Response(stream, {
+          status: 200,
+          headers: { "content-type": "text/event-stream" },
+        });
+      },
+      port: MOCK_SERVER_PORT,
+    });
+
+    const client = new HttpClient({
+      baseUrl: SERVER_URL,
+      headers: { authorization: "Bearer test-token" },
+      retry: false,
+    });
+
+    try {
+      // Make a request with event stream support
+      await client.request({
+        body: ["SUBSCRIBE", "test-channel"],
+        headers: { Accept: "text/event-stream" },
+        onMessage: (data) => {
+          receivedMessages.push(data);
+        },
+        isStreaming: true,
+      });
+
+      // Wait for the stream to process both chunks
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Verify that both messages were received correctly
+      expect(receivedMessages).toHaveLength(2);
+      expect(receivedMessages[0]).toBe('{"id":"msg1","content":"hello"}');
+      expect(receivedMessages[1]).toBe('{"id":"msg2","content":"world"}');
     } finally {
       server.stop(true);
     }

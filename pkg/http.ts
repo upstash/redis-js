@@ -307,12 +307,15 @@ export class HttpClient implements Requester {
       // Start reading the stream in the background
       (async () => {
         try {
+          let buffer = "";
           while (true) {
             const { value, done } = await reader.read();
             if (done) break;
 
-            const chunk = decoder.decode(value);
-            const lines = chunk.split("\n");
+            const chunk = decoder.decode(value, { stream: true });
+            buffer += chunk;
+            const lines = buffer.split("\n");
+            buffer = lines.pop() ?? "";
 
             for (const line of lines) {
               if (line.startsWith("data: ")) {

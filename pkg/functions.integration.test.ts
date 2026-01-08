@@ -35,6 +35,7 @@ describe("redis.functions (integration)", () => {
   ].join("\n");
 
   beforeAll(async () => {
+    await redis.functions.delete(lib).catch(() => {});
     await redis.functions.load({ code, replace: true });
   });
 
@@ -108,8 +109,11 @@ describe("redis.functions (integration)", () => {
 
     expect(listRes[0]?.functions.sort((a, b) => a.name.localeCompare(b.name))).toEqual([
       { name: "bad_ro_write", flags: ["no-writes"], description: undefined },
-      // TODO: Function descriptions return null for now, will be fixed in the next deployment
-      { name: "echo", flags: [], description: undefined },
+      {
+        name: "echo",
+        flags: [],
+        description: "An example function that echoes the first argument",
+      },
       { name: "plain_get", flags: [], description: undefined },
       { name: "ro_get", flags: ["no-writes"], description: undefined },
       { name: "set_value", flags: [], description: undefined },

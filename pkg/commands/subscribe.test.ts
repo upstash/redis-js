@@ -1,6 +1,11 @@
 import { expect, test, describe } from "bun:test";
 import { Redis } from "../redis";
 import { newHttpClient } from "../test-utils";
+import { serve } from "bun";
+import { HttpClient } from "../http";
+
+const MOCK_SERVER_PORT = 8080;
+const SERVER_URL = `http://localhost:${MOCK_SERVER_PORT}`;
 
 describe("Subscriber", () => {
   const client = newHttpClient();
@@ -200,5 +205,77 @@ describe("Subscriber", () => {
     expect(counts2[0]).toBe(1); // Second subscription count
 
     await Promise.all([subscriber1.unsubscribe(), subscriber2.unsubscribe()]);
+  });
+
+  test("should handle streaming data split across two chunks", async () => {
+    const receivedMessages: any[] = [];
+
+    const server = serve({
+      async fetch() {
+        // Create a ReadableStream that sends a data line split across two chunks
+        const stream = new ReadableStream({
+          start(controller) {
+            // First chunk: partial data line (Redis format: message,channel,content)
+            const encoder = new TextEncoder();
+            controller.enqueue(encoder.encode('data: message,test-channel,{"id":"msg1","co'));
+
+            // Simulate a small delay between chunks
+            setTimeout(() => {
+              // Second chunk: rest of the data line plus newline
+              controller.enqueue(encoder.encode('ntent":"hello"}\n'));
+
+              // Send another complete message to verify buffer is properly cleared
+              controller.enqueue(
+                encoder.encode('data: message,test-channel,{"id":"msg2","content":"world"}\n')
+              );
+
+              controller.close();
+            }, 10);
+          },
+        });
+
+        return new Response(stream, {
+          status: 200,
+          headers: { "content-type": "text/event-stream" },
+        });
+      },
+      port: MOCK_SERVER_PORT,
+    });
+
+    const mockClient = new HttpClient({
+      baseUrl: SERVER_URL,
+      headers: { authorization: "Bearer test-token" },
+      retry: false,
+    });
+
+    const mockRedis = new Redis(mockClient);
+
+    try {
+      const subscriber = mockRedis.subscribe(["test-channel"]);
+      subscriber.on("message", (data) => {
+        receivedMessages.push(data);
+      });
+      subscriber.on("error", (err) => {
+        console.error("Subscriber error:", err);
+      });
+
+      // Wait for the stream to process both chunks
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Verify that both messages were received correctly
+      expect(receivedMessages).toHaveLength(2);
+      expect(receivedMessages[0]).toEqual({
+        channel: "test-channel",
+        message: { id: "msg1", content: "hello" },
+      });
+      expect(receivedMessages[1]).toEqual({
+        channel: "test-channel",
+        message: { id: "msg2", content: "world" },
+      });
+
+      await subscriber.unsubscribe();
+    } finally {
+      server.stop(true);
+    }
   });
 });

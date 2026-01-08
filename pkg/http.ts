@@ -10,6 +10,8 @@ type CacheSetting =
   | "only-if-cached"
   | "reload";
 
+const MAX_BUFFER_SIZE = 1024 * 1024;
+
 export type UpstashRequest = {
   path?: string[];
   /**
@@ -307,12 +309,19 @@ export class HttpClient implements Requester {
       // Start reading the stream in the background
       (async () => {
         try {
+          let buffer = "";
+
           while (true) {
             const { value, done } = await reader.read();
             if (done) break;
 
-            const chunk = decoder.decode(value);
-            const lines = chunk.split("\n");
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+
+            if (buffer.length > MAX_BUFFER_SIZE) {
+              throw new Error("Buffer size exceeded (1MB)");
+            }
 
             for (const line of lines) {
               if (line.startsWith("data: ")) {

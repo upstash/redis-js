@@ -304,6 +304,15 @@ describe("SearchIndex.query (string)", () => {
       expect(result.length).toBeGreaterThan(0);
     });
 
+    test("queries with $fuzzy for typo tolerance with prefix", async () => {
+      const index = getIndex(client, name, schema);
+      const result = await index.query({
+        filter: { name: { $fuzzy: { value: "lep", distance: 1, prefix: true } } },
+      });
+
+      expect(result.length).toBeGreaterThan(0);
+    });
+
     test("queries with $fuzzy for typo tolerance - simple string", async () => {
       const index = getIndex(client, name, schema);
       const result = await index.query({

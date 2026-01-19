@@ -105,3 +105,6 @@ export function index<TSchema extends NestedIndexSchema | FlatIndexSchema>(
 ): SearchIndex<TSchema> | SearchIndex<any> {
   return new SearchIndex<TSchema>({ name, schema, client });
 }
+
+export type InferFilterFromSchema<TSchema extends NestedIndexSchema | FlatIndexSchema> =
+  NonNullable<NonNullable<Parameters<SearchIndex<TSchema>["query"]>[0]>["filter"]>;

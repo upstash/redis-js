@@ -193,12 +193,11 @@ import {
   ZUnionStoreCommand,
 } from "./commands/mod";
 import {
-  createIndex,
-  index,
   type CreateIndexProps,
   type NestedIndexSchema,
   type FlatIndexSchema,
 } from "./commands/search";
+import { createIndex, index } from "./commands/search/search";
 import { Subscriber } from "./commands/subscribe";
 import { ZDiffStoreCommand } from "./commands/zdiffstore";
 import { ZMScoreCommand } from "./commands/zmscore";

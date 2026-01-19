@@ -12,11 +12,10 @@ import { ExecCommand } from "../exec";
 import { buildCreateIndexCommand, buildQueryCommand } from "./command-builder";
 import { parseCountResponse, deserializeDescribeResponse, deserializeQueryResponse } from "./utils";
 
-export type createIndexProps<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
+export type CreateIndexProps<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
   name: string;
   prefix: string | string[];
   language?: Language;
-  client: Requester;
 } & (
   | { dataType: "string"; schema: TSchema extends NestedIndexSchema ? TSchema : never }
   | { dataType: "json"; schema: TSchema extends NestedIndexSchema ? TSchema : never }
@@ -84,9 +83,10 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
 }
 
 export async function createIndex<TSchema extends NestedIndexSchema | FlatIndexSchema>(
-  props: createIndexProps<TSchema>
+  client: Requester,
+  props: CreateIndexProps<TSchema>
 ) {
-  const { name, schema, client } = props;
+  const { name, schema } = props;
   const createIndexCommand = buildCreateIndexCommand<TSchema>(props);
   await new ExecCommand<string>(createIndexCommand as [string, ...string[]]).exec(client);
   return index(client, name, schema);

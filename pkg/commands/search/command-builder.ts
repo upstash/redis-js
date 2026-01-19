@@ -1,5 +1,5 @@
 import { flattenSchema } from "./utils";
-import type { createIndexProps } from "./search";
+import type { CreateIndexProps } from "./search";
 import type { NestedIndexSchema, FlatIndexSchema, QueryOptions } from "./types";
 
 export function buildQueryCommand<TSchema extends NestedIndexSchema | FlatIndexSchema>(
@@ -53,7 +53,7 @@ export function buildQueryCommand<TSchema extends NestedIndexSchema | FlatIndexS
 }
 
 export function buildCreateIndexCommand<TSchema extends NestedIndexSchema | FlatIndexSchema>(
-  props: createIndexProps<TSchema>
+  props: CreateIndexProps<TSchema>
 ): string[] {
   const { name, schema, dataType, prefix, language } = props;
   const prefixArray = Array.isArray(prefix) ? prefix : [prefix];

@@ -34,12 +34,11 @@ describe("createIndex", () => {
       age: s.number(),
     });
 
-    const index = await createIndex({
+    const index = await createIndex(client, {
       name: name,
       schema,
       dataType: "string",
       prefix: `${name}:`,
-      client,
     });
 
     expect(index).toBeInstanceOf(SearchIndex);
@@ -58,12 +57,11 @@ describe("createIndex", () => {
       }),
     });
 
-    const index = await createIndex({
+    const index = await createIndex(client, {
       name,
       schema,
       dataType: "string",
       prefix: `${name}:`,
-      client,
     });
 
     expect(index).toBeInstanceOf(SearchIndex);
@@ -78,12 +76,11 @@ describe("createIndex", () => {
       count: s.number("U64"),
     });
 
-    const index = await createIndex({
+    const index = await createIndex(client, {
       name,
       schema,
       dataType: "hash",
       prefix: `${name}:`,
-      client,
     });
 
     expect(index).toBeInstanceOf(SearchIndex);
@@ -98,12 +95,11 @@ describe("createIndex", () => {
       age: s.number(),
     });
 
-    const index = await createIndex({
+    const index = await createIndex(client, {
       name: name,
       schema,
       dataType: "json",
       prefix: `${name}:`,
-      client,
     });
 
     expect(index).toBeInstanceOf(SearchIndex);
@@ -122,12 +118,11 @@ describe("createIndex", () => {
       }),
     });
 
-    const index = await createIndex({
+    const index = await createIndex(client, {
       name,
       schema,
       dataType: "json",
       prefix: `${name}:`,
-      client,
     });
 
     expect(index).toBeInstanceOf(SearchIndex);
@@ -141,13 +136,12 @@ describe("createIndex", () => {
       content: s.string(),
     });
 
-    const index = await createIndex({
+    const index = await createIndex(client, {
       name,
       schema,
       dataType: "string",
       prefix: `${name}:`,
       language: "turkish",
-      client,
     });
 
     expect(index).toBeInstanceOf(SearchIndex);
@@ -161,12 +155,11 @@ describe("createIndex", () => {
       name: s.string(),
     });
 
-    const index = await createIndex({
+    const index = await createIndex(client, {
       name,
       schema,
       dataType: "hash",
       prefix: [`${name}:users:`, `${name}:profiles:`],
-      client,
     });
 
     expect(index).toBeInstanceOf(SearchIndex);
@@ -189,12 +182,11 @@ describe("SearchIndex.query (string)", () => {
 
   beforeAll(async () => {
     // Create the index
-    const index = await createIndex({
+    const index = await createIndex(client, {
       name,
       schema,
       dataType: "string",
       prefix,
-      client,
     });
 
     // Add test data
@@ -479,12 +471,11 @@ describe("SearchIndex.query (json)", () => {
 
   beforeAll(async () => {
     // Create the index
-    const index = await createIndex({
+    const index = await createIndex(client, {
       name,
       schema,
       dataType: "json",
       prefix,
-      client,
     });
 
     // Add test data
@@ -746,12 +737,11 @@ describe("SearchIndex.count", () => {
   });
 
   beforeAll(async () => {
-    const index = await createIndex({
+    const index = await createIndex(client, {
       name,
       schema,
       dataType: "string",
       prefix,
-      client,
     });
 
     // Add test data
@@ -803,12 +793,11 @@ describe("SearchIndex.describe", () => {
   });
 
   beforeAll(async () => {
-    await createIndex({
+    await createIndex(client, {
       name,
       schema,
       dataType: "string",
       prefix: `${name}:`,
-      client,
     });
   });
 
@@ -844,12 +833,11 @@ describe("SearchIndex.drop", () => {
       name: s.string(),
     });
 
-    const index = await createIndex({
+    const index = await createIndex(client, {
       name,
       schema,
       dataType: "string",
       prefix: `${name}:`,
-      client,
     });
 
     const result = await index.drop();
@@ -868,12 +856,11 @@ describe("Hash index queries", () => {
   });
 
   beforeAll(async () => {
-    const index = await createIndex({
+    const index = await createIndex(client, {
       name,
       schema,
       dataType: "hash",
       prefix,
-      client,
     });
 
     // Add test data using HSET
@@ -940,12 +927,11 @@ describe("Nested string index queries", () => {
   });
 
   beforeAll(async () => {
-    const index = await createIndex({
+    const index = await createIndex(client, {
       name,
       schema,
       dataType: "string",
       prefix,
-      client,
     });
 
     const testData = [
@@ -1031,12 +1017,11 @@ describe("Nested json index queries", () => {
   });
 
   beforeAll(async () => {
-    const index = await createIndex({
+    const index = await createIndex(client, {
       name,
       schema,
       dataType: "json",
       prefix,
-      client,
     });
 
     const testData = [

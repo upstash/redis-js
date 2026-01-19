@@ -195,7 +195,7 @@ import {
 import {
   createIndex,
   index,
-  type createIndexProps,
+  type CreateIndexProps,
   type NestedIndexSchema,
   type FlatIndexSchema,
 } from "./commands/search";
@@ -461,12 +461,9 @@ export class Redis {
   get search() {
     return {
       createIndex: <TSchema extends NestedIndexSchema | FlatIndexSchema>(
-        props: Omit<createIndexProps<TSchema>, "client">
+        props: CreateIndexProps<TSchema>
       ) => {
-        return createIndex<TSchema>({
-          ...props,
-          client: this.client,
-        } as createIndexProps<TSchema>);
+        return createIndex<TSchema>(this.client, props);
       },
 
       index: <TSchema extends NestedIndexSchema | FlatIndexSchema>(

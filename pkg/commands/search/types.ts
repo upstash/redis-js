@@ -83,8 +83,15 @@ type GetFieldValueType<TSchema, Path extends string> =
       : never
     : never;
 
+// Helper type to check if a field has a 'from' property
+type HasFrom<T> = T extends { from: string } ? true : false;
+
 export type InferSchemaData<TSchema> = {
-  [K in keyof TSchema]: TSchema[K] extends FieldType
+  [K in keyof TSchema as TSchema[K] extends DetailedField
+    ? HasFrom<TSchema[K]> extends true
+      ? never
+      : K
+    : K]: TSchema[K] extends FieldType
     ? FieldValueType<TSchema[K]>
     : TSchema[K] extends DetailedField
       ? FieldValueType<ExtractFieldType<TSchema[K]>>

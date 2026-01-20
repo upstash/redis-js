@@ -46,12 +46,9 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
     this.client = client;
   }
 
-  async waitIndexing(): Promise<string> {
+  async waitIndexing(): Promise<void> {
     const command = ["SEARCH.WAITINDEXING", this.name];
-    const result = await new ExecCommand<string>(command as [string, ...string[]]).exec(
-      this.client
-    );
-    return result;
+    await new ExecCommand<"<OK>">(command as [string, ...string[]]).exec(this.client);
   }
 
   async describe(): Promise<IndexDescription<TSchema>> {
@@ -80,11 +77,9 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
     return { count: parseCountResponse(rawResult) };
   }
 
-  async drop(): Promise<string> {
+  async drop(): Promise<1 | 0> {
     const command = ["SEARCH.DROP", this.name];
-    const result = await new ExecCommand<string>(command as [string, ...string[]]).exec(
-      this.client
-    );
+    const result = await new ExecCommand<1 | 0>(command as [string, ...string[]]).exec(this.client);
     return result;
   }
 }

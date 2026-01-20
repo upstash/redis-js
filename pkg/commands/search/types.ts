@@ -412,7 +412,6 @@ export type RootQueryFilter<TSchema extends NestedIndexSchema | FlatIndexSchema>
   | MustShouldNode<TSchema>
   | AndNotNode<TSchema>
   | ShouldNotNode<TSchema>
-  | MustNotNode<TSchema>
   | BoolNode<TSchema>;
 
 // Restricted version of OrNode that doesn't allow field operations at root level

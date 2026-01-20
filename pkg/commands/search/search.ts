@@ -16,6 +16,8 @@ export type CreateIndexProps<TSchema extends NestedIndexSchema | FlatIndexSchema
   name: string;
   prefix: string | string[];
   language?: Language;
+  skipInitialScan?: boolean;
+  existsOk?: boolean;
 } & (
   | { dataType: "string"; schema: TSchema extends NestedIndexSchema ? TSchema : never }
   | { dataType: "json"; schema: TSchema extends NestedIndexSchema ? TSchema : never }

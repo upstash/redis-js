@@ -55,11 +55,13 @@ export function buildQueryCommand<TSchema extends NestedIndexSchema | FlatIndexS
 export function buildCreateIndexCommand<TSchema extends NestedIndexSchema | FlatIndexSchema>(
   props: CreateIndexProps<TSchema>
 ): string[] {
-  const { name, schema, dataType, prefix, language } = props;
+  const { name, schema, dataType, prefix, language, skipInitialScan, existsOk } = props;
   const prefixArray = Array.isArray(prefix) ? prefix : [prefix];
 
   const payload: string[] = [
     name,
+    ...(skipInitialScan ? ["SKIPINITIALSCAN"] : []),
+    ...(existsOk ? ["EXISTSOK"] : []),
     "ON",
     dataType.toUpperCase(),
     "PREFIX",

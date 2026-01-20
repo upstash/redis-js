@@ -85,6 +85,9 @@ export function buildCreateIndexCommand<TSchema extends NestedIndexSchema | Flat
     if (field.noStem) {
       payload.push("NOSTEM");
     }
+    if (field.from) {
+      payload.push("FROM", field.from);
+    }
   }
 
   return ["SEARCH.CREATE", ...payload];

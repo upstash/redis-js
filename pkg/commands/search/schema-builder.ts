@@ -1,44 +1,76 @@
 import type { NestedIndexSchema, NumericField } from "./types";
 
+type TextFieldBuild<
+  TNoTokenize extends Record<"noTokenize", boolean>,
+  TNoStem extends Record<"noStem", boolean>,
+  TFrom extends Record<"from", string | null>,
+> = TNoTokenize["noTokenize"] extends true
+  ? { type: "TEXT"; noTokenize: true } & (TNoStem["noStem"] extends true
+      ? { noStem: true }
+      : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+        {}) &
+      (TFrom["from"] extends string
+        ? { from: TFrom["from"] }
+        : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+          {})
+  : TNoStem["noStem"] extends true
+    ? { type: "TEXT"; noStem: true } & (TFrom["from"] extends string
+        ? { from: TFrom["from"] }
+        : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+          {})
+    : TFrom["from"] extends string
+      ? { type: "TEXT"; from: TFrom["from"] }
+      : "TEXT";
+
 // Internal symbol for build method
 const BUILD = Symbol("build");
 
 // Field builders with chainable options
 class TextFieldBuilder<
-  NoTokenize extends Record<"noTokenize", boolean> = { noTokenize: false },
-  NoStem extends Record<"noStem", boolean> = { noStem: false },
+  TNoTokenize extends Record<"noTokenize", boolean> = { noTokenize: false },
+  TNoStem extends Record<"noStem", boolean> = { noStem: false },
+  TFrom extends Record<"from", string | null> = { from: null },
 > {
-  private _noTokenize: NoTokenize;
-  private _noStem: NoStem;
+  private _noTokenize: TNoTokenize;
+  private _noStem: TNoStem;
+  private _from: TFrom;
 
   constructor(
-    noTokenize = { noTokenize: false } as NoTokenize,
-    noStem = { noStem: false } as NoStem
+    noTokenize = { noTokenize: false } as TNoTokenize,
+    noStem = { noStem: false } as TNoStem,
+    from = { from: null } as TFrom
   ) {
     this._noTokenize = noTokenize;
     this._noStem = noStem;
+    this._from = from;
   }
 
-  noTokenize(): TextFieldBuilder<{ noTokenize: true }, NoStem> {
-    return new TextFieldBuilder({ noTokenize: true }, this._noStem);
+  noTokenize(): TextFieldBuilder<{ noTokenize: true }, TNoStem, TFrom> {
+    return new TextFieldBuilder({ noTokenize: true }, this._noStem, this._from);
   }
 
-  noStem(): TextFieldBuilder<NoTokenize, { noStem: true }> {
-    return new TextFieldBuilder(this._noTokenize, { noStem: true });
+  noStem(): TextFieldBuilder<TNoTokenize, { noStem: true }, TFrom> {
+    return new TextFieldBuilder(this._noTokenize, { noStem: true }, this._from);
   }
 
-  [BUILD](): NoTokenize extends { noTokenize: true }
-    ? NoStem extends { noStem: true }
-      ? { type: "TEXT"; noTokenize: true; noStem: true }
-      : { type: "TEXT"; noTokenize: true }
-    : NoStem extends { noStem: true }
-      ? { type: "TEXT"; noStem: true }
-      : "TEXT" {
-    return this._noTokenize.noTokenize || this._noStem.noStem
+  from<TField extends string>(
+    field: TField
+  ): TextFieldBuilder<TNoTokenize, TNoStem, { from: TField }> {
+    return new TextFieldBuilder(this._noTokenize, this._noStem, { from: field } as {
+      from: TField;
+    });
+  }
+
+  [BUILD](): TextFieldBuild<TNoTokenize, TNoStem, TFrom> {
+    const hasOptions =
+      this._noTokenize.noTokenize || this._noStem.noStem || Boolean(this._from.from);
+
+    return hasOptions
       ? ({
           type: "TEXT",
           ...(this._noTokenize.noTokenize ? { noTokenize: true } : {}),
           ...(this._noStem.noStem ? { noStem: true } : {}),
+          ...(this._from.from ? { from: this._from.from } : {}),
         } as any)
       : ("TEXT" as any);
   }
@@ -102,7 +134,7 @@ class DateFieldBuilder<Fast extends Record<"fast", boolean> = { fast: false }> {
 }
 
 type FieldBuilder =
-  | TextFieldBuilder<{ noTokenize: boolean }, { noStem: boolean }>
+  | TextFieldBuilder<{ noTokenize: boolean }, { noStem: boolean }, { from: string | null }>
   | NumericFieldBuilder<NumericField["type"]>
   | BoolFieldBuilder<{ fast: boolean }>
   | DateFieldBuilder<{ fast: boolean }>;

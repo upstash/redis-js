@@ -5,21 +5,25 @@ export type TextField = {
   type: "TEXT";
   noTokenize?: boolean;
   noStem?: boolean;
+  from?: string;
 };
 
 export type NumericField = {
   type: "U64" | "I64" | "F64";
   fast: true;
+  from?: string;
 };
 
 export type BoolField = {
   type: "BOOL";
   fast?: boolean;
+  from?: string;
 };
 
 export type DateField = {
   type: "DATE";
   fast?: boolean;
+  from?: string;
 };
 
 export type DetailedField = TextField | NumericField | BoolField | DateField;

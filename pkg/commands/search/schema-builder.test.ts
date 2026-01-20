@@ -98,4 +98,16 @@ describe("Schema Builder", () => {
     expect(schema.name).toEqual({ type: "TEXT", noTokenize: true });
     expect(schema.age).toEqual({ type: "U64", fast: true });
   });
+
+  test("should support 'from' option in fields", () => {
+    const schema = s.object({
+      title: s.string(),
+      titleExact: s.string().noStem().from("title"),
+    });
+
+    expect(schema).toEqual({
+      title: "TEXT",
+      titleExact: { type: "TEXT", noStem: true, from: "title" },
+    });
+  });
 });

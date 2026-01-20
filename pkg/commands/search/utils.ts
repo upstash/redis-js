@@ -15,6 +15,7 @@ type FlattenedField = {
   fast?: boolean;
   noTokenize?: boolean;
   noStem?: boolean;
+  from?: string;
 };
 
 function isFieldType(value: any): value is FieldType {
@@ -51,6 +52,7 @@ export function flattenSchema(
         fast: "fast" in value ? value.fast : undefined,
         noTokenize: "noTokenize" in value ? value.noTokenize : undefined,
         noStem: "noStem" in value ? value.noStem : undefined,
+        from: "from" in value ? value.from : undefined,
       });
     } else if (isNestedSchema(value)) {
       const nestedFields = flattenSchema(value, currentPath);

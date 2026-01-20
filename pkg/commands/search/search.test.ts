@@ -1,6 +1,6 @@
 import { afterAll, afterEach, beforeAll, describe, expect, test } from "bun:test";
 import { newHttpClient, randomID } from "../../test-utils";
-import { createIndex, index as getIndex, SearchIndex } from "./search";
+import { createIndex, initIndex, SearchIndex } from "./search";
 import { s } from "./schema-builder";
 import { JsonSetCommand } from "../json_set";
 import { SetCommand } from "../set";
@@ -16,7 +16,7 @@ describe("createIndex", () => {
     // Cleanup created indexes
     for (const name of createdIndexes) {
       try {
-        const index = getIndex(client, name);
+        const index = initIndex(client, { name });
         await index.drop();
       } catch {
         // Index might not exist, ignore
@@ -268,7 +268,7 @@ describe("SearchIndex.query (string)", () => {
 
   afterAll(async () => {
     // Cleanup
-    const index = getIndex(client, name, schema);
+    const index = initIndex(client, { name, schema });
     try {
       await index.drop();
     } catch {
@@ -281,14 +281,14 @@ describe("SearchIndex.query (string)", () => {
 
   describe("text field queries", () => {
     test("queries with $eq on text field", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { name: { $eq: "Laptop" } } });
 
       expect(result.length).toBeGreaterThan(0);
     });
 
     test("queries with $fuzzy for typo tolerance", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { name: { $fuzzy: { $value: "Laptopp", $distance: 2 } } },
       });
@@ -297,7 +297,7 @@ describe("SearchIndex.query (string)", () => {
     });
 
     test("queries with $fuzzy for typo tolerance - simple string", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { name: { $fuzzy: "laptopp" } },
       });
@@ -306,7 +306,7 @@ describe("SearchIndex.query (string)", () => {
     });
 
     test("queries with $phrase for exact phrase matching", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { description: { $phrase: { $value: "wireless mouse", $prefix: true } } },
       });
@@ -315,7 +315,7 @@ describe("SearchIndex.query (string)", () => {
     });
 
     test("queries with $phrase for exact phrase matching - simple string", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { description: { $phrase: "wireless mouse" } },
       });
@@ -324,7 +324,7 @@ describe("SearchIndex.query (string)", () => {
     });
 
     test("queries with $regex pattern", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { name: { $regex: "Laptop.*" } },
       });
@@ -335,28 +335,28 @@ describe("SearchIndex.query (string)", () => {
 
   describe("numeric field queries", () => {
     test("queries with $gt on numeric field", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { price: { $gt: 500 } } });
 
       expect(result.length).toBeGreaterThan(0);
     });
 
     test("queries with $gte on numeric field", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { stock: { $gte: 100 } } });
 
       expect(result.length).toBeGreaterThan(0);
     });
 
     test("queries with $lt on numeric field", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { price: { $lt: 50 } } });
 
       expect(result.length).toBeGreaterThan(0);
     });
 
     test("queries with $lte on numeric field", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { stock: { $lte: 50 } },
       });
@@ -367,7 +367,7 @@ describe("SearchIndex.query (string)", () => {
 
   describe("boolean field queries", () => {
     test("queries with $eq on boolean field", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { active: { $eq: false } } });
 
       expect(result.length).toBeGreaterThan(0);
@@ -376,7 +376,7 @@ describe("SearchIndex.query (string)", () => {
 
   describe("query options", () => {
     test("queries with limit option", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { category: { $eq: "electronics" } }, limit: 2 });
 
       expect(result.length).toBeGreaterThan(0);
@@ -384,7 +384,7 @@ describe("SearchIndex.query (string)", () => {
     });
 
     test("queries with offset for pagination", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const firstPage = await index.query({
         filter: { category: { $eq: "electronics" } },
         limit: 2,
@@ -402,7 +402,7 @@ describe("SearchIndex.query (string)", () => {
     });
 
     test("queries with sortBy ascending", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { category: { $eq: "electronics" } },
         orderBy: { price: "ASC" },
@@ -413,7 +413,7 @@ describe("SearchIndex.query (string)", () => {
     });
 
     test("queries with sortBy descending", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { category: { $eq: "electronics" } },
         orderBy: { price: "DESC" },
@@ -424,7 +424,7 @@ describe("SearchIndex.query (string)", () => {
     });
 
     test("queries with noContent returns only keys", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { category: { $eq: "electronics" } },
         select: {},
@@ -434,7 +434,7 @@ describe("SearchIndex.query (string)", () => {
     });
 
     test("queries with returnFields", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { category: { $eq: "electronics" } },
         select: { category: true },
@@ -445,7 +445,7 @@ describe("SearchIndex.query (string)", () => {
     });
 
     test("queries with $ to return full document", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { name: { $eq: "Laptop" } },
       });
@@ -557,7 +557,7 @@ describe("SearchIndex.query (json)", () => {
 
   afterAll(async () => {
     // Cleanup
-    const index = getIndex(client, name, schema);
+    const index = initIndex(client, { name, schema });
     try {
       await index.drop();
     } catch {
@@ -570,14 +570,14 @@ describe("SearchIndex.query (json)", () => {
 
   describe("text field queries", () => {
     test("queries with $eq on text field", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { name: { $eq: "Laptop" } } });
 
       expect(result.length).toBeGreaterThan(0);
     });
 
     test("queries with $fuzzy for typo tolerance", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { name: { $fuzzy: { $value: "Laptopp", $distance: 2 } } },
       });
@@ -586,7 +586,7 @@ describe("SearchIndex.query (json)", () => {
     });
 
     test("queries with $phrase for exact phrase matching", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { description: { $phrase: "wireless mouse" } },
       });
@@ -595,7 +595,7 @@ describe("SearchIndex.query (json)", () => {
     });
 
     test("queries with $regex pattern", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { name: { $regex: "Laptop.*" } },
       });
@@ -606,28 +606,28 @@ describe("SearchIndex.query (json)", () => {
 
   describe("numeric field queries", () => {
     test("queries with $gt on numeric field", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { price: { $gt: 500 } } });
 
       expect(result.length).toBeGreaterThan(0);
     });
 
     test("queries with $gte on numeric field", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { stock: { $gte: 100 } } });
 
       expect(result.length).toBeGreaterThan(0);
     });
 
     test("queries with $lt on numeric field", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { price: { $lt: 50 } } });
 
       expect(result.length).toBeGreaterThan(0);
     });
 
     test("queries with $lte on numeric field", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { stock: { $lte: 50 } },
       });
@@ -638,7 +638,7 @@ describe("SearchIndex.query (json)", () => {
 
   describe("boolean field queries", () => {
     test("queries with $eq on boolean field", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { active: { $eq: false } } });
 
       expect(result.length).toBeGreaterThan(0);
@@ -647,7 +647,7 @@ describe("SearchIndex.query (json)", () => {
 
   describe("query options", () => {
     test("queries with limit option", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { category: { $eq: "electronics" } }, limit: 2 });
 
       expect(result.length).toBeGreaterThan(0);
@@ -655,7 +655,7 @@ describe("SearchIndex.query (json)", () => {
     });
 
     test("queries with offset for pagination", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const firstPage = await index.query({
         filter: { category: { $eq: "electronics" } },
         limit: 2,
@@ -673,7 +673,7 @@ describe("SearchIndex.query (json)", () => {
     });
 
     test("queries with sortBy ascending", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { category: { $eq: "electronics" } },
         orderBy: { price: "ASC" },
@@ -684,7 +684,7 @@ describe("SearchIndex.query (json)", () => {
     });
 
     test("queries with sortBy descending", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { category: { $eq: "electronics" } },
         orderBy: { price: "DESC" },
@@ -695,7 +695,7 @@ describe("SearchIndex.query (json)", () => {
     });
 
     test("queries with noContent returns only keys", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { category: { $eq: "electronics" } },
         select: {},
@@ -705,7 +705,7 @@ describe("SearchIndex.query (json)", () => {
     });
 
     test("queries with returnFields", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { category: { $eq: "electronics" } },
         select: { category: true },
@@ -716,7 +716,7 @@ describe("SearchIndex.query (json)", () => {
     });
 
     test("queries with $ to return full document", async () => {
-      const index = getIndex(client, name, schema);
+      const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { name: { $eq: "Laptop" } },
       });
@@ -757,7 +757,7 @@ describe("SearchIndex.count", () => {
   });
 
   afterAll(async () => {
-    const index = getIndex(client, name, schema);
+    const index = initIndex(client, { name, schema });
     try {
       await index.drop();
     } catch {
@@ -769,14 +769,14 @@ describe("SearchIndex.count", () => {
   });
 
   test("counts matching documents", async () => {
-    const index = getIndex(client, name, schema);
+    const index = initIndex(client, { name, schema });
     const result = await index.count({ filter: { type: { $eq: "A" } } });
 
     expect(result.count).toBeGreaterThan(0);
   });
 
   test("counts with numeric filter", async () => {
-    const index = getIndex(client, name, schema);
+    const index = initIndex(client, { name, schema });
     const result = await index.count({ filter: { value: { $gte: 5 } } });
 
     expect(result.count).toBeGreaterThan(0);
@@ -802,7 +802,7 @@ describe("SearchIndex.describe", () => {
   });
 
   afterAll(async () => {
-    const index = getIndex(client, name, schema);
+    const index = initIndex(client, { name, schema });
     try {
       await index.drop();
     } catch {
@@ -811,14 +811,14 @@ describe("SearchIndex.describe", () => {
   });
 
   test("describes the index structure", async () => {
-    const index = getIndex(client, name, schema);
+    const index = initIndex(client, { name, schema });
     const description = await index.describe();
 
     expect(description).toBeDefined();
   });
 
   test("describe non-existing", async () => {
-    const index = getIndex(client, "non-existing", schema);
+    const index = initIndex(client, { name: "non-existing", schema });
     const description = await index.describe();
 
     expect(description).toBeDefined();
@@ -880,7 +880,7 @@ describe("Hash index queries", () => {
   });
 
   afterAll(async () => {
-    const index = getIndex(client, name, schema);
+    const index = initIndex(client, { name, schema });
     try {
       await index.drop();
     } catch {
@@ -892,14 +892,14 @@ describe("Hash index queries", () => {
   });
 
   test("queries hash index by text field", async () => {
-    const index = getIndex(client, name, schema);
+    const index = initIndex(client, { name, schema });
     const result = await index.query({ filter: { name: { $eq: "Alice" } } });
 
     expect(result.length).toBeGreaterThan(0);
   });
 
   test("queries hash index with sorting", async () => {
-    const index = getIndex(client, name, schema);
+    const index = initIndex(client, { name, schema });
     const result = await index.query({
       filter: { score: { $gte: 80 } },
       orderBy: { score: "DESC" },
@@ -962,7 +962,7 @@ describe("Nested string index queries", () => {
   });
 
   afterAll(async () => {
-    const index = getIndex(client, name, schema);
+    const index = initIndex(client, { name, schema });
     try {
       await index.drop();
     } catch {
@@ -974,21 +974,21 @@ describe("Nested string index queries", () => {
   });
 
   test("queries nested text field", async () => {
-    const index = getIndex(client, name, schema);
+    const index = initIndex(client, { name, schema });
     const result = await index.query({ filter: { "author.name": { $eq: "John" } } });
 
     expect(result.length).toBeGreaterThan(0);
   });
 
   test("queries nested numeric field", async () => {
-    const index = getIndex(client, name, schema);
+    const index = initIndex(client, { name, schema });
     const result = await index.query({ filter: { "stats.views": { $gte: 1000 } } });
 
     expect(result.length).toBeGreaterThan(0);
   });
 
   test("queries with sorting on nested field", async () => {
-    const index = getIndex(client, name, schema);
+    const index = initIndex(client, { name, schema });
     const result = await index.query({
       filter: { "author.name": { $eq: "John" } },
       select: { "author.email": true },
@@ -1052,7 +1052,7 @@ describe("Nested json index queries", () => {
   });
 
   afterAll(async () => {
-    const index = getIndex(client, name, schema);
+    const index = initIndex(client, { name, schema });
     try {
       await index.drop();
     } catch {
@@ -1064,21 +1064,21 @@ describe("Nested json index queries", () => {
   });
 
   test("queries nested text field", async () => {
-    const index = getIndex(client, name, schema);
+    const index = initIndex(client, { name, schema });
     const result = await index.query({ filter: { "author.name": { $eq: "John" } } });
 
     expect(result.length).toBeGreaterThan(0);
   });
 
   test("queries nested numeric field", async () => {
-    const index = getIndex(client, name, schema);
+    const index = initIndex(client, { name, schema });
     const result = await index.query({ filter: { "stats.views": { $gte: 1000 } } });
 
     expect(result.length).toBeGreaterThan(0);
   });
 
   test("queries with sorting on nested field", async () => {
-    const index = getIndex(client, name, schema);
+    const index = initIndex(client, { name, schema });
     const result = await index.query({
       filter: { "author.name": { $eq: "John" } },
       select: { "author.email": true },
@@ -1091,7 +1091,7 @@ describe("Nested json index queries", () => {
 
 describe("index", () => {
   test("creates a SearchIndex instance without schema", () => {
-    const index = getIndex(client, "test-index");
+    const index = initIndex(client, { name: "test-index" });
 
     expect(index).toBeInstanceOf(SearchIndex);
     expect(index.name).toBe("test-index");
@@ -1104,7 +1104,7 @@ describe("index", () => {
       age: s.number("U64"),
     });
 
-    const index = getIndex(client, "test-index", schema);
+    const index = initIndex(client, { name: "test-index", schema });
 
     expect(index).toBeInstanceOf(SearchIndex);
     expect(index.name).toBe("test-index");

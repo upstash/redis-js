@@ -284,7 +284,7 @@ describe("search", () => {
         kind: s.string(),
       }),
     });
-    const idx = redis.search.index("vercel-changelog", schema);
+    const idx = redis.search.index({ name: "vercel-changelog", schema });
     const result = await idx.query({ filter: { "content.title": { $eq: "react" } }, limit: 2 });
     expect(result).toBeDefined();
   });

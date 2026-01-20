@@ -193,11 +193,12 @@ import {
   ZUnionStoreCommand,
 } from "./commands/mod";
 import {
-  type CreateIndexProps,
+  type CreateIndexParameters,
   type NestedIndexSchema,
   type FlatIndexSchema,
 } from "./commands/search";
-import { createIndex, index } from "./commands/search/search";
+import type { InitIndexParameters } from "./commands/search/search";
+import { createIndex, initIndex } from "./commands/search/search";
 import { Subscriber } from "./commands/subscribe";
 import { ZDiffStoreCommand } from "./commands/zdiffstore";
 import { ZMScoreCommand } from "./commands/zmscore";
@@ -460,16 +461,15 @@ export class Redis {
   get search() {
     return {
       createIndex: <TSchema extends NestedIndexSchema | FlatIndexSchema>(
-        props: CreateIndexProps<TSchema>
+        params: CreateIndexParameters<TSchema>
       ) => {
-        return createIndex<TSchema>(this.client, props);
+        return createIndex<TSchema>(this.client, params);
       },
 
       index: <TSchema extends NestedIndexSchema | FlatIndexSchema>(
-        name: string,
-        schema?: TSchema extends NestedIndexSchema ? TSchema : never
+        params: InitIndexParameters<TSchema>
       ) => {
-        return index<TSchema>(this.client, name, schema as TSchema);
+        return initIndex<TSchema>(this.client, params);
       },
     };
   }

@@ -223,7 +223,7 @@ describe("buildCreateIndexCommand", () => {
         age: s.number("U64"),
       });
 
-      const props = {
+      const params = {
         name: "test-index",
         schema,
         dataType: "hash" as const,
@@ -231,7 +231,7 @@ describe("buildCreateIndexCommand", () => {
         client: {} as any,
       };
 
-      const command = buildCreateIndexCommand(props);
+      const command = buildCreateIndexCommand(params);
 
       expect(command).toEqual([
         "SEARCH.CREATE",
@@ -255,7 +255,7 @@ describe("buildCreateIndexCommand", () => {
         name: s.string(),
       });
 
-      const props = {
+      const params = {
         name: "test-index",
         schema,
         dataType: "hash" as const,
@@ -263,7 +263,7 @@ describe("buildCreateIndexCommand", () => {
         client: {} as any,
       };
 
-      const command = buildCreateIndexCommand(props);
+      const command = buildCreateIndexCommand(params);
 
       expect(command).toEqual([
         "SEARCH.CREATE",
@@ -286,7 +286,7 @@ describe("buildCreateIndexCommand", () => {
         age: s.number("U64"),
       });
 
-      const props = {
+      const params = {
         name: "test-index",
         schema,
         dataType: "hash" as const,
@@ -294,7 +294,7 @@ describe("buildCreateIndexCommand", () => {
         client: {} as any,
       };
 
-      const command = buildCreateIndexCommand(props);
+      const command = buildCreateIndexCommand(params);
 
       expect(command).toEqual([
         "SEARCH.CREATE",
@@ -320,7 +320,7 @@ describe("buildCreateIndexCommand", () => {
         name: s.string(),
       });
 
-      const props = {
+      const params = {
         name: "test-index",
         schema,
         dataType: "hash" as const,
@@ -329,7 +329,7 @@ describe("buildCreateIndexCommand", () => {
         client: {} as any,
       };
 
-      const command = buildCreateIndexCommand(props);
+      const command = buildCreateIndexCommand(params);
 
       expect(command).toEqual([
         "SEARCH.CREATE",
@@ -358,7 +358,7 @@ describe("buildCreateIndexCommand", () => {
         }),
       });
 
-      const props = {
+      const params = {
         name: "test-index",
         schema,
         dataType: "string" as const,
@@ -366,7 +366,7 @@ describe("buildCreateIndexCommand", () => {
         client: {} as any,
       };
 
-      const command = buildCreateIndexCommand(props);
+      const command = buildCreateIndexCommand(params);
 
       expect(command).toEqual([
         "SEARCH.CREATE",
@@ -396,7 +396,7 @@ describe("buildCreateIndexCommand", () => {
         }),
       });
 
-      const props = {
+      const params = {
         name: "test-index",
         schema,
         dataType: "string" as const,
@@ -404,7 +404,7 @@ describe("buildCreateIndexCommand", () => {
         client: {} as any,
       };
 
-      const command = buildCreateIndexCommand(props);
+      const command = buildCreateIndexCommand(params);
 
       expect(command).toEqual([
         "SEARCH.CREATE",
@@ -432,7 +432,7 @@ describe("buildCreateIndexCommand", () => {
         createdAt: s.date(),
       });
 
-      const props = {
+      const params = {
         name: "test-index",
         schema,
         dataType: "hash" as const,
@@ -440,7 +440,7 @@ describe("buildCreateIndexCommand", () => {
         client: {} as any,
       };
 
-      const command = buildCreateIndexCommand(props);
+      const command = buildCreateIndexCommand(params);
 
       expect(command).toEqual([
         "SEARCH.CREATE",

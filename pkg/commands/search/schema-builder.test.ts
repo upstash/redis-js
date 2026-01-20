@@ -103,11 +103,23 @@ describe("Schema Builder", () => {
     const schema = s.object({
       title: s.string(),
       titleExact: s.string().noStem().from("title"),
+      count: s.number("U64"),
+      countCopy: s.number("U64").from("count"),
+      active: s.boolean(),
+      activeCopy: s.boolean().from("active"),
+      created: s.date(),
+      createdCopy: s.date().from("created"),
     });
 
     expect(schema).toEqual({
       title: "TEXT",
       titleExact: { type: "TEXT", noStem: true, from: "title" },
+      count: { type: "U64", fast: true },
+      countCopy: { type: "U64", fast: true, from: "count" },
+      active: "BOOL",
+      activeCopy: { type: "BOOL", from: "active" },
+      created: "DATE",
+      createdCopy: { type: "DATE", from: "created" },
     });
   });
 });

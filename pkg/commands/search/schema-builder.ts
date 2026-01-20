@@ -53,11 +53,9 @@ class TextFieldBuilder<
     return new TextFieldBuilder(this._noTokenize, { noStem: true }, this._from);
   }
 
-  from<TField extends string>(
-    field: TField
-  ): TextFieldBuilder<TNoTokenize, TNoStem, { from: TField }> {
+  from(field: string): TextFieldBuilder<TNoTokenize, TNoStem, { from: string }> {
     return new TextFieldBuilder(this._noTokenize, this._noStem, { from: field } as {
-      from: TField;
+      from: string;
     });
   }
 
@@ -88,8 +86,8 @@ class NumericFieldBuilder<
     this._from = from;
   }
 
-  from<TField extends string>(field: TField): NumericFieldBuilder<T, { from: TField }> {
-    return new NumericFieldBuilder(this.type, { from: field } as { from: TField });
+  from(field: string): NumericFieldBuilder<T, { from: string }> {
+    return new NumericFieldBuilder(this.type, { from: field } as { from: string });
   }
 
   [BUILD](): TFrom["from"] extends string
@@ -124,8 +122,8 @@ class BoolFieldBuilder<
     return new BoolFieldBuilder({ fast: true }, this._from);
   }
 
-  from<TField extends string>(field: TField): BoolFieldBuilder<Fast, { from: TField }> {
-    return new BoolFieldBuilder(this._fast, { from: field } as { from: TField });
+  from(field: string): BoolFieldBuilder<Fast, { from: string }> {
+    return new BoolFieldBuilder(this._fast, { from: field } as { from: string });
   }
 
   [BUILD](): Fast extends { fast: true }
@@ -177,8 +175,8 @@ class DateFieldBuilder<
     return new DateFieldBuilder({ fast: true }, this._from);
   }
 
-  from<TField extends string>(field: TField): DateFieldBuilder<Fast, { from: TField }> {
-    return new DateFieldBuilder(this._fast, { from: field } as { from: TField });
+  from(field: string): DateFieldBuilder<Fast, { from: string }> {
+    return new DateFieldBuilder(this._fast, { from: field } as { from: string });
   }
 
   [BUILD](): Fast extends { fast: true }

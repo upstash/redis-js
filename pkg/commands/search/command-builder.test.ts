@@ -1,6 +1,7 @@
 import { describe, test, expect } from "bun:test";
 import { buildQueryCommand, buildCreateIndexCommand } from "./command-builder";
 import { s } from "./schema-builder";
+import type { CreateIndexParameters } from "./search";
 
 describe("buildQueryCommand", () => {
   type TestSchema = { name: "TEXT"; age: "U64" };
@@ -466,6 +467,47 @@ describe("buildCreateIndexCommand", () => {
         "BOOL",
         "createdAt",
         "DATE",
+      ]);
+    });
+  });
+
+  describe("options", () => {
+    test("builds index with skip initial scan and exists ok", () => {
+      const schema = s.object({
+        data: s.object({
+          metadata: s.object({
+            tags: s.string(),
+          }),
+        }),
+      });
+
+      const params: CreateIndexParameters<typeof schema> = {
+        name: "test-index",
+        schema,
+        dataType: "string" as const,
+        prefix: "doc:",
+        existsOk: true,
+        skipInitialScan: true,
+        language: "english" as const,
+      };
+
+      const command = buildCreateIndexCommand(params);
+
+      expect(command).toEqual([
+        "SEARCH.CREATE",
+        "test-index",
+        "SKIPINITIALSCAN",
+        "EXISTSOK",
+        "ON",
+        "STRING",
+        "PREFIX",
+        "1",
+        "doc:",
+        "LANGUAGE",
+        "english",
+        "SCHEMA",
+        "data.metadata.tags",
+        "TEXT",
       ]);
     });
   });

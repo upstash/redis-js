@@ -290,13 +290,13 @@ describe("SearchIndex.query (string)", () => {
     test("queries with $fuzzy for typo tolerance", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
-        filter: { name: { $fuzzy: { $value: "Laptopp", $distance: 2 } } },
+        filter: { name: { $fuzzy: { value: "Laptopp", distance: 2 } } },
       });
 
       expect(result.length).toBeGreaterThan(0);
     });
 
-    test("queries with $fuzzy for typo tolerance - simple string", async () => {
+    test("queries with fuzzy for typo tolerance - simple string", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { name: { $fuzzy: "laptopp" } },
@@ -308,7 +308,7 @@ describe("SearchIndex.query (string)", () => {
     test("queries with $phrase for exact phrase matching", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
-        filter: { description: { $phrase: { $value: "wireless mouse", $prefix: true } } },
+        filter: { description: { $phrase: { value: "wireless mouse", prefix: true } } },
       });
 
       expect(result.length).toBeGreaterThan(0);
@@ -579,7 +579,7 @@ describe("SearchIndex.query (json)", () => {
     test("queries with $fuzzy for typo tolerance", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
-        filter: { name: { $fuzzy: { $value: "Laptopp", $distance: 2 } } },
+        filter: { name: { $fuzzy: { value: "Laptopp", distance: 2 } } },
       });
 
       expect(result.length).toBeGreaterThan(0);

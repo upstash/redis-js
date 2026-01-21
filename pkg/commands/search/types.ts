@@ -186,12 +186,12 @@ type StringOperationMap<T extends string> = {
   $eq: T;
   $ne: T;
   $in: T[];
-  $fuzzy: T | { $value: T; $distance?: number; $transpositionCostOne?: boolean };
+  $fuzzy: T | { value: T; distance?: number; transpositionCostOne?: boolean };
   $phrase:
     | T
-    | { $value: T }
-    | { $value: T; $slop: number; $prefix?: never }
-    | { $value: T; $prefix: boolean; $slop?: never };
+    | { value: T }
+    | { value: T; slop: number; prefix?: never }
+    | { value: T; prefix: boolean; slop?: never };
   $regex: T;
 };
 

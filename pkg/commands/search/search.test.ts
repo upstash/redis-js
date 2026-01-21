@@ -6,8 +6,17 @@ import { JsonSetCommand } from "../json_set";
 import { SetCommand } from "../set";
 import { HSetCommand } from "../hset";
 import { DelCommand } from "../del";
+import { ScanCommand } from "../scan";
 
 const client = newHttpClient();
+
+beforeAll(async () => {
+  const [_cursor, indexKeys] = await new ScanCommand(["0", { type: "search" }]).exec(client);
+  for (const key of indexKeys) {
+    const index = initIndex(client, { name: key });
+    await index.drop();
+  }
+});
 
 describe("createIndex", () => {
   const createdIndexes: string[] = [];
@@ -284,7 +293,8 @@ describe("SearchIndex.query (string)", () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { name: { $eq: "Laptop" } } });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result.length).toBe(2);
+      expect(result.map((r) => r.data.name)).toEqual(["Laptop Pro", "Laptop Basic"]);
     });
 
     test("queries with $fuzzy for typo tolerance", async () => {
@@ -293,7 +303,8 @@ describe("SearchIndex.query (string)", () => {
         filter: { name: { $fuzzy: { value: "Laptopp", distance: 2 } } },
       });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result.length).toBe(2);
+      expect(result.map((r) => r.data.name)).toEqual(["Laptop Pro", "Laptop Basic"]);
     });
 
     test("queries with fuzzy for typo tolerance - simple string", async () => {
@@ -302,7 +313,8 @@ describe("SearchIndex.query (string)", () => {
         filter: { name: { $fuzzy: "laptopp" } },
       });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result.length).toBe(2);
+      expect(result.map((r) => r.data.name)).toEqual(["Laptop Pro", "Laptop Basic"]);
     });
 
     test("queries with $phrase for exact phrase matching", async () => {
@@ -311,7 +323,8 @@ describe("SearchIndex.query (string)", () => {
         filter: { description: { $phrase: { value: "wireless mouse", prefix: true } } },
       });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result.length).toBe(1);
+      expect(result[0].data.name).toBe("Wireless Mouse");
     });
 
     test("queries with $phrase for exact phrase matching - simple string", async () => {
@@ -320,7 +333,8 @@ describe("SearchIndex.query (string)", () => {
         filter: { description: { $phrase: "wireless mouse" } },
       });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result.length).toBe(1);
+      expect(result[0].data.name).toBe("Wireless Mouse");
     });
 
     test("queries with $regex pattern", async () => {
@@ -329,7 +343,8 @@ describe("SearchIndex.query (string)", () => {
         filter: { name: { $regex: "Laptop.*" } },
       });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result.length).toBe(2);
+      expect(result.map((r) => r.data.name)).toEqual(["Laptop Pro", "Laptop Basic"]);
     });
   });
 
@@ -338,21 +353,102 @@ describe("SearchIndex.query (string)", () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { price: { $gt: 500 } } });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result.length).toBe(2);
+      expect(result).toEqual([
+        expect.objectContaining({
+          data: expect.objectContaining({ name: "Laptop Pro", price: 1299.99 }),
+        }),
+        expect.objectContaining({
+          data: expect.objectContaining({ name: "Laptop Basic", price: 599.99 }),
+        }),
+      ]);
+    });
+
+    test("queries with $gt on numeric field - no select (full data)", async () => {
+      const index = initIndex(client, { name, schema });
+      const result = await index.query({ filter: { price: { $gt: 500 } } });
+
+      expect(result.length).toBe(2);
+      expect(result[0].key).toBeDefined();
+      expect(result[0].score).toBeDefined();
+      expect(result[0].data).toEqual(
+        expect.objectContaining({
+          name: expect.any(String),
+          description: expect.any(String),
+          category: expect.any(String),
+          price: expect.any(Number),
+          stock: expect.any(Number),
+          active: expect.any(Boolean),
+        })
+      );
+    });
+
+    test("queries with $gt on numeric field - select: {}", async () => {
+      const index = initIndex(client, { name, schema });
+      const result = await index.query({ filter: { price: { $gt: 500 } }, select: {} });
+
+      expect(result.length).toBe(2);
+      expect(result[0].key).toBeDefined();
+      expect(result[0].score).toBeDefined();
+      expect(result[0]).not.toHaveProperty("data");
+    });
+
+    test("queries with $gt on numeric field - select price only", async () => {
+      const index = initIndex(client, { name, schema });
+      const result = await index.query({
+        filter: { price: { $gt: 500 } },
+        select: { price: true },
+      });
+
+      expect(result.length).toBe(2);
+      expect(result[0].key).toBeDefined();
+      expect(result[0].score).toBeDefined();
+      expect(result[0].data).toEqual(expect.objectContaining({ price: expect.any(Number) }));
+      expect(result[0].data).not.toHaveProperty("name");
+      expect(result[0].data).not.toHaveProperty("category");
     });
 
     test("queries with $gte on numeric field", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { stock: { $gte: 100 } } });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result.length).toBe(4);
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "Laptop Basic", stock: 100 }),
+          }),
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "Wireless Mouse", stock: 200 }),
+          }),
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "USB Cable", stock: 500 }),
+          }),
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "Phone Case", stock: 300 }),
+          }),
+        ])
+      );
     });
 
     test("queries with $lt on numeric field", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { price: { $lt: 50 } } });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result.length).toBe(3);
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "Wireless Mouse", price: 29.99 }),
+          }),
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "USB Cable", price: 9.99 }),
+          }),
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "Phone Case", price: 19.99 }),
+          }),
+        ])
+      );
     });
 
     test("queries with $lte on numeric field", async () => {
@@ -361,7 +457,17 @@ describe("SearchIndex.query (string)", () => {
         filter: { stock: { $lte: 50 } },
       });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result.length).toBe(2);
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "Laptop Pro", stock: 50 }),
+          }),
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "Monitor", stock: 30 }),
+          }),
+        ])
+      );
     });
   });
 
@@ -370,7 +476,33 @@ describe("SearchIndex.query (string)", () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { active: { $eq: false } } });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result.length).toBe(1);
+      expect(result[0].data).toEqual(
+        expect.objectContaining({ name: "Phone Case", active: false })
+      );
+    });
+
+    test("queries with $eq on boolean field - select: {}", async () => {
+      const index = initIndex(client, { name, schema });
+      const result = await index.query({ filter: { active: { $eq: false } }, select: {} });
+
+      expect(result.length).toBe(1);
+      expect(result[0].key).toBeDefined();
+      expect(result[0].score).toBeDefined();
+      expect(result[0]).not.toHaveProperty("data");
+    });
+
+    test("queries with $eq on boolean field - select name only", async () => {
+      const index = initIndex(client, { name, schema });
+      const result = await index.query({
+        filter: { active: { $eq: false } },
+        select: { name: true },
+      });
+
+      expect(result.length).toBe(1);
+      expect(result[0].data).toEqual(expect.objectContaining({ name: "Phone Case" }));
+      expect(result[0].data).not.toHaveProperty("active");
+      expect(result[0].data).not.toHaveProperty("price");
     });
   });
 
@@ -379,8 +511,9 @@ describe("SearchIndex.query (string)", () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { category: { $eq: "electronics" } }, limit: 2 });
 
-      expect(result.length).toBeGreaterThan(0);
-      expect(result.length).toBeLessThanOrEqual(2);
+      expect(result.length).toBe(2);
+      expect(result[0].data).toEqual(expect.objectContaining({ category: "electronics" }));
+      expect(result[1].data).toEqual(expect.objectContaining({ category: "electronics" }));
     });
 
     test("queries with offset for pagination", async () => {
@@ -397,8 +530,11 @@ describe("SearchIndex.query (string)", () => {
         offset: 2,
       });
 
-      expect(firstPage.length).toBeGreaterThan(0);
+      expect(firstPage.length).toBe(2);
       expect(secondPage.length).toBeGreaterThan(0);
+      expect(firstPage[0].data).toEqual(expect.objectContaining({ category: "electronics" }));
+      expect(firstPage[1].data).toEqual(expect.objectContaining({ category: "electronics" }));
+      expect(secondPage[0].data).toEqual(expect.objectContaining({ category: "electronics" }));
     });
 
     test("queries with sortBy ascending", async () => {
@@ -409,7 +545,12 @@ describe("SearchIndex.query (string)", () => {
         limit: 3,
       });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result.length).toBe(3);
+      expect(result[0].data).toEqual(
+        expect.objectContaining({ name: "Wireless Mouse", price: 29.99 })
+      );
+      expect(result[1].data).toEqual(expect.objectContaining({ name: "Keyboard", price: 149.99 }));
+      expect(result[2].data).toEqual(expect.objectContaining({ name: "Monitor", price: 449.99 }));
     });
 
     test("queries with sortBy descending", async () => {
@@ -420,7 +561,14 @@ describe("SearchIndex.query (string)", () => {
         limit: 3,
       });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result.length).toBe(3);
+      expect(result[0].data).toEqual(
+        expect.objectContaining({ name: "Laptop Pro", price: 1299.99 })
+      );
+      expect(result[1].data).toEqual(
+        expect.objectContaining({ name: "Laptop Basic", price: 599.99 })
+      );
+      expect(result[2].data).toEqual(expect.objectContaining({ name: "Monitor", price: 449.99 }));
     });
 
     test("queries with noContent returns only keys", async () => {
@@ -431,6 +579,9 @@ describe("SearchIndex.query (string)", () => {
       });
 
       expect(result.length).toBeGreaterThan(0);
+      expect(result[0].key).toBeDefined();
+      expect(result[0].score).toBeDefined();
+      expect(result[0]).not.toHaveProperty("data");
     });
 
     test("queries with returnFields", async () => {
@@ -441,7 +592,12 @@ describe("SearchIndex.query (string)", () => {
         highlight: { fields: [] },
       });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result.length).toBe(5);
+      for (const item of result) {
+        expect(item.data).toEqual(expect.objectContaining({ category: "electronics" }));
+        expect(item.data).not.toHaveProperty("name");
+        expect(item.data).not.toHaveProperty("price");
+      }
     });
 
     test("queries with $ to return full document", async () => {
@@ -450,7 +606,9 @@ describe("SearchIndex.query (string)", () => {
         filter: { name: { $eq: "Laptop" } },
       });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result.length).toBe(2);
+      expect(result[0].data).toEqual(expect.objectContaining({ name: "Laptop Pro" }));
+      expect(result[1].data).toEqual(expect.objectContaining({ name: "Laptop Basic" }));
     });
   });
 });
@@ -573,7 +731,10 @@ describe("SearchIndex.query (json)", () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { name: { $eq: "Laptop" } } });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result).toEqual([
+        expect.objectContaining({ data: expect.objectContaining({ name: "Laptop Pro" }) }),
+        expect.objectContaining({ data: expect.objectContaining({ name: "Laptop Basic" }) }),
+      ]);
     });
 
     test("queries with $fuzzy for typo tolerance", async () => {
@@ -582,7 +743,10 @@ describe("SearchIndex.query (json)", () => {
         filter: { name: { $fuzzy: { value: "Laptopp", distance: 2 } } },
       });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result).toEqual([
+        expect.objectContaining({ data: expect.objectContaining({ name: "Laptop Pro" }) }),
+        expect.objectContaining({ data: expect.objectContaining({ name: "Laptop Basic" }) }),
+      ]);
     });
 
     test("queries with $phrase for exact phrase matching", async () => {
@@ -591,7 +755,9 @@ describe("SearchIndex.query (json)", () => {
         filter: { description: { $phrase: "wireless mouse" } },
       });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result).toEqual([
+        expect.objectContaining({ data: expect.objectContaining({ name: "Wireless Mouse" }) }),
+      ]);
     });
 
     test("queries with $regex pattern", async () => {
@@ -600,7 +766,10 @@ describe("SearchIndex.query (json)", () => {
         filter: { name: { $regex: "Laptop.*" } },
       });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result).toEqual([
+        expect.objectContaining({ data: expect.objectContaining({ name: "Laptop Pro" }) }),
+        expect.objectContaining({ data: expect.objectContaining({ name: "Laptop Basic" }) }),
+      ]);
     });
   });
 
@@ -609,21 +778,57 @@ describe("SearchIndex.query (json)", () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { price: { $gt: 500 } } });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "Laptop Pro", price: 1299.99 }),
+          }),
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "Laptop Basic", price: 599.99 }),
+          }),
+        ])
+      );
     });
 
     test("queries with $gte on numeric field", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { stock: { $gte: 100 } } });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "Laptop Basic", stock: 100 }),
+          }),
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "Wireless Mouse", stock: 200 }),
+          }),
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "USB Cable", stock: 500 }),
+          }),
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "Phone Case", stock: 300 }),
+          }),
+        ])
+      );
     });
 
     test("queries with $lt on numeric field", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { price: { $lt: 50 } } });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "Wireless Mouse", price: 29.99 }),
+          }),
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "USB Cable", price: 9.99 }),
+          }),
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "Phone Case", price: 19.99 }),
+          }),
+        ])
+      );
     });
 
     test("queries with $lte on numeric field", async () => {
@@ -632,7 +837,16 @@ describe("SearchIndex.query (json)", () => {
         filter: { stock: { $lte: 50 } },
       });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "Laptop Pro", stock: 50 }),
+          }),
+          expect.objectContaining({
+            data: expect.objectContaining({ name: "Monitor", stock: 30 }),
+          }),
+        ])
+      );
     });
   });
 
@@ -641,7 +855,11 @@ describe("SearchIndex.query (json)", () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { active: { $eq: false } } });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result).toEqual([
+        expect.objectContaining({
+          data: expect.objectContaining({ name: "Phone Case", active: false }),
+        }),
+      ]);
     });
   });
 
@@ -650,8 +868,11 @@ describe("SearchIndex.query (json)", () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { category: { $eq: "electronics" } }, limit: 2 });
 
-      expect(result.length).toBeGreaterThan(0);
-      expect(result.length).toBeLessThanOrEqual(2);
+      expect(result.length).toBe(2);
+      expect(result).toEqual([
+        expect.objectContaining({ data: expect.objectContaining({ category: "electronics" }) }),
+        expect.objectContaining({ data: expect.objectContaining({ category: "electronics" }) }),
+      ]);
     });
 
     test("queries with offset for pagination", async () => {
@@ -668,8 +889,17 @@ describe("SearchIndex.query (json)", () => {
         offset: 2,
       });
 
-      expect(firstPage.length).toBeGreaterThan(0);
+      expect(firstPage.length).toBe(2);
       expect(secondPage.length).toBeGreaterThan(0);
+      expect(firstPage).toEqual([
+        expect.objectContaining({ data: expect.objectContaining({ category: "electronics" }) }),
+        expect.objectContaining({ data: expect.objectContaining({ category: "electronics" }) }),
+      ]);
+      expect(secondPage).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ data: expect.objectContaining({ category: "electronics" }) }),
+        ])
+      );
     });
 
     test("queries with sortBy ascending", async () => {
@@ -680,7 +910,17 @@ describe("SearchIndex.query (json)", () => {
         limit: 3,
       });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result).toEqual([
+        expect.objectContaining({
+          data: expect.objectContaining({ name: "Wireless Mouse", price: 29.99 }),
+        }),
+        expect.objectContaining({
+          data: expect.objectContaining({ name: "Keyboard", price: 149.99 }),
+        }),
+        expect.objectContaining({
+          data: expect.objectContaining({ name: "Monitor", price: 449.99 }),
+        }),
+      ]);
     });
 
     test("queries with sortBy descending", async () => {
@@ -691,7 +931,17 @@ describe("SearchIndex.query (json)", () => {
         limit: 3,
       });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result).toEqual([
+        expect.objectContaining({
+          data: expect.objectContaining({ name: "Laptop Pro", price: 1299.99 }),
+        }),
+        expect.objectContaining({
+          data: expect.objectContaining({ name: "Laptop Basic", price: 599.99 }),
+        }),
+        expect.objectContaining({
+          data: expect.objectContaining({ name: "Monitor", price: 449.99 }),
+        }),
+      ]);
     });
 
     test("queries with noContent returns only keys", async () => {
@@ -702,6 +952,9 @@ describe("SearchIndex.query (json)", () => {
       });
 
       expect(result.length).toBeGreaterThan(0);
+      expect(result[0].key).toBeDefined();
+      expect(result[0].score).toBeDefined();
+      expect(result[0]).not.toHaveProperty("data");
     });
 
     test("queries with returnFields", async () => {
@@ -712,7 +965,15 @@ describe("SearchIndex.query (json)", () => {
         highlight: { fields: [] },
       });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ data: expect.objectContaining({ category: "electronics" }) }),
+          expect.objectContaining({ data: expect.objectContaining({ category: "electronics" }) }),
+          expect.objectContaining({ data: expect.objectContaining({ category: "electronics" }) }),
+          expect.objectContaining({ data: expect.objectContaining({ category: "electronics" }) }),
+          expect.objectContaining({ data: expect.objectContaining({ category: "electronics" }) }),
+        ])
+      );
     });
 
     test("queries with $ to return full document", async () => {
@@ -721,7 +982,10 @@ describe("SearchIndex.query (json)", () => {
         filter: { name: { $eq: "Laptop" } },
       });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result).toEqual([
+        expect.objectContaining({ data: expect.objectContaining({ name: "Laptop Pro" }) }),
+        expect.objectContaining({ data: expect.objectContaining({ name: "Laptop Basic" }) }),
+      ]);
     });
   });
 });
@@ -772,14 +1036,14 @@ describe("SearchIndex.count", () => {
     const index = initIndex(client, { name, schema });
     const result = await index.count({ filter: { type: { $eq: "A" } } });
 
-    expect(result.count).toBeGreaterThan(0);
+    expect(result).toEqual({ count: 5 });
   });
 
   test("counts with numeric filter", async () => {
     const index = initIndex(client, { name, schema });
     const result = await index.count({ filter: { value: { $gte: 5 } } });
 
-    expect(result.count).toBeGreaterThan(0);
+    expect(result).toEqual({ count: 5 });
   });
 });
 
@@ -895,7 +1159,9 @@ describe("Hash index queries", () => {
     const index = initIndex(client, { name, schema });
     const result = await index.query({ filter: { name: { $eq: "Alice" } } });
 
-    expect(result.length).toBeGreaterThan(0);
+    expect(result).toEqual([
+      expect.objectContaining({ data: expect.objectContaining({ name: "Alice", score: 95 }) }),
+    ]);
   });
 
   test("queries hash index with sorting", async () => {
@@ -905,7 +1171,11 @@ describe("Hash index queries", () => {
       orderBy: { score: "DESC" },
     });
 
-    expect(result.length).toBeGreaterThan(0);
+    expect(result).toEqual([
+      expect.objectContaining({ data: expect.objectContaining({ name: "Alice", score: 95 }) }),
+      expect.objectContaining({ data: expect.objectContaining({ name: "Charlie", score: 92 }) }),
+      expect.objectContaining({ data: expect.objectContaining({ name: "Bob", score: 87 }) }),
+    ]);
   });
 });
 
@@ -977,14 +1247,44 @@ describe("Nested string index queries", () => {
     const index = initIndex(client, { name, schema });
     const result = await index.query({ filter: { "author.name": { $eq: "John" } } });
 
-    expect(result.length).toBeGreaterThan(0);
+    expect(result).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          data: expect.objectContaining({
+            title: "First Post",
+            author: expect.objectContaining({ name: "John Doe" }),
+          }),
+        }),
+        expect.objectContaining({
+          data: expect.objectContaining({
+            title: "Third Post",
+            author: expect.objectContaining({ name: "John Doe" }),
+          }),
+        }),
+      ])
+    );
   });
 
   test("queries nested numeric field", async () => {
     const index = initIndex(client, { name, schema });
     const result = await index.query({ filter: { "stats.views": { $gte: 1000 } } });
 
-    expect(result.length).toBeGreaterThan(0);
+    expect(result).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          data: expect.objectContaining({
+            title: "First Post",
+            stats: expect.objectContaining({ views: 1000 }),
+          }),
+        }),
+        expect.objectContaining({
+          data: expect.objectContaining({
+            title: "Third Post",
+            stats: expect.objectContaining({ views: 2000 }),
+          }),
+        }),
+      ])
+    );
   });
 
   test("queries with sorting on nested field", async () => {
@@ -995,7 +1295,18 @@ describe("Nested string index queries", () => {
       orderBy: { "stats.views": "DESC" },
     });
 
-    expect(result.length).toBeGreaterThan(0);
+    expect(result).toEqual([
+      expect.objectContaining({
+        data: expect.objectContaining({
+          author: expect.objectContaining({ email: "john@example.com" }),
+        }),
+      }),
+      expect.objectContaining({
+        data: expect.objectContaining({
+          author: expect.objectContaining({ email: "john@example.com" }),
+        }),
+      }),
+    ]);
   });
 });
 
@@ -1067,14 +1378,44 @@ describe("Nested json index queries", () => {
     const index = initIndex(client, { name, schema });
     const result = await index.query({ filter: { "author.name": { $eq: "John" } } });
 
-    expect(result.length).toBeGreaterThan(0);
+    expect(result).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          data: expect.objectContaining({
+            title: "First Post",
+            author: expect.objectContaining({ name: "John Doe" }),
+          }),
+        }),
+        expect.objectContaining({
+          data: expect.objectContaining({
+            title: "Third Post",
+            author: expect.objectContaining({ name: "John Doe" }),
+          }),
+        }),
+      ])
+    );
   });
 
   test("queries nested numeric field", async () => {
     const index = initIndex(client, { name, schema });
     const result = await index.query({ filter: { "stats.views": { $gte: 1000 } } });
 
-    expect(result.length).toBeGreaterThan(0);
+    expect(result).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          data: expect.objectContaining({
+            title: "First Post",
+            stats: expect.objectContaining({ views: 1000 }),
+          }),
+        }),
+        expect.objectContaining({
+          data: expect.objectContaining({
+            title: "Third Post",
+            stats: expect.objectContaining({ views: 2000 }),
+          }),
+        }),
+      ])
+    );
   });
 
   test("queries with sorting on nested field", async () => {
@@ -1085,7 +1426,18 @@ describe("Nested json index queries", () => {
       orderBy: { "stats.views": "DESC" },
     });
 
-    expect(result.length).toBeGreaterThan(0);
+    expect(result).toEqual([
+      expect.objectContaining({
+        data: expect.objectContaining({
+          author: expect.objectContaining({ email: "john@example.com" }),
+        }),
+      }),
+      expect.objectContaining({
+        data: expect.objectContaining({
+          author: expect.objectContaining({ email: "john@example.com" }),
+        }),
+      }),
+    ]);
   });
 });
 

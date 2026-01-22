@@ -192,17 +192,29 @@ export type QueryResult<
 > = TOptions extends { select: infer TFields }
   ? // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     {} extends TFields
-    ? { key: string; score: string }
+    ? { key: string; score: number }
     : {
         key: string;
-        score: string;
+        score: number;
         data: BuildNestedResult<TSchema, TFields>;
       }
   : {
       key: string;
-      score: string;
+      score: number;
       data: InferSchemaData<TSchema>;
     };
+
+export type PublicQueryResult<
+  TSchema extends NestedIndexSchema | FlatIndexSchema,
+  TSelectFields extends SchemaPaths<TSchema>[] | undefined = undefined,
+> = QueryResult<
+  TSchema,
+  {
+    select: TSelectFields extends SchemaPaths<TSchema>[]
+      ? { [K in TSelectFields[number]]: true }
+      : undefined;
+  }
+>;
 
 // Query Filter Types
 // These are the operations that can be used for each field type

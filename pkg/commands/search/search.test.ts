@@ -1463,3 +1463,80 @@ describe("index", () => {
     expect(index.schema).toEqual(schema);
   });
 });
+
+describe("Field aliasing with 'from' and stemming", () => {
+  const name = `test-from-stem-${randomID().slice(0, 8)}`;
+  const prefix = `${name}:`;
+  const keys: string[] = [];
+
+  const schema = s.object({
+    content: s.string(), // Default: with stemming
+    contentExact: s.string().noStem().from("content"), // No stemming, from same source
+  });
+
+  beforeAll(async () => {
+    const index = await createIndex(client, {
+      name,
+      schema,
+      dataType: "json",
+      prefix,
+    });
+
+    // Add test data with "running"
+    await new JsonSetCommand([`${prefix}1`, "$", { content: "running fast" }]).exec(client);
+    await new JsonSetCommand([`${prefix}2`, "$", { content: "runner on track" }]).exec(client);
+    keys.push(`${prefix}1`, `${prefix}2`);
+
+    await index.waitIndexing();
+  });
+
+  afterAll(async () => {
+    const index = initIndex(client, { name, schema });
+    try {
+      await index.drop();
+    } catch {
+      // Ignore
+    }
+    if (keys.length > 0) {
+      await new DelCommand(keys).exec(client);
+    }
+  });
+
+  test("stemmed field matches stemmed variants", async () => {
+    const index = initIndex(client, { name, schema });
+    // Query stemmed field with "run" - should match "running" and "runner"
+    const result = await index.query({
+      filter: { content: { $eq: "run" } },
+    });
+
+    expect(result.length).toBe(1);
+    expect(result).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          data: expect.objectContaining({ content: "running fast" }),
+        }),
+      ])
+    );
+  });
+
+  test("noStem field requires exact match", async () => {
+    const index = initIndex(client, { name, schema });
+    // Query non-stemmed field with "run" - should NOT match "running" or "runner"
+    const result = await index.query({
+      filter: { contentExact: { $eq: "run" } },
+    });
+
+    expect(result.length).toBe(0);
+  });
+
+  test("noStem field matches when exact word is present", async () => {
+    const index = initIndex(client, { name, schema });
+    // Query non-stemmed field with "running" - should match exactly
+    const result = await index.query({
+      filter: { contentExact: { $eq: "running" } },
+    });
+
+    expect(result.length).toBe(1);
+    expect(result[0].data).toEqual({ content: "running fast" });
+  });
+});

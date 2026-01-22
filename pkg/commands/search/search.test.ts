@@ -589,12 +589,12 @@ describe("SearchIndex.query (string)", () => {
       const result = await index.query({
         filter: { category: { $eq: "electronics" } },
         select: { category: true },
-        highlight: { fields: [] },
+        highlight: { fields: ["category"] },
       });
 
       expect(result.length).toBe(5);
       for (const item of result) {
-        expect(item.data).toEqual(expect.objectContaining({ category: "electronics" }));
+        expect(item.data).toEqual(expect.objectContaining({ category: "<em>electronics</em>" }));
         expect(item.data).not.toHaveProperty("name");
         expect(item.data).not.toHaveProperty("price");
       }

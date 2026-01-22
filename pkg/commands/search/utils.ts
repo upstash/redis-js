@@ -64,8 +64,8 @@ export function flattenSchema(
 }
 
 export function deserializeQueryResponse<
-  TSchema extends NestedIndexSchema | FlatIndexSchema,
-  TOptions extends QueryOptions<TSchema> | undefined = undefined,
+  TSchema extends NestedIndexSchema | FlatIndexSchema = any,
+  TOptions extends QueryOptions<TSchema> | undefined = any,
 >(rawResponse: unknown[]): QueryResult<TSchema, TOptions>[] {
   return rawResponse.map((itemRaw) => {
     const raw = itemRaw as [string, string, unknown[]?];
@@ -102,7 +102,7 @@ export function deserializeQueryResponse<
           currentObj = currentObj[pathPart] as Record<string, unknown>;
         }
 
-        currentObj[pathParts.at(-1)] = value;
+        currentObj[pathParts.at(-1)!] = value;
       }
     }
 

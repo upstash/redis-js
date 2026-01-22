@@ -86,19 +86,34 @@ type GetFieldValueType<TSchema, Path extends string> =
 // Helper type to check if a field has a 'from' property
 type HasFrom<T> = T extends { from: string } ? true : false;
 
-export type InferSchemaData<TSchema> = {
-  [K in keyof TSchema as TSchema[K] extends DetailedField
-    ? HasFrom<TSchema[K]> extends true
-      ? never
-      : K
-    : K]: TSchema[K] extends FieldType
-    ? FieldValueType<TSchema[K]>
-    : TSchema[K] extends DetailedField
-      ? FieldValueType<ExtractFieldType<TSchema[K]>>
-      : TSchema[K] extends NestedIndexSchema
-        ? InferSchemaData<TSchema[K]>
-        : never;
-};
+// Distributes field inference across unions so that
+// InferSchemaData<NestedIndexSchema | FlatIndexSchema> does not collapse to never
+type InferSchemaDataField<T> = T extends FieldType
+  ? FieldValueType<T>
+  : T extends DetailedField
+    ? FieldValueType<ExtractFieldType<T>>
+    : T extends NestedIndexSchema
+      ? InferSchemaData<T>
+      : unknown;
+
+type IsDefaultSchema<T> = [T] extends [NestedIndexSchema | FlatIndexSchema]
+  ? [NestedIndexSchema | FlatIndexSchema] extends [T]
+    ? true
+    : false
+  : false;
+
+type AsAnyIfUnknown<T> = unknown extends T ? any : T;
+
+export type InferSchemaData<TSchema> =
+  IsDefaultSchema<TSchema> extends true
+    ? any
+    : {
+        [K in keyof TSchema as TSchema[K] extends DetailedField
+          ? HasFrom<TSchema[K]> extends true
+            ? never
+            : K
+          : K]: AsAnyIfUnknown<InferSchemaDataField<TSchema[K]>>;
+      };
 
 // Query Options Types
 // These are the options that can be used for the query command

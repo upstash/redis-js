@@ -59,6 +59,8 @@ import {
   HPersistCommand,
   HGetAllCommand,
   HGetCommand,
+  HGetDelCommand,
+  HGetExCommand,
   HIncrByCommand,
   HIncrByFloatCommand,
   HKeysCommand,
@@ -67,6 +69,7 @@ import {
   HMSetCommand,
   HScanCommand,
   HSetCommand,
+  HSetExCommand,
   HSetNXCommand,
   HStrLenCommand,
   HValsCommand,
@@ -674,6 +677,18 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
     this.chain(new HGetAllCommand<TData>(args, this.commandOptions));
 
   /**
+   * @see https://redis.io/commands/hgetdel
+   */
+  hgetdel = <TData extends Record<string, unknown>>(...args: CommandArgs<typeof HGetDelCommand>) =>
+    this.chain(new HGetDelCommand<TData>(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/hgetex
+   */
+  hgetex = <TData extends Record<string, unknown>>(...args: CommandArgs<typeof HGetExCommand>) =>
+    this.chain(new HGetExCommand<TData>(args, this.commandOptions));
+
+  /**
    * @see https://redis.io/commands/hincrby
    */
   hincrby = (...args: CommandArgs<typeof HIncrByCommand>) =>
@@ -730,6 +745,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   hset = <TData>(key: string, kv: Record<string, TData>) =>
     this.chain(new HSetCommand<TData>([key, kv], this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/hsetex
+   */
+  hsetex = <TData>(...args: CommandArgs<typeof HSetExCommand<TData>>) =>
+    this.chain(new HSetExCommand<TData>(args as any, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/hsetnx

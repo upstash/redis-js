@@ -63,6 +63,8 @@ import {
   HPersistCommand,
   HGetAllCommand,
   HGetCommand,
+  HGetDelCommand,
+  HGetExCommand,
   HIncrByCommand,
   HIncrByFloatCommand,
   HKeysCommand,
@@ -72,6 +74,7 @@ import {
   HRandFieldCommand,
   HScanCommand,
   HSetCommand,
+  HSetExCommand,
   HSetNXCommand,
   HStrLenCommand,
   HValsCommand,
@@ -842,6 +845,18 @@ export class Redis {
     new HGetAllCommand<TData>(args, this.opts).exec(this.client);
 
   /**
+   * @see https://redis.io/commands/hgetdel
+   */
+  hgetdel = <TData extends Record<string, unknown>>(...args: CommandArgs<typeof HGetDelCommand>) =>
+    new HGetDelCommand<TData>(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/hgetex
+   */
+  hgetex = <TData extends Record<string, unknown>>(...args: CommandArgs<typeof HGetExCommand>) =>
+    new HGetExCommand<TData>(args, this.opts).exec(this.client);
+
+  /**
    * @see https://redis.io/commands/hincrby
    */
   hincrby = (...args: CommandArgs<typeof HIncrByCommand>) =>
@@ -905,6 +920,12 @@ export class Redis {
    */
   hset = <TData>(key: string, kv: Record<string, TData>) =>
     new HSetCommand<TData>([key, kv], this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/hsetex
+   */
+  hsetex = <TData>(...args: CommandArgs<typeof HSetExCommand<TData>>) =>
+    new HSetExCommand<TData>(args as any, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hsetnx

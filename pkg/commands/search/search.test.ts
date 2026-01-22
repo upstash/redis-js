@@ -472,7 +472,7 @@ describe("SearchIndex.query (string)", () => {
   });
 
   describe("boolean field queries", () => {
-    test("queries with $eq on boolean field", async () => {
+    test("queries with eq on boolean field", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { active: { $eq: false } } });
 
@@ -482,7 +482,7 @@ describe("SearchIndex.query (string)", () => {
       );
     });
 
-    test("queries with $eq on boolean field - select: {}", async () => {
+    test("queries with eq on boolean field - select: {}", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { active: { $eq: false } }, select: {} });
 
@@ -492,7 +492,7 @@ describe("SearchIndex.query (string)", () => {
       expect(result[0]).not.toHaveProperty("data");
     });
 
-    test("queries with $eq on boolean field - select name only", async () => {
+    test("queries with eq on boolean field - select name only", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { active: { $eq: false } },
@@ -537,7 +537,7 @@ describe("SearchIndex.query (string)", () => {
       expect(secondPage[0].data).toEqual(expect.objectContaining({ category: "electronics" }));
     });
 
-    test("queries with sortBy ascending", async () => {
+    test("queries with ORDERBY ascending", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { category: { $eq: "electronics" } },
@@ -553,7 +553,7 @@ describe("SearchIndex.query (string)", () => {
       expect(result[2].data).toEqual(expect.objectContaining({ name: "Monitor", price: 449.99 }));
     });
 
-    test("queries with sortBy descending", async () => {
+    test("queries with ORDERBY descending", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { category: { $eq: "electronics" } },
@@ -902,7 +902,7 @@ describe("SearchIndex.query (json)", () => {
       );
     });
 
-    test("queries with sortBy ascending", async () => {
+    test("queries with ORDERBY ascending", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { category: { $eq: "electronics" } },
@@ -923,7 +923,7 @@ describe("SearchIndex.query (json)", () => {
       ]);
     });
 
-    test("queries with sortBy descending", async () => {
+    test("queries with ORDERBY descending", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { category: { $eq: "electronics" } },

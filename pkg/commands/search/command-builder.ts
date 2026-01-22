@@ -23,7 +23,7 @@ export function buildQueryCommand<TSchema extends NestedIndexSchema | FlatIndexS
   }
 
   if (options?.orderBy) {
-    command.push("SORTBY");
+    command.push("ORDERBY");
     for (const [field, direction] of Object.entries(options.orderBy)) {
       command.push(field, direction as "ASC" | "DESC");
     }
@@ -43,7 +43,7 @@ export function buildQueryCommand<TSchema extends NestedIndexSchema | FlatIndexS
 
   if (options?.select && Object.keys(options.select).length > 0) {
     command.push(
-      "RETURN",
+      "SELECT",
       Object.keys(options.select).length.toString(),
       ...Object.keys(options.select)
     );

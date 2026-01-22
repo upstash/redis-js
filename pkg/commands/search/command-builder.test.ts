@@ -69,7 +69,7 @@ describe("buildQueryCommand", () => {
       ]);
     });
 
-    test("adds SORTBY option without direction", () => {
+    test("adds ORDERBY option without direction", () => {
       const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
         filter: { name: { $eq: "John" } },
         orderBy: { age: "ASC" },
@@ -79,13 +79,13 @@ describe("buildQueryCommand", () => {
         "SEARCH.QUERY",
         "test-index",
         '{"name":{"$eq":"John"}}',
-        "SORTBY",
+        "ORDERBY",
         "age",
         "ASC",
       ]);
     });
 
-    test("adds SORTBY option with ASC direction", () => {
+    test("adds ORDERBY option with ASC direction", () => {
       const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
         filter: { name: { $eq: "John" } },
         orderBy: { age: "ASC" },
@@ -95,13 +95,13 @@ describe("buildQueryCommand", () => {
         "SEARCH.QUERY",
         "test-index",
         '{"name":{"$eq":"John"}}',
-        "SORTBY",
+        "ORDERBY",
         "age",
         "ASC",
       ]);
     });
 
-    test("adds SORTBY option with DESC direction", () => {
+    test("adds ORDERBY option with DESC direction", () => {
       const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
         filter: { name: { $eq: "John" } },
         orderBy: { age: "DESC" },
@@ -111,7 +111,7 @@ describe("buildQueryCommand", () => {
         "SEARCH.QUERY",
         "test-index",
         '{"name":{"$eq":"John"}}',
-        "SORTBY",
+        "ORDERBY",
         "age",
         "DESC",
       ]);
@@ -164,7 +164,7 @@ describe("buildQueryCommand", () => {
         "SEARCH.QUERY",
         "test-index",
         '{"name":{"$eq":"John"}}',
-        "RETURN",
+        "SELECT",
         "1",
         "name",
       ]);
@@ -180,7 +180,7 @@ describe("buildQueryCommand", () => {
         "SEARCH.QUERY",
         "test-index",
         '{"name":{"$eq":"John"}}',
-        "RETURN",
+        "SELECT",
         "2",
         "name",
         "age",
@@ -204,10 +204,10 @@ describe("buildQueryCommand", () => {
         "10",
         "OFFSET",
         "5",
-        "SORTBY",
+        "ORDERBY",
         "age",
         "DESC",
-        "RETURN",
+        "SELECT",
         "2",
         "name",
         "age",

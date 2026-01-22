@@ -172,12 +172,12 @@ describe("deserializeQueryResponse", () => {
       expect(result).toEqual([
         {
           key: "doc:1",
-          score: "0.95",
+          score: 0.95,
           data: { name: "John", age: "30" },
         },
         {
           key: "doc:2",
-          score: "0.85",
+          score: 0.85,
           data: { name: "Jane", age: "25" },
         },
       ]);
@@ -191,7 +191,7 @@ describe("deserializeQueryResponse", () => {
       expect(result).toEqual([
         {
           key: "doc:1",
-          score: "1.0",
+          score: 1,
           data: {},
         },
       ]);
@@ -205,7 +205,7 @@ describe("deserializeQueryResponse", () => {
       expect(result).toEqual([
         {
           key: "doc:1",
-          score: "1.0",
+          score: 1,
           data: {},
         },
       ]);
@@ -234,7 +234,7 @@ describe("deserializeQueryResponse", () => {
       expect(result).toEqual([
         {
           key: "doc:1",
-          score: "0.95",
+          score: 0.95,
           data: {
             id: "123",
             content: { title: "Hello", body: "World" },
@@ -248,7 +248,7 @@ describe("deserializeQueryResponse", () => {
       const rawResponse = [
         [
           "doc:1",
-          "0.95",
+          0.95,
           [
             ["content.title", "Hello"],
             ["content.body", "World"],
@@ -262,7 +262,7 @@ describe("deserializeQueryResponse", () => {
       expect(result).toEqual([
         {
           key: "doc:1",
-          score: "0.95",
+          score: 0.95,
           data: {
             content: { title: "Hello", body: "World" },
             metadata: { views: 100 },
@@ -282,8 +282,8 @@ describe("deserializeQueryResponse", () => {
       const result = deserializeQueryResponse(rawResponse);
 
       expect(result).toEqual([
-        { key: "doc:1", score: "0.95" },
-        { key: "doc:2", score: "0.85" },
+        { key: "doc:1", score: 0.95 },
+        { key: "doc:2", score: 0.85 },
       ]);
     });
   });
@@ -303,7 +303,7 @@ describe("deserializeQueryResponse", () => {
       expect(result).toEqual([
         {
           key: "doc:1",
-          score: "1.0",
+          score: 1,
           data: { field: "value" },
         },
       ]);

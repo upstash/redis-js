@@ -70,7 +70,7 @@ export function deserializeQueryResponse<
   return rawResponse.map((itemRaw) => {
     const raw = itemRaw as [string, string, unknown[]?];
     const key = raw[0];
-    const score = raw[1];
+    const score = Number(raw[1]);
     const rawFields = raw[2];
 
     if (rawFields === undefined) {

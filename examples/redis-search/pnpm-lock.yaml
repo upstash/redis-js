@@ -21,8 +21,8 @@ importers:
         specifier: ^15.5.13
         version: 15.5.13
       '@upstash/redis':
-        specifier: 1.37.0-rc.1
-        version: 1.37.0-rc.1
+        specifier: 1.37.0-rc.2
+        version: 1.37.0-rc.2
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1071,8 +1071,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@upstash/redis@1.37.0-rc.1':
-    resolution: {integrity: sha512-LKBXogOCujxh+foWtwzh1bmxD/FgNAd7t4ZU7RIpjoEm/V8Wvryg2Bod7Q0OdTiPG28FdZNyPFjzh5lmG1yosg==}
+  '@upstash/redis@1.37.0-rc.2':
+    resolution: {integrity: sha512-JbijbSdWE94CTYMY8XYdn0n/RDVfxQvjWzrG30P5CEfZhjfCBzXrz2Lvvr4wKSfXKKC+BExCAVaqOaUbTgx7Cg==}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -3245,7 +3245,7 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
-  '@upstash/redis@1.37.0-rc.1':
+  '@upstash/redis@1.37.0-rc.2':
     dependencies:
       uncrypto: 0.1.3
 

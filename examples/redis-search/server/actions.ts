@@ -99,6 +99,9 @@ export async function queryProducts(filter: QueryFilter): Promise<QueryResponse>
       limit: 10,
     });
 
+    console.log(results);
+    
+
     return {
       type: "queryResponse",
       results: results as ProductQueryResponseItem[],

@@ -159,17 +159,26 @@ type DeepMerge<T> = T extends object
 /**
  * Build nested result type from selected paths
  */
-type BuildNestedResult<TSchema, TFields> = DeepMerge<
-  UnionToIntersection<
-    {
-      [Path in keyof TFields & SchemaPaths<TSchema>]: PathToNestedObject<
-        TSchema,
-        Path & string,
-        GetFieldValueType<TSchema, Path & string>
+type BuildNestedResult<TSchema, TFields> =
+  IsDefaultSchema<TSchema> extends true
+    ? DeepMerge<
+        UnionToIntersection<
+          {
+            [Path in keyof TFields & string]: PathToNestedObject<any, Path, any>;
+          }[keyof TFields & string]
+        >
+      >
+    : DeepMerge<
+        UnionToIntersection<
+          {
+            [Path in keyof TFields & SchemaPaths<TSchema>]: PathToNestedObject<
+              TSchema,
+              Path & string,
+              AsAnyIfUnknown<GetFieldValueType<TSchema, Path & string>>
+            >;
+          }[keyof TFields & SchemaPaths<TSchema>]
+        >
       >;
-    }[keyof TFields & SchemaPaths<TSchema>]
-  >
->;
 
 type UnionToIntersection<U> = (U extends unknown ? (k: U) => void : never) extends (
   k: infer I

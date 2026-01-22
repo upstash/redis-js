@@ -59,14 +59,14 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
     return deserializeDescribeResponse<TSchema>(rawResult);
   }
 
-  async query(
-    options?: QueryOptions<TSchema>
-  ): Promise<QueryResult<TSchema, QueryOptions<TSchema>>[]> {
+  async query<TOpts extends QueryOptions<TSchema> | undefined = undefined>(
+    options?: TOpts
+  ): Promise<QueryResult<TSchema, TOpts>[]> {
     const command = buildQueryCommand<TSchema>("SEARCH.QUERY", this.name, options);
     const rawResult = await new ExecCommand<string[]>(command as [string, ...string[]]).exec(
       this.client
     );
-    return deserializeQueryResponse<TSchema, QueryOptions<TSchema>>(rawResult);
+    return deserializeQueryResponse<TSchema, TOpts>(rawResult);
   }
 
   async count({ filter }: { filter: RootQueryFilter<TSchema> }): Promise<{ count: number }> {

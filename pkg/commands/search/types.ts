@@ -209,11 +209,11 @@ export type PublicQueryResult<
   TSelectFields extends SchemaPaths<TSchema>[] | undefined = undefined,
 > = QueryResult<
   TSchema,
-  {
-    select: TSelectFields extends SchemaPaths<TSchema>[]
-      ? { [K in TSelectFields[number]]: true }
-      : undefined;
-  }
+  TSelectFields extends SchemaPaths<TSchema>[]
+    ? {
+        select: { [K in TSelectFields[number]]: true };
+      }
+    : undefined
 >;
 
 // Query Filter Types

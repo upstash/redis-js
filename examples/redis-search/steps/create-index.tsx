@@ -2,7 +2,6 @@
 
 import { StepConfig } from "@/types/step";
 import { QueryResult } from "@/components/query-result";
-import { ProductCard } from "@/components/product-card";
 import { queryProducts, createStringIndex, insertSampleData, checkIndexExists } from "@/server/actions";
 
 export const createIndexSteps: StepConfig[] = [
@@ -32,7 +31,7 @@ const productSchema = s.object({
     description: (
       <>
         You can create an index using Hash data type for flat structures. Hash indexes are simple and efficient
-        but don't support nested objects.
+        but don&apos;t support nested objects.
       </>
     ),
     code: `// For Hash data type (flat structure only)
@@ -67,16 +66,7 @@ const index = await redis.search.createIndex({
   existsOk: true,           // Don't error if exists
 });`,
     result: (
-      <QueryResult
-        onQuery={createStringIndex}
-        renderResults={(data) => (
-          <div className="rounded-lg bg-green-500/10 border border-green-500/20 p-4">
-            <p className="text-sm font-medium text-green-600 dark:text-green-400">
-              ✅ {data.message}
-            </p>
-          </div>
-        )}
-      />
+      <QueryResult onQuery={createStringIndex} />
     ),
   },
   {
@@ -112,31 +102,7 @@ const jsonIndex = await redis.search.createIndex({
       </>
     ),
     result: (
-      <QueryResult
-        onQuery={checkIndexExists}
-        renderResults={(data) => (
-          <div className={`rounded-lg border p-4 ${
-            data.exists 
-              ? "bg-green-500/10 border-green-500/20" 
-              : "bg-yellow-500/10 border-yellow-500/20"
-          }`}>
-            <p className={`text-sm font-medium ${
-              data.exists 
-                ? "text-green-600 dark:text-green-400" 
-                : "text-yellow-600 dark:text-yellow-400"
-            }`}>
-              {data.exists 
-                ? "✅ Index 'products-idx' exists and is ready to use!" 
-                : "⚠️ Index 'products-idx' does not exist yet. Create it first!"}
-            </p>
-            {data.exists && data.description && (
-              <div className="mt-2 text-xs text-muted-foreground">
-                Data type: {data.description.dataType} | Prefix: {data.description.prefixes.join(", ")}
-              </div>
-            )}
-          </div>
-        )}
-      />
+      <QueryResult onQuery={checkIndexExists} />
     ),
     code: `import { Redis } from "@upstash/redis";
 
@@ -183,21 +149,7 @@ await redis.hset("hashprod:1", {
   price: 99.99,
 });`,
     result: (
-      <QueryResult
-        onQuery={insertSampleData}
-        renderResults={(data) => (
-          <div className="rounded-lg bg-green-500/10 border border-green-500/20 p-4">
-            <p className="text-sm font-medium text-green-600 dark:text-green-400">
-              ✅ {data.message}
-            </p>
-            {data.count && (
-              <p className="text-xs text-muted-foreground mt-1">
-                Total products: {data.count}
-              </p>
-            )}
-          </div>
-        )}
-      />
+      <QueryResult onQuery={insertSampleData} />
     ),
   },
   {
@@ -218,23 +170,6 @@ console.log("✅ Indexing completed");`,
           const result = await queryProducts({ active: true });
           return result;
         }}
-        renderResults={(data) => (
-          <div className="space-y-3">
-            <div className="text-sm font-medium">
-              Searched and found {data.results?.length || 0} active products
-            </div>
-            <div className="max-h-96 overflow-y-auto space-y-3">
-              {data.results?.map((item: any, idx: number) => (
-                <ProductCard
-                  key={idx}
-                  product={item.data}
-                  score={item.score}
-                  showKey={true}
-                />
-              ))}
-            </div>
-          </div>
-        )}
       />
     ),
   },

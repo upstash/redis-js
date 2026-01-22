@@ -1,5 +1,5 @@
 import { redis } from "@/lib/redis";
-import { s } from "@upstash/redis";
+import { QueryResult, s } from "@upstash/redis";
 
 // Define the schema for our product search index
 export const productSchema = s.object({
@@ -12,15 +12,10 @@ export const productSchema = s.object({
   tags: s.string(),
 });
 
-export type Product = {
-  name: string;
-  description: string;
-  category: string;
-  price: number;
-  stock: number;
-  active: boolean;
-  tags: string;
-};
+export type ProductQueryResponseItem = QueryResult<typeof productSchema>
+
+export type Product = ProductQueryResponseItem["data"];
+
 
 // Sample products data
 export const sampleProducts: Product[] = [

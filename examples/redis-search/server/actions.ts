@@ -1,15 +1,15 @@
 "use server";
 
 import { redis } from "@/lib/redis";
-import { productSchema, Product, sampleProducts } from "@/lib/seed";
-import { s } from "@upstash/redis";
+import { productSchema, ProductQueryResponseItem, sampleProducts } from "@/lib/seed";
+import { QueryResponse } from "@/components/query-result";
 
 type QueryFilter = Record<string, unknown>;
 type QueryOptions = Record<string, unknown>;
 
-export async function createStringIndex() {
+export async function createStringIndex(): Promise<QueryResponse> {
   try {
-    const index = await redis.search.createIndex({
+    await redis.search.createIndex({
       name: "products-idx",
       schema: productSchema,
       dataType: "string",
@@ -19,18 +19,18 @@ export async function createStringIndex() {
     });
 
     return {
-      success: true,
+      type: "message",
       message: "String index created successfully!",
     };
   } catch (error) {
     return {
-      success: false,
+      type: "error",
       error: error instanceof Error ? error.message : String(error),
     };
   }
 }
 
-export async function insertSampleData() {
+export async function insertSampleData(): Promise<QueryResponse> {
   try {
     let insertedCount = 0;
 
@@ -53,19 +53,19 @@ export async function insertSampleData() {
     await index.waitIndexing();
 
     return {
-      success: true,
+      type: "message",
       message: `Inserted ${insertedCount} products and completed indexing`,
       count: insertedCount,
     };
   } catch (error) {
     return {
-      success: false,
+      type: "error",
       error: error instanceof Error ? error.message : String(error),
     };
   }
 }
 
-export async function checkIndexExists() {
+export async function checkIndexExists(): Promise<QueryResponse> {
   try {
     const index = redis.search.index({
       name: "products-idx",
@@ -75,19 +75,19 @@ export async function checkIndexExists() {
     const description = await index.describe();
     
     return {
-      success: true,
+      type: "indexStatus",
       exists: true,
       description,
     };
-  } catch (error) {
+  } catch {
     return {
-      success: true,
+      type: "indexStatus",
       exists: false,
     };
   }
 }
 
-export async function queryProducts(filter: QueryFilter) {
+export async function queryProducts(filter: QueryFilter): Promise<QueryResponse> {
   try {
     const index = redis.search.index({
       name: "products-idx",
@@ -100,22 +100,21 @@ export async function queryProducts(filter: QueryFilter) {
     });
 
     return {
-      success: true,
-      results: results.map((r: { key: string; score: string; data: Product }) => ({
-        key: r.key,
-        score: r.score,
-        data: r.data,
-      })),
+      type: "queryResponse",
+      results: results as ProductQueryResponseItem[],
     };
   } catch (error) {
     return {
-      success: false,
+      type: "error",
       error: error instanceof Error ? error.message : String(error),
     };
   }
 }
 
-export async function queryProductsWithOptions(filter: QueryFilter, options: QueryOptions = {}) {
+export async function queryProductsWithOptions(
+  filter: QueryFilter,
+  options: QueryOptions = {}
+): Promise<QueryResponse> {
   try {
     const index = redis.search.index({
       name: "products-idx",
@@ -128,22 +127,19 @@ export async function queryProductsWithOptions(filter: QueryFilter, options: Que
     });
 
     return {
-      success: true,
-      results: results.map((r: { key: string; score: string; data: Product }) => ({
-        key: r.key,
-        score: r.score,
-        data: r.data,
-      })),
+      type: "queryResponse",
+      results: results as ProductQueryResponseItem[],
+      highlighted: !!options.highlight,
     };
   } catch (error) {
     return {
-      success: false,
+      type: "error",
       error: error instanceof Error ? error.message : String(error),
     };
   }
 }
 
-export async function countProducts(filter: QueryFilter) {
+export async function countProducts(filter: QueryFilter): Promise<QueryResponse> {
   try {
     const index = redis.search.index({
       name: "products-idx",
@@ -153,18 +149,18 @@ export async function countProducts(filter: QueryFilter) {
     const result = await index.count({ filter });
 
     return {
-      success: true,
+      type: "count",
       count: result.count,
     };
   } catch (error) {
     return {
-      success: false,
+      type: "error",
       error: error instanceof Error ? error.message : String(error),
     };
   }
 }
 
-export async function describeIndex() {
+export async function describeIndex(): Promise<QueryResponse> {
   try {
     const index = redis.search.index({
       name: "products-idx",
@@ -174,21 +170,20 @@ export async function describeIndex() {
     const description = await index.describe();
 
     return {
-      success: true,
+      type: "indexStatus",
+      exists: true,
       description,
-      notFound: false,
     };
-  } catch (error) {
+  } catch {
     // Return success with notFound flag instead of error
     return {
-      success: true,
-      notFound: true,
-      message: "Index does not exist",
+      type: "indexStatus",
+      exists: false,
     };
   }
 }
 
-export async function dropIndex() {
+export async function dropIndex(): Promise<QueryResponse> {
   try {
     const index = redis.search.index({
       name: "products-idx",
@@ -198,13 +193,13 @@ export async function dropIndex() {
     const result = await index.drop();
 
     return {
-      success: true,
-      result,
+      type: "message",
+      message: `Index dropped successfully: ${result}`,
     };
-  } catch (error) {
+  } catch {
     return {
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
+      type: "error",
+      error: "Failed to drop index",
     };
   }
 }

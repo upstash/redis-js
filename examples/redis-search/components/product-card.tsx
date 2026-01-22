@@ -1,46 +1,48 @@
 import { Badge } from "@/components/ui/badge";
+import { ProductQueryResponseItem } from "@/lib/seed";
 
 interface ProductCardProps {
-  product: any;
-  score?: string;
+  product: ProductQueryResponseItem;
+  score?: number;
   showKey?: boolean;
 }
 
 export function ProductCard({ product, score, showKey = false }: ProductCardProps) {
+  const productData = product.data;
   return (
     <div className="rounded-lg border p-4 space-y-2">
       <div className="flex items-start justify-between">
-        <h3 className="font-semibold">{product.name}</h3>
-        {score && (
+        <h3 className="font-semibold">{productData.name}</h3>
+        {score !== undefined && (
           <Badge variant="secondary" className="ml-2">
-            Score: {parseFloat(score).toFixed(2)}
+            Score: {score.toFixed(2)}
           </Badge>
         )}
       </div>
       
-      {product.description && (
-        <p className="text-sm text-muted-foreground">{product.description}</p>
+      {productData.description && (
+        <p className="text-sm text-muted-foreground">{productData.description}</p>
       )}
       
       <div className="flex flex-wrap gap-2">
-        {product.category && (
-          <Badge variant="outline">{product.category}</Badge>
+        {productData.category && (
+          <Badge variant="outline">{productData.category}</Badge>
         )}
-        {product.price && (
-          <Badge variant="outline">${product.price.toFixed(2)}</Badge>
+        {productData.price && (
+          <Badge variant="outline">${productData.price.toFixed(2)}</Badge>
         )}
-        {product.stock !== undefined && (
-          <Badge variant="outline">Stock: {product.stock}</Badge>
+        {productData.stock !== undefined && (
+          <Badge variant="outline">Stock: {productData.stock}</Badge>
         )}
-        {product.active !== undefined && (
-          <Badge variant={product.active ? "default" : "secondary"}>
-            {product.active ? "Active" : "Inactive"}
+        {productData.active !== undefined && (
+          <Badge variant={productData.active ? "default" : "secondary"}>
+            {productData.active ? "Active" : "Inactive"}
           </Badge>
         )}
       </div>
       
-      {product.tags && (
-        <p className="text-xs text-muted-foreground">Tags: {product.tags}</p>
+      {productData.tags && (
+        <p className="text-xs text-muted-foreground">Tags: {productData.tags}</p>
       )}
       
       {showKey && product.key && (

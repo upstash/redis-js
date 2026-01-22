@@ -1,3 +1,5 @@
+"use client";
+
 import { Steps } from "@/components/steps";
 import { otherOperationsSteps } from "@/steps/other-operations";
 

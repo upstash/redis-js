@@ -3,7 +3,6 @@
 import { StepConfig } from "@/types/step";
 import { SearchResult } from "@/components/search-result";
 import { QueryResult } from "@/components/query-result";
-import { ProductCard } from "@/components/product-card";
 import { queryProducts, queryProductsWithOptions } from "@/server/actions";
 
 export const advancedQuerySteps: StepConfig[] = [
@@ -30,18 +29,7 @@ const results = await index.query({
         <SearchResult
           placeholder="Try: laptop, mouse, gaming..."
           onSearch={async (term) => queryProducts({ name: term })}
-          renderResults={(data) => (
-            <div className="space-y-3">
-              <div className="text-sm font-medium">
-                Complex Match: {data.results?.length || 0} results
-              </div>
-              <div className="max-h-96 overflow-y-auto space-y-3">
-                {data.results?.map((item: any, idx: number) => (
-                  <ProductCard key={idx} product={item.data} score={item.score} />
-                ))}
-              </div>
-            </div>
-          )}
+
         />
       </div>
     ),
@@ -86,27 +74,6 @@ const results = await index.query({
             }
           )
         }
-        renderResults={(data) => (
-          <div className="space-y-3">
-            <div className="text-sm font-medium">
-              Highlighted Results: {data.results?.length || 0}
-            </div>
-            <div className="max-h-96 overflow-y-auto space-y-3">
-              {data.results?.map((item: any, idx: number) => (
-                <div key={idx} className="rounded-lg border p-4 space-y-2">
-                  <h3
-                    className="font-semibold"
-                    dangerouslySetInnerHTML={{ __html: item.data.name }}
-                  />
-                  <p
-                    className="text-sm text-muted-foreground"
-                    dangerouslySetInnerHTML={{ __html: item.data.description }}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       />
     ),
   },
@@ -143,22 +110,6 @@ const results = await index.query({
             { select: { name: true, price: true, category: true } }
           )
         }
-        renderResults={(data) => (
-          <div className="space-y-3">
-            <div className="text-sm font-medium">
-              Selected Fields Only: {data.results?.length || 0}
-            </div>
-            <div className="max-h-96 overflow-y-auto space-y-3">
-              {data.results?.map((item: any, idx: number) => (
-                <div key={idx} className="rounded-lg border p-4">
-                  <pre className="text-sm">
-                    {JSON.stringify(item.data, null, 2)}
-                  </pre>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       />
     ),
   },
@@ -197,18 +148,6 @@ const results = await index.query({
             ],
           })
         }
-        renderResults={(data) => (
-          <div className="space-y-3">
-            <div className="text-sm font-medium">
-              Boosted Results (laptops have 2x boost): {data.results?.length || 0}
-            </div>
-            <div className="max-h-96 overflow-y-auto space-y-3">
-              {data.results?.map((item: any, idx: number) => (
-                <ProductCard key={idx} product={item.data} score={item.score} />
-              ))}
-            </div>
-          </div>
-        )}
       />
     ),
   },
@@ -247,18 +186,6 @@ const results = await index.query({
             active: true,
           })
         }
-        renderResults={(data) => (
-          <div className="space-y-3">
-            <div className="text-sm font-medium">
-              Laptops over $1500 (active): {data.results?.length || 0}
-            </div>
-            <div className="max-h-96 overflow-y-auto space-y-3">
-              {data.results?.map((item: any, idx: number) => (
-                <ProductCard key={idx} product={item.data} score={item.score} />
-              ))}
-            </div>
-          </div>
-        )}
       />
     ),
   },
@@ -299,18 +226,6 @@ const results = await index.query({
             ],
           })
         }
-        renderResults={(data) => (
-          <div className="space-y-3">
-            <div className="text-sm font-medium">
-              Laptops OR Monitors: {data.results?.length || 0}
-            </div>
-            <div className="max-h-96 overflow-y-auto space-y-3">
-              {data.results?.map((item: any, idx: number) => (
-                <ProductCard key={idx} product={item.data} score={item.score} />
-              ))}
-            </div>
-          </div>
-        )}
       />
     ),
   },
@@ -349,16 +264,6 @@ const results = await index.query({
             $mustNot: [{ stock: { $lt: 20 } }],
           })
         }
-        renderResults={(data) => (
-          <div className="space-y-3">
-            <div className="text-sm font-medium">
-              Active, with good stock, preferring laptops/audio: {data.results?.length || 0}
-            </div>
-            {data.results?.slice(0, 5).map((item: any, idx: number) => (
-              <ProductCard key={idx} product={item.data} score={item.score} />
-            ))}
-          </div>
-        )}
       />
     ),
   },

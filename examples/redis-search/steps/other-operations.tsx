@@ -30,54 +30,6 @@ console.log("Fields:", Object.keys(description.schema));`,
     result: (
       <QueryResult
         onQuery={async () => describeIndex()}
-        renderResults={(data) => (
-          <div className="space-y-4">
-            {data.notFound ? (
-              <div className="rounded-lg bg-yellow-500/10 border border-yellow-500/20 p-4">
-                <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
-                  ⚠️ Index &apos;products-idx&apos; does not exist. Create it first on the Create Index page!
-                </p>
-              </div>
-            ) : (
-              <>
-                <div>
-                  <h4 className="font-semibold mb-2">Index Information</h4>
-                  <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <span className="text-sm font-medium">Name:</span>
-                      <Badge>{data.description?.name}</Badge>
-                    </div>
-                    <div className="flex gap-2">
-                      <span className="text-sm font-medium">Data Type:</span>
-                      <Badge variant="secondary">{data.description?.dataType}</Badge>
-                    </div>
-                    <div className="flex gap-2">
-                      <span className="text-sm font-medium">Prefixes:</span>
-                      {data.description?.prefixes?.map((p: string, i: number) => (
-                        <Badge key={i} variant="outline">{p}</Badge>
-                      ))}
-                    </div>
-                    {data.description?.language && (
-                      <div className="flex gap-2">
-                        <span className="text-sm font-medium">Language:</span>
-                        <Badge variant="outline">{data.description.language}</Badge>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                <div>
-                  <h4 className="font-semibold mb-2">Schema Fields</h4>
-                  <div className="rounded-lg border">
-                    <pre className="p-4 text-sm overflow-x-auto">
-                      {JSON.stringify(data.description?.schema, null, 2)}
-                    </pre>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        )}
       />
     ),
   },

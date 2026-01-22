@@ -22,65 +22,6 @@ export const otherSteps: StepConfig[] = [
     result: (
       <QueryResult
         onQuery={describeIndex}
-        renderResults={(data) => (
-          <div className="space-y-3">
-            {data.notFound ? (
-              <div className="rounded-lg bg-yellow-500/10 border border-yellow-500/20 p-4">
-                <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
-                  ⚠️ Index 'products-idx&apos; does not exist. Create it first on the Create Index page!
-                </p>
-              </div>
-            ) : (
-              <>
-                <div className="grid gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">Index Name:</span>
-                    <Badge variant="outline">{data.description?.name}</Badge>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">Data Type:</span>
-                    <Badge variant="outline">{data.description?.dataType}</Badge>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">Prefixes:</span>
-                    {data.description?.prefixes?.map((prefix: string, idx: number) => (
-                      <Badge key={idx} variant="secondary">{prefix}</Badge>
-                    ))}
-                  </div>
-                  {data.description?.language && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">Language:</span>
-                      <Badge variant="outline">{data.description.language}</Badge>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="mt-4">
-                  <h4 className="text-sm font-medium mb-2">Schema Fields:</h4>
-                  <div className="grid gap-2">
-                    {data.description?.schema && Object.entries(data.description.schema).map(([field, info]: [string, any]) => (
-                      <div key={field} className="rounded-lg border p-3">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-mono text-sm">{field}</span>
-                          <Badge variant="secondary" className="text-xs">
-                            {info.type}
-                          </Badge>
-                        </div>
-                        {info.options && Object.keys(info.options).length > 0 && (
-                          <div className="flex gap-1 mt-1">
-                            {Object.entries(info.options).map(([key, value]) => (
-                              value && <Badge key={key} variant="outline" className="text-xs">{key}</Badge>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        )}
       />
     ),
   },
@@ -102,23 +43,10 @@ export const otherSteps: StepConfig[] = [
             ⚠️ Destructive Operation
           </p>
           <p className="text-sm text-muted-foreground mb-3">
-            Dropping the index will delete it permanently. You'll need to re-run the seed script to recreate it.
+            Dropping the index will delete it permanently. You&apos;ll need to re-run the seed script to recreate it.
           </p>
           <QueryResult
             onQuery={dropIndex}
-            renderResults={(data) => (
-              <div className="rounded-lg bg-card border p-3">
-                {data.result === 1 ? (
-                  <p className="text-sm text-green-600 dark:text-green-400">
-                    ✅ Index dropped successfully!
-                  </p>
-                ) : (
-                  <p className="text-sm text-destructive">
-                    ❌ Failed to drop index (it may not exist)
-                  </p>
-                )}
-              </div>
-            )}
           />
         </div>
         <p className="text-xs text-muted-foreground">

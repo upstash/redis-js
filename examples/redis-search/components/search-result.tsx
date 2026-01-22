@@ -4,21 +4,74 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
+import { QueryResponse } from "@/components/query-result";
+import { ProductCard } from "@/components/product-card";
 
 interface SearchResultProps {
-  onSearch: (term: string) => Promise<any>;
-  renderResults: (results: any) => React.ReactNode;
+  onSearch: (term: string) => Promise<QueryResponse>;
   placeholder?: string;
+}
+
+function renderSearchResponse(
+  response: QueryResponse
+): React.ReactNode {
+  switch (response.type) {
+    case "error":
+      return (
+        <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+          Error: {response.error}
+        </div>
+      );
+
+    case "queryResponse":
+      if (response.highlighted) {
+        return (
+          <div className="space-y-3">
+            <div className="text-sm font-medium">
+              Highlighted Results: {response.results.length}
+            </div>
+            <div className="max-h-96 overflow-y-auto space-y-3">
+              {response.results.map((item, idx) => (
+                <div key={idx} className="rounded-lg border p-4 space-y-2">
+                  <h3
+                    className="font-semibold"
+                    dangerouslySetInnerHTML={{ __html: item.data.name }}
+                  />
+                  <p
+                    className="text-sm text-muted-foreground"
+                    dangerouslySetInnerHTML={{ __html: item.data.description }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      }
+      return (
+        <div className="space-y-3">
+          <div className="text-sm font-medium">
+            Found {response.results.length} result{response.results.length !== 1 ? "s" : ""}
+          </div>
+          <div className="max-h-96 overflow-y-auto space-y-3">
+            {response.results.map((item, idx) => (
+              <ProductCard key={idx} product={item} score={item.score} />
+            ))}
+          </div>
+        </div>
+      );
+
+    default:
+      return null;
+  }
 }
 
 export function SearchResult({
   onSearch,
-  renderResults,
   placeholder = "Enter search term...",
 }: SearchResultProps) {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<QueryResponse | null>(null);
 
   const handleSearch = async () => {
     if (!searchTerm.trim()) return;
@@ -29,7 +82,7 @@ export function SearchResult({
       setResults(data);
     } catch (error) {
       setResults({
-        success: false,
+        type: "error",
         error: error instanceof Error ? error.message : String(error),
       });
     } finally {
@@ -52,17 +105,7 @@ export function SearchResult({
         </Button>
       </div>
 
-      {results && (
-        <div className="space-y-2">
-          {results.success === false ? (
-            <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-              Error: {results.error}
-            </div>
-          ) : (
-            renderResults(results)
-          )}
-        </div>
-      )}
+      {results && <div className="space-y-2">{renderSearchResponse(results)}</div>}
     </div>
   );
 }

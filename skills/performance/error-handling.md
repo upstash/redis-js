@@ -1,23 +1,82 @@
 # Error Handling
 
-## What This File Covers
+## Overview
 
-- Error types in @upstash/redis
-- Try-catch patterns
-- Retry strategies for transient failures
+Handle Redis errors gracefully with try-catch, implement retry logic for transient failures, and provide fallbacks for degraded operation.
+
+## Good For
+
+- Network failure recovery
 - Timeout handling
-- Network error recovery
-- Debugging techniques
-- Error logging best practices
-- Common error scenarios and solutions
-- Graceful degradation patterns
+- Graceful degradation
+- Debugging and monitoring
+- Production reliability
 
-## Key Topics
+## Limitations
 
-1. **Error Types**: Connection errors, timeout errors, command errors
-2. **Error Objects**: Understanding error properties and messages
-3. **Retry Logic**: When and how to retry failed operations
-4. **Timeout Handling**: Dealing with slow responses
-5. **Debugging**: Tools and techniques for troubleshooting
-6. **Production Patterns**: Monitoring, alerting, fallback strategies
-7. **Common Issues**: Network problems, authentication failures, rate limits
+- Some errors are not recoverable
+- Retries can increase latency
+- Too many retries may cause cascading failures
+
+## Examples
+
+### Built-in Retry Configuration
+
+```typescript
+import { Redis } from "@upstash/redis";
+
+// Default: 5 retries with exponential backoff
+const redis = Redis.fromEnv();
+
+// Customize retry behavior
+const redisWithRetry = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+  retry: {
+    retries: 3,
+    backoff: (retryCount) => Math.exp(retryCount) * 50, // Exponential backoff
+  },
+});
+
+// Disable retries
+const redisNoRetry = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+  retry: false, // No retries
+});
+
+// Custom backoff strategy
+const redisCustomBackoff = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+  retry: {
+    retries: 10,
+    backoff: (retryCount) => {
+      // Linear backoff: 100ms, 200ms, 300ms...
+      return retryCount * 100;
+    },
+  },
+});
+```
+
+### Request Cancellation with AbortSignal
+
+```typescript
+import { Redis } from "@upstash/redis";
+
+const redis = Redis.fromEnv();
+
+const redisWithTimeout = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+  signal: () => AbortSignal.timeout(5000), // 5 second timeout per request
+});
+
+try {
+  await redisWithTimeout.get("key");
+} catch (error) {
+  if (error.name === "TimeoutError") {
+    console.error("Request timed out");
+  }
+}
+```

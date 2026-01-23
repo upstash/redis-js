@@ -1,21 +1,43 @@
 # Pipelines and Transactions
 
-## What This File Covers
+## Overview
 
-- Manual pipeline construction with pipeline()
-- MULTI/EXEC for atomic transactions
-- WATCH for optimistic locking
-- Difference between pipelines and transactions
-- Error handling in pipelines
-- Atomic operations and race conditions
-- Common patterns: atomic counters, conditional updates
+**Pipelines** batch multiple commands for efficiency. **Transactions** (MULTI/EXEC) execute commands atomically.
 
-## Key Topics
+## Good For
 
-1. **Manual Pipelines**: Building pipelines for batch operations
-2. **Transactions**: MULTI/EXEC for atomicity
-3. **Optimistic Locking**: WATCH for conditional execution
-4. **Pipelines vs Transactions**: When to use each
-5. **Error Handling**: Dealing with failures in pipelines
-6. **Atomic Operations**: Preventing race conditions
-7. **Use Cases**: Inventory updates, account transfers, conditional logic
+- **Pipelines**: Reducing round trips for independent operations
+- **Transactions**: Atomic operations that must succeed or fail together
+
+## Limitations
+
+- Pipeline commands execute independently (no atomicity)
+- Transactions block other clients from modifying watched keys
+- WATCH only works for keys, not values
+
+## Examples
+
+```typescript
+import { Redis } from "@upstash/redis";
+
+const redis = Redis.fromEnv();
+
+// Manual Pipeline - batch operations for efficiency
+const pipeline = redis.pipeline();
+pipeline.set("user:1:name", "Alice");
+pipeline.set("user:1:email", "alice@example.com");
+pipeline.incr("user:count");
+pipeline.lpush("recent:users", "user:1");
+
+const results = await pipeline.exec();
+// Returns array of results: [OK, OK, 1, 1]
+
+// Transaction (MULTI/EXEC) - atomic operations
+const tx = redis.multi();
+tx.decrby("inventory:item:1", 5); // Deduct inventory
+tx.incrby("user:123:purchases", 5); // Add to user purchases
+tx.lpush("orders", JSON.stringify({ userId: 123, itemId: 1, qty: 5 }));
+
+const txResults = await tx.exec();
+// All commands succeed together or all fail
+```

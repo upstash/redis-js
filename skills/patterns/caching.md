@@ -1,22 +1,58 @@
-# Caching Patterns
+# Caching Strategies
 
-## What This File Covers
+## Overview
 
-- Cache-aside pattern implementation
-- Write-through caching
-- Write-behind caching
-- TTL strategies for cache invalidation
-- Cache warming techniques
-- Handling cache misses
-- Stale-while-revalidate patterns
-- Common caching pitfalls and solutions
+Use Redis as a cache layer to reduce database load and improve response times. Supports cache-aside, write-through, and TTL-based expiration.
 
-## Key Topics
+## Good For
 
-1. **Cache-Aside**: Read-through caching pattern
-2. **Write-Through**: Synchronous cache updates
-3. **Write-Behind**: Asynchronous cache updates
-4. **TTL Strategies**: Time-based expiration
-5. **Cache Invalidation**: When and how to invalidate
-6. **Use Cases**: API responses, database queries, computed results
-7. **Best Practices**: Key naming, TTL selection, error handling
+- Reducing database queries
+- Storing frequently accessed data
+- Session data, API responses, computed results
+- Temporary data with automatic expiration
+
+## Examples
+
+```typescript
+import { Redis } from "@upstash/redis";
+
+const redis = Redis.fromEnv();
+
+// Cache-Aside (Lazy Loading) - most common pattern
+async function getUser(userId: string) {
+  // Try cache first
+  const cached = await redis.get(`user:${userId}`);
+
+  if (cached) {
+    return cached; // Cache hit
+  }
+
+  // Cache miss - fetch from database
+  const user = await database.users.findById(userId);
+
+  // Store in cache with 1 hour TTL
+  await redis.set(`user:${userId}`, user, { ex: 3600 });
+
+  return user;
+}
+
+// Write-Through - update cache on write
+async function updateUser(userId: string, data: any) {
+  // Update database
+  const user = await database.users.update(userId, data);
+
+  // Update cache immediately
+  await redis.set(`user:${userId}`, user, { ex: 3600 });
+
+  return user;
+}
+
+// Cache invalidation
+async function deleteUser(userId: string) {
+  // Delete from database
+  await database.users.delete(userId);
+
+  // Invalidate cache
+  await redis.del(`user:${userId}`);
+}
+```

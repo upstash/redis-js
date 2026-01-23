@@ -59,7 +59,6 @@ Complex operations and optimizations:
 
 - **auto-pipeline.md** - Automatic request batching, performance optimization
 - **pipeline-and-transactions.md** - Manual pipelines, MULTI/EXEC, WATCH for atomic operations
-- **pub-sub.md** - Publish/subscribe messaging patterns
 - **scripting.md** - Lua scripts, EVAL, EVALSHA for server-side logic
 
 ### Patterns (skills/patterns/)
@@ -71,7 +70,6 @@ Common use cases and architectural patterns:
 - **session-management.md** - Session storage, JWT integration, user state
 - **distributed-locks.md** - Lock implementations, deadlock prevention
 - **leaderboard.md** - Sorted set leaderboards, real-time rankings
-- **read-your-writes.md** - Consistency guarantees, eventual consistency patterns
 
 ### Performance (skills/performance/)
 
@@ -79,7 +77,6 @@ Optimization techniques and best practices:
 
 - **batching-operations.md** - MGET, MSET, batch operations
 - **pipeline-optimization.md** - When to use pipelines, performance tips
-- **connection-pooling.md** - Connection management in serverless
 - **ttl-expiration.md** - Key expiration strategies, memory management
 - **data-serialization.md** - Deep dive into auto serialization, custom serializers, edge cases
 - **error-handling.md** - Error types, retry strategies, timeout handling, debugging tips
@@ -91,7 +88,6 @@ Migration guides from other libraries:
 
 - **from-ioredis.md** - Migration from ioredis, key differences, serialization changes
 - **from-redis-node.md** - Migration from node-redis, API differences
-- **version-upgrades.md** - Upgrading between @upstash/redis versions
 
 ## Common Mistakes (Especially for LLMs)
 

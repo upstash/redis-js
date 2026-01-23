@@ -1,21 +1,50 @@
 # Automatic Pipelining
 
-## What This File Covers
+## Overview
 
-- How automatic pipelining works in @upstash/redis
-- Performance benefits of auto-pipelining
-- When auto-pipelining is enabled
-- Configuring auto-pipeline behavior
-- Measuring performance improvements
-- Edge cases and limitations
-- Comparison with manual pipelines
+Automatic pipelining batches multiple Redis commands into a single HTTP request, reducing round-trip latency for independent operations.
 
-## Key Topics
+It's enabled by default. Use `enableAutoPipelining: false` to disable automatic pipelining:
 
-1. **What is Auto-Pipeline**: Automatic batching of Redis commands
-2. **How It Works**: Behind-the-scenes command batching
-3. **Configuration**: Enabling and tuning auto-pipeline
-4. **Performance**: Latency reduction, throughput improvements
-5. **Use Cases**: Multiple independent operations
-6. **Limitations**: When auto-pipeline doesn't help
-7. **Best Practices**: Optimal usage patterns
+## Good For
+
+- Multiple independent GET/SET operations
+- Batch reads across different keys
+- Reducing latency in high-latency networks
+- Serverless environments with cold starts
+
+## Limitations
+
+- Only works with independent commands (no command depends on another's result)
+- Not beneficial for single commands
+
+## Examples
+
+```typescript
+import { Redis } from "@upstash/redis";
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+  automaticDeserialization: true,
+});
+
+// Without auto-pipeline: 3 separate HTTP requests
+// With auto-pipeline: 1 HTTP request containing all 3 commands
+const [user, posts, comments] = await Promise.all([
+  redis.get("user:1"),
+  redis.get("posts:1"),
+  redis.get("comments:1"),
+]);
+
+// Auto-pipeline batches these independent operations
+async function fetchUserData(userId: string) {
+  const [profile, settings, activity] = await Promise.all([
+    redis.hgetall(`user:${userId}:profile`),
+    redis.hgetall(`user:${userId}:settings`),
+    redis.zrange(`user:${userId}:activity`, 0, 9),
+  ]);
+
+  return { profile, settings, activity };
+}
+```

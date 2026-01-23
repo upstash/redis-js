@@ -1,21 +1,76 @@
 # Batching Operations
 
-## What This File Covers
+## Overview
 
-- MGET, MSET for batch GET/SET operations
-- HMGET, HMSET for batch hash operations
-- Pipeline batching patterns
-- When to batch operations
-- Performance comparison: individual vs batch
-- Optimal batch sizes
-- Common patterns for bulk operations
+Batch multiple Redis operations into single commands to reduce network round trips. Use MGET/MSET for strings, HMGET/HMSET for hashes, pipelines for mixed operations.
 
-## Key Topics
+## Good For
 
-1. **Batch Commands**: MGET, MSET, HMGET, HMSET
-2. **Pipeline Batching**: Using pipelines for heterogeneous operations
-3. **Performance**: Latency reduction with batching
-4. **Batch Size**: Finding optimal batch sizes
-5. **Use Cases**: Bulk data loading, multi-key operations
-6. **Trade-offs**: Memory vs latency
-7. **Best Practices**: When and how to batch
+- Fetching multiple keys at once
+- Bulk data loading
+- Reducing latency in high-latency networks
+- Operations on related data
+
+## Limitations
+
+- Batch operations are atomic per command, not across commands
+- Some commands don't have batch equivalents
+
+## Examples
+
+```typescript
+import { Redis } from "@upstash/redis";
+
+const redis = Redis.fromEnv();
+
+// MGET - batch get multiple keys
+const [user1, user2, user3] = await redis.mget<any[]>("user:1", "user:2", "user:3");
+
+// MSET - batch set multiple keys
+await redis.mset({
+  "user:1": { name: "Alice", age: 30 },
+  "user:2": { name: "Bob", age: 25 },
+  "user:3": { name: "Charlie", age: 35 },
+});
+
+// Compare: individual operations (3 round trips)
+const u1 = await redis.get("user:1");
+const u2 = await redis.get("user:2");
+const u3 = await redis.get("user:3");
+
+// vs batch operation (1 round trip)
+const users = await redis.mget("user:1", "user:2", "user:3");
+
+// HMGET - batch get hash fields
+const [name, email] = await redis.hmget("user:123", "name", "email");
+
+// HMSET - batch set hash fields
+await redis.hset("user:123", {
+  name: "Alice",
+  email: "alice@example.com",
+  age: 30,
+});
+
+// Batch with mixed operations - use pipeline
+const pipeline = redis.pipeline();
+userIds.forEach((id) => {
+  pipeline.get(`user:${id}`);
+  pipeline.hgetall(`user:${id}:profile`);
+  pipeline.zrank("leaderboard", id);
+});
+const results = await pipeline.exec();
+
+// Batch delete
+await redis.del("key1", "key2", "key3", "key4");
+
+// Batch SADD
+await redis.sadd("tags", "redis", "nodejs", "typescript", "upstash");
+
+// Batch with Promise.all (for independent operations)
+const [userCount, postCount, commentCount] = await Promise.all([
+  redis.get("count:users"),
+  redis.get("count:posts"),
+  redis.get("count:comments"),
+]);
+// Note: With auto-pipelining enabled, these batch automatically
+```

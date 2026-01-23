@@ -1,21 +1,32 @@
 # TTL and Key Expiration
 
-## What This File Covers
+## Overview
 
-- Setting TTL with SETEX, EXPIRE
-- TTL strategies for different use cases
-- Key eviction policies
-- Memory management with expiration
-- Sliding expiration patterns
-- TTL inspection with TTL command
-- Common patterns for cache expiration
+Set Time-To-Live (TTL) on keys for automatic expiration. Useful for caches, sessions, and temporary data to manage memory usage.
 
-## Key Topics
+## Good For
 
-1. **Setting TTL**: SETEX, EXPIRE, EXPIREAT
-2. **TTL Strategies**: Time-based expiration patterns
-3. **Key Eviction**: Redis eviction policies (LRU, LFU)
-4. **Memory Management**: Using TTL to control memory usage
-5. **Sliding Windows**: Extending TTL on access
-6. **Use Cases**: Cache expiration, session timeout, temporary data
-7. **Best Practices**: Choosing appropriate TTL values
+- Cache expiration (prevent stale data)
+- Session timeouts
+- Temporary data storage
+- Memory management
+
+## Examples
+
+```typescript
+import { Redis } from "@upstash/redis";
+
+const redis = Redis.fromEnv();
+
+// Set with expiration (EX = seconds)
+await redis.set("session:123", { userId: "user1" }, { ex: 3600 });
+
+// Add TTL to existing key
+await redis.set("key", "value");
+await redis.expire("key", 300); // Expire in 5 minutes
+
+// Get TTL of a key
+const ttl = await redis.ttl("key");
+console.log(`TTL: ${ttl} seconds`);
+// Returns: remaining seconds, -1 (no expiry), -2 (key doesn't exist)
+```

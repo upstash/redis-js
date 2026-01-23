@@ -1,5 +1,14 @@
-upstash redis has a global setup. each db has a primary and multiple replicas across the world.
+# Global Redis Replicas
 
-all write requests have to go to the primary node. read requests can be served by any replica.
+## Overview
 
-redis is eventually consistent across replicas. this means that a read request to a replica may not reflect the most recent write request to the primary. one improvement SDK has is read-your-writes consistency. when enabled, redis server makes sure that read requests are handled after the last write request from the same redis client.
+Upstash Redis uses global replication with one primary and multiple replicas worldwide. Writes go to primary, reads can use nearest replica. Read-your-writes ensures consistency.
+
+If you want to optimize read latency, you can add more read regions to your Upstash Redis database via the Upstash Console.
+
+## Good For
+
+- Low-latency reads from nearby regions
+- Global applications with distributed users
+- Read-heavy workloads
+- High availability

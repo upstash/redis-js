@@ -36,13 +36,13 @@ const fields = await redis.hmget("user:1", "name", "email"); // ["Alice", "alice
 
 // Get all fields and values
 const user = await redis.hgetall("user:1");
-// { name: "Alice", email: "alice@example.com", age: "30" }
+// { name: "Alice", email: "alice@example.com", age: 30 }
 
 // Get all field names
 const fieldNames = await redis.hkeys("user:1"); // ["name", "email", "age"]
 
 // Get all values
-const values = await redis.hvals("user:1"); // ["Alice", "alice@example.com", "30"]
+const values = await redis.hvals("user:1"); // ["Alice", "alice@example.com", 30]
 
 // Check if field exists
 const hasEmail = await redis.hexists("user:1", "email"); // 1 if exists, 0 if not

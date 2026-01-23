@@ -67,7 +67,7 @@ Common use cases and architectural patterns:
 
 - **caching.md** - Cache-aside, write-through, TTL strategies
 - **rate-limiting.md** - Integration with @upstash/ratelimit package
-- **session-management.md** - Session storage, JWT integration, user state
+- **session-management.md** - Session storage and user state management
 - **distributed-locks.md** - Lock implementations, deadlock prevention
 - **leaderboard.md** - Sorted set leaderboards, real-time rankings
 

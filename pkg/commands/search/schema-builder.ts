@@ -60,17 +60,12 @@ class TextFieldBuilder<
   }
 
   [BUILD](): TextFieldBuild<TNoTokenize, TNoStem, TFrom> {
-    const hasOptions =
-      this._noTokenize.noTokenize || this._noStem.noStem || Boolean(this._from.from);
-
-    return hasOptions
-      ? ({
-          type: "TEXT",
-          ...(this._noTokenize.noTokenize ? { noTokenize: true } : {}),
-          ...(this._noStem.noStem ? { noStem: true } : {}),
-          ...(this._from.from ? { from: this._from.from } : {}),
-        } as any)
-      : ("TEXT" as any);
+    return {
+      type: "TEXT",
+      ...(this._noTokenize.noTokenize ? { noTokenize: true } : {}),
+      ...(this._noStem.noStem ? { noStem: true } : {}),
+      ...(this._from.from ? { from: this._from.from } : {}),
+    } as any;
   }
 }
 
@@ -155,7 +150,7 @@ class BoolFieldBuilder<
         from: this._from.from,
       } as any;
     }
-    return "BOOL" as any;
+    return { type: "BOOL" } as any;
   }
 }
 
@@ -208,7 +203,7 @@ class DateFieldBuilder<
         from: this._from.from,
       } as any;
     }
-    return "DATE" as any;
+    return { type: "DATE" } as any;
   }
 }
 

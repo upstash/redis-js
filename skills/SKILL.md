@@ -57,7 +57,6 @@ Redis data types with auto-serialization examples:
 
 Complex operations and optimizations:
 
-- **redis-search.md** - Full-text search with MongoDB-like query syntax (comprehensive guide)
 - **auto-pipeline.md** - Automatic request batching, performance optimization
 - **pipeline-and-transactions.md** - Manual pipelines, MULTI/EXEC, WATCH for atomic operations
 - **pub-sub.md** - Publish/subscribe messaging patterns

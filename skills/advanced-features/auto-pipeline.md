@@ -4,7 +4,7 @@
 
 Automatic pipelining batches multiple Redis commands into a single HTTP request, reducing round-trip latency for independent operations.
 
-It's enabled by default. Use `enableAutoPipelining: false` to disable automatic pipelining:
+It's enabled by default. Use `enableAutoPipelining: false` to disable automatic pipelining.
 
 ## Good For
 
@@ -26,7 +26,6 @@ import { Redis } from "@upstash/redis";
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL!,
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-  automaticDeserialization: true,
 });
 
 // Without auto-pipeline: 3 separate HTTP requests

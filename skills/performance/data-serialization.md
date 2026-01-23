@@ -20,6 +20,8 @@ Automatic serialization preserves JavaScript types across Redis operations. Numb
 
 ## Examples
 
+### Basic Type Preservation
+
 ```typescript
 import { Redis } from "@upstash/redis";
 
@@ -60,16 +62,16 @@ await redis.set("data", {
 });
 
 const data = await redis.get<any>("data");
-console.log(typeof data.age); // "number"
+console.log(typeof age); // "number"
 console.log(Array.isArray(data.scores)); // true
+```
 
-// null preserved
-await redis.set("empty", null);
-const empty = await redis.get("empty");
-console.log(empty === null); // true
+### Complex Types
 
-// undefined not supported
-await redis.set("undef", undefined); // Stores null
+```typescript
+import { Redis } from "@upstash/redis";
+
+const redis = Redis.fromEnv();
 
 // Date objects become ISO strings
 await redis.set("created", new Date());
@@ -110,60 +112,22 @@ class SerializableUser {
 
 await redis.set("ser_user", SerializableUser.toRedis(alice));
 const serRetrieved = SerializableUser.fromRedis(await redis.get("ser_user"));
+```
+
+### Disabling Auto-Serialization
+
+```typescript
+import { Redis } from "@upstash/redis";
 
 // Disable auto-serialization if needed
-const redisNoAuto = new Redis({
+const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL!,
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
   automaticDeserialization: false,
 });
 
-await redisNoAuto.set("key", JSON.stringify({ value: 42 }));
-const raw = await redisNoAuto.get("key");
+await redis.set("key", JSON.stringify({ value: 42 }));
+const raw = await redis.get("key");
 console.log(typeof raw); // "string"
 const parsed = JSON.parse(raw as string);
-
-// Binary data: use Buffer or Uint8Array
-const buffer = Buffer.from("hello");
-await redis.set("binary", buffer.toString("base64"));
-
-const retrieved = await redis.get<string>("binary");
-const decoded = Buffer.from(retrieved!, "base64");
-
-// Performance: auto-serialization adds minimal overhead
-const bigObject = {
-  users: Array.from({ length: 1000 }, (_, i) => ({
-    id: i,
-    name: `User ${i}`,
-    age: 20 + (i % 50),
-  })),
-};
-
-const start = Date.now();
-await redis.set("big", bigObject);
-const stored = Date.now() - start;
-
-const start2 = Date.now();
-const retrieved = await redis.get("big");
-const retrieved = Date.now() - start2;
-
-console.log(`Store: ${stored}ms, Retrieve: ${retrieved}ms`);
-
-// Type safety with TypeScript
-interface UserProfile {
-  name: string;
-  age: number;
-  active: boolean;
-}
-
-await redis.set<UserProfile>("profile", {
-  name: "Alice",
-  age: 30,
-  active: true,
-});
-
-const profile = await redis.get<UserProfile>("profile");
-if (profile) {
-  console.log(profile.name); // Type-safe access
-}
 ```

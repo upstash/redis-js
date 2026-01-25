@@ -169,10 +169,12 @@ import {
   TypeCommand,
   UnlinkCommand,
   XAckCommand,
+  XAckDelCommand,
   XAddCommand,
   XAutoClaim,
   XClaimCommand,
   XDelCommand,
+  XDelExCommand,
   XGroupCommand,
   XInfoCommand,
   XLenCommand,
@@ -1381,10 +1383,22 @@ export class Redis {
     new XAckCommand(args, this.opts).exec(this.client);
 
   /**
+   * @see https://redis.io/commands/xackdel
+   */
+  xackdel = (...args: CommandArgs<typeof XAckDelCommand>) =>
+    new XAckDelCommand(args, this.opts).exec(this.client);
+
+  /**
    * @see https://redis.io/commands/xdel
    */
   xdel = (...args: CommandArgs<typeof XDelCommand>) =>
     new XDelCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xdelex
+   */
+  xdelex = (...args: CommandArgs<typeof XDelExCommand>) =>
+    new XDelExCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/xgroup

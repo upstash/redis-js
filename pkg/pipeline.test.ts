@@ -238,6 +238,11 @@ describe("use all the things", () => {
       .ttl(newKey())
       .type(newKey())
       .unlink(newKey())
+      .xadd(newKey(), "*", { field: "value" })
+      .xack(newKey(), "group", "0-0")
+      .xackdel(newKey(), "group", undefined, "0-0")
+      .xdel(newKey(), "0-0")
+      .xdelex(newKey(), undefined, "0-0")
       .zadd(newKey(), { score: 0, member: "member" })
       .zcard(newKey())
       .scriptExists(scriptHash)
@@ -269,7 +274,7 @@ describe("use all the things", () => {
       .functions.flush();
 
     const res = await p.exec();
-    expect(res.length).toEqual(139);
+    expect(res.length).toEqual(144);
   });
 });
 describe("keep errors", () => {

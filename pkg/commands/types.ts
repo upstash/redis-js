@@ -142,6 +142,8 @@ export { type TtlCommand } from "./ttl";
 export { Type, type TypeCommand } from "./type";
 export { type UnlinkCommand } from "./unlink";
 export { type XAddCommand } from "./xadd";
+export { type XAckDelCommand } from "./xackdel";
+export { type XDelExCommand } from "./xdelex";
 export { type XRangeCommand } from "./xrange";
 export { ScoreMember, ZAddCommandOptions, type ZAddCommand } from "./zadd";
 export { type ZCardCommand } from "./zcard";

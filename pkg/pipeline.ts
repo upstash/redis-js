@@ -164,10 +164,12 @@ import {
   TypeCommand,
   UnlinkCommand,
   XAckCommand,
+  XAckDelCommand,
   XAddCommand,
   XAutoClaim,
   XClaimCommand,
   XDelCommand,
+  XDelExCommand,
   XGroupCommand,
   XInfoCommand,
   XLenCommand,
@@ -1208,10 +1210,22 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
     this.chain(new XAckCommand(args, this.commandOptions));
 
   /**
+   * @see https://redis.io/commands/xackdel
+   */
+  xackdel = (...args: CommandArgs<typeof XAckDelCommand>) =>
+    this.chain(new XAckDelCommand(args, this.commandOptions));
+
+  /**
    * @see https://redis.io/commands/xdel
    */
   xdel = (...args: CommandArgs<typeof XDelCommand>) =>
     this.chain(new XDelCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/xdelex
+   */
+  xdelex = (...args: CommandArgs<typeof XDelExCommand>) =>
+    this.chain(new XDelExCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/xgroup

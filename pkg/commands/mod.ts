@@ -3,6 +3,7 @@ export * from "./bitcount";
 export * from "./bitfield";
 export * from "./bitop";
 export * from "./bitpos";
+export * from "./client_setinfo";
 export * from "./command";
 export * from "./copy";
 export * from "./dbsize";

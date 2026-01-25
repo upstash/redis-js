@@ -12,6 +12,7 @@ import {
   BitFieldCommand,
   BitOpCommand,
   BitPosCommand,
+  ClientSetInfoCommand,
   CopyCommand,
   DBSizeCommand,
   DecrByCommand,
@@ -431,6 +432,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   bitpos = (...args: CommandArgs<typeof BitPosCommand>) =>
     this.chain(new BitPosCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/client-setinfo
+   */
+  clientSetinfo = (...args: CommandArgs<typeof ClientSetInfoCommand>) =>
+    this.chain(new ClientSetInfoCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/copy

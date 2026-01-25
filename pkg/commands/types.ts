@@ -2,6 +2,7 @@ export { type AppendCommand } from "./append";
 export { type BitCountCommand } from "./bitcount";
 export { type BitOpCommand } from "./bitop";
 export { type BitPosCommand } from "./bitpos";
+export { type ClientSetInfoCommand, type ClientSetInfoAttribute } from "./client_setinfo";
 export { type CopyCommand } from "./copy";
 export { type DBSizeCommand } from "./dbsize";
 export { type DecrCommand } from "./decr";

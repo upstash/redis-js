@@ -15,6 +15,7 @@ import {
   BitFieldCommand,
   BitOpCommand,
   BitPosCommand,
+  ClientSetInfoCommand,
   CopyCommand,
   DBSizeCommand,
   DecrByCommand,
@@ -597,6 +598,12 @@ export class Redis {
    */
   bitpos = (...args: CommandArgs<typeof BitPosCommand>) =>
     new BitPosCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/client-setinfo
+   */
+  clientSetinfo = (...args: CommandArgs<typeof ClientSetInfoCommand>) =>
+    new ClientSetInfoCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/copy

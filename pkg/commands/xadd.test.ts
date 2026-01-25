@@ -78,6 +78,66 @@ describe("with NOMKSTREAM", () => {
   });
 });
 
+describe("with auto sequence numbers", () => {
+  test("should generate sequence number for given millisecond timestamp", async () => {
+    const key = newKey();
+    const field1 = "field1";
+    const member1 = randomID();
+
+    const field2 = "field2";
+    const member2 = randomID();
+
+    // Use current time in milliseconds
+    const ms = Date.now();
+    const id = `${ms}-*` as const;
+
+    const res = await new XAddCommand([
+      key,
+      id,
+      {
+        [field1]: member1,
+        [field2]: member2,
+      },
+    ]).exec(client);
+
+    expect(res.length).toBeGreaterThan(0);
+    // The returned ID should start with the same millisecond timestamp
+    expect(res.startsWith(`${ms}-`)).toBe(true);
+    // The sequence number should be auto-generated (not *)
+    expect(res.endsWith("-*")).toBe(false);
+  });
+
+  test("should generate multiple entries with same ms but different sequence numbers", async () => {
+    const key = newKey();
+    const field1 = "field1";
+    const member1 = randomID();
+
+    // Use a fixed millisecond timestamp
+    const ms = Date.now();
+    const id = `${ms}-*` as const;
+
+    // Add multiple entries with the same millisecond timestamp
+    const res1 = await new XAddCommand([key, id, { [field1]: member1 }]).exec(client);
+    const res2 = await new XAddCommand([key, id, { [field1]: member1 }]).exec(client);
+    const res3 = await new XAddCommand([key, id, { [field1]: member1 }]).exec(client);
+
+    // All should have the same millisecond prefix
+    expect(res1.startsWith(`${ms}-`)).toBe(true);
+    expect(res2.startsWith(`${ms}-`)).toBe(true);
+    expect(res3.startsWith(`${ms}-`)).toBe(true);
+
+    // But they should have different sequence numbers
+    expect(res1).not.toEqual(res2);
+    expect(res2).not.toEqual(res3);
+    expect(res1).not.toEqual(res3);
+  });
+
+  test("command structure with auto sequence number", () => {
+    const cmd = new XAddCommand(["mystream", "1234567890-*", { field: "value" }]);
+    expect(cmd.command).toEqual(["XADD", "mystream", "1234567890-*", "field", "value"]);
+  });
+});
+
 describe("with threshold", () => {
   test("should always return less than or equal to 5", async () => {
     const key = newKey();

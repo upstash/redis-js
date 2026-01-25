@@ -79,7 +79,7 @@ test("sets field with expiration using absolute timestamp in seconds", async () 
   const key = newKey();
   const field = randomID();
   const value = randomID();
-  const futureTimestamp = Math.floor(Date.now() / 1000) + 1;
+  const futureTimestamp = Math.floor(Date.now() / 1000) + 2;
   const res = await new HSetExCommand([
     key,
     { expiration: { exat: futureTimestamp } },
@@ -92,7 +92,7 @@ test("sets field with expiration using absolute timestamp in seconds", async () 
   expect(verifyRes).toEqual(value);
 
   // Wait for expiration
-  await new Promise((res) => setTimeout(res, 2000));
+  await new Promise((res) => setTimeout(res, 3000));
   const expiredRes = await new HGetCommand([key, field]).exec(client);
   expect(expiredRes).toEqual(null);
 });

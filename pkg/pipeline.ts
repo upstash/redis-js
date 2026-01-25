@@ -417,8 +417,19 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
       ...sourceKeys: string[]
     ): Pipeline<[...TCommands, BitOpCommand]>;
     (op: "not", destinationKey: string, sourceKey: string): Pipeline<[...TCommands, BitOpCommand]>;
+    (
+      op: "diff" | "diff1" | "andor",
+      destinationKey: string,
+      x: string,
+      ...y: string[]
+    ): Pipeline<[...TCommands, BitOpCommand]>;
+    (
+      op: "one",
+      destinationKey: string,
+      ...sourceKeys: string[]
+    ): Pipeline<[...TCommands, BitOpCommand]>;
   } = (
-    op: "and" | "or" | "xor" | "not",
+    op: "and" | "or" | "xor" | "not" | "diff" | "diff1" | "andor" | "one",
     destinationKey: string,
     sourceKey: string,
     ...sourceKeys: string[]

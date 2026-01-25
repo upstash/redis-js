@@ -583,8 +583,15 @@ export class Redis {
       ...sourceKeys: string[]
     ): Promise<number>;
     (op: "not", destinationKey: string, sourceKey: string): Promise<number>;
+    (
+      op: "diff" | "diff1" | "andor",
+      destinationKey: string,
+      x: string,
+      ...y: string[]
+    ): Promise<number>;
+    (op: "one", destinationKey: string, ...sourceKeys: string[]): Promise<number>;
   } = (
-    op: "and" | "or" | "xor" | "not",
+    op: "and" | "or" | "xor" | "not" | "diff" | "diff1" | "andor" | "one",
     destinationKey: string,
     sourceKey: string,
     ...sourceKeys: string[]

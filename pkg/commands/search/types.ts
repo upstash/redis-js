@@ -311,7 +311,7 @@ type QueryLeaf<TSchema> = {
   $must?: never;
   $should?: never;
   $mustNot?: never;
-  $boost?: never;
+  $boost?: number;
 };
 
 type BoolBase<TSchema extends NestedIndexSchema | FlatIndexSchema> = {

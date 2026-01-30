@@ -211,7 +211,7 @@ describe("deserializeQueryResponse", () => {
       ]);
     });
 
-    test("handles $ key (full document) by unwrapping it", () => {
+    test("handles full document key by unwrapping it", () => {
       const rawResponse = [
         [
           "doc:1",

@@ -289,7 +289,7 @@ describe("SearchIndex.query (string)", () => {
   });
 
   describe("text field queries", () => {
-    test("queries with $eq on text field", async () => {
+    test("queries with eq on text field", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { name: { $eq: "Laptop" } } });
 
@@ -297,7 +297,7 @@ describe("SearchIndex.query (string)", () => {
       expect(result.map((r) => r.data.name)).toEqual(["Laptop Pro", "Laptop Basic"]);
     });
 
-    test("queries with $fuzzy for typo tolerance", async () => {
+    test("queries with fuzzy for typo tolerance", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { name: { $fuzzy: { value: "Laptopp", distance: 2 } } },
@@ -317,7 +317,7 @@ describe("SearchIndex.query (string)", () => {
       expect(result.map((r) => r.data.name)).toEqual(["Laptop Pro", "Laptop Basic"]);
     });
 
-    test("queries with $phrase for exact phrase matching", async () => {
+    test("queries with phrase for exact phrase matching", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { description: { $phrase: { value: "wireless mouse", prefix: true } } },
@@ -327,7 +327,7 @@ describe("SearchIndex.query (string)", () => {
       expect(result[0].data.name).toBe("Wireless Mouse");
     });
 
-    test("queries with $phrase for exact phrase matching - simple string", async () => {
+    test("queries with phrase for exact phrase matching - simple string", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { description: { $phrase: "wireless mouse" } },
@@ -337,7 +337,7 @@ describe("SearchIndex.query (string)", () => {
       expect(result[0].data.name).toBe("Wireless Mouse");
     });
 
-    test("queries with $regex pattern", async () => {
+    test("queries with regex pattern", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { name: { $regex: "Laptop.*" } },
@@ -346,10 +346,20 @@ describe("SearchIndex.query (string)", () => {
       expect(result.length).toBe(2);
       expect(result.map((r) => r.data.name)).toEqual(["Laptop Pro", "Laptop Basic"]);
     });
+
+    test("queries with smart for intelligent text search", async () => {
+      const index = initIndex(client, { name, schema });
+      const result = await index.query({
+        filter: { name: { $smart: "Laptopp" } },
+      });
+
+      expect(result.length).toBeGreaterThan(0);
+      expect(result[0].data.name).toContain("Laptop");
+    });
   });
 
   describe("numeric field queries", () => {
-    test("queries with $gt on numeric field", async () => {
+    test("queries with gt on numeric field", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { price: { $gt: 500 } } });
 
@@ -364,7 +374,7 @@ describe("SearchIndex.query (string)", () => {
       ]);
     });
 
-    test("queries with $gt on numeric field - no select (full data)", async () => {
+    test("queries with gt on numeric field - no select (full data)", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { price: { $gt: 500 } } });
 
@@ -383,7 +393,7 @@ describe("SearchIndex.query (string)", () => {
       );
     });
 
-    test("queries with $gt on numeric field - select: {}", async () => {
+    test("queries with gt on numeric field - select: {}", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { price: { $gt: 500 } }, select: {} });
 
@@ -393,7 +403,7 @@ describe("SearchIndex.query (string)", () => {
       expect(result[0]).not.toHaveProperty("data");
     });
 
-    test("queries with $gt on numeric field - select price only", async () => {
+    test("queries with gt on numeric field - select price only", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { price: { $gt: 500 } },
@@ -408,7 +418,7 @@ describe("SearchIndex.query (string)", () => {
       expect(result[0].data).not.toHaveProperty("category");
     });
 
-    test("queries with $gte on numeric field", async () => {
+    test("queries with gte on numeric field", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { stock: { $gte: 100 } } });
 
@@ -431,7 +441,7 @@ describe("SearchIndex.query (string)", () => {
       );
     });
 
-    test("queries with $lt on numeric field", async () => {
+    test("queries with lt on numeric field", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { price: { $lt: 50 } } });
 
@@ -451,7 +461,7 @@ describe("SearchIndex.query (string)", () => {
       );
     });
 
-    test("queries with $lte on numeric field", async () => {
+    test("queries with lte on numeric field", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { stock: { $lte: 50 } },
@@ -600,7 +610,7 @@ describe("SearchIndex.query (string)", () => {
       }
     });
 
-    test("queries with $ to return full document", async () => {
+    test("queries to return full document", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { name: { $eq: "Laptop" } },
@@ -727,7 +737,7 @@ describe("SearchIndex.query (json)", () => {
   });
 
   describe("text field queries", () => {
-    test("queries with $eq on text field", async () => {
+    test("queries with eq on text field", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { name: { $eq: "Laptop" } } });
 
@@ -737,7 +747,7 @@ describe("SearchIndex.query (json)", () => {
       ]);
     });
 
-    test("queries with $fuzzy for typo tolerance", async () => {
+    test("queries with fuzzy for typo tolerance", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { name: { $fuzzy: { value: "Laptopp", distance: 2 } } },
@@ -749,7 +759,7 @@ describe("SearchIndex.query (json)", () => {
       ]);
     });
 
-    test("queries with $phrase for exact phrase matching", async () => {
+    test("queries with phrase for exact phrase matching", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { description: { $phrase: "wireless mouse" } },
@@ -760,7 +770,7 @@ describe("SearchIndex.query (json)", () => {
       ]);
     });
 
-    test("queries with $regex pattern", async () => {
+    test("queries with regex pattern", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { name: { $regex: "Laptop.*" } },
@@ -774,7 +784,7 @@ describe("SearchIndex.query (json)", () => {
   });
 
   describe("numeric field queries", () => {
-    test("queries with $gt on numeric field", async () => {
+    test("queries with gt on numeric field", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { price: { $gt: 500 } } });
 
@@ -790,7 +800,7 @@ describe("SearchIndex.query (json)", () => {
       );
     });
 
-    test("queries with $gte on numeric field", async () => {
+    test("queries with gte on numeric field", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { stock: { $gte: 100 } } });
 
@@ -812,7 +822,7 @@ describe("SearchIndex.query (json)", () => {
       );
     });
 
-    test("queries with $lt on numeric field", async () => {
+    test("queries with lt on numeric field", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { price: { $lt: 50 } } });
 
@@ -831,7 +841,7 @@ describe("SearchIndex.query (json)", () => {
       );
     });
 
-    test("queries with $lte on numeric field", async () => {
+    test("queries with lte on numeric field", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { stock: { $lte: 50 } },
@@ -851,7 +861,7 @@ describe("SearchIndex.query (json)", () => {
   });
 
   describe("boolean field queries", () => {
-    test("queries with $eq on boolean field", async () => {
+    test("queries with eq on boolean field", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { active: { $eq: false } } });
 
@@ -976,7 +986,7 @@ describe("SearchIndex.query (json)", () => {
       );
     });
 
-    test("queries with $ to return full document", async () => {
+    test("queries to return full document", async () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({
         filter: { name: { $eq: "Laptop" } },
@@ -1106,6 +1116,100 @@ describe("SearchIndex.drop", () => {
 
     const result = await index.drop();
     expect(result).toBeDefined();
+  });
+});
+
+describe("Date field queries", () => {
+  const name = `test-date-${randomID().slice(0, 8)}`;
+  const prefix = `${name}:`;
+  const keys: string[] = [];
+
+  const schema = s.object({
+    title: s.string(),
+    publishedAt: s.date().fast(),
+  });
+
+  beforeAll(async () => {
+    const index = await createIndex(client, {
+      name,
+      schema,
+      dataType: "hash",
+      prefix,
+    });
+
+    // Add test data with different dates
+    const articles = [
+      { title: "Article 1", publishedAt: new Date("2026-01-10T10:00:00Z").toISOString() },
+      { title: "Article 2", publishedAt: new Date("2026-01-20T10:00:00Z").toISOString() },
+      { title: "Article 3", publishedAt: new Date("2026-02-05T10:00:00Z").toISOString() },
+    ];
+
+    for (const [i, article] of articles.entries()) {
+      const key = `${prefix}${i}`;
+      keys.push(key);
+      await new HSetCommand([key, article]).exec(client);
+    }
+
+    await index.waitIndexing();
+  });
+
+  afterAll(async () => {
+    const index = initIndex(client, { name, schema });
+    try {
+      await index.drop();
+    } catch {
+      // Ignore
+    }
+    if (keys.length > 0) {
+      await new DelCommand(keys).exec(client);
+    }
+  });
+
+  test("queries with date range filter", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.query({
+      filter: {
+        publishedAt: {
+          $gte: new Date("2026-01-01T00:00:00Z"),
+          $lt: new Date("2026-02-01T00:00:00Z"),
+        },
+      },
+    });
+
+    expect(result.length).toBe(2);
+    expect(result.map((r) => r.data.title)).toEqual(
+      expect.arrayContaining(["Article 1", "Article 2"])
+    );
+  });
+
+  test("queries with date greater than filter", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.query({
+      filter: {
+        publishedAt: {
+          $gt: new Date("2026-01-15T00:00:00Z"),
+        },
+      },
+    });
+
+    expect(result.length).toBe(2);
+    expect(result.map((r) => r.data.title)).toEqual(
+      expect.arrayContaining(["Article 2", "Article 3"])
+    );
+  });
+
+  test("queries with date less than filter", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.query({
+      filter: {
+        publishedAt: {
+          $lt: new Date("2026-01-15T00:00:00Z"),
+        },
+      },
+    });
+
+    expect(result.length).toBe(1);
+    expect(result[0].data.title).toBe("Article 1");
   });
 });
 

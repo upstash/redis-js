@@ -229,6 +229,7 @@ type StringOperationMap<T extends string> = {
     | { value: T; slop: number; prefix?: never }
     | { value: T; prefix: boolean; slop?: never };
   $regex: T;
+  $smart: T;
 };
 
 type NumberOperationMap<T extends number> = {

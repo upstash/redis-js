@@ -214,6 +214,151 @@ describe("buildQueryCommand", () => {
       ]);
     });
   });
+
+  describe("scoreFunc", () => {
+    type TestSchemaWithScore = { name: "TEXT"; popularity: "U64"; recency: "U64" };
+
+    test("builds query with simple scoreFunc", () => {
+      const command = buildQueryCommand<TestSchemaWithScore>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "headphones" } },
+        scoreFunc: "popularity",
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"name":{"$eq":"headphones"}}',
+        "SCOREFUNC",
+        "FIELDVALUE",
+        "popularity",
+      ]);
+    });
+
+    test("builds query with scoreFunc and modifier", () => {
+      const command = buildQueryCommand<TestSchemaWithScore>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "headphones" } },
+        scoreFunc: {
+          field: "popularity",
+          modifier: "log1p",
+          factor: 2,
+        },
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"name":{"$eq":"headphones"}}',
+        "SCOREFUNC",
+        "FIELDVALUE",
+        "popularity",
+        "MODIFIER",
+        "LOG1P",
+        "FACTOR",
+        "2",
+      ]);
+    });
+
+    test("builds query with scoreFunc, modifier, and missing value", () => {
+      const command = buildQueryCommand<TestSchemaWithScore>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "headphones" } },
+        scoreFunc: {
+          field: "popularity",
+          modifier: "log1p",
+          missing: 1,
+        },
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"name":{"$eq":"headphones"}}',
+        "SCOREFUNC",
+        "FIELDVALUE",
+        "popularity",
+        "MODIFIER",
+        "LOG1P",
+        "MISSING",
+        "1",
+      ]);
+    });
+
+    test("builds query with scoreFunc and scoreMode", () => {
+      const command = buildQueryCommand<TestSchemaWithScore>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "headphones" } },
+        scoreFunc: {
+          field: "popularity",
+          scoreMode: "replace",
+        },
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"name":{"$eq":"headphones"}}',
+        "SCOREFUNC",
+        "SCOREMODE",
+        "REPLACE",
+        "FIELDVALUE",
+        "popularity",
+      ]);
+    });
+
+    test("builds query with multiple field values", () => {
+      const command = buildQueryCommand<TestSchemaWithScore>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "headphones" } },
+        scoreFunc: {
+          fields: [
+            { field: "popularity", modifier: "log1p" },
+            { field: "recency", modifier: "sqrt" },
+          ],
+          combineMode: "sum",
+        },
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"name":{"$eq":"headphones"}}',
+        "SCOREFUNC",
+        "COMBINEMODE",
+        "SUM",
+        "FIELDVALUE",
+        "popularity",
+        "MODIFIER",
+        "LOG1P",
+        "FIELDVALUE",
+        "recency",
+        "MODIFIER",
+        "SQRT",
+      ]);
+    });
+
+    test("builds query with multiple field values and scoreMode", () => {
+      const command = buildQueryCommand<TestSchemaWithScore>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "headphones" } },
+        scoreFunc: {
+          fields: ["popularity", "recency"],
+          combineMode: "multiply",
+          scoreMode: "sum",
+        },
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"name":{"$eq":"headphones"}}',
+        "SCOREFUNC",
+        "COMBINEMODE",
+        "MULTIPLY",
+        "SCOREMODE",
+        "SUM",
+        "FIELDVALUE",
+        "popularity",
+        "FIELDVALUE",
+        "recency",
+      ]);
+    });
+  });
 });
 
 describe("buildCreateIndexCommand", () => {

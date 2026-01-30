@@ -1213,6 +1213,116 @@ describe("Date field queries", () => {
   });
 });
 
+describe("Score function queries", () => {
+  const name = `test-scorefunc-${randomID().slice(0, 8)}`;
+  const prefix = `${name}:`;
+  const keys: string[] = [];
+
+  const schema = s.object({
+    name: s.string(),
+    popularity: s.number("U64"),
+    recency: s.number("U64"),
+  });
+
+  beforeAll(async () => {
+    const index = await createIndex(client, {
+      name,
+      schema,
+      dataType: "hash",
+      prefix,
+    });
+
+    // Add test data with different popularity scores
+    const products = [
+      { name: "Laptop Pro", popularity: "1000", recency: "100" },
+      { name: "Laptop Basic", popularity: "500", recency: "200" },
+      { name: "Laptop Air", popularity: "2000", recency: "50" },
+    ];
+
+    for (const [i, product] of products.entries()) {
+      const key = `${prefix}${i}`;
+      keys.push(key);
+      await new HSetCommand([key, product]).exec(client);
+    }
+
+    await index.waitIndexing();
+  });
+
+  afterAll(async () => {
+    const index = initIndex(client, { name, schema });
+    try {
+      await index.drop();
+    } catch {
+      // Ignore
+    }
+    if (keys.length > 0) {
+      await new DelCommand(keys).exec(client);
+    }
+  });
+
+  test("queries with simple scoreFunc boosts by popularity", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.query({
+      filter: { name: "Laptop" },
+      scoreFunc: "popularity",
+    });
+
+    expect(result.length).toBe(3);
+    // Higher popularity should result in higher scores (multiplied with relevance)
+    expect(result[0].data.name).toBe("Laptop Air"); // popularity 2000
+  });
+
+  test("queries with scoreFunc using modifier", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.query({
+      filter: { name: "Laptop" },
+      scoreFunc: {
+        field: "popularity",
+        modifier: "log1p",
+        factor: 2,
+      },
+    });
+
+    expect(result.length).toBe(3);
+    // Results should be affected by log1p(popularity) * 2.0
+    expect(result[0].data.name).toBe("Laptop Air");
+  });
+
+  test("queries with scoreFunc using scoreMode replace", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.query({
+      filter: { name: "Laptop" },
+      scoreFunc: {
+        field: "popularity",
+        scoreMode: "replace",
+      },
+    });
+
+    expect(result.length).toBe(3);
+    // Scores should be replaced with popularity values
+    expect(result[0].data.name).toBe("Laptop Air"); // popularity 2000
+    expect(result[0].score).toBeGreaterThan(result[1].score);
+  });
+
+  test("queries with multiple field values combined", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.query({
+      filter: { name: "Laptop" },
+      scoreFunc: {
+        fields: [
+          { field: "popularity", modifier: "log1p" },
+          { field: "recency", modifier: "log1p" },
+        ],
+        combineMode: "sum",
+      },
+    });
+
+    expect(result.length).toBe(3);
+    // Results should be affected by log1p(popularity) + log1p(recency)
+    expect(result[0].data.name).toBeDefined();
+  });
+});
+
 describe("Hash index queries", () => {
   const name = `test-hash-query-${randomID().slice(0, 8)}`;
   const prefix = `${name}:`;

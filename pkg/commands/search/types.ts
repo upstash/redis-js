@@ -123,17 +123,55 @@ export type QueryOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> = 
   limit?: number;
   /** Number of results to skip */
   offset?: number;
-  /** Sort by field (requires FAST option on field) */
-  orderBy?: {
-    [K in SchemaPaths<TSchema>]: { [P in K]: "ASC" | "DESC" };
-  }[SchemaPaths<TSchema>];
   select?: Partial<{ [K in SchemaPaths<TSchema>]: true }>; // {}
   highlight?: {
     fields: SchemaPaths<TSchema>[];
     preTag?: string;
     postTag?: string;
   };
-};
+} & QueryOrderOption<TSchema>;
+
+type CombineMode = "multiply" | "sum";
+type ScoreMode = "multiply" | "sum" | "replace";
+type ScoreModifier =
+  | "none"
+  | "log"
+  | "log1p"
+  | "log2p"
+  | "ln"
+  | "ln1p"
+  | "ln2p"
+  | "square"
+  | "sqrt"
+  | "reciprocal";
+
+export type ScoreBy<TSchemaPaths extends string> =
+  | ScoreByField<false, TSchemaPaths>
+  | {
+      fields: ScoreByField<true, TSchemaPaths>[];
+      combineMode?: CombineMode;
+      scoreMode?: ScoreMode;
+    };
+
+type ScoreByField<TMultiple extends boolean, TSchemaPaths extends string> =
+  | {
+      field: TSchemaPaths;
+      modifier?: ScoreModifier;
+      factor?: number;
+      missing?: number;
+      scoreMode?: TMultiple extends true ? never : ScoreMode;
+    }
+  | TSchemaPaths;
+
+type QueryOrderOption<TSchema extends NestedIndexSchema | FlatIndexSchema> =
+  | {
+      orderBy?: {
+        [K in SchemaPaths<TSchema>]: { [P in K]: "ASC" | "DESC" };
+      }[SchemaPaths<TSchema>];
+    }
+  | {
+      scoreFunc?: ScoreBy<SchemaPaths<TSchema>>;
+    };
 
 /**
  * Converts dot notation paths to nested object structure type

@@ -136,5 +136,3 @@ test("command structure is correct with PERSIST option", () => {
   const cmd = new HGetExCommand([key, { persist: true }, field]);
   expect(cmd.command).toEqual(["hgetex", key, "PERSIST", "FIELDS", 1, field]);
 });
-
-

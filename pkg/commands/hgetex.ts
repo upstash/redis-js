@@ -33,7 +33,6 @@ export class HGetExCommand<TData extends Record<string, unknown>> extends Comman
   ) {
     const command: (string | number)[] = ["hgetex", key];
 
-    
     if ("ex" in opts && typeof opts.ex === "number") {
       command.push("EX", opts.ex);
     } else if ("px" in opts && typeof opts.px === "number") {
@@ -45,7 +44,6 @@ export class HGetExCommand<TData extends Record<string, unknown>> extends Comman
     } else if ("persist" in opts && opts.persist) {
       command.push("PERSIST");
     }
-    
 
     command.push("FIELDS", fields.length, ...fields);
 

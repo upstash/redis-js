@@ -24,11 +24,7 @@ type HSetExCommandOptions = {
  */
 export class HSetExCommand<TData> extends Command<number, number> {
   constructor(
-    [key, opts, kv]: [
-      key: string,
-      opts: HSetExCommandOptions,
-      kv: Record<string, TData>,
-    ],
+    [key, opts, kv]: [key: string, opts: HSetExCommandOptions, kv: Record<string, TData>],
     cmdOpts?: CommandOptions<number, number>
   ) {
     const command: (string | number | TData)[] = ["hsetex", key];

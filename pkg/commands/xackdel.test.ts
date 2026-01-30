@@ -26,13 +26,7 @@ describe("XACKDEL command", () => {
 
     await new XReadGroupCommand([group, consumer, key, ">"]).exec(client);
 
-    const res = await new XAckDelCommand([
-      key,
-      group,
-      "KEEPREF",
-      id1,
-      id2,
-    ]).exec(client);
+    const res = await new XAckDelCommand([key, group, "KEEPREF", id1, id2]).exec(client);
 
     expect(res).toHaveLength(2);
     expect(res[0]).toEqual(1);
@@ -119,5 +113,4 @@ describe("XACKDEL command", () => {
       "1235-0",
     ]);
   });
-
 });

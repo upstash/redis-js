@@ -9,7 +9,6 @@ const client = newHttpClient();
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-
 test("sets field with expiration in seconds", async () => {
   const key = newKey();
   const field = randomID();
@@ -154,7 +153,9 @@ test("sets an object value", async () => {
   const key = newKey();
   const field = randomID();
   const value = { v: randomID() };
-  const res = await new HSetExCommand([key, { conditional: "FNX" }, { [field]: value }]).exec(client);
+  const res = await new HSetExCommand([key, { conditional: "FNX" }, { [field]: value }]).exec(
+    client
+  );
 
   expect(res).toEqual(1);
 
@@ -212,7 +213,11 @@ test("command structure is correct without options", () => {
   const value1 = randomID();
   const field2 = randomID();
   const value2 = randomID();
-  const cmd = new HSetExCommand([key, { conditional: "FNX" }, { [field1]: value1, [field2]: value2 }]);
+  const cmd = new HSetExCommand([
+    key,
+    { conditional: "FNX" },
+    { [field1]: value1, [field2]: value2 },
+  ]);
   expect(cmd.command).toContain("hsetex");
   expect(cmd.command).toContain(key);
   expect(cmd.command).toContain("FIELDS");

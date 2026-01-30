@@ -8,12 +8,7 @@ type XAckDelOption = "KEEPREF" | "keepref" | "DELREF" | "delref" | "ACKED" | "ac
  */
 export class XAckDelCommand extends Command<number[], number[]> {
   constructor(
-    [key, group, opts, ...ids]: [
-      key: string,
-      group: string,
-      opts: XAckDelOption,
-      ...ids: string[],
-    ],
+    [key, group, opts, ...ids]: [key: string, group: string, opts: XAckDelOption, ...ids: string[]],
     cmdOpts?: CommandOptions<number[], number[]>
   ) {
     const command: unknown[] = ["XACKDEL", key, group];

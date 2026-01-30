@@ -3,39 +3,12 @@ import { keygen, newHttpClient, randomID } from "../test-utils";
 import { afterAll, expect, test, describe } from "bun:test";
 import { HSetExCommand } from "./hsetex";
 import { HGetCommand } from "./hget";
-import { HMGetCommand } from "./hmget";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
-test("sets a single field without expiration", async () => {
-  const key = newKey();
-  const field = randomID();
-  const value = randomID();
-  const res = await new HSetExCommand([key, undefined, { [field]: value }]).exec(client);
-
-  expect(res).toEqual(1);
-
-  const verifyRes = await new HGetCommand([key, field]).exec(client);
-  expect(verifyRes).toEqual(value);
-});
-
-test("sets multiple fields without expiration", async () => {
-  const key = newKey();
-  const field1 = randomID();
-  const value1 = randomID();
-  const field2 = randomID();
-  const value2 = randomID();
-  const kv: Record<string, string> = { [field1]: value1, [field2]: value2 };
-  const res = await new HSetExCommand([key, undefined, kv]).exec(client);
-
-  expect(res).toEqual(1); // HSETEX returns 1 for success
-
-  const verifyRes = await new HMGetCommand([key, field1, field2]).exec(client);
-  expect(verifyRes).toEqual(kv);
-});
 
 test("sets field with expiration in seconds", async () => {
   const key = newKey();
@@ -163,7 +136,7 @@ describe("FXX option", () => {
     expect(res1).toEqual(0);
 
     // Set the field first
-    await new HSetExCommand([key, undefined, { [field1]: value1 }]).exec(client);
+    await new HSetExCommand([key, { conditional: "FNX" }, { [field1]: value1 }]).exec(client);
 
     // Now FXX should succeed (field exists, so it can be updated with FXX)
     const res2 = await new HSetExCommand([key, { conditional: "FXX" }, { [field1]: value2 }]).exec(
@@ -181,7 +154,7 @@ test("sets an object value", async () => {
   const key = newKey();
   const field = randomID();
   const value = { v: randomID() };
-  const res = await new HSetExCommand([key, undefined, { [field]: value }]).exec(client);
+  const res = await new HSetExCommand([key, { conditional: "FNX" }, { [field]: value }]).exec(client);
 
   expect(res).toEqual(1);
 
@@ -239,7 +212,7 @@ test("command structure is correct without options", () => {
   const value1 = randomID();
   const field2 = randomID();
   const value2 = randomID();
-  const cmd = new HSetExCommand([key, undefined, { [field1]: value1, [field2]: value2 }]);
+  const cmd = new HSetExCommand([key, { conditional: "FNX" }, { [field1]: value1, [field2]: value2 }]);
   expect(cmd.command).toContain("hsetex");
   expect(cmd.command).toContain(key);
   expect(cmd.command).toContain("FIELDS");

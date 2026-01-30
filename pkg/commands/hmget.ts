@@ -1,7 +1,7 @@
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
 
-function deserialize<TData extends Record<string, unknown>>(
+export function deserialize<TData extends Record<string, unknown>>(
   fields: string[],
   result: (string | null)[]
 ): TData | null {

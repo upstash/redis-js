@@ -18,7 +18,7 @@ type HSetExCommandOptions = {
 
 /**
  * HSETEX sets the specified fields with their values and optionally sets their expiration time or TTL
- * Returns the number of fields that were added
+ * Returns 1 on success and 0 otherwise.
  *
  * @see https://redis.io/commands/hsetex
  */
@@ -26,18 +26,18 @@ export class HSetExCommand<TData> extends Command<number, number> {
   constructor(
     [key, opts, kv]: [
       key: string,
-      opts: HSetExCommandOptions | undefined,
+      opts: HSetExCommandOptions,
       kv: Record<string, TData>,
     ],
     cmdOpts?: CommandOptions<number, number>
   ) {
     const command: (string | number | TData)[] = ["hsetex", key];
 
-    if (opts?.conditional) {
+    if (opts.conditional) {
       command.push(opts.conditional.toUpperCase());
     }
 
-    if (opts?.expiration) {
+    if (opts.expiration) {
       if ("ex" in opts.expiration && typeof opts.expiration.ex === "number") {
         command.push("EX", opts.expiration.ex);
       } else if ("px" in opts.expiration && typeof opts.expiration.px === "number") {

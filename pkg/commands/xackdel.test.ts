@@ -30,8 +30,8 @@ describe("XACKDEL command", () => {
       key,
       group,
       "KEEPREF",
-      id1 as string,
-      id2 as string,
+      id1,
+      id2,
     ]).exec(client);
 
     expect(res).toHaveLength(2);
@@ -55,7 +55,7 @@ describe("XACKDEL command", () => {
     await new XGroupCommand([key, { type: "CREATE", group, id: "0" }]).exec(client);
     await new XReadGroupCommand([group, consumer, key, ">"]).exec(client);
 
-    const res = await new XAckDelCommand([key, group, undefined, id as string]).exec(client);
+    const res = await new XAckDelCommand([key, group, "DELREF", id]).exec(client);
 
     expect(res).toHaveLength(1);
     expect(res[0]).toEqual(1);
@@ -68,7 +68,7 @@ describe("XACKDEL command", () => {
     await new XAddCommand([key, "*", { field: "value" }]).exec(client);
     await new XGroupCommand([key, { type: "CREATE", group, id: "0" }]).exec(client);
 
-    const res = await new XAckDelCommand([key, group, undefined, "9999999999999-0"]).exec(client);
+    const res = await new XAckDelCommand([key, group, "DELREF", "9999999999999-0"]).exec(client);
 
     expect(res).toHaveLength(1);
     expect(res[0]).toEqual(-1);
@@ -84,7 +84,7 @@ describe("XACKDEL command", () => {
     await new XGroupCommand([key, { type: "CREATE", group, id: "0" }]).exec(client);
     await new XReadGroupCommand([group, consumer, key, ">"]).exec(client);
 
-    const res = await new XAckDelCommand([key, group, "DELREF", id as string]).exec(client);
+    const res = await new XAckDelCommand([key, group, "DELREF", id]).exec(client);
 
     expect(res).toHaveLength(1);
     expect(res[0]).toEqual(1);
@@ -100,7 +100,7 @@ describe("XACKDEL command", () => {
     await new XGroupCommand([key, { type: "CREATE", group, id: "0" }]).exec(client);
     await new XReadGroupCommand([group, consumer, key, ">"]).exec(client);
 
-    const res = await new XAckDelCommand([key, group, "keepref", id as string]).exec(client);
+    const res = await new XAckDelCommand([key, group, "keepref", id]).exec(client);
 
     expect(res).toHaveLength(1);
     expect(res[0]).toEqual(1);
@@ -120,8 +120,4 @@ describe("XACKDEL command", () => {
     ]);
   });
 
-  test("command structure without option", () => {
-    const cmd = new XAckDelCommand(["mystream", "mygroup", undefined, "1234-0"]);
-    expect(cmd.command).toEqual(["XACKDEL", "mystream", "mygroup", "IDS", 1, "1234-0"]);
-  });
 });

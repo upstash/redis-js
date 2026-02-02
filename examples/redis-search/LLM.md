@@ -151,16 +151,14 @@ const hashIndex = await redis.search.createIndex({
 If an index already exists, initialize it without creating:
 
 ```typescript
-import { initIndex } from "@upstash/redis";
-
 // With schema (for type safety)
-const index = redis.search.initIndex({
+const index = redis.search.index({
   name: "products-idx",
   schema: schema,
 });
 
 // Without schema
-const index = redis.search.initIndex({ name: "products-idx" });
+const index = redis.search.index({ name: "products-idx" });
 ```
 
 ## Inserting Data
@@ -236,6 +234,11 @@ const results = await index.query({
 // In list
 const results = await index.query({
   filter: { name: { $in: ["Laptop", "Desktop", "Tablet"] } },
+});
+
+// Smart match (backend chooses best match)
+const results = await index.query({
+  filter: { name: { $smart: "Laptp" } },
 });
 
 // Fuzzy match (typo tolerance)

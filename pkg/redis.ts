@@ -15,6 +15,7 @@ import {
   BitFieldCommand,
   BitOpCommand,
   BitPosCommand,
+  ClientSetInfoCommand,
   CopyCommand,
   DBSizeCommand,
   DecrByCommand,
@@ -63,6 +64,8 @@ import {
   HPersistCommand,
   HGetAllCommand,
   HGetCommand,
+  HGetDelCommand,
+  HGetExCommand,
   HIncrByCommand,
   HIncrByFloatCommand,
   HKeysCommand,
@@ -72,6 +75,7 @@ import {
   HRandFieldCommand,
   HScanCommand,
   HSetCommand,
+  HSetExCommand,
   HSetNXCommand,
   HStrLenCommand,
   HValsCommand,
@@ -166,10 +170,12 @@ import {
   TypeCommand,
   UnlinkCommand,
   XAckCommand,
+  XAckDelCommand,
   XAddCommand,
   XAutoClaim,
   XClaimCommand,
   XDelCommand,
+  XDelExCommand,
   XGroupCommand,
   XInfoCommand,
   XLenCommand,
@@ -577,8 +583,15 @@ export class Redis {
       ...sourceKeys: string[]
     ): Promise<number>;
     (op: "not", destinationKey: string, sourceKey: string): Promise<number>;
+    (
+      op: "diff" | "diff1" | "andor",
+      destinationKey: string,
+      x: string,
+      ...y: string[]
+    ): Promise<number>;
+    (op: "one", destinationKey: string, ...sourceKeys: string[]): Promise<number>;
   } = (
-    op: "and" | "or" | "xor" | "not",
+    op: "and" | "or" | "xor" | "not" | "diff" | "diff1" | "andor" | "one",
     destinationKey: string,
     sourceKey: string,
     ...sourceKeys: string[]
@@ -592,6 +605,12 @@ export class Redis {
    */
   bitpos = (...args: CommandArgs<typeof BitPosCommand>) =>
     new BitPosCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/client-setinfo
+   */
+  clientSetinfo = (...args: CommandArgs<typeof ClientSetInfoCommand>) =>
+    new ClientSetInfoCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/copy
@@ -842,6 +861,18 @@ export class Redis {
     new HGetAllCommand<TData>(args, this.opts).exec(this.client);
 
   /**
+   * @see https://redis.io/commands/hgetdel
+   */
+  hgetdel = <TData extends Record<string, unknown>>(...args: CommandArgs<typeof HGetDelCommand>) =>
+    new HGetDelCommand<TData>(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/hgetex
+   */
+  hgetex = <TData extends Record<string, unknown>>(...args: CommandArgs<typeof HGetExCommand>) =>
+    new HGetExCommand<TData>(args, this.opts).exec(this.client);
+
+  /**
    * @see https://redis.io/commands/hincrby
    */
   hincrby = (...args: CommandArgs<typeof HIncrByCommand>) =>
@@ -905,6 +936,12 @@ export class Redis {
    */
   hset = <TData>(key: string, kv: Record<string, TData>) =>
     new HSetCommand<TData>([key, kv], this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/hsetex
+   */
+  hsetex = <TData>(...args: CommandArgs<typeof HSetExCommand<TData>>) =>
+    new HSetExCommand<TData>(args as any, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/hsetnx
@@ -1360,10 +1397,22 @@ export class Redis {
     new XAckCommand(args, this.opts).exec(this.client);
 
   /**
+   * @see https://redis.io/commands/xackdel
+   */
+  xackdel = (...args: CommandArgs<typeof XAckDelCommand>) =>
+    new XAckDelCommand(args, this.opts).exec(this.client);
+
+  /**
    * @see https://redis.io/commands/xdel
    */
   xdel = (...args: CommandArgs<typeof XDelCommand>) =>
     new XDelCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/xdelex
+   */
+  xdelex = (...args: CommandArgs<typeof XDelExCommand>) =>
+    new XDelExCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/xgroup

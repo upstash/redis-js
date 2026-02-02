@@ -162,6 +162,8 @@ describe("use all the things", () => {
       .hpttl(newKey(), "field")
       .hget(newKey(), "field")
       .hgetall(newKey())
+      .hgetdel(newKey(), "field")
+      .hgetex(newKey(), { ex: 10 }, "field")
       .hincrby(newKey(), "field", 1)
       .hincrbyfloat(newKey(), "field", 1.5)
       .hkeys(newKey())
@@ -170,6 +172,7 @@ describe("use all the things", () => {
       .hmset(newKey(), { field: "field", value: "value" })
       .hscan(newKey(), 0)
       .hset(newKey(), { field: "value" })
+      .hsetex(newKey(), { expiration: { ex: 10 } }, { field: "value" })
       .hsetnx(newKey(), "field", "value")
       .hstrlen(newKey(), "field")
       .httl(newKey(), "field")
@@ -235,6 +238,11 @@ describe("use all the things", () => {
       .ttl(newKey())
       .type(newKey())
       .unlink(newKey())
+      .xadd(newKey(), "*", { field: "value" })
+      .xack(newKey(), "group", "0-0")
+      .xackdel(newKey(), "group", "DELREF", "0-0")
+      .xdel(newKey(), "0-0")
+      .xdelex(newKey(), "DELREF", "0-0")
       .zadd(newKey(), { score: 0, member: "member" })
       .zcard(newKey())
       .scriptExists(scriptHash)
@@ -266,7 +274,7 @@ describe("use all the things", () => {
       .functions.flush();
 
     const res = await p.exec();
-    expect(res.length).toEqual(136);
+    expect(res.length).toEqual(144);
   });
 });
 describe("keep errors", () => {

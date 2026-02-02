@@ -12,6 +12,7 @@ import {
   BitFieldCommand,
   BitOpCommand,
   BitPosCommand,
+  ClientSetInfoCommand,
   CopyCommand,
   DBSizeCommand,
   DecrByCommand,
@@ -59,6 +60,8 @@ import {
   HPersistCommand,
   HGetAllCommand,
   HGetCommand,
+  HGetDelCommand,
+  HGetExCommand,
   HIncrByCommand,
   HIncrByFloatCommand,
   HKeysCommand,
@@ -67,6 +70,7 @@ import {
   HMSetCommand,
   HScanCommand,
   HSetCommand,
+  HSetExCommand,
   HSetNXCommand,
   HStrLenCommand,
   HValsCommand,
@@ -161,10 +165,12 @@ import {
   TypeCommand,
   UnlinkCommand,
   XAckCommand,
+  XAckDelCommand,
   XAddCommand,
   XAutoClaim,
   XClaimCommand,
   XDelCommand,
+  XDelExCommand,
   XGroupCommand,
   XInfoCommand,
   XLenCommand,
@@ -411,8 +417,19 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
       ...sourceKeys: string[]
     ): Pipeline<[...TCommands, BitOpCommand]>;
     (op: "not", destinationKey: string, sourceKey: string): Pipeline<[...TCommands, BitOpCommand]>;
+    (
+      op: "diff" | "diff1" | "andor",
+      destinationKey: string,
+      x: string,
+      ...y: string[]
+    ): Pipeline<[...TCommands, BitOpCommand]>;
+    (
+      op: "one",
+      destinationKey: string,
+      ...sourceKeys: string[]
+    ): Pipeline<[...TCommands, BitOpCommand]>;
   } = (
-    op: "and" | "or" | "xor" | "not",
+    op: "and" | "or" | "xor" | "not" | "diff" | "diff1" | "andor" | "one",
     destinationKey: string,
     sourceKey: string,
     ...sourceKeys: string[]
@@ -426,6 +443,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   bitpos = (...args: CommandArgs<typeof BitPosCommand>) =>
     this.chain(new BitPosCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/client-setinfo
+   */
+  clientSetinfo = (...args: CommandArgs<typeof ClientSetInfoCommand>) =>
+    this.chain(new ClientSetInfoCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/copy
@@ -674,6 +697,18 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
     this.chain(new HGetAllCommand<TData>(args, this.commandOptions));
 
   /**
+   * @see https://redis.io/commands/hgetdel
+   */
+  hgetdel = <TData extends Record<string, unknown>>(...args: CommandArgs<typeof HGetDelCommand>) =>
+    this.chain(new HGetDelCommand<TData>(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/hgetex
+   */
+  hgetex = <TData extends Record<string, unknown>>(...args: CommandArgs<typeof HGetExCommand>) =>
+    this.chain(new HGetExCommand<TData>(args, this.commandOptions));
+
+  /**
    * @see https://redis.io/commands/hincrby
    */
   hincrby = (...args: CommandArgs<typeof HIncrByCommand>) =>
@@ -730,6 +765,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   hset = <TData>(key: string, kv: Record<string, TData>) =>
     this.chain(new HSetCommand<TData>([key, kv], this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/hsetex
+   */
+  hsetex = <TData>(...args: CommandArgs<typeof HSetExCommand<TData>>) =>
+    this.chain(new HSetExCommand<TData>(args as any, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/hsetnx
@@ -1187,10 +1228,22 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
     this.chain(new XAckCommand(args, this.commandOptions));
 
   /**
+   * @see https://redis.io/commands/xackdel
+   */
+  xackdel = (...args: CommandArgs<typeof XAckDelCommand>) =>
+    this.chain(new XAckDelCommand(args, this.commandOptions));
+
+  /**
    * @see https://redis.io/commands/xdel
    */
   xdel = (...args: CommandArgs<typeof XDelCommand>) =>
     this.chain(new XDelCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/xdelex
+   */
+  xdelex = (...args: CommandArgs<typeof XDelExCommand>) =>
+    this.chain(new XDelExCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/xgroup

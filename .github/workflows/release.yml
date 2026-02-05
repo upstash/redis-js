@@ -1,9 +1,11 @@
 name: Release
 
 on:
-  release:
-    types:
-      - published
+  workflow_call:
+    inputs:
+      prerelease:
+        type: boolean
+        required: true
 
 jobs:
   release:
@@ -11,15 +13,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set env
         run: echo "VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: 24
+          registry-url: https://registry.npmjs.org
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
@@ -37,19 +40,16 @@ jobs:
       - name: Build
         run: bun run build
 
-      - name: Set NPM_TOKEN
-        run: npm config set //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
-
       - name: Publish
-        if: "!github.event.release.prerelease"
+        if: ${{ !inputs.prerelease }}
         working-directory: ./dist
         run: |
           npm pkg delete scripts.prepare
-          npm publish --access public
+          npm publish --provenance --access public
 
       - name: Publish release candidate
-        if: "github.event.release.prerelease"
+        if: ${{ inputs.prerelease }}
         working-directory: ./dist
         run: |
           npm pkg delete scripts.prepare
-          npm publish --access public --tag=canary
+          npm publish --provenance --access public --tag=canary

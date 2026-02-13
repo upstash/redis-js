@@ -198,7 +198,7 @@ import {
   type FlatIndexSchema,
 } from "./commands/search";
 import type { InitIndexParameters } from "./commands/search/search";
-import { createIndex, initIndex } from "./commands/search/search";
+import { createIndex, initIndex, listAliases, addAlias, delAlias } from "./commands/search/search";
 import { Subscriber } from "./commands/subscribe";
 import { ZDiffStoreCommand } from "./commands/zdiffstore";
 import { ZMScoreCommand } from "./commands/zmscore";
@@ -470,6 +470,20 @@ export class Redis {
         params: InitIndexParameters<TSchema>
       ) => {
         return initIndex<TSchema>(this.client, params);
+      },
+
+      alias: {
+        list: () => {
+          return listAliases(this.client);
+        },
+
+        add: ({ indexName, alias }: { indexName: string; alias: string }) => {
+          return addAlias(this.client, { indexName, alias });
+        },
+
+        delete: ({ alias }: { alias: string }) => {
+          return delAlias(this.client, { alias });
+        },
       },
     };
   }

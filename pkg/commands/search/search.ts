@@ -103,6 +103,12 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
     const result = await new ExecCommand<1 | 0>(command as [string, ...string[]]).exec(this.client);
     return result;
   }
+
+  async addAlias({ alias }: { alias: string }): Promise<1> {
+    const command = ["SEARCH.ALIASADD", alias, this.name];
+    const result = await new ExecCommand<1>(command as [string, ...string[]]).exec(this.client);
+    return result;
+  }
 }
 
 export async function createIndex<TSchema extends NestedIndexSchema | FlatIndexSchema>(
@@ -134,3 +140,44 @@ export function initIndex<TSchema extends NestedIndexSchema | FlatIndexSchema>(
 
 export type InferFilterFromSchema<TSchema extends NestedIndexSchema | FlatIndexSchema> =
   NonNullable<NonNullable<Parameters<SearchIndex<TSchema>["query"]>[0]>["filter"]>;
+
+export async function listAliases(client: Requester): Promise<Record<string, string>> {
+  const command = ["SEARCH.LISTALIASES"];
+  const rawResult = await new ExecCommand<any>(command as [string, ...string[]]).exec(client);
+
+  // Handle empty case - might be 0 or an empty array
+  if (rawResult === 0 || (Array.isArray(rawResult) && rawResult.length === 0)) {
+    return {};
+  }
+
+  // Parse the response: [[alias1, index1], [alias2, index2], ...]
+  if (!Array.isArray(rawResult)) {
+    return {};
+  }
+
+  const aliases: Record<string, string> = {};
+
+  for (const pair of rawResult) {
+    if (Array.isArray(pair) && pair.length === 2) {
+      const [alias, index] = pair;
+      aliases[alias] = index;
+    }
+  }
+
+  return aliases;
+}
+
+export async function addAlias(
+  client: Requester,
+  { indexName, alias }: { indexName: string; alias: string }
+): Promise<1> {
+  const command = ["SEARCH.ALIASADD", alias, indexName];
+  const result = await new ExecCommand<1>(command as [string, ...string[]]).exec(client);
+  return result;
+}
+
+export async function delAlias(client: Requester, { alias }: { alias: string }): Promise<1> {
+  const command = ["SEARCH.ALIASDEL", alias];
+  const result = await new ExecCommand<1>(command as [string, ...string[]]).exec(client);
+  return result;
+}

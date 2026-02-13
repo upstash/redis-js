@@ -1,6 +1,6 @@
 import { afterAll, afterEach, beforeAll, describe, expect, test } from "bun:test";
 import { newHttpClient, randomID } from "../../test-utils";
-import { createIndex, initIndex, SearchIndex } from "./search";
+import { createIndex, initIndex, SearchIndex, listAliases, addAlias, delAlias } from "./search";
 import { s } from "./schema-builder";
 import { JsonSetCommand } from "../json_set";
 import { SetCommand } from "../set";
@@ -2161,5 +2161,112 @@ describe("SearchIndex.aggregate (json)", () => {
     });
 
     expect(result).toEqual({ avg_with_default: { value: 40 } });
+  });
+});
+
+describe("alias commands", () => {
+  const createdIndexes: string[] = [];
+  const createdAliases: string[] = [];
+
+  afterEach(async () => {
+    // Cleanup aliases first
+    for (const alias of createdAliases) {
+      try {
+        await delAlias(client, { alias });
+      } catch {
+        // Alias might not exist, ignore
+      }
+    }
+    createdAliases.length = 0;
+
+    // Then cleanup indexes
+    for (const name of createdIndexes) {
+      try {
+        const index = initIndex(client, { name });
+        await index.drop();
+      } catch {
+        // Index might not exist, ignore
+      }
+    }
+    createdIndexes.length = 0;
+  });
+
+  test("list, add, and delete aliases", async () => {
+    // Create two indexes
+    const index1Name = `test-alias-idx1-${randomID().slice(0, 8)}`;
+    const index2Name = `test-alias-idx2-${randomID().slice(0, 8)}`;
+    createdIndexes.push(index1Name, index2Name);
+
+    const schema = s.object({
+      title: s.string(),
+      popularity: s.number("U64"),
+      freshness: s.number("U64"),
+    });
+
+    await createIndex(client, {
+      name: index1Name,
+      schema,
+      dataType: "hash",
+      prefix: `${index1Name}:`,
+    });
+
+    await createIndex(client, {
+      name: index2Name,
+      schema,
+      dataType: "hash",
+      prefix: `${index2Name}:`,
+    });
+
+    // Add aliases using top-level API
+    const alias1_1 = `alias1-1-${randomID().slice(0, 8)}`;
+    const alias1_2 = `alias1-2-${randomID().slice(0, 8)}`;
+    const alias2_1 = `alias2-1-${randomID().slice(0, 8)}`;
+    createdAliases.push(alias1_1, alias1_2, alias2_1);
+
+    await addAlias(client, { indexName: index1Name, alias: alias1_1 });
+    expect(await addAlias(client, { indexName: index1Name, alias: alias1_2 })).toBe(1);
+    expect(await addAlias(client, { indexName: index2Name, alias: alias2_1 })).toBe(1);
+
+    // List aliases and verify
+    const aliases = await listAliases(client);
+    expect(aliases[alias1_1]).toBe(index1Name);
+    expect(aliases[alias1_2]).toBe(index1Name);
+    expect(aliases[alias2_1]).toBe(index2Name);
+
+    // Delete one alias
+    expect(await delAlias(client, { alias: alias1_1 })).toBe(1);
+
+    // Verify it's deleted
+    const aliasesAfterDelete = await listAliases(client);
+    expect(aliasesAfterDelete[alias1_1]).toBeUndefined();
+    expect(aliasesAfterDelete[alias1_2]).toBe(index1Name);
+    expect(aliasesAfterDelete[alias2_1]).toBe(index2Name);
+  });
+
+  test("add alias using index method", async () => {
+    const indexName = `test-alias-idx-${randomID().slice(0, 8)}`;
+    createdIndexes.push(indexName);
+
+    const schema = s.object({
+      title: s.string(),
+      count: s.number("U64"),
+    });
+
+    const index = await createIndex(client, {
+      name: indexName,
+      schema,
+      dataType: "hash",
+      prefix: `${indexName}:`,
+    });
+
+    const alias = `alias-${randomID().slice(0, 8)}`;
+    createdAliases.push(alias);
+
+    // Add alias using index method
+    expect(await index.addAlias({ alias })).toBe(1);
+
+    // Verify it was created
+    const aliases = await listAliases(client);
+    expect(aliases[alias]).toBe(indexName);
   });
 });

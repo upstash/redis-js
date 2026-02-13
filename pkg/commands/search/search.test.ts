@@ -14,7 +14,12 @@ beforeAll(async () => {
   const [_cursor, indexKeys] = await new ScanCommand(["0", { type: "search" }]).exec(client);
   for (const key of indexKeys) {
     const index = initIndex(client, { name: key });
-    await index.drop();
+    try {
+      await index.drop();
+      // Wait a bit for the index to be fully dropped
+    } catch (error) {
+      console.warn(`Failed to drop index ${key}:`, error);
+    }
   }
 });
 
@@ -1752,5 +1757,409 @@ describe("Field aliasing with 'from' and stemming", () => {
 
     expect(result.length).toBe(1);
     expect(result[0].data).toEqual({ content: "running fast" });
+  });
+});
+
+describe("SearchIndex.aggregate (json)", () => {
+  const name = `test-aggregate-json-${randomID().slice(0, 8)}`;
+  const prefix = `${name}:`;
+  const keys: string[] = [];
+
+  const schema = s.object({
+    title: s.string(),
+    category: s.string().noTokenize(),
+    categoryId: s.number(),
+    price: s.number(),
+    quantity: s.number(),
+  });
+
+  beforeAll(async () => {
+    // Clean up any existing test indexes first
+    const [_cursor, indexKeys] = await new ScanCommand(["0", { type: "search" }]).exec(client);
+    for (const key of indexKeys) {
+      if (key.startsWith("test-")) {
+        const idx = initIndex(client, { name: key });
+        try {
+          await idx.drop();
+        } catch {
+          // Ignore errors
+        }
+      }
+    }
+
+    const index = await createIndex(client, {
+      name,
+      schema,
+      dataType: "json",
+      prefix,
+    });
+
+    const testData = Array.from({ length: 9 }, (_, i) => ({
+      title: `product ${i}`,
+      category: ["electronics", "clothing", "books"][i % 3],
+      categoryId: i % 3, // 0=electronics, 1=clothing, 2=books
+      price: i * 10,
+      quantity: i,
+    }));
+
+    for (const [i, doc] of testData.entries()) {
+      const key = `${prefix}doc:${i}`;
+      keys.push(key);
+      await new JsonSetCommand([key, "$", doc]).exec(client);
+    }
+
+    await index.waitIndexing();
+  });
+
+  afterAll(async () => {
+    const index = initIndex(client, { name, schema });
+    try {
+      await index.drop();
+    } catch {
+      // Ignore
+    }
+    if (keys.length > 0) {
+      await new DelCommand(keys).exec(client);
+    }
+  });
+
+  test("basic stats aggregation", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.aggregate({
+      filter: { title: { $eq: "product" } },
+      aggregations: {
+        s: { $stats: { field: "price" } },
+      },
+    });
+
+    expect(result).toEqual({ s: { count: 9, min: 0, max: 80, sum: 360, avg: 40 } });
+  });
+
+  test("range aggregation", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.aggregate({
+      filter: { title: { $eq: "product" } },
+      aggregations: {
+        tiers: {
+          $range: {
+            field: "price",
+            ranges: [{ to: 30 }, { from: 30, to: 60 }, { from: 60 }],
+          },
+        },
+      },
+    });
+
+    expect(result).toEqual({
+      tiers: {
+        buckets: [
+          { key: "*-30", docCount: 3, to: 30 },
+          { key: "30-60", docCount: 3, from: 30, to: 60 },
+          { key: "60-*", docCount: 3, from: 60 },
+        ],
+      },
+    });
+  });
+
+  test("histogram aggregation", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.aggregate({
+      filter: { title: { $eq: "product" } },
+      aggregations: {
+        h: { $histogram: { field: "price", interval: 30 } },
+      },
+    });
+
+    expect(result).toEqual({
+      h: {
+        buckets: [
+          { key: 0, docCount: 3 },
+          { key: 30, docCount: 3 },
+          { key: 60, docCount: 3 },
+        ],
+      },
+    });
+  });
+
+  test("multiple aggregations", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.aggregate({
+      filter: { title: { $eq: "product" } },
+      aggregations: {
+        price_stats: { $stats: { field: "price" } },
+        qty_stats: { $stats: { field: "quantity" } },
+      },
+    });
+
+    expect(result).toEqual({
+      price_stats: { count: 9, min: 0, max: 80, sum: 360, avg: 40 },
+      qty_stats: { count: 9, min: 0, max: 8, sum: 36, avg: 4 },
+    });
+  });
+
+  test("aggregation with search results (LIMIT)", async () => {
+    const index = initIndex(client, { name, schema });
+    const [aggResult, searchResults] = await index.aggregate({
+      filter: { title: { $eq: "product" } },
+      aggregations: {
+        s: { $stats: { field: "price" } },
+      },
+      limit: 3,
+    });
+
+    expect(aggResult).toEqual({ s: { count: 9, min: 0, max: 80, sum: 360, avg: 40 } });
+    expect(searchResults).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: expect.any(String), score: expect.any(Number) }),
+        expect.objectContaining({ key: expect.any(String), score: expect.any(Number) }),
+        expect.objectContaining({ key: expect.any(String), score: expect.any(Number) }),
+      ])
+    );
+  });
+
+  test("nested aggregation with $aggs - terms with avg", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.aggregate({
+      filter: { title: { $eq: "product" } },
+      aggregations: {
+        by_cat: {
+          $terms: { field: "categoryId" },
+          $aggs: {
+            avg_price: { $avg: { field: "price" } },
+          },
+        },
+      },
+    });
+
+    expect(result).toEqual({
+      by_cat: {
+        buckets: expect.arrayContaining([
+          { key: 0, docCount: 3, avg_price: { value: 30 } },
+          { key: 1, docCount: 3, avg_price: { value: 40 } },
+          { key: 2, docCount: 3, avg_price: { value: 50 } },
+        ]),
+      },
+    });
+  });
+
+  test("nested aggregation with $aggs - terms with multiple metrics", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.aggregate({
+      filter: { title: { $eq: "product" } },
+      aggregations: {
+        by_cat: {
+          $terms: { field: "categoryId" },
+          $aggs: {
+            avg_price: { $avg: { field: "price" } },
+            min_price: { $min: { field: "price" } },
+            max_price: { $max: { field: "price" } },
+            sum_qty: { $sum: { field: "quantity" } },
+          },
+        },
+      },
+    });
+
+    expect(result).toEqual({
+      by_cat: {
+        buckets: expect.arrayContaining([
+          expect.objectContaining({
+            key: 0,
+            docCount: 3,
+            avg_price: { value: 30 },
+            min_price: { value: 0 },
+            max_price: { value: 60 },
+            sum_qty: { value: 9 },
+          }),
+        ]),
+      },
+    });
+  });
+
+  test("nested aggregation with $aggs - range with stats", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.aggregate({
+      filter: { title: { $eq: "product" } },
+      aggregations: {
+        price_ranges: {
+          $range: {
+            field: "price",
+            ranges: [{ to: 30 }, { from: 30, to: 60 }, { from: 60 }],
+          },
+          $aggs: {
+            qty_stats: { $stats: { field: "quantity" } },
+          },
+        },
+      },
+    });
+
+    expect(result).toEqual({
+      price_ranges: {
+        buckets: [
+          {
+            key: "*-30",
+            docCount: 3,
+            to: 30,
+            qty_stats: { count: 3, min: 0, max: 2, sum: 3, avg: 1 },
+          },
+          expect.objectContaining({ key: "30-60", docCount: 3 }),
+          expect.objectContaining({ key: "60-*", docCount: 3 }),
+        ],
+      },
+    });
+  });
+
+  test("nested aggregation with $aggs - histogram with avg", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.aggregate({
+      filter: { title: { $eq: "product" } },
+      aggregations: {
+        price_histogram: {
+          $histogram: { field: "price", interval: 30 },
+          $aggs: {
+            avg_qty: { $avg: { field: "quantity" } },
+          },
+        },
+      },
+    });
+
+    expect(result).toEqual({
+      price_histogram: {
+        buckets: [
+          { key: 0, docCount: 3, avg_qty: { value: 1 } },
+          expect.objectContaining({ key: 30, docCount: 3 }),
+          expect.objectContaining({ key: 60, docCount: 3 }),
+        ],
+      },
+    });
+  });
+
+  test("metric aggregations - avg, sum, min, max, count", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.aggregate({
+      filter: { title: { $eq: "product" } },
+      aggregations: {
+        avg_price: { $avg: { field: "price" } },
+        sum_price: { $sum: { field: "price" } },
+        min_price: { $min: { field: "price" } },
+        max_price: { $max: { field: "price" } },
+        count_price: { $count: { field: "price" } },
+      },
+    });
+
+    expect(result).toEqual({
+      avg_price: { value: 40 },
+      sum_price: { value: 360 },
+      min_price: { value: 0 },
+      max_price: { value: 80 },
+      count_price: { value: 9 },
+    });
+  });
+
+  test("metric aggregation - cardinality", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.aggregate({
+      filter: { title: { $eq: "product" } },
+      aggregations: {
+        unique_categories: { $cardinality: { field: "categoryId" } },
+      },
+    });
+
+    expect(result).toEqual({ unique_categories: { value: 3 } });
+  });
+
+  test("metric aggregation - extendedStats without sigma", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.aggregate({
+      filter: { title: { $eq: "product" } },
+      aggregations: {
+        es: { $extendedStats: { field: "price" } },
+      },
+    });
+
+    expect(result.es).toEqual(
+      expect.objectContaining({
+        count: 9,
+        min: 0,
+        max: 80,
+        avg: 40,
+        sum: 360,
+        variance: expect.any(Number),
+        stdDeviation: expect.any(Number),
+        stdDeviationBounds: expect.objectContaining({
+          upper: expect.any(Number),
+          lower: expect.any(Number),
+        }),
+      })
+    );
+  });
+
+  test("metric aggregation - extendedStats with sigma", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.aggregate({
+      filter: { title: { $eq: "product" } },
+      aggregations: {
+        es: { $extendedStats: { field: "price", sigma: 2 } },
+      },
+    });
+
+    expect(result.es).toEqual(
+      expect.objectContaining({
+        count: 9,
+        stdDeviationBounds: expect.objectContaining({
+          upper: expect.any(Number),
+          lower: expect.any(Number),
+          upperSampling: expect.any(Number),
+          lowerSampling: expect.any(Number),
+          upperPopulation: expect.any(Number),
+          lowerPopulation: expect.any(Number),
+        }),
+      })
+    );
+  });
+
+  test("metric aggregation - percentiles default (keyed)", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.aggregate({
+      filter: { title: { $eq: "product" } },
+      aggregations: {
+        p: { $percentiles: { field: "price", percents: [50, 95, 99] } },
+      },
+    });
+
+    expect(result.p).toEqual({
+      values: expect.objectContaining({
+        "50.0": expect.any(Number),
+        "95.0": expect.any(Number),
+        "99.0": expect.any(Number),
+      }),
+    });
+  });
+
+  test("metric aggregation - percentiles unkeyed", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.aggregate({
+      filter: { title: { $eq: "product" } },
+      aggregations: {
+        p: { $percentiles: { field: "price", percents: [50, 95], keyed: false } },
+      },
+    });
+
+    expect(result.p).toEqual({
+      values: [
+        { key: 50, value: expect.any(Number) },
+        { key: 95, value: expect.any(Number) },
+      ],
+    });
+  });
+
+  test("metric aggregation - missing value handling", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.aggregate({
+      filter: { title: { $eq: "product" } },
+      aggregations: {
+        avg_with_default: { $avg: { field: "price", missing: 100 } },
+      },
+    });
+
+    expect(result).toEqual({ avg_with_default: { value: 40 } });
   });
 });

@@ -1,16 +1,27 @@
 import type {
+  AggregateOptions,
+  AggregateResult,
   FlatIndexSchema,
+  IndexDescription,
+  Language,
   NestedIndexSchema,
   QueryOptions,
-  RootQueryFilter,
-  IndexDescription,
   QueryResult,
-  Language,
+  RootQueryFilter,
 } from "./types";
 import type { Requester } from "../../http";
 import { ExecCommand } from "../exec";
-import { buildCreateIndexCommand, buildQueryCommand } from "./command-builder";
-import { parseCountResponse, deserializeDescribeResponse, deserializeQueryResponse } from "./utils";
+import {
+  buildAggregateCommand,
+  buildCreateIndexCommand,
+  buildQueryCommand,
+} from "./command-builder";
+import {
+  deserializeAggregateResponse,
+  deserializeDescribeResponse,
+  deserializeQueryResponse,
+  parseCountResponse,
+} from "./utils";
 
 export type CreateIndexParameters<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
   name: string;
@@ -67,6 +78,16 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
       this.client
     );
     return deserializeQueryResponse<TSchema, TOpts>(rawResult);
+  }
+
+  async aggregate<TOpts extends AggregateOptions<TSchema>>(
+    options: TOpts
+  ): Promise<AggregateResult<TSchema, TOpts>> {
+    const command = buildAggregateCommand(this.name, options);
+    const rawResult = await new ExecCommand<(string | number)[]>(
+      command as [string, ...string[]]
+    ).exec(this.client);
+    return deserializeAggregateResponse(rawResult, Boolean(options.limit));
   }
 
   async count({ filter }: { filter: RootQueryFilter<TSchema> }): Promise<{ count: number }> {

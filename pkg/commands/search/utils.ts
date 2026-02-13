@@ -182,3 +182,95 @@ export function deserializeDescribeResponse<TSchema extends NestedIndexSchema | 
 export function parseCountResponse(rawResponse: any): number {
   return typeof rawResponse === "number" ? rawResponse : Number.parseInt(rawResponse, 10);
 }
+
+export function deserializeAggregateResponse(rawResponse: any[], hasLimit: boolean): any {
+  // Response is always wrapped: [[agg_key, agg_val, ...]] or [[agg_key, agg_val, ...], [search_results...]]
+  if (
+    hasLimit &&
+    rawResponse.length === 2 &&
+    Array.isArray(rawResponse[0]) &&
+    Array.isArray(rawResponse[1])
+  ) {
+    const aggregationResult = parseAggregationArray(rawResponse[0] as any[]);
+    const searchResults = deserializeQueryResponse(rawResponse[1] as any[]);
+    return [aggregationResult, searchResults];
+  }
+
+  // Single aggregation result - unwrap the outer array
+  if (Array.isArray(rawResponse) && rawResponse.length === 1 && Array.isArray(rawResponse[0])) {
+    return parseAggregationArray(rawResponse[0] as any[]);
+  }
+
+  return rawResponse;
+}
+
+function parseAggregationArray(arr: any[]): any {
+  const result: any = {};
+
+  for (let i = 0; i < arr.length; i += 2) {
+    const key = arr[i];
+    const value = arr[i + 1];
+
+    if (Array.isArray(value)) {
+      // Check if it's a stats-like array or buckets array
+      if (value.length > 0 && typeof value[0] === "string") {
+        // Stats or buckets format
+        result[key] = value[0] === "buckets" ? parseBucketsValue(value) : parseStatsValue(value);
+      } else {
+        // Nested aggregation
+        result[key] = parseAggregationArray(value);
+      }
+    } else {
+      result[key] = value;
+    }
+  }
+
+  return result;
+}
+
+function parseStatsValue(arr: any[]): any {
+  const result: any = {};
+  for (let i = 0; i < arr.length; i += 2) {
+    const key = arr[i];
+    const value = arr[i + 1];
+
+    if (Array.isArray(value) && value.length > 0) {
+      // Check if it's a single array following key-value format
+      if (typeof value[0] === "string") {
+        result[key] = parseStatsValue(value);
+      }
+      // Check if it's an array of arrays (like percentiles unkeyed format)
+      else if (Array.isArray(value[0]) && typeof value[0][0] === "string") {
+        result[key] = value.map((item: any[]) => parseStatsValue(item));
+      }
+      // Otherwise keep as-is
+      else {
+        result[key] = value;
+      }
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
+function parseBucketsValue(arr: any[]): any {
+  // Format: ["buckets", [bucket1_array, bucket2_array, ...]]
+  if (arr[0] === "buckets" && Array.isArray(arr[1])) {
+    return {
+      buckets: arr[1].map((bucket: any[]) => {
+        const bucketObj: any = {};
+        for (let i = 0; i < bucket.length; i += 2) {
+          const key = bucket[i];
+          const value = bucket[i + 1];
+          bucketObj[key] =
+            Array.isArray(value) && value.length > 0 && typeof value[0] === "string"
+              ? parseStatsValue(value)
+              : value;
+        }
+        return bucketObj;
+      }),
+    };
+  }
+  return arr;
+}

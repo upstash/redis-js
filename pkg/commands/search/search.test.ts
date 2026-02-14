@@ -46,6 +46,7 @@ describe("createIndex", () => {
     const schema = s.object({
       name: s.string(),
       age: s.number(),
+      tag: s.keyword(),
     });
 
     const index = await createIndex(client, {

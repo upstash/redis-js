@@ -1,4 +1,4 @@
-export const FIELD_TYPES = ["TEXT", "U64", "I64", "F64", "BOOL", "DATE"] as const;
+export const FIELD_TYPES = ["TEXT", "U64", "I64", "F64", "BOOL", "DATE", "KEYWORD"] as const;
 export type FieldType = (typeof FIELD_TYPES)[number];
 
 export type TextField = {
@@ -26,7 +26,11 @@ export type DateField = {
   from?: string;
 };
 
-export type DetailedField = TextField | NumericField | BoolField | DateField;
+export type KeywordField = {
+  type: "KEYWORD";
+};
+
+export type DetailedField = TextField | NumericField | BoolField | DateField | KeywordField;
 export type NestedIndexSchema = {
   [key: string]: FieldType | DetailedField | NestedIndexSchema;
 };
@@ -74,7 +78,9 @@ type FieldValueType<T extends FieldType> = T extends "TEXT"
       ? boolean
       : T extends "DATE"
         ? string
-        : never;
+        : T extends "KEYWORD"
+          ? string
+          : never;
 
 type GetFieldValueType<TSchema, Path extends string> =
   GetFieldAtPath<TSchema, Path> extends infer Field
@@ -330,7 +336,9 @@ type OperationsForFieldType<T extends FieldType> = T extends "TEXT"
       ? BooleanOperations
       : T extends "DATE"
         ? DateOperations
-        : never;
+        : T extends "KEYWORD"
+          ? StringOperations
+          : never;
 
 // Create a union type for all operations for a given path
 type PathOperations<TSchema, TPath extends string> =

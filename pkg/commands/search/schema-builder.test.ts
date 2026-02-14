@@ -10,9 +10,9 @@ describe("Schema Builder", () => {
     });
 
     expect(schema).toEqual({
-      name: "TEXT",
+      name: { type: "TEXT" },
       age: { type: "U64", fast: true },
-      isActive: "BOOL",
+      isActive: { type: "BOOL" },
     });
   });
 
@@ -39,10 +39,10 @@ describe("Schema Builder", () => {
       }),
     });
 
-    expect(schema.name).toBe("TEXT");
+    expect(schema.name).toEqual({ type: "TEXT" });
     expect(schema.profile).toBeDefined();
     expect(schema.profile.age).toEqual({ type: "U64", fast: true });
-    expect(schema.profile.city).toBe("TEXT");
+    expect(schema.profile.city).toEqual({ type: "TEXT" });
   });
 
   test("supports all field types", () => {
@@ -53,6 +53,7 @@ describe("Schema Builder", () => {
       float: s.number("F64"),
       bool: s.boolean(),
       date: s.date(),
+      tag: s.keyword(),
     });
 
     expect(schema).toEqual({
@@ -60,8 +61,9 @@ describe("Schema Builder", () => {
       unsignedInteger: { type: "U64", fast: true },
       integer: { type: "I64", fast: true },
       float: { type: "F64", fast: true },
-      bool: "BOOL",
-      date: "DATE",
+      bool: { type: "BOOL" },
+      date: { type: "DATE" },
+      tag: { type: "KEYWORD" },
     });
   });
 
@@ -84,7 +86,7 @@ describe("Schema Builder", () => {
       age: s.number("U64"), // Should be { type: "U64", fast: true }
     });
 
-    expect(schema.name).toEqual("TEXT");
+    expect(schema.name).toEqual({ type: "TEXT" });
     expect(schema.age).toEqual({ type: "U64", fast: true });
   });
 
@@ -112,13 +114,13 @@ describe("Schema Builder", () => {
     });
 
     expect(schema).toEqual({
-      title: "TEXT",
+      title: { type: "TEXT" },
       titleExact: { type: "TEXT", noStem: true, from: "title" },
       count: { type: "U64", fast: true },
       countCopy: { type: "U64", fast: true, from: "count" },
-      active: "BOOL",
+      active: { type: "BOOL" },
       activeCopy: { type: "BOOL", from: "active" },
-      created: "DATE",
+      created: { type: "DATE" },
       createdCopy: { type: "DATE", from: "created" },
     });
   });

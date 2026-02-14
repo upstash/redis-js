@@ -20,7 +20,7 @@ type TextFieldBuild<
           {})
     : TFrom["from"] extends string
       ? { type: "TEXT"; from: TFrom["from"] }
-      : "TEXT";
+      : { type: "TEXT" };
 
 // Internal symbol for build method
 const BUILD = Symbol("build");
@@ -127,7 +127,7 @@ class BoolFieldBuilder<
       : { type: "BOOL"; fast: true }
     : TFrom["from"] extends string
       ? { type: "BOOL"; from: TFrom["from"] }
-      : "BOOL" {
+      : { type: "BOOL" } {
     const hasFast = this._fast.fast;
     const hasFrom = Boolean(this._from.from);
 
@@ -180,7 +180,7 @@ class DateFieldBuilder<
       : { type: "DATE"; fast: true }
     : TFrom["from"] extends string
       ? { type: "DATE"; from: TFrom["from"] }
-      : "DATE" {
+      : { type: "DATE" } {
     const hasFast = this._fast.fast;
     const hasFrom = Boolean(this._from.from);
 
@@ -207,11 +207,18 @@ class DateFieldBuilder<
   }
 }
 
+class KeywordFieldBuilder {
+  [BUILD](): { type: "KEYWORD" } {
+    return { type: "KEYWORD" } as const;
+  }
+}
+
 type FieldBuilder =
   | TextFieldBuilder<{ noTokenize: boolean }, { noStem: boolean }, { from: string | null }>
   | NumericFieldBuilder<NumericField["type"], { from: string | null }>
   | BoolFieldBuilder<{ fast: boolean }, { from: string | null }>
-  | DateFieldBuilder<{ fast: boolean }, { from: string | null }>;
+  | DateFieldBuilder<{ fast: boolean }, { from: string | null }>
+  | KeywordFieldBuilder;
 
 export const s = {
   string(): TextFieldBuilder {
@@ -225,6 +232,9 @@ export const s = {
   },
   date(): DateFieldBuilder {
     return new DateFieldBuilder();
+  },
+  keyword(): KeywordFieldBuilder {
+    return new KeywordFieldBuilder();
   },
   object<T extends ObjectFieldRecord<T>>(fields: T) {
     const result: any = {};

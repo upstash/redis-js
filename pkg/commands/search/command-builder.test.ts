@@ -367,6 +367,7 @@ describe("buildCreateIndexCommand", () => {
       const schema = s.object({
         name: s.string(),
         age: s.number("U64"),
+        label: s.keyword(),
       });
 
       const params = {
@@ -393,6 +394,8 @@ describe("buildCreateIndexCommand", () => {
         "age",
         "U64",
         "FAST",
+        "label",
+        "KEYWORD",
       ]);
     });
 

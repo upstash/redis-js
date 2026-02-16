@@ -57,9 +57,9 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
     this.client = client;
   }
 
-  async waitIndexing(): Promise<void> {
+  async waitIndexing(): Promise<0 | 1> {
     const command = ["SEARCH.WAITINDEXING", this.name];
-    await new ExecCommand<"<OK>">(command as [string, ...string[]]).exec(this.client);
+    return await new ExecCommand<0 | 1>(command as [string, ...string[]]).exec(this.client);
   }
 
   async describe(): Promise<IndexDescription<TSchema> | null> {
@@ -78,7 +78,7 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
     const rawResult = await new ExecCommand<string[]>(command as [string, ...string[]]).exec(
       this.client
     );
-    if (!rawResult) return [];
+    if (!rawResult) return rawResult;
     return deserializeQueryResponse<TSchema, TOpts>(rawResult);
   }
 
@@ -172,13 +172,13 @@ export async function listAliases(client: Requester): Promise<Record<string, str
 export async function addAlias(
   client: Requester,
   { indexName, alias }: { indexName: string; alias: string }
-): Promise<1> {
+): Promise<0 | 1 | 2> {
   const command = ["SEARCH.ALIASADD", alias, indexName];
-  const result = await new ExecCommand<1>(command as [string, ...string[]]).exec(client);
+  const result = await new ExecCommand<1 | 1 | 2>(command as [string, ...string[]]).exec(client);
   return result;
 }
 
-export async function delAlias(client: Requester, { alias }: { alias: string }): Promise<1> {
+export async function delAlias(client: Requester, { alias }: { alias: string }): Promise<0 | 1> {
   const command = ["SEARCH.ALIASDEL", alias];
   const result = await new ExecCommand<1>(command as [string, ...string[]]).exec(client);
   return result;

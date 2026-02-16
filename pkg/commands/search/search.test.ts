@@ -1096,20 +1096,6 @@ describe("SearchIndex.describe", () => {
 
     expect(description).toBeDefined();
   });
-
-  test("describe non-existing returns null", async () => {
-    const index = initIndex(client, { name: "non-existing", schema });
-    const description = await index.describe();
-
-    expect(description).toBeNull();
-  });
-
-  test("query non-existing index returns empty array", async () => {
-    const index = initIndex(client, { name: "non-existing", schema });
-    const result = await index.query();
-
-    expect(result).toEqual([]);
-  });
 });
 
 describe("SearchIndex.drop", () => {
@@ -1128,7 +1114,44 @@ describe("SearchIndex.drop", () => {
     });
 
     const result = await index.drop();
-    expect(result).toBeDefined();
+    expect(result).toBe(1);
+  });
+
+  test("drop non-existing index returns 0", async () => {
+    const index = initIndex(client, { name: "non-existing-drop" });
+    const result = await index.drop();
+    expect(result).toBe(0);
+  });
+});
+
+describe("Non-existing index behavior", () => {
+  const schema = s.object({
+    name: s.string(),
+    value: s.number(),
+  });
+
+  test("describe non-existing index returns null", async () => {
+    const index = initIndex(client, { name: "non-existing-describe", schema });
+    const result = await index.describe();
+    expect(result).toBeNull();
+  });
+
+  test("query non-existing index returns empty array", async () => {
+    const index = initIndex(client, { name: "non-existing-query", schema });
+    const result = await index.query();
+    expect(result).toBeNull();
+  });
+
+  test("count non-existing index returns -1", async () => {
+    const index = initIndex(client, { name: "non-existing-count", schema });
+    const result = await index.count({ filter: { name: { $eq: "test" } } });
+    expect(result).toEqual({ count: -1 });
+  });
+
+  test("waitIndexing non-existing index does not throw", async () => {
+    const index = initIndex(client, { name: "non-existing-wait", schema });
+    const result = await index.waitIndexing();
+    expect(result).toBe(0);
   });
 });
 
@@ -2176,6 +2199,33 @@ describe("alias commands", () => {
   const createdIndexes: string[] = [];
   const createdAliases: string[] = [];
 
+  beforeAll(async () => {
+    // Clean up any existing test indexes and aliases first
+    const [_cursor, indexKeys] = await new ScanCommand(["0", { type: "search" }]).exec(client);
+    for (const key of indexKeys) {
+      if (key.startsWith("test-alias")) {
+        const idx = initIndex(client, { name: key });
+        try {
+          await idx.drop();
+        } catch {
+          // Ignore errors
+        }
+      }
+    }
+
+    const aliases = await listAliases(client);
+
+    for (const alias in aliases) {
+      if (alias.startsWith("alias")) {
+        try {
+          await delAlias(client, { alias });
+        } catch {
+          // Ignore errors
+        }
+      }
+    }
+  });
+
   afterEach(async () => {
     // Cleanup aliases first
     for (const alias of createdAliases) {
@@ -2225,6 +2275,12 @@ describe("alias commands", () => {
       prefix: `${index2Name}:`,
     });
 
+    const waitIndexingResult = await Promise.all([
+      initIndex(client, { name: index1Name, schema }).waitIndexing(),
+      initIndex(client, { name: index2Name, schema }).waitIndexing(),
+    ]);
+    expect(waitIndexingResult).toEqual([1, 1]);
+
     // Add aliases using top-level API
     const alias1_1 = `alias1-1-${randomID().slice(0, 8)}`;
     const alias1_2 = `alias1-2-${randomID().slice(0, 8)}`;
@@ -2249,6 +2305,95 @@ describe("alias commands", () => {
     expect(aliasesAfterDelete[alias1_1]).toBeUndefined();
     expect(aliasesAfterDelete[alias1_2]).toBe(index1Name);
     expect(aliasesAfterDelete[alias2_1]).toBe(index2Name);
+  });
+
+  test("aliaslist returns empty object when no aliases exist", async () => {
+    // After cleanup, listing should return empty (or at least not throw)
+    const aliases = await listAliases(client);
+    expect(aliases).toEqual({});
+  });
+
+  test("aliasadd returns 1 when index does not exist", async () => {
+    const alias = `alias-noindex-${randomID().slice(0, 8)}`;
+    const result = await addAlias(client, {
+      indexName: `non-existing-index-${randomID().slice(0, 8)}`,
+      alias,
+    });
+    expect(result).toBe(1);
+  });
+
+  test("aliasadd returns 1 when alias is added", async () => {
+    const indexName = `test-alias-add-${randomID().slice(0, 8)}`;
+    createdIndexes.push(indexName);
+
+    const schema = s.object({ title: s.string() });
+    await createIndex(client, {
+      name: indexName,
+      schema,
+      dataType: "hash",
+      prefix: `${indexName}:`,
+    });
+
+    const alias = `alias-new-${randomID().slice(0, 8)}`;
+    createdAliases.push(alias);
+
+    const result = await addAlias(client, { indexName, alias });
+    expect(result).toBe(1);
+  });
+
+  test("aliasadd returns 2 when alias is updated", async () => {
+    const index1Name = `test-alias-upd1-${randomID().slice(0, 8)}`;
+    const index2Name = `test-alias-upd2-${randomID().slice(0, 8)}`;
+    createdIndexes.push(index1Name, index2Name);
+
+    const schema = s.object({ title: s.string() });
+    await createIndex(client, {
+      name: index1Name,
+      schema,
+      dataType: "hash",
+      prefix: `${index1Name}:`,
+    });
+    await createIndex(client, {
+      name: index2Name,
+      schema,
+      dataType: "hash",
+      prefix: `${index2Name}:`,
+    });
+
+    const alias = `alias-update-${randomID().slice(0, 8)}`;
+    createdAliases.push(alias);
+
+    // First add - should return 1
+    const first = await addAlias(client, { indexName: index1Name, alias });
+    expect(first).toBe(1);
+
+    // Update to point to different index - should return 2
+    const second = await addAlias(client, { indexName: index2Name, alias });
+    expect(second).toBe(2);
+  });
+
+  test("aliasdel returns 0 when alias does not exist", async () => {
+    const result = await delAlias(client, { alias: "non-existing-alias" });
+    expect(result).toBe(0);
+  });
+
+  test("aliasdel returns 1 when alias is deleted", async () => {
+    const indexName = `test-alias-del-${randomID().slice(0, 8)}`;
+    createdIndexes.push(indexName);
+
+    const schema = s.object({ title: s.string() });
+    await createIndex(client, {
+      name: indexName,
+      schema,
+      dataType: "hash",
+      prefix: `${indexName}:`,
+    });
+
+    const alias = `alias-del-${randomID().slice(0, 8)}`;
+    await addAlias(client, { indexName, alias });
+
+    const result = await delAlias(client, { alias });
+    expect(result).toBe(1);
   });
 
   test("add alias using index method", async () => {

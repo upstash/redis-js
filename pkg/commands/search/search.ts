@@ -62,11 +62,12 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
     await new ExecCommand<"<OK>">(command as [string, ...string[]]).exec(this.client);
   }
 
-  async describe(): Promise<IndexDescription<TSchema>> {
+  async describe(): Promise<IndexDescription<TSchema> | null> {
     const command = ["SEARCH.DESCRIBE", this.name];
     const rawResult = await new ExecCommand<any>(command as [string, ...string[]]).exec(
       this.client
     );
+    if (!rawResult) return null;
     return deserializeDescribeResponse<TSchema>(rawResult);
   }
 
@@ -77,6 +78,7 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
     const rawResult = await new ExecCommand<string[]>(command as [string, ...string[]]).exec(
       this.client
     );
+    if (!rawResult) return [];
     return deserializeQueryResponse<TSchema, TOpts>(rawResult);
   }
 

@@ -1097,11 +1097,18 @@ describe("SearchIndex.describe", () => {
     expect(description).toBeDefined();
   });
 
-  test("describe non-existing", async () => {
+  test("describe non-existing returns null", async () => {
     const index = initIndex(client, { name: "non-existing", schema });
     const description = await index.describe();
 
-    expect(description).toBeDefined();
+    expect(description).toBeNull();
+  });
+
+  test("query non-existing index returns empty array", async () => {
+    const index = initIndex(client, { name: "non-existing", schema });
+    const result = await index.query();
+
+    expect(result).toEqual([]);
   });
 });
 

@@ -149,11 +149,5 @@ export function buildCreateIndexCommand<TSchema extends NestedIndexSchema | Flat
 export function buildAggregateCommand(name: string, options: any): string[] {
   const query = JSON.stringify(options?.filter ?? {});
   const aggregations = JSON.stringify(options.aggregations);
-  const command: string[] = ["SEARCH.AGGREGATE", name, query, aggregations];
-
-  if (options?.limit !== undefined) {
-    command.push("LIMIT", options.limit.toString());
-  }
-
-  return command;
+  return ["SEARCH.AGGREGATE", name, query, aggregations];
 }

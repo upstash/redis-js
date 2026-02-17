@@ -183,25 +183,9 @@ export function parseCountResponse(rawResponse: any): number {
   return typeof rawResponse === "number" ? rawResponse : Number.parseInt(rawResponse, 10);
 }
 
-export function deserializeAggregateResponse(rawResponse: any[], hasLimit: boolean): any {
-  // Response is always wrapped: [[agg_key, agg_val, ...]] or [[agg_key, agg_val, ...], [search_results...]]
-  if (
-    hasLimit &&
-    rawResponse.length === 2 &&
-    Array.isArray(rawResponse[0]) &&
-    Array.isArray(rawResponse[1])
-  ) {
-    const aggregationResult = parseAggregationArray(rawResponse[0] as any[]);
-    const searchResults = deserializeQueryResponse(rawResponse[1] as any[]);
-    return [aggregationResult, searchResults];
-  }
-
-  // Single aggregation result - unwrap the outer array
-  if (Array.isArray(rawResponse) && rawResponse.length === 1 && Array.isArray(rawResponse[0])) {
-    return parseAggregationArray(rawResponse[0] as any[]);
-  }
-
-  return rawResponse;
+export function deserializeAggregateResponse(rawResponse: any[]): any {
+  // Response is a flat key-value array: [key, val, key, val, ...]
+  return parseAggregationArray(rawResponse);
 }
 
 function parseAggregationArray(arr: any[]): any {
@@ -228,6 +212,13 @@ function parseAggregationArray(arr: any[]): any {
   return result;
 }
 
+function coerceNumericString(value: any): any {
+  if (typeof value === "string" && value !== "" && !Number.isNaN(Number(value))) {
+    return Number(value);
+  }
+  return value;
+}
+
 function parseStatsValue(arr: any[]): any {
   const result: any = {};
   for (let i = 0; i < arr.length; i += 2) {
@@ -248,16 +239,16 @@ function parseStatsValue(arr: any[]): any {
         result[key] = value;
       }
     } else {
-      result[key] = value;
+      result[key] = coerceNumericString(value);
     }
   }
   return result;
 }
 
 function parseBucketsValue(arr: any[]): any {
-  // Format: ["buckets", [bucket1_array, bucket2_array, ...]]
+  // Format: ["buckets", [bucket1_array, bucket2_array, ...], extraKey, extraVal, ...]
   if (arr[0] === "buckets" && Array.isArray(arr[1])) {
-    return {
+    const result: any = {
       buckets: arr[1].map((bucket: any[]) => {
         const bucketObj: any = {};
         for (let i = 0; i < bucket.length; i += 2) {
@@ -271,6 +262,11 @@ function parseBucketsValue(arr: any[]): any {
         return bucketObj;
       }),
     };
+    // Parse remaining key-value pairs (e.g. sumOtherDocCount, docCountErrorUpperBound)
+    for (let i = 2; i < arr.length; i += 2) {
+      result[arr[i]] = arr[i + 1];
+    }
+    return result;
   }
   return arr;
 }

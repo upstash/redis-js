@@ -89,7 +89,7 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
     const rawResult = await new ExecCommand<(string | number)[]>(
       command as [string, ...string[]]
     ).exec(this.client);
-    return deserializeAggregateResponse(rawResult, Boolean(options.limit));
+    return deserializeAggregateResponse(rawResult);
   }
 
   async count({ filter }: { filter: RootQueryFilter<TSchema> }): Promise<{ count: number }> {

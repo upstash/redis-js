@@ -547,7 +547,6 @@ export type Language =
 // Aggregate Types
 export type AggregateOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
   filter?: RootQueryFilter<TSchema>;
-  limit?: number;
   aggregations: {
     [key: string]: Aggregation<TSchema>;
   };
@@ -673,9 +672,7 @@ export type CardinalityAggregation<TSchema extends NestedIndexSchema | FlatIndex
 export type AggregateResult<
   TSchema extends NestedIndexSchema | FlatIndexSchema,
   TOpts extends AggregateOptions<TSchema>,
-> = TOpts["limit"] extends number
-  ? [BuildAggregateResult<TSchema, TOpts["aggregations"]>, QueryResult<TSchema, undefined>[]]
-  : BuildAggregateResult<TSchema, TOpts["aggregations"]>;
+> = BuildAggregateResult<TSchema, TOpts["aggregations"]>;
 
 type BuildAggregateResult<
   TSchema extends NestedIndexSchema | FlatIndexSchema,
@@ -722,9 +719,13 @@ type TermsResult<
   ? {
       buckets: (Bucket<GetFieldValueType<TSchema, TAgg["$terms"]["field"]>> &
         BuildAggregateResult<TSchema, TAgg["$aggs"]>)[];
+      sumOtherDocCount: number;
+      docCountErrorUpperBound: number;
     }
   : {
       buckets: Bucket<GetFieldValueType<TSchema, TAgg["$terms"]["field"]>>[];
+      sumOtherDocCount: number;
+      docCountErrorUpperBound: number;
     };
 
 type RangeResult<

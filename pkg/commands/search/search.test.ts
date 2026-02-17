@@ -1927,27 +1927,7 @@ describe("SearchIndex.aggregate (json)", () => {
     });
   });
 
-  test("aggregation with search results (LIMIT)", async () => {
-    const index = initIndex(client, { name, schema });
-    const [aggResult, searchResults] = await index.aggregate({
-      filter: { title: { $eq: "product" } },
-      aggregations: {
-        s: { $stats: { field: "price" } },
-      },
-      limit: 3,
-    });
-
-    expect(aggResult).toEqual({ s: { count: 9, min: 0, max: 80, sum: 360, avg: 40 } });
-    expect(searchResults).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ key: expect.any(String), score: expect.any(Number) }),
-        expect.objectContaining({ key: expect.any(String), score: expect.any(Number) }),
-        expect.objectContaining({ key: expect.any(String), score: expect.any(Number) }),
-      ])
-    );
-  });
-
-  test("nested aggregation with $aggs - terms with avg", async () => {
+  test("nested aggregation with aggs - terms with avg", async () => {
     const index = initIndex(client, { name, schema });
     const result = await index.aggregate({
       filter: { title: { $eq: "product" } },
@@ -1963,16 +1943,18 @@ describe("SearchIndex.aggregate (json)", () => {
 
     expect(result).toEqual({
       by_cat: {
-        buckets: expect.arrayContaining([
+        buckets: [
+          { key: 2, docCount: 3, avg_price: { value: 50 } },
           { key: 0, docCount: 3, avg_price: { value: 30 } },
           { key: 1, docCount: 3, avg_price: { value: 40 } },
-          { key: 2, docCount: 3, avg_price: { value: 50 } },
-        ]),
+        ],
+        sumOtherDocCount: 0,
+        docCountErrorUpperBound: 0,
       },
     });
   });
 
-  test("nested aggregation with $aggs - terms with multiple metrics", async () => {
+  test("nested aggregation with aggs - terms with multiple metrics", async () => {
     const index = initIndex(client, { name, schema });
     const result = await index.aggregate({
       filter: { title: { $eq: "product" } },
@@ -1991,21 +1973,39 @@ describe("SearchIndex.aggregate (json)", () => {
 
     expect(result).toEqual({
       by_cat: {
-        buckets: expect.arrayContaining([
-          expect.objectContaining({
+        buckets: [
+          {
+            key: 2,
+            docCount: 3,
+            avg_price: { value: 50 },
+            min_price: { value: 20 },
+            max_price: { value: 80 },
+            sum_qty: { value: 15 },
+          },
+          {
             key: 0,
             docCount: 3,
             avg_price: { value: 30 },
             min_price: { value: 0 },
             max_price: { value: 60 },
             sum_qty: { value: 9 },
-          }),
-        ]),
+          },
+          {
+            key: 1,
+            docCount: 3,
+            avg_price: { value: 40 },
+            min_price: { value: 10 },
+            max_price: { value: 70 },
+            sum_qty: { value: 12 },
+          },
+        ],
+        sumOtherDocCount: 0,
+        docCountErrorUpperBound: 0,
       },
     });
   });
 
-  test("nested aggregation with $aggs - range with stats", async () => {
+  test("nested aggregation with aggs - range with stats", async () => {
     const index = initIndex(client, { name, schema });
     const result = await index.aggregate({
       filter: { title: { $eq: "product" } },

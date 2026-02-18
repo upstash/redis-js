@@ -215,6 +215,63 @@ describe("buildQueryCommand", () => {
     });
   });
 
+  describe("keyword field queries", () => {
+    type SchemaWithKeyword = { name: "TEXT"; status: "KEYWORD" };
+
+    test("builds query with keyword $eq filter", () => {
+      const command = buildQueryCommand<SchemaWithKeyword>("SEARCH.QUERY", "test-index", {
+        filter: { status: { $eq: "active" } },
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"status":{"$eq":"active"}}',
+      ]);
+    });
+
+    test("builds query with keyword $in filter", () => {
+      const command = buildQueryCommand<SchemaWithKeyword>("SEARCH.QUERY", "test-index", {
+        filter: { status: { $in: ["active", "pending"] } },
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"status":{"$in":["active","pending"]}}',
+      ]);
+    });
+
+    test("builds query with keyword $gt filter", () => {
+      const command = buildQueryCommand<SchemaWithKeyword>("SEARCH.QUERY", "test-index", {
+        filter: { status: { $gt: "a" } },
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"status":{"$gt":"a"}}',
+      ]);
+    });
+
+    test("builds query with keyword $gte and $lte filter", () => {
+      const command = buildQueryCommand<SchemaWithKeyword>("SEARCH.QUERY", "test-index", {
+        filter: {
+          $and: [
+            { status: { $gte: "a" } },
+            { status: { $lte: "z" } },
+          ],
+        },
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"$and":[{"status":{"$gte":"a"}},{"status":{"$lte":"z"}}]}',
+      ]);
+    });
+  });
+
   describe("scoreFunc", () => {
     type TestSchemaWithScore = { name: "TEXT"; popularity: "U64"; recency: "U64" };
 

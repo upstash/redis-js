@@ -307,6 +307,16 @@ type NumberOperationMap<T extends number> = {
   $lte: T;
 };
 
+type KeywordOperationMap<T extends string> = {
+  $eq: T;
+  $ne: T;
+  $in: T[];
+  $gt: T;
+  $gte: T;
+  $lt: T;
+  $lte: T;
+};
+
 type BooleanOperationMap<T extends boolean> = {
   $eq: T;
   $ne: T;
@@ -353,6 +363,12 @@ type DateOperations = {
   };
 }[keyof DateOperationMap<string | Date>];
 
+type KeywordOperations = {
+  [K in keyof KeywordOperationMap<string>]: { [P in K]: KeywordOperationMap<string>[K] } & {
+    $boost?: number;
+  };
+}[keyof KeywordOperationMap<string>];
+
 type FacetOperations = {
   [K in keyof FacetOperationMap<string>]: { [P in K]: FacetOperationMap<string>[K] } & {
     $boost?: number;
@@ -369,7 +385,7 @@ type OperationsForFieldType<T extends FieldType> = T extends "TEXT"
       : T extends "DATE"
         ? DateOperations
         : T extends "KEYWORD"
-          ? NumberOperations
+          ? KeywordOperations
           : T extends "FACET"
             ? FacetOperations
             : never;

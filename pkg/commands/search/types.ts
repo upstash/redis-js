@@ -1,4 +1,13 @@
-export const FIELD_TYPES = ["TEXT", "U64", "I64", "F64", "BOOL", "DATE", "KEYWORD", "FACET"] as const;
+export const FIELD_TYPES = [
+  "TEXT",
+  "U64",
+  "I64",
+  "F64",
+  "BOOL",
+  "DATE",
+  "KEYWORD",
+  "FACET",
+] as const;
 export type FieldType = (typeof FIELD_TYPES)[number];
 
 export type TextField = {
@@ -34,7 +43,13 @@ export type FacetField = {
   type: "FACET";
 };
 
-export type DetailedField = TextField | NumericField | BoolField | DateField | KeywordField | FacetField;
+export type DetailedField =
+  | TextField
+  | NumericField
+  | BoolField
+  | DateField
+  | KeywordField
+  | FacetField;
 export type NestedIndexSchema = {
   [key: string]: FieldType | DetailedField | NestedIndexSchema;
 };
@@ -354,7 +369,7 @@ type OperationsForFieldType<T extends FieldType> = T extends "TEXT"
       : T extends "DATE"
         ? DateOperations
         : T extends "KEYWORD"
-          ? StringOperations
+          ? NumberOperations
           : T extends "FACET"
             ? FacetOperations
             : never;

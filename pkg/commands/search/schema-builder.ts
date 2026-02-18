@@ -213,12 +213,19 @@ class KeywordFieldBuilder {
   }
 }
 
+class FacetFieldBuilder {
+  [BUILD](): { type: "FACET" } {
+    return { type: "FACET" } as const;
+  }
+}
+
 type FieldBuilder =
   | TextFieldBuilder<{ noTokenize: boolean }, { noStem: boolean }, { from: string | null }>
   | NumericFieldBuilder<NumericField["type"], { from: string | null }>
   | BoolFieldBuilder<{ fast: boolean }, { from: string | null }>
   | DateFieldBuilder<{ fast: boolean }, { from: string | null }>
-  | KeywordFieldBuilder;
+  | KeywordFieldBuilder
+  | FacetFieldBuilder;
 
 export const s = {
   string(): TextFieldBuilder {
@@ -235,6 +242,9 @@ export const s = {
   },
   keyword(): KeywordFieldBuilder {
     return new KeywordFieldBuilder();
+  },
+  facet(): FacetFieldBuilder {
+    return new FacetFieldBuilder();
   },
   object<T extends ObjectFieldRecord<T>>(fields: T) {
     const result: any = {};

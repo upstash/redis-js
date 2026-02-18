@@ -2195,6 +2195,162 @@ describe("SearchIndex.aggregate (json)", () => {
   });
 });
 
+describe("SearchIndex.aggregate - facet (json)", () => {
+  const name = `test-aggregate-facet-${randomID().slice(0, 8)}`;
+  const prefix = `${name}:`;
+  const keys: string[] = [];
+
+  const schema = s.object({
+    title: s.string(),
+    category: s.facet(),
+    price: s.number(),
+  });
+
+  beforeAll(async () => {
+    const [_cursor, indexKeys] = await new ScanCommand(["0", { type: "search" }]).exec(client);
+    for (const key of indexKeys) {
+      if (key.startsWith("test-aggregate-facet")) {
+        const idx = initIndex(client, { name: key });
+        try {
+          await idx.drop();
+        } catch {
+          // Ignore errors
+        }
+      }
+    }
+
+    const index = await createIndex(client, {
+      name,
+      schema,
+      dataType: "json",
+      prefix,
+    });
+
+    const testData = [
+      { title: "fiction book 1", category: "/category/books/fiction", price: 10 },
+      { title: "nonfiction book 1", category: "/category/books/nonfiction", price: 20 },
+      { title: "phone 1", category: "/category/electronics/phones", price: 30 },
+      { title: "laptop 1", category: "/category/electronics/laptops", price: 40 },
+    ];
+
+    for (const [i, doc] of testData.entries()) {
+      const key = `${prefix}doc:${i}`;
+      keys.push(key);
+      await new JsonSetCommand([key, "$", doc]).exec(client);
+    }
+
+    await index.waitIndexing();
+  });
+
+  afterAll(async () => {
+    const index = initIndex(client, { name, schema });
+    try {
+      await index.drop();
+    } catch {
+      // Ignore
+    }
+    if (keys.length > 0) {
+      await new DelCommand(keys).exec(client);
+    }
+  });
+
+  test("facet aggregation - depth 1", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.aggregate({
+      aggregations: {
+        by_cat: {
+          $facet: { field: "category", path: "/category" },
+        },
+      },
+    });
+
+    expect(result.by_cat.path).toBe("/category");
+    expect(result.by_cat.sumOtherDocCount).toBe(0);
+    expect(result.by_cat.children).toHaveLength(2);
+
+    const sorted = [...result.by_cat.children].sort((a, b) => a.path.localeCompare(b.path));
+    expect(sorted).toEqual([
+      { docCount: 2, path: "/category/books", sumOtherDocCount: 0 },
+      { docCount: 2, path: "/category/electronics", sumOtherDocCount: 0 },
+    ]);
+  });
+
+  test("facet aggregation - depth 2", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.aggregate({
+      aggregations: {
+        cat_tree: {
+          $facet: { field: "category", path: "/category", depth: 2 },
+        },
+      },
+    });
+
+    expect(result.cat_tree.path).toBe("/category");
+    expect(result.cat_tree.children).toHaveLength(2);
+
+    const sorted = [...result.cat_tree.children].sort((a, b) => a.path.localeCompare(b.path));
+    expect(sorted[0].path).toBe("/category/books");
+    expect(sorted[0].docCount).toBe(2);
+    expect(sorted[0].children).toHaveLength(2);
+
+    const bookChildren = [...sorted[0].children!].sort((a, b) => a.path.localeCompare(b.path));
+    expect(bookChildren).toEqual([
+      { docCount: 1, path: "/category/books/fiction", sumOtherDocCount: 0 },
+      { docCount: 1, path: "/category/books/nonfiction", sumOtherDocCount: 0 },
+    ]);
+
+    expect(sorted[1].path).toBe("/category/electronics");
+    expect(sorted[1].docCount).toBe(2);
+    expect(sorted[1].children).toHaveLength(2);
+
+    const elecChildren = [...sorted[1].children!].sort((a, b) => a.path.localeCompare(b.path));
+    expect(elecChildren).toEqual([
+      { docCount: 1, path: "/category/electronics/laptops", sumOtherDocCount: 0 },
+      { docCount: 1, path: "/category/electronics/phones", sumOtherDocCount: 0 },
+    ]);
+  });
+
+  test("facet aggregation combined with stats", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.aggregate({
+      aggregations: {
+        price_stats: { $stats: { field: "price" } },
+        by_cat: {
+          $facet: { field: "category", path: "/category" },
+        },
+      },
+    });
+
+    expect(result.price_stats).toEqual({
+      count: 4,
+      min: 10,
+      max: 40,
+      sum: 100,
+      avg: 25,
+    });
+
+    expect(result.by_cat.path).toBe("/category");
+    expect(result.by_cat.children).toHaveLength(2);
+  });
+
+  test("facet aggregation with filter", async () => {
+    const index = initIndex(client, { name, schema });
+    const result = await index.aggregate({
+      filter: { category: { $eq: "/category/books/fiction" } },
+      aggregations: {
+        by_cat: {
+          $facet: { field: "category", path: "/category" },
+        },
+      },
+    });
+
+    expect(result.by_cat.path).toBe("/category");
+    expect(result.by_cat.children).toHaveLength(1);
+    expect(result.by_cat.children[0].path).toBe("/category/books");
+    expect(result.by_cat.children[0].docCount).toBe(1);
+  });
+});
+
 describe("alias commands", () => {
   const createdIndexes: string[] = [];
   const createdAliases: string[] = [];

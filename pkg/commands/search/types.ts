@@ -1,4 +1,4 @@
-export const FIELD_TYPES = ["TEXT", "U64", "I64", "F64", "BOOL", "DATE", "KEYWORD"] as const;
+export const FIELD_TYPES = ["TEXT", "U64", "I64", "F64", "BOOL", "DATE", "KEYWORD", "FACET"] as const;
 export type FieldType = (typeof FIELD_TYPES)[number];
 
 export type TextField = {
@@ -30,7 +30,11 @@ export type KeywordField = {
   type: "KEYWORD";
 };
 
-export type DetailedField = TextField | NumericField | BoolField | DateField | KeywordField;
+export type FacetField = {
+  type: "FACET";
+};
+
+export type DetailedField = TextField | NumericField | BoolField | DateField | KeywordField | FacetField;
 export type NestedIndexSchema = {
   [key: string]: FieldType | DetailedField | NestedIndexSchema;
 };
@@ -80,7 +84,9 @@ type FieldValueType<T extends FieldType> = T extends "TEXT"
         ? string
         : T extends "KEYWORD"
           ? string
-          : never;
+          : T extends "FACET"
+            ? string
+            : never;
 
 type GetFieldValueType<TSchema, Path extends string> =
   GetFieldAtPath<TSchema, Path> extends infer Field
@@ -302,6 +308,11 @@ type DateOperationMap<T extends string | Date> = {
   $lt: T;
 };
 
+type FacetOperationMap<T extends string> = {
+  $eq: T;
+  $in: T[];
+};
+
 // Create union types for each field type
 type StringOperations = {
   [K in keyof StringOperationMap<string>]: { [P in K]: StringOperationMap<string>[K] } & {
@@ -327,6 +338,12 @@ type DateOperations = {
   };
 }[keyof DateOperationMap<string | Date>];
 
+type FacetOperations = {
+  [K in keyof FacetOperationMap<string>]: { [P in K]: FacetOperationMap<string>[K] } & {
+    $boost?: number;
+  };
+}[keyof FacetOperationMap<string>];
+
 // Create a union type for all operations for a given field type
 type OperationsForFieldType<T extends FieldType> = T extends "TEXT"
   ? StringOperations
@@ -338,7 +355,9 @@ type OperationsForFieldType<T extends FieldType> = T extends "TEXT"
         ? DateOperations
         : T extends "KEYWORD"
           ? StringOperations
-          : never;
+          : T extends "FACET"
+            ? FacetOperations
+            : never;
 
 // Create a union type for all operations for a given path
 type PathOperations<TSchema, TPath extends string> =
@@ -544,6 +563,21 @@ export type Language =
   | "tamil"
   | "turkish";
 
+// Helper type to extract only FACET field paths from schema
+export type FacetPaths<T, Prefix extends string = ""> = {
+  [K in keyof T]: K extends string
+    ? T[K] extends "FACET" | { type: "FACET" }
+      ? Prefix extends ""
+        ? K
+        : `${Prefix}${K}`
+      : T[K] extends FieldType | DetailedField
+        ? never
+        : T[K] extends object
+          ? FacetPaths<T[K], `${Prefix}${K}.`>
+          : never
+    : never;
+}[keyof T];
+
 // Aggregate Types
 export type AggregateOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
   filter?: RootQueryFilter<TSchema>;
@@ -564,7 +598,8 @@ export type Aggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
   | CountAggregation<TSchema>
   | ExtendedStatsAggregation<TSchema>
   | PercentilesAggregation<TSchema>
-  | CardinalityAggregation<TSchema>;
+  | CardinalityAggregation<TSchema>
+  | FacetAggregation<TSchema>;
 
 type BaseAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
   $aggs?: {
@@ -669,6 +704,18 @@ export type CardinalityAggregation<TSchema extends NestedIndexSchema | FlatIndex
     };
   };
 
+export type FacetAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
+  BaseAggregation<TSchema> & {
+    $facet: {
+      field: FacetPaths<TSchema>;
+      path: string;
+      depth?: number;
+      size?: number;
+      minDocCount?: number;
+      order?: { count: "desc" | "asc" };
+    };
+  };
+
 export type AggregateResult<
   TSchema extends NestedIndexSchema | FlatIndexSchema,
   TOpts extends AggregateOptions<TSchema>,
@@ -702,7 +749,9 @@ type BuildAggregateResult<
                         ? ExtendedStatsResult<TAggs[K]>
                         : TAggs[K] extends PercentilesAggregation<TSchema>
                           ? PercentilesResult<TAggs[K]>
-                          : never;
+                          : TAggs[K] extends FacetAggregation<TSchema>
+                            ? FacetResult
+                            : never;
 };
 
 type Bucket<T> = {
@@ -792,3 +841,16 @@ type PercentilesResult<TAgg> = TAgg extends { $percentiles: { keyed: false } }
   : {
       values: { [key: string]: number };
     };
+
+type FacetChildNode = {
+  path: string;
+  docCount: number;
+  sumOtherDocCount: number;
+  children?: FacetChildNode[];
+};
+
+type FacetResult = {
+  path: string;
+  sumOtherDocCount: number;
+  children: FacetChildNode[];
+};

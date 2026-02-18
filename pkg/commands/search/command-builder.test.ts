@@ -223,11 +223,7 @@ describe("buildQueryCommand", () => {
         filter: { status: { $eq: "active" } },
       });
 
-      expect(command).toEqual([
-        "SEARCH.QUERY",
-        "test-index",
-        '{"status":{"$eq":"active"}}',
-      ]);
+      expect(command).toEqual(["SEARCH.QUERY", "test-index", '{"status":{"$eq":"active"}}']);
     });
 
     test("builds query with keyword $in filter", () => {
@@ -247,20 +243,13 @@ describe("buildQueryCommand", () => {
         filter: { status: { $gt: "a" } },
       });
 
-      expect(command).toEqual([
-        "SEARCH.QUERY",
-        "test-index",
-        '{"status":{"$gt":"a"}}',
-      ]);
+      expect(command).toEqual(["SEARCH.QUERY", "test-index", '{"status":{"$gt":"a"}}']);
     });
 
     test("builds query with keyword $gte and $lte filter", () => {
       const command = buildQueryCommand<SchemaWithKeyword>("SEARCH.QUERY", "test-index", {
         filter: {
-          $and: [
-            { status: { $gte: "a" } },
-            { status: { $lte: "z" } },
-          ],
+          $and: [{ status: { $gte: "a" } }, { status: { $lte: "z" } }],
         },
       });
 

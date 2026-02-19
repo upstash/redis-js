@@ -556,7 +556,7 @@ type RootOrNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
   $and?: never;
   $must?: never;
   $should?: never;
-  $mustNot?: never;
+  $mustNot?: QueryFilter<TSchema> | QueryFilter<TSchema>[];
 };
 
 export type DescribeFieldInfo = {

@@ -285,7 +285,6 @@ export type PublicQueryResult<
 // These are the operations that can be used for each field type
 type StringOperationMap<T extends string> = {
   $eq: T;
-  $ne: T;
   $in: T[];
   $fuzzy: T | { value: T; distance?: number; transpositionCostOne?: boolean };
   $phrase:
@@ -299,7 +298,6 @@ type StringOperationMap<T extends string> = {
 
 type NumberOperationMap<T extends number> = {
   $eq: T;
-  $ne: T;
   $in: T[];
   $gt: T;
   $gte: T;
@@ -309,7 +307,6 @@ type NumberOperationMap<T extends number> = {
 
 type KeywordOperationMap<T extends string> = {
   $eq: T;
-  $ne: T;
   $in: T[];
   $gt: T;
   $gte: T;
@@ -319,13 +316,11 @@ type KeywordOperationMap<T extends string> = {
 
 type BooleanOperationMap<T extends boolean> = {
   $eq: T;
-  $ne: T;
   $in: T[];
 };
 
 type DateOperationMap<T extends string | Date> = {
   $eq: T;
-  $ne: T;
   $in: T[];
   $gt: T;
   $gte: T;

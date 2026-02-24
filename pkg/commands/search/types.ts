@@ -286,7 +286,7 @@ export type PublicQueryResult<
 type StringOperationMap<T extends string> = {
   $eq: T;
   $in: T[];
-  $fuzzy: T | { value: T; distance?: number; transpositionCostOne?: boolean };
+  $fuzzy: T | { value: T; distance?: number; transpositionCostOne?: boolean; prefix?: boolean };
   $phrase:
     | T
     | { value: T }

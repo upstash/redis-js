@@ -20,6 +20,7 @@ export class MyCommand extends Command<TResult, TData> {
 ```
 
 Key patterns:
+
 - `Command<number, number>` for commands returning a count (SCARD, SINTERCARD, SINTERSTORE)
 - `Command<unknown[], TData[]>` for commands returning arrays (SINTER, SMEMBERS)
 - Constructor first param is a tuple of the command's Redis arguments
@@ -38,7 +39,7 @@ Key patterns:
 ```typescript
 import { keygen, newHttpClient, randomID } from "../test-utils";
 import { afterAll, expect, test } from "bun:test";
-import { SAddCommand } from "./sadd";  // or whatever setup commands needed
+import { SAddCommand } from "./sadd"; // or whatever setup commands needed
 import { MyCommand } from "./my_command";
 
 const client = newHttpClient();
@@ -69,11 +70,11 @@ Insert `export { type MyCommand } from "./<command_name>";` in alphabetical orde
 - Add method to the class (alphabetical among similar commands):
 
 ```typescript
-  /**
-   * @see https://redis.io/commands/<command-name>
-   */
-  mycommand = (...args: CommandArgs<typeof MyCommand>) =>
-    new MyCommand(args, this.opts).exec(this.client);
+/**
+ * @see https://redis.io/commands/<command-name>
+ */
+mycommand = (...args: CommandArgs<typeof MyCommand>) =>
+  new MyCommand(args, this.opts).exec(this.client);
 ```
 
 ### 6. Add method to `pkg/pipeline.ts`
@@ -82,11 +83,11 @@ Insert `export { type MyCommand } from "./<command_name>";` in alphabetical orde
 - Add method using `this.chain()` instead of `.exec()`:
 
 ```typescript
-  /**
-   * @see https://redis.io/commands/<command-name>
-   */
-  mycommand = (...args: CommandArgs<typeof MyCommand>) =>
-    this.chain(new MyCommand(args, this.commandOptions));
+/**
+ * @see https://redis.io/commands/<command-name>
+ */
+mycommand = (...args: CommandArgs<typeof MyCommand>) =>
+  this.chain(new MyCommand(args, this.commandOptions));
 ```
 
 ### Checklist

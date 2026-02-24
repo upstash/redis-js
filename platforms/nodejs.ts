@@ -225,3 +225,4 @@ export class Redis extends core.Redis {
 
 export { type Pipeline } from "../pkg/pipeline";
 export { type UpstashRequest, type UpstashResponse, type Requester } from "../pkg/http";
+export * from "../pkg/commands/search";

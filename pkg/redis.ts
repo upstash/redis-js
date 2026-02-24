@@ -205,6 +205,13 @@ import {
   ZUnionCommand,
   ZUnionStoreCommand,
 } from "./commands/mod";
+import {
+  type CreateIndexParameters,
+  type NestedIndexSchema,
+  type FlatIndexSchema,
+} from "./commands/search";
+import type { InitIndexParameters } from "./commands/search/search";
+import { createIndex, initIndex, listAliases, addAlias, delAlias } from "./commands/search/search";
 import { Subscriber } from "./commands/subscribe";
 import { ZDiffStoreCommand } from "./commands/zdiffstore";
 import { ZMScoreCommand } from "./commands/zmscore";
@@ -508,6 +515,36 @@ export class Redis {
     opts?: { readonly?: TReadonly }
   ): TReadonly extends true ? ScriptRO<TResult> : Script<TResult> {
     return opts?.readonly ? (new ScriptRO(this, script) as any) : (new Script(this, script) as any);
+  }
+
+  get search() {
+    return {
+      createIndex: <TSchema extends NestedIndexSchema | FlatIndexSchema>(
+        params: CreateIndexParameters<TSchema>
+      ) => {
+        return createIndex<TSchema>(this.client, params);
+      },
+
+      index: <TSchema extends NestedIndexSchema | FlatIndexSchema>(
+        params: InitIndexParameters<TSchema>
+      ) => {
+        return initIndex<TSchema>(this.client, params);
+      },
+
+      alias: {
+        list: () => {
+          return listAliases(this.client);
+        },
+
+        add: ({ indexName, alias }: { indexName: string; alias: string }) => {
+          return addAlias(this.client, { indexName, alias });
+        },
+
+        delete: ({ alias }: { alias: string }) => {
+          return delAlias(this.client, { alias });
+        },
+      },
+    };
   }
 
   /**

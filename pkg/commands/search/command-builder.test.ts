@@ -1,6 +1,7 @@
 import { describe, test, expect } from "bun:test";
 import { buildQueryCommand, buildCreateIndexCommand } from "./command-builder";
 import { s } from "./schema-builder";
+import type { CreateIndexParameters } from "./search";
 
 describe("buildQueryCommand", () => {
   type TestSchema = { name: "TEXT"; age: "U64" };
@@ -68,7 +69,7 @@ describe("buildQueryCommand", () => {
       ]);
     });
 
-    test("adds SORTBY option without direction", () => {
+    test("adds ORDERBY option without direction", () => {
       const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
         filter: { name: { $eq: "John" } },
         orderBy: { age: "ASC" },
@@ -78,13 +79,13 @@ describe("buildQueryCommand", () => {
         "SEARCH.QUERY",
         "test-index",
         '{"name":{"$eq":"John"}}',
-        "SORTBY",
+        "ORDERBY",
         "age",
         "ASC",
       ]);
     });
 
-    test("adds SORTBY option with ASC direction", () => {
+    test("adds ORDERBY option with ASC direction", () => {
       const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
         filter: { name: { $eq: "John" } },
         orderBy: { age: "ASC" },
@@ -94,13 +95,13 @@ describe("buildQueryCommand", () => {
         "SEARCH.QUERY",
         "test-index",
         '{"name":{"$eq":"John"}}',
-        "SORTBY",
+        "ORDERBY",
         "age",
         "ASC",
       ]);
     });
 
-    test("adds SORTBY option with DESC direction", () => {
+    test("adds ORDERBY option with DESC direction", () => {
       const command = buildQueryCommand<TestSchema>("SEARCH.QUERY", "test-index", {
         filter: { name: { $eq: "John" } },
         orderBy: { age: "DESC" },
@@ -110,7 +111,7 @@ describe("buildQueryCommand", () => {
         "SEARCH.QUERY",
         "test-index",
         '{"name":{"$eq":"John"}}',
-        "SORTBY",
+        "ORDERBY",
         "age",
         "DESC",
       ]);
@@ -163,7 +164,7 @@ describe("buildQueryCommand", () => {
         "SEARCH.QUERY",
         "test-index",
         '{"name":{"$eq":"John"}}',
-        "RETURN",
+        "SELECT",
         "1",
         "name",
       ]);
@@ -179,7 +180,7 @@ describe("buildQueryCommand", () => {
         "SEARCH.QUERY",
         "test-index",
         '{"name":{"$eq":"John"}}',
-        "RETURN",
+        "SELECT",
         "2",
         "name",
         "age",
@@ -203,13 +204,204 @@ describe("buildQueryCommand", () => {
         "10",
         "OFFSET",
         "5",
-        "SORTBY",
+        "ORDERBY",
         "age",
         "DESC",
-        "RETURN",
+        "SELECT",
         "2",
         "name",
         "age",
+      ]);
+    });
+  });
+
+  describe("keyword field queries", () => {
+    type SchemaWithKeyword = { name: "TEXT"; status: "KEYWORD" };
+
+    test("builds query with keyword $eq filter", () => {
+      const command = buildQueryCommand<SchemaWithKeyword>("SEARCH.QUERY", "test-index", {
+        filter: { status: { $eq: "active" } },
+      });
+
+      expect(command).toEqual(["SEARCH.QUERY", "test-index", '{"status":{"$eq":"active"}}']);
+    });
+
+    test("builds query with keyword $in filter", () => {
+      const command = buildQueryCommand<SchemaWithKeyword>("SEARCH.QUERY", "test-index", {
+        filter: { status: { $in: ["active", "pending"] } },
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"status":{"$in":["active","pending"]}}',
+      ]);
+    });
+
+    test("builds query with keyword $gt filter", () => {
+      const command = buildQueryCommand<SchemaWithKeyword>("SEARCH.QUERY", "test-index", {
+        filter: { status: { $gt: "a" } },
+      });
+
+      expect(command).toEqual(["SEARCH.QUERY", "test-index", '{"status":{"$gt":"a"}}']);
+    });
+
+    test("builds query with keyword $gte and $lte filter", () => {
+      const command = buildQueryCommand<SchemaWithKeyword>("SEARCH.QUERY", "test-index", {
+        filter: {
+          $and: [{ status: { $gte: "a" } }, { status: { $lte: "z" } }],
+        },
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"$and":[{"status":{"$gte":"a"}},{"status":{"$lte":"z"}}]}',
+      ]);
+    });
+  });
+
+  describe("scoreFunc", () => {
+    type TestSchemaWithScore = { name: "TEXT"; popularity: "U64"; recency: "U64" };
+
+    test("builds query with simple scoreFunc", () => {
+      const command = buildQueryCommand<TestSchemaWithScore>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "headphones" } },
+        scoreFunc: "popularity",
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"name":{"$eq":"headphones"}}',
+        "SCOREFUNC",
+        "FIELDVALUE",
+        "popularity",
+      ]);
+    });
+
+    test("builds query with scoreFunc and modifier", () => {
+      const command = buildQueryCommand<TestSchemaWithScore>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "headphones" } },
+        scoreFunc: {
+          field: "popularity",
+          modifier: "log1p",
+          factor: 2,
+        },
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"name":{"$eq":"headphones"}}',
+        "SCOREFUNC",
+        "FIELDVALUE",
+        "popularity",
+        "MODIFIER",
+        "LOG1P",
+        "FACTOR",
+        "2",
+      ]);
+    });
+
+    test("builds query with scoreFunc, modifier, and missing value", () => {
+      const command = buildQueryCommand<TestSchemaWithScore>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "headphones" } },
+        scoreFunc: {
+          field: "popularity",
+          modifier: "log1p",
+          missing: 1,
+        },
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"name":{"$eq":"headphones"}}',
+        "SCOREFUNC",
+        "FIELDVALUE",
+        "popularity",
+        "MODIFIER",
+        "LOG1P",
+        "MISSING",
+        "1",
+      ]);
+    });
+
+    test("builds query with scoreFunc and scoreMode", () => {
+      const command = buildQueryCommand<TestSchemaWithScore>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "headphones" } },
+        scoreFunc: {
+          field: "popularity",
+          scoreMode: "replace",
+        },
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"name":{"$eq":"headphones"}}',
+        "SCOREFUNC",
+        "SCOREMODE",
+        "REPLACE",
+        "FIELDVALUE",
+        "popularity",
+      ]);
+    });
+
+    test("builds query with multiple field values", () => {
+      const command = buildQueryCommand<TestSchemaWithScore>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "headphones" } },
+        scoreFunc: {
+          fields: [
+            { field: "popularity", modifier: "log1p" },
+            { field: "recency", modifier: "sqrt" },
+          ],
+          combineMode: "sum",
+        },
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"name":{"$eq":"headphones"}}',
+        "SCOREFUNC",
+        "COMBINEMODE",
+        "SUM",
+        "FIELDVALUE",
+        "popularity",
+        "MODIFIER",
+        "LOG1P",
+        "FIELDVALUE",
+        "recency",
+        "MODIFIER",
+        "SQRT",
+      ]);
+    });
+
+    test("builds query with multiple field values and scoreMode", () => {
+      const command = buildQueryCommand<TestSchemaWithScore>("SEARCH.QUERY", "test-index", {
+        filter: { name: { $eq: "headphones" } },
+        scoreFunc: {
+          fields: ["popularity", "recency"],
+          combineMode: "multiply",
+          scoreMode: "sum",
+        },
+      });
+
+      expect(command).toEqual([
+        "SEARCH.QUERY",
+        "test-index",
+        '{"name":{"$eq":"headphones"}}',
+        "SCOREFUNC",
+        "COMBINEMODE",
+        "MULTIPLY",
+        "SCOREMODE",
+        "SUM",
+        "FIELDVALUE",
+        "popularity",
+        "FIELDVALUE",
+        "recency",
       ]);
     });
   });
@@ -221,9 +413,10 @@ describe("buildCreateIndexCommand", () => {
       const schema = s.object({
         name: s.string(),
         age: s.number("U64"),
+        label: s.keyword(),
       });
 
-      const props = {
+      const params = {
         name: "test-index",
         schema,
         dataType: "hash" as const,
@@ -231,7 +424,7 @@ describe("buildCreateIndexCommand", () => {
         client: {} as any,
       };
 
-      const command = buildCreateIndexCommand(props);
+      const command = buildCreateIndexCommand(params);
 
       expect(command).toEqual([
         "SEARCH.CREATE",
@@ -247,6 +440,8 @@ describe("buildCreateIndexCommand", () => {
         "age",
         "U64",
         "FAST",
+        "label",
+        "KEYWORD",
       ]);
     });
 
@@ -255,7 +450,7 @@ describe("buildCreateIndexCommand", () => {
         name: s.string(),
       });
 
-      const props = {
+      const params = {
         name: "test-index",
         schema,
         dataType: "hash" as const,
@@ -263,7 +458,7 @@ describe("buildCreateIndexCommand", () => {
         client: {} as any,
       };
 
-      const command = buildCreateIndexCommand(props);
+      const command = buildCreateIndexCommand(params);
 
       expect(command).toEqual([
         "SEARCH.CREATE",
@@ -286,7 +481,7 @@ describe("buildCreateIndexCommand", () => {
         age: s.number("U64"),
       });
 
-      const props = {
+      const params = {
         name: "test-index",
         schema,
         dataType: "hash" as const,
@@ -294,7 +489,7 @@ describe("buildCreateIndexCommand", () => {
         client: {} as any,
       };
 
-      const command = buildCreateIndexCommand(props);
+      const command = buildCreateIndexCommand(params);
 
       expect(command).toEqual([
         "SEARCH.CREATE",
@@ -320,7 +515,7 @@ describe("buildCreateIndexCommand", () => {
         name: s.string(),
       });
 
-      const props = {
+      const params = {
         name: "test-index",
         schema,
         dataType: "hash" as const,
@@ -329,7 +524,7 @@ describe("buildCreateIndexCommand", () => {
         client: {} as any,
       };
 
-      const command = buildCreateIndexCommand(props);
+      const command = buildCreateIndexCommand(params);
 
       expect(command).toEqual([
         "SEARCH.CREATE",
@@ -358,7 +553,7 @@ describe("buildCreateIndexCommand", () => {
         }),
       });
 
-      const props = {
+      const params = {
         name: "test-index",
         schema,
         dataType: "string" as const,
@@ -366,7 +561,7 @@ describe("buildCreateIndexCommand", () => {
         client: {} as any,
       };
 
-      const command = buildCreateIndexCommand(props);
+      const command = buildCreateIndexCommand(params);
 
       expect(command).toEqual([
         "SEARCH.CREATE",
@@ -396,7 +591,7 @@ describe("buildCreateIndexCommand", () => {
         }),
       });
 
-      const props = {
+      const params = {
         name: "test-index",
         schema,
         dataType: "string" as const,
@@ -404,7 +599,7 @@ describe("buildCreateIndexCommand", () => {
         client: {} as any,
       };
 
-      const command = buildCreateIndexCommand(props);
+      const command = buildCreateIndexCommand(params);
 
       expect(command).toEqual([
         "SEARCH.CREATE",
@@ -432,7 +627,7 @@ describe("buildCreateIndexCommand", () => {
         createdAt: s.date(),
       });
 
-      const props = {
+      const params = {
         name: "test-index",
         schema,
         dataType: "hash" as const,
@@ -440,7 +635,7 @@ describe("buildCreateIndexCommand", () => {
         client: {} as any,
       };
 
-      const command = buildCreateIndexCommand(props);
+      const command = buildCreateIndexCommand(params);
 
       expect(command).toEqual([
         "SEARCH.CREATE",
@@ -466,6 +661,47 @@ describe("buildCreateIndexCommand", () => {
         "BOOL",
         "createdAt",
         "DATE",
+      ]);
+    });
+  });
+
+  describe("options", () => {
+    test("builds index with skip initial scan and exists ok", () => {
+      const schema = s.object({
+        data: s.object({
+          metadata: s.object({
+            tags: s.string(),
+          }),
+        }),
+      });
+
+      const params: CreateIndexParameters<typeof schema> = {
+        name: "test-index",
+        schema,
+        dataType: "string" as const,
+        prefix: "doc:",
+        existsOk: true,
+        skipInitialScan: true,
+        language: "english" as const,
+      };
+
+      const command = buildCreateIndexCommand(params);
+
+      expect(command).toEqual([
+        "SEARCH.CREATE",
+        "test-index",
+        "SKIPINITIALSCAN",
+        "EXISTSOK",
+        "ON",
+        "STRING",
+        "PREFIX",
+        "1",
+        "doc:",
+        "LANGUAGE",
+        "english",
+        "SCHEMA",
+        "data.metadata.tags",
+        "TEXT",
       ]);
     });
   });

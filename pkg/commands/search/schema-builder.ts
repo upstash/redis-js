@@ -1,111 +1,231 @@
 import type { NestedIndexSchema, NumericField } from "./types";
 
+type TextFieldBuild<
+  TNoTokenize extends Record<"noTokenize", boolean>,
+  TNoStem extends Record<"noStem", boolean>,
+  TFrom extends Record<"from", string | null>,
+> = TNoTokenize["noTokenize"] extends true
+  ? { type: "TEXT"; noTokenize: true } & (TNoStem["noStem"] extends true
+      ? { noStem: true }
+      : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+        {}) &
+      (TFrom["from"] extends string
+        ? { from: TFrom["from"] }
+        : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+          {})
+  : TNoStem["noStem"] extends true
+    ? { type: "TEXT"; noStem: true } & (TFrom["from"] extends string
+        ? { from: TFrom["from"] }
+        : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+          {})
+    : TFrom["from"] extends string
+      ? { type: "TEXT"; from: TFrom["from"] }
+      : { type: "TEXT" };
+
 // Internal symbol for build method
 const BUILD = Symbol("build");
 
 // Field builders with chainable options
 class TextFieldBuilder<
-  NoTokenize extends Record<"noTokenize", boolean> = { noTokenize: false },
-  NoStem extends Record<"noStem", boolean> = { noStem: false },
+  TNoTokenize extends Record<"noTokenize", boolean> = { noTokenize: false },
+  TNoStem extends Record<"noStem", boolean> = { noStem: false },
+  TFrom extends Record<"from", string | null> = { from: null },
 > {
-  private _noTokenize: NoTokenize;
-  private _noStem: NoStem;
+  private _noTokenize: TNoTokenize;
+  private _noStem: TNoStem;
+  private _from: TFrom;
 
   constructor(
-    noTokenize = { noTokenize: false } as NoTokenize,
-    noStem = { noStem: false } as NoStem
+    noTokenize = { noTokenize: false } as TNoTokenize,
+    noStem = { noStem: false } as TNoStem,
+    from = { from: null } as TFrom
   ) {
     this._noTokenize = noTokenize;
     this._noStem = noStem;
+    this._from = from;
   }
 
-  noTokenize(): TextFieldBuilder<{ noTokenize: true }, NoStem> {
-    return new TextFieldBuilder({ noTokenize: true }, this._noStem);
+  noTokenize(): TextFieldBuilder<{ noTokenize: true }, TNoStem, TFrom> {
+    return new TextFieldBuilder({ noTokenize: true }, this._noStem, this._from);
   }
 
-  noStem(): TextFieldBuilder<NoTokenize, { noStem: true }> {
-    return new TextFieldBuilder(this._noTokenize, { noStem: true });
+  noStem(): TextFieldBuilder<TNoTokenize, { noStem: true }, TFrom> {
+    return new TextFieldBuilder(this._noTokenize, { noStem: true }, this._from);
   }
 
-  [BUILD](): NoTokenize extends { noTokenize: true }
-    ? NoStem extends { noStem: true }
-      ? { type: "TEXT"; noTokenize: true; noStem: true }
-      : { type: "TEXT"; noTokenize: true }
-    : NoStem extends { noStem: true }
-      ? { type: "TEXT"; noStem: true }
-      : "TEXT" {
-    return this._noTokenize.noTokenize || this._noStem.noStem
-      ? ({
-          type: "TEXT",
-          ...(this._noTokenize.noTokenize ? { noTokenize: true } : {}),
-          ...(this._noStem.noStem ? { noStem: true } : {}),
-        } as any)
-      : ("TEXT" as any);
-  }
-}
-
-class NumericFieldBuilder<T extends NumericField["type"]> {
-  private type: T;
-
-  constructor(type: T) {
-    this.type = type;
+  from(field: string): TextFieldBuilder<TNoTokenize, TNoStem, { from: string }> {
+    return new TextFieldBuilder(this._noTokenize, this._noStem, { from: field } as {
+      from: string;
+    });
   }
 
-  [BUILD](): { type: T; fast: true } {
+  [BUILD](): TextFieldBuild<TNoTokenize, TNoStem, TFrom> {
     return {
-      type: this.type,
-      fast: true,
-    };
+      type: "TEXT",
+      ...(this._noTokenize.noTokenize ? { noTokenize: true } : {}),
+      ...(this._noStem.noStem ? { noStem: true } : {}),
+      ...(this._from.from ? { from: this._from.from } : {}),
+    } as any;
   }
 }
 
-class BoolFieldBuilder<Fast extends Record<"fast", boolean> = { fast: false }> {
-  private _fast: Fast;
+class NumericFieldBuilder<
+  T extends NumericField["type"],
+  TFrom extends Record<"from", string | null> = { from: null },
+> {
+  private type: T;
+  private _from: TFrom;
 
-  constructor(fast = { fast: false } as Fast) {
-    this._fast = fast;
+  constructor(type: T, from = { from: null } as TFrom) {
+    this.type = type;
+    this._from = from;
   }
 
-  fast(): BoolFieldBuilder<{ fast: true }> {
-    return new BoolFieldBuilder({ fast: true });
+  from(field: string): NumericFieldBuilder<T, { from: string }> {
+    return new NumericFieldBuilder(this.type, { from: field } as { from: string });
   }
 
-  [BUILD](): Fast extends { fast: true } ? { type: "BOOL"; fast: true } : "BOOL" {
-    return this._fast.fast
+  [BUILD](): TFrom["from"] extends string
+    ? { type: T; fast: true; from: TFrom["from"] }
+    : { type: T; fast: true } {
+    return this._from.from
       ? ({
-          type: "BOOL",
+          type: this.type,
           fast: true,
+          from: this._from.from,
         } as any)
-      : ("BOOL" as any);
+      : ({
+          type: this.type,
+          fast: true,
+        } as any);
   }
 }
 
-class DateFieldBuilder<Fast extends Record<"fast", boolean> = { fast: false }> {
+class BoolFieldBuilder<
+  Fast extends Record<"fast", boolean> = { fast: false },
+  TFrom extends Record<"from", string | null> = { from: null },
+> {
   private _fast: Fast;
+  private _from: TFrom;
 
-  constructor(fast = { fast: false } as Fast) {
+  constructor(fast = { fast: false } as Fast, from = { from: null } as TFrom) {
     this._fast = fast;
+    this._from = from;
   }
 
-  fast(): DateFieldBuilder<{ fast: true }> {
-    return new DateFieldBuilder({ fast: true });
+  fast(): BoolFieldBuilder<{ fast: true }, TFrom> {
+    return new BoolFieldBuilder({ fast: true }, this._from);
   }
 
-  [BUILD](): Fast extends { fast: true } ? { type: "DATE"; fast: true } : "DATE" {
-    return this._fast.fast
-      ? ({
-          type: "DATE",
-          fast: true,
-        } as any)
-      : ("DATE" as any);
+  from(field: string): BoolFieldBuilder<Fast, { from: string }> {
+    return new BoolFieldBuilder(this._fast, { from: field } as { from: string });
+  }
+
+  [BUILD](): Fast extends { fast: true }
+    ? TFrom["from"] extends string
+      ? { type: "BOOL"; fast: true; from: TFrom["from"] }
+      : { type: "BOOL"; fast: true }
+    : TFrom["from"] extends string
+      ? { type: "BOOL"; from: TFrom["from"] }
+      : { type: "BOOL" } {
+    const hasFast = this._fast.fast;
+    const hasFrom = Boolean(this._from.from);
+
+    if (hasFast && hasFrom) {
+      return {
+        type: "BOOL",
+        fast: true,
+        from: this._from.from,
+      } as any;
+    }
+    if (hasFast) {
+      return {
+        type: "BOOL",
+        fast: true,
+      } as any;
+    }
+    if (hasFrom) {
+      return {
+        type: "BOOL",
+        from: this._from.from,
+      } as any;
+    }
+    return { type: "BOOL" } as any;
+  }
+}
+
+class DateFieldBuilder<
+  Fast extends Record<"fast", boolean> = { fast: false },
+  TFrom extends Record<"from", string | null> = { from: null },
+> {
+  private _fast: Fast;
+  private _from: TFrom;
+
+  constructor(fast = { fast: false } as Fast, from = { from: null } as TFrom) {
+    this._fast = fast;
+    this._from = from;
+  }
+
+  fast(): DateFieldBuilder<{ fast: true }, TFrom> {
+    return new DateFieldBuilder({ fast: true }, this._from);
+  }
+
+  from(field: string): DateFieldBuilder<Fast, { from: string }> {
+    return new DateFieldBuilder(this._fast, { from: field } as { from: string });
+  }
+
+  [BUILD](): Fast extends { fast: true }
+    ? TFrom["from"] extends string
+      ? { type: "DATE"; fast: true; from: TFrom["from"] }
+      : { type: "DATE"; fast: true }
+    : TFrom["from"] extends string
+      ? { type: "DATE"; from: TFrom["from"] }
+      : { type: "DATE" } {
+    const hasFast = this._fast.fast;
+    const hasFrom = Boolean(this._from.from);
+
+    if (hasFast && hasFrom) {
+      return {
+        type: "DATE",
+        fast: true,
+        from: this._from.from,
+      } as any;
+    }
+    if (hasFast) {
+      return {
+        type: "DATE",
+        fast: true,
+      } as any;
+    }
+    if (hasFrom) {
+      return {
+        type: "DATE",
+        from: this._from.from,
+      } as any;
+    }
+    return { type: "DATE" } as any;
+  }
+}
+
+class KeywordFieldBuilder {
+  [BUILD](): { type: "KEYWORD" } {
+    return { type: "KEYWORD" } as const;
+  }
+}
+
+class FacetFieldBuilder {
+  [BUILD](): { type: "FACET" } {
+    return { type: "FACET" } as const;
   }
 }
 
 type FieldBuilder =
-  | TextFieldBuilder<{ noTokenize: boolean }, { noStem: boolean }>
-  | NumericFieldBuilder<NumericField["type"]>
-  | BoolFieldBuilder<{ fast: boolean }>
-  | DateFieldBuilder<{ fast: boolean }>;
+  | TextFieldBuilder<{ noTokenize: boolean }, { noStem: boolean }, { from: string | null }>
+  | NumericFieldBuilder<NumericField["type"], { from: string | null }>
+  | BoolFieldBuilder<{ fast: boolean }, { from: string | null }>
+  | DateFieldBuilder<{ fast: boolean }, { from: string | null }>
+  | KeywordFieldBuilder
+  | FacetFieldBuilder;
 
 export const s = {
   string(): TextFieldBuilder {
@@ -119,6 +239,12 @@ export const s = {
   },
   date(): DateFieldBuilder {
     return new DateFieldBuilder();
+  },
+  keyword(): KeywordFieldBuilder {
+    return new KeywordFieldBuilder();
+  },
+  facet(): FacetFieldBuilder {
+    return new FacetFieldBuilder();
   },
   object<T extends ObjectFieldRecord<T>>(fields: T) {
     const result: any = {};

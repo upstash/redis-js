@@ -41,7 +41,7 @@
   "description": "An HTTP/REST based Redis client built on top of Upstash REST API.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/upstash/upstash-redis.git"
+    "url": "git@github.com:upstash/redis-js.git"
   },
   "keywords": [
     "redis",

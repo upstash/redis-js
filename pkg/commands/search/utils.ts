@@ -15,6 +15,7 @@ type FlattenedField = {
   fast?: boolean;
   noTokenize?: boolean;
   noStem?: boolean;
+  from?: string;
 };
 
 function isFieldType(value: any): value is FieldType {
@@ -51,6 +52,7 @@ export function flattenSchema(
         fast: "fast" in value ? value.fast : undefined,
         noTokenize: "noTokenize" in value ? value.noTokenize : undefined,
         noStem: "noStem" in value ? value.noStem : undefined,
+        from: "from" in value ? value.from : undefined,
       });
     } else if (isNestedSchema(value)) {
       const nestedFields = flattenSchema(value, currentPath);
@@ -62,13 +64,13 @@ export function flattenSchema(
 }
 
 export function deserializeQueryResponse<
-  TSchema extends NestedIndexSchema | FlatIndexSchema,
-  TOptions extends QueryOptions<TSchema> | undefined = undefined,
+  TSchema extends NestedIndexSchema | FlatIndexSchema = any,
+  TOptions extends QueryOptions<TSchema> | undefined = any,
 >(rawResponse: unknown[]): QueryResult<TSchema, TOptions>[] {
   return rawResponse.map((itemRaw) => {
     const raw = itemRaw as [string, string, unknown[]?];
     const key = raw[0];
-    const score = raw[1];
+    const score = Number(raw[1]);
     const rawFields = raw[2];
 
     if (rawFields === undefined) {
@@ -100,7 +102,7 @@ export function deserializeQueryResponse<
           currentObj = currentObj[pathPart] as Record<string, unknown>;
         }
 
-        currentObj[pathParts.at(-1)] = value;
+        currentObj[pathParts.at(-1)!] = value;
       }
     }
 
@@ -179,4 +181,92 @@ export function deserializeDescribeResponse<TSchema extends NestedIndexSchema | 
 
 export function parseCountResponse(rawResponse: any): number {
   return typeof rawResponse === "number" ? rawResponse : Number.parseInt(rawResponse, 10);
+}
+
+export function deserializeAggregateResponse(rawResponse: any[]): any {
+  // Response is a flat key-value array: [key, val, key, val, ...]
+  return parseAggregationArray(rawResponse);
+}
+
+function parseAggregationArray(arr: any[]): any {
+  const result: any = {};
+
+  for (let i = 0; i < arr.length; i += 2) {
+    const key = arr[i];
+    const value = arr[i + 1];
+
+    if (Array.isArray(value)) {
+      // Check if it's a stats-like array or buckets array
+      if (value.length > 0 && typeof value[0] === "string") {
+        // Stats or buckets format
+        result[key] = value[0] === "buckets" ? parseBucketsValue(value) : parseStatsValue(value);
+      } else {
+        // Nested aggregation
+        result[key] = parseAggregationArray(value);
+      }
+    } else {
+      result[key] = value;
+    }
+  }
+
+  return result;
+}
+
+function coerceNumericString(value: any): any {
+  if (typeof value === "string" && value !== "" && !Number.isNaN(Number(value))) {
+    return Number(value);
+  }
+  return value;
+}
+
+function parseStatsValue(arr: any[]): any {
+  const result: any = {};
+  for (let i = 0; i < arr.length; i += 2) {
+    const key = arr[i];
+    const value = arr[i + 1];
+
+    if (Array.isArray(value) && value.length > 0) {
+      // Check if it's a single array following key-value format
+      if (typeof value[0] === "string") {
+        result[key] = parseStatsValue(value);
+      }
+      // Check if it's an array of arrays (like percentiles unkeyed format)
+      else if (Array.isArray(value[0]) && typeof value[0][0] === "string") {
+        result[key] = value.map((item: any[]) => parseStatsValue(item));
+      }
+      // Otherwise keep as-is
+      else {
+        result[key] = value;
+      }
+    } else {
+      result[key] = coerceNumericString(value);
+    }
+  }
+  return result;
+}
+
+function parseBucketsValue(arr: any[]): any {
+  // Format: ["buckets", [bucket1_array, bucket2_array, ...], extraKey, extraVal, ...]
+  if (arr[0] === "buckets" && Array.isArray(arr[1])) {
+    const result: any = {
+      buckets: arr[1].map((bucket: any[]) => {
+        const bucketObj: any = {};
+        for (let i = 0; i < bucket.length; i += 2) {
+          const key = bucket[i];
+          const value = bucket[i + 1];
+          bucketObj[key] =
+            Array.isArray(value) && value.length > 0 && typeof value[0] === "string"
+              ? parseStatsValue(value)
+              : value;
+        }
+        return bucketObj;
+      }),
+    };
+    // Parse remaining key-value pairs (e.g. sumOtherDocCount, docCountErrorUpperBound)
+    for (let i = 2; i < arr.length; i += 2) {
+      result[arr[i]] = arr[i + 1];
+    }
+    return result;
+  }
+  return arr;
 }

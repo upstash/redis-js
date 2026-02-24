@@ -14,7 +14,19 @@ export class BitOpCommand extends Command<number, number> {
     opts?: CommandOptions<number, number>
   );
   constructor(
-    cmd: [op: "and" | "or" | "xor" | "not", destinationKey: string, ...sourceKeys: string[]],
+    cmd: [op: "diff" | "diff1" | "andor", destinationKey: string, x: string, ...y: string[]],
+    opts?: CommandOptions<number, number>
+  );
+  constructor(
+    cmd: [op: "one", destinationKey: string, ...sourceKeys: string[]],
+    opts?: CommandOptions<number, number>
+  );
+  constructor(
+    cmd: [
+      op: "and" | "or" | "xor" | "not" | "diff" | "diff1" | "andor" | "one",
+      destinationKey: string,
+      ...sourceKeys: string[],
+    ],
     opts?: CommandOptions<number, number>
   ) {
     super(["bitop", ...cmd], opts);

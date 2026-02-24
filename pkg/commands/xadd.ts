@@ -27,12 +27,17 @@ type XAddCommandOptions = {
 
 /**
  * @see https://redis.io/commands/xadd
+ *
+ * Stream ID formats:
+ * - "*" - Fully automatic ID generation
+ * - "<ms>-<seq>" - Explicit ID (e.g., "1526919030474-55")
+ * - "<ms>-*" - Auto-generate sequence number for the given millisecond timestamp (Redis 8+)
  */
 export class XAddCommand extends Command<string, string> {
   constructor(
     [key, id, entries, opts]: [
       key: string,
-      id: "*" | string,
+      id: "*" | `${number}-*` | string,
       entries: Record<string, unknown>,
       opts?: XAddCommandOptions,
     ],

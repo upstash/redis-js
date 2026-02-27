@@ -30,6 +30,9 @@ describe("XCLAIM", () => {
 
     await new XReadGroupCommand([group, consumer3, [streamKey], [">"], { count: 1 }]).exec(client);
 
+    // XCLAIM requires the message to have been idle for at least min-idle-time (100ms)
+    await new Promise((r) => setTimeout(r, 150));
+
     const res = (await new XClaimCommand([streamKey, group, consumer3, 100, streamId2]).exec(
       client
     )) as string[];

@@ -1309,14 +1309,15 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/xrange
    */
-  xrange = (...args: CommandArgs<typeof XRangeCommand>) =>
-    this.chain(new XRangeCommand(args, this.commandOptions));
+  xrange = <TData extends Record<string, unknown>>(...args: CommandArgs<typeof XRangeCommand>) =>
+    this.chain(new XRangeCommand<Record<string, TData>>(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/xrevrange
    */
-  xrevrange = (...args: CommandArgs<typeof XRevRangeCommand>) =>
-    this.chain(new XRevRangeCommand(args, this.commandOptions));
+  xrevrange = <TData extends Record<string, unknown>>(
+    ...args: CommandArgs<typeof XRevRangeCommand>
+  ) => this.chain(new XRevRangeCommand<Record<string, TData>>(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/zcard

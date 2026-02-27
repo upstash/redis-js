@@ -1471,14 +1471,16 @@ export class Redis {
   /**
    * @see https://redis.io/commands/xrange
    */
-  xrange = <TData extends Record<string, Record<string, unknown>>>(...args: CommandArgs<typeof XRangeCommand>) =>
-    new XRangeCommand<TData>(args, this.opts).exec(this.client);
+  xrange = <TData extends Record<string, Record<string, unknown>>>(
+    ...args: CommandArgs<typeof XRangeCommand>
+  ) => new XRangeCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/xrevrange
    */
-  xrevrange = <TData extends Record<string, Record<string, unknown>>>(...args: CommandArgs<typeof XRevRangeCommand>) =>
-    new XRevRangeCommand<TData>(args, this.opts).exec(this.client);
+  xrevrange = <TData extends Record<string, Record<string, unknown>>>(
+    ...args: CommandArgs<typeof XRevRangeCommand>
+  ) => new XRevRangeCommand<TData>(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/zadd

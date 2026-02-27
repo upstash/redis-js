@@ -27,6 +27,7 @@ export class ScriptRO<TResult = unknown> {
    * future major release.
    */
   public sha1: string;
+  private initPromise: Promise<void> | undefined;
   private readonly redis: Redis;
 
   constructor(redis: Redis, script: string) {
@@ -36,9 +37,13 @@ export class ScriptRO<TResult = unknown> {
     void this.init(script);
   }
 
-  private async init(script: string): Promise<void> {
-    if (this.sha1) return;
-    this.sha1 = await this.digest(script);
+  private init(script: string): Promise<void> {
+    if (!this.initPromise) {
+      this.initPromise = this.digest(script).then((sha1) => {
+        this.sha1 = sha1;
+      });
+    }
+    return this.initPromise;
   }
 
   /**

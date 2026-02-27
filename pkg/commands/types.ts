@@ -125,6 +125,7 @@ export { type SetExCommand } from "./setex";
 export { type SetNxCommand } from "./setnx";
 export { type SetRangeCommand } from "./setrange";
 export { type SInterCommand } from "./sinter";
+export { type SInterCardCommand } from "./sintercard";
 export { type SInterStoreCommand } from "./sinterstore";
 export { type SIsMemberCommand } from "./sismember";
 export { type SMembersCommand } from "./smembers";

@@ -138,6 +138,7 @@ import {
   SDiffCommand,
   SDiffStoreCommand,
   SInterCommand,
+  SInterCardCommand,
   SInterStoreCommand,
   SIsMemberCommand,
   SMIsMemberCommand,
@@ -1087,6 +1088,12 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   sinter = (...args: CommandArgs<typeof SInterCommand>) =>
     this.chain(new SInterCommand(args, this.commandOptions));
+
+  /**
+   * @see https://redis.io/commands/sintercard
+   */
+  sintercard = (...args: CommandArgs<typeof SInterCardCommand>) =>
+    this.chain(new SInterCardCommand(args, this.commandOptions));
 
   /**
    * @see https://redis.io/commands/sinterstore

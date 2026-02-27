@@ -143,6 +143,7 @@ import {
   SDiffCommand,
   SDiffStoreCommand,
   SInterCommand,
+  SInterCardCommand,
   SInterStoreCommand,
   SIsMemberCommand,
   SMIsMemberCommand,
@@ -1275,6 +1276,12 @@ export class Redis {
    */
   sinter = (...args: CommandArgs<typeof SInterCommand>) =>
     new SInterCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://redis.io/commands/sintercard
+   */
+  sintercard = (...args: CommandArgs<typeof SInterCardCommand>) =>
+    new SInterCardCommand(args, this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/sinterstore

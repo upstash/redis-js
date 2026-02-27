@@ -14,6 +14,10 @@ describe("without keys", () => {
   test("returns something", async () => {
     const value = randomID();
     const sha1 = await new ScriptLoadCommand([`return {ARGV[1], "${value}"}`]).exec(client);
+
+    // sleep 150 ms
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
     const res = await new EvalshaROCommand([sha1, [], [value]]).exec(client);
     expect(res).toEqual([value, value]);
   });

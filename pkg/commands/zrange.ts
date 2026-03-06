@@ -1,6 +1,5 @@
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
-import { parseResponse } from "../util";
 
 export type ZRangeCommandOptions = {
   withScores?: boolean;
@@ -11,20 +10,6 @@ export type ZRangeCommandOptions = {
   | { byScore?: never; byLex?: never }
 ) &
   ({ offset: number; count: number } | { offset?: never; count?: never });
-
-function deserializeWithScores<TData>(result: string[]): TData {
-  return result.map((v, i) => {
-    if (i % 2 === 1) {
-      return Number(v);
-    }
-    try {
-      return JSON.parse(v);
-    } catch {
-      return v;
-    }
-  }) as TData;
-}
-
 /**
  * @see https://redis.io/commands/zrange
  */
@@ -78,10 +63,6 @@ export class ZRangeCommand<TData extends unknown[]> extends Command<string[], TD
     if (opts?.withScores) {
       command.push("withscores");
     }
-    super(command, {
-      ...cmdOpts,
-      deserialize:
-        cmdOpts?.deserialize ?? (opts?.withScores ? deserializeWithScores : parseResponse),
-    });
+    super(command, cmdOpts);
   }
 }

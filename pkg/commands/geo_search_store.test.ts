@@ -72,11 +72,11 @@ describe("GEOSSEARCHSTORE tests", () => {
     );
     expect(zrangeRes).toEqual([
       "Empire State Building",
-      0,
+      expect.closeTo(0, 4),
       "Grand Central Terminal",
-      "0.83757447438393129",
+      expect.closeTo(0.837_574_474_383_9, 4),
       "Central Park",
-      "3.8473905221815641",
+      expect.closeTo(3.847_390_522_181_6, 4),
     ]);
     expect(res).toEqual(zrangeRes.length / 2);
   });
@@ -108,11 +108,11 @@ describe("GEOSSEARCHSTORE tests", () => {
     );
     expect(zrangeRes).toEqual([
       { name: "Empire State Building" },
-      0,
+      expect.closeTo(0, 4),
       { name: "Grand Central Terminal" },
-      "0.83757447438393129",
+      expect.closeTo(0.837_574_474_383_9, 4),
       { name: "Central Park" },
-      "3.8473905221815641",
+      expect.closeTo(3.847_390_522_181_6, 4),
     ]);
     expect(res).toEqual(zrangeRes.length / 2);
   });

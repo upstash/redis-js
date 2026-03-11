@@ -37,11 +37,11 @@ jobs:
       - name: Lint
         run: pnpm run ci:lint
 
-      - name: Run tests
-        run: pnpm -r test
-
       - name: Build
         run: pnpm -r build
+
+      - name: Run tests
+        run: pnpm -r test
 
   vercel-functions-app-router-local:
     needs:

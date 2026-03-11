@@ -144,19 +144,36 @@ export type InferSchemaData<TSchema> =
 
 // Query Options Types
 // These are the options that can be used for the query command
-export type QueryOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
-  filter?: RootQueryFilter<TSchema>;
-  /** Maximum number of results to return */
-  limit?: number;
-  /** Number of results to skip */
-  offset?: number;
-  select?: Partial<{ [K in SchemaPaths<TSchema>]: true }>; // {}
-  highlight?: {
-    fields: SchemaPaths<TSchema>[];
-    preTag?: string;
-    postTag?: string;
-  };
-} & QueryOrderOption<TSchema>;
+// Short-circuit to permissive types when schema is the default (any) to avoid
+// excessively deep type instantiation.
+export type QueryOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> =
+  IsDefaultSchema<TSchema> extends true
+    ? {
+        filter?: Record<string, any>;
+        limit?: number;
+        offset?: number;
+        select?: Record<string, true>;
+        highlight?: {
+          fields: string[];
+          preTag?: string;
+          postTag?: string;
+        };
+        orderBy?: Record<string, "ASC" | "DESC">;
+        scoreFunc?: ScoreBy<string>;
+      }
+    : {
+        filter?: RootQueryFilter<TSchema>;
+        /** Maximum number of results to return */
+        limit?: number;
+        /** Number of results to skip */
+        offset?: number;
+        select?: Partial<{ [K in SchemaPaths<TSchema>]: true }>; // {}
+        highlight?: {
+          fields: SchemaPaths<TSchema>[];
+          preTag?: string;
+          postTag?: string;
+        };
+      } & QueryOrderOption<TSchema>;
 
 type CombineMode = "multiply" | "sum";
 type ScoreMode = "multiply" | "sum" | "replace";
@@ -516,31 +533,39 @@ type BoolNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TS
 };
 
 // Create a type for a query filter
+// Short-circuit to Record<string, any> when schema is the default (any) to avoid
+// excessively deep type instantiation from the recursive filter union types.
 export type QueryFilter<TSchema extends NestedIndexSchema | FlatIndexSchema> =
-  | QueryLeaf<TSchema>
-  | AndNode<TSchema>
-  | OrNode<TSchema>
-  | MustNode<TSchema>
-  | ShouldNode<TSchema>
-  | MustShouldNode<TSchema>
-  | NotNode<TSchema>
-  | AndNotNode<TSchema>
-  | OrNotNode<TSchema>
-  | ShouldNotNode<TSchema>
-  | MustNotNode<TSchema>
-  | BoolNode<TSchema>;
+  IsDefaultSchema<TSchema> extends true
+    ? Record<string, any>
+    :
+        | QueryLeaf<TSchema>
+        | AndNode<TSchema>
+        | OrNode<TSchema>
+        | MustNode<TSchema>
+        | ShouldNode<TSchema>
+        | MustShouldNode<TSchema>
+        | NotNode<TSchema>
+        | AndNotNode<TSchema>
+        | OrNotNode<TSchema>
+        | ShouldNotNode<TSchema>
+        | MustNotNode<TSchema>
+        | BoolNode<TSchema>;
 
 // Create a type for root-level queries (restricts $or from mixing with fields)
 export type RootQueryFilter<TSchema extends NestedIndexSchema | FlatIndexSchema> =
-  | QueryLeaf<TSchema>
-  | AndNode<TSchema>
-  | RootOrNode<TSchema>
-  | MustNode<TSchema>
-  | ShouldNode<TSchema>
-  | MustShouldNode<TSchema>
-  | AndNotNode<TSchema>
-  | ShouldNotNode<TSchema>
-  | BoolNode<TSchema>;
+  IsDefaultSchema<TSchema> extends true
+    ? Record<string, any>
+    :
+        | QueryLeaf<TSchema>
+        | AndNode<TSchema>
+        | RootOrNode<TSchema>
+        | MustNode<TSchema>
+        | ShouldNode<TSchema>
+        | MustShouldNode<TSchema>
+        | AndNotNode<TSchema>
+        | ShouldNotNode<TSchema>
+        | BoolNode<TSchema>;
 
 // Restricted version of OrNode that doesn't allow field operations at root level
 type RootOrNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
@@ -566,7 +591,9 @@ export type IndexDescription<TSchema extends NestedIndexSchema | FlatIndexSchema
   dataType: "hash" | "string" | "json";
   prefixes: string[];
   language?: Language;
-  schema: Record<SchemaPaths<TSchema>, DescribeFieldInfo>;
+  schema: IsDefaultSchema<TSchema> extends true
+    ? Record<string, DescribeFieldInfo>
+    : Record<SchemaPaths<TSchema>, DescribeFieldInfo>;
 };
 
 export type Language =
@@ -605,27 +632,38 @@ export type FacetPaths<T, Prefix extends string = ""> = {
 }[keyof T];
 
 // Aggregate Types
-export type AggregateOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
-  filter?: RootQueryFilter<TSchema>;
-  aggregations: {
-    [key: string]: Aggregation<TSchema>;
-  };
-};
+export type AggregateOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> =
+  IsDefaultSchema<TSchema> extends true
+    ? {
+        filter?: Record<string, any>;
+        aggregations: {
+          [key: string]: Record<string, any>;
+        };
+      }
+    : {
+        filter?: RootQueryFilter<TSchema>;
+        aggregations: {
+          [key: string]: Aggregation<TSchema>;
+        };
+      };
 
 export type Aggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
-  | TermsAggregation<TSchema>
-  | RangeAggregation<TSchema>
-  | HistogramAggregation<TSchema>
-  | StatsAggregation<TSchema>
-  | AvgAggregation<TSchema>
-  | SumAggregation<TSchema>
-  | MinAggregation<TSchema>
-  | MaxAggregation<TSchema>
-  | CountAggregation<TSchema>
-  | ExtendedStatsAggregation<TSchema>
-  | PercentilesAggregation<TSchema>
-  | CardinalityAggregation<TSchema>
-  | FacetAggregation<TSchema>;
+  IsDefaultSchema<TSchema> extends true
+    ? Record<string, any>
+    :
+        | TermsAggregation<TSchema>
+        | RangeAggregation<TSchema>
+        | HistogramAggregation<TSchema>
+        | StatsAggregation<TSchema>
+        | AvgAggregation<TSchema>
+        | SumAggregation<TSchema>
+        | MinAggregation<TSchema>
+        | MaxAggregation<TSchema>
+        | CountAggregation<TSchema>
+        | ExtendedStatsAggregation<TSchema>
+        | PercentilesAggregation<TSchema>
+        | CardinalityAggregation<TSchema>
+        | FacetAggregation<TSchema>;
 
 type BaseAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
   $aggs?: {
@@ -745,7 +783,13 @@ export type FacetAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema
 export type AggregateResult<
   TSchema extends NestedIndexSchema | FlatIndexSchema,
   TOpts extends AggregateOptions<TSchema>,
-> = BuildAggregateResult<TSchema, TOpts["aggregations"]>;
+> =
+  IsDefaultSchema<TSchema> extends true
+    ? Record<string, any>
+    : BuildAggregateResult<
+        TSchema,
+        Extract<TOpts["aggregations"], { [key: string]: Aggregation<TSchema> }>
+      >;
 
 type BuildAggregateResult<
   TSchema extends NestedIndexSchema | FlatIndexSchema,

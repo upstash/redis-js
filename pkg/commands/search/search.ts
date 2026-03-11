@@ -172,14 +172,14 @@ export async function listAliases(client: Requester): Promise<Record<string, str
 export async function addAlias(
   client: Requester,
   { indexName, alias }: { indexName: string; alias: string }
-): Promise<0 | 1 | 2> {
+): Promise<1 | 2> {
   const command = ["SEARCH.ALIASADD", alias, indexName];
-  const result = await new ExecCommand<1 | 1 | 2>(command as [string, ...string[]]).exec(client);
+  const result = await new ExecCommand<1 | 2>(command as [string, ...string[]]).exec(client);
   return result;
 }
 
 export async function delAlias(client: Requester, { alias }: { alias: string }): Promise<0 | 1> {
   const command = ["SEARCH.ALIASDEL", alias];
-  const result = await new ExecCommand<1>(command as [string, ...string[]]).exec(client);
+  const result = await new ExecCommand<0 | 1>(command as [string, ...string[]]).exec(client);
   return result;
 }

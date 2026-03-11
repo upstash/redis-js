@@ -89,7 +89,7 @@ export function deserializeQueryResponse<
       const value = fieldRaw[1];
 
       const pathParts = key.split(".");
-      if (pathParts.length == 1) {
+      if (pathParts.length === 1) {
         data[key] = value;
       } else {
         let currentObj = data;

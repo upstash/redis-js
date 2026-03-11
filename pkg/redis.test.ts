@@ -268,24 +268,50 @@ describe("return type of scan withType", () => {
 });
 
 describe("search", () => {
-  test("should query a search index", async () => {
-    const redis = new Redis(client);
-    const schema = s.object({
-      id: s.string(),
-      content: s.object({
-        title: s.string().noStem(),
-        content: s.string(),
-        authors: s.string(),
-      }),
-      metadata: s.object({
-        dateInt: s.number("U64"),
-        url: s.string(),
-        updated: s.date(),
-        kind: s.string(),
-      }),
-    });
-    const idx = redis.search.index({ name: "vercel-changelog", schema });
-    const result = await idx.query({ filter: { "content.title": { $eq: "react" } }, limit: 2 });
-    expect(result).toBeDefined();
-  });
+  test(
+    "should create index, seed data, and query",
+    async () => {
+      const redis = new Redis(client);
+      const indexName = `test-search-${randomID().slice(0, 8)}`;
+      const prefix = `${indexName}:`;
+
+      const schema = s.object({
+        title: s.string(),
+        category: s.keyword(),
+      });
+
+      const idx = await redis.search.createIndex({
+        name: indexName,
+        schema,
+        dataType: "json",
+        prefix,
+      });
+
+      try {
+        // Seed documents under the index prefix
+        const key1 = `${prefix}doc1`;
+        const key2 = `${prefix}doc2`;
+        await redis.json.set(key1, "$", { title: "hello world", category: "greeting" });
+        await redis.json.set(key2, "$", { title: "goodbye world", category: "farewell" });
+
+        // Wait for indexing to complete
+        await idx.waitIndexing();
+
+        const result = await idx.query({
+          filter: { category: { $eq: "greeting" } },
+          limit: 10,
+        });
+
+        expect(result).toBeDefined();
+        expect(result.length).toBe(1);
+        expect(result[0].key).toBe(key1);
+
+        // Cleanup documents
+        await redis.del(key1, key2);
+      } finally {
+        await idx.drop();
+      }
+    },
+    { timeout: 30_000 }
+  );
 });

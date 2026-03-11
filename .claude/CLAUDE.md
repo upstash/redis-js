@@ -4,7 +4,7 @@
 
 You need to touch **6 files** (2 new, 4 existing):
 
-### 1. Create the command file: `pkg/commands/<command_name>.ts`
+### 1. Create the command file: `packages/redis/pkg/commands/<command_name>.ts`
 
 ```typescript
 import type { CommandOptions } from "./command";
@@ -34,7 +34,7 @@ Key patterns:
   ```
 - For commands taking a variable number of keys with a numkeys param, accept `keys: string[]` and spread: `["cmd", keys.length, ...keys]`
 
-### 2. Create the test file: `pkg/commands/<command_name>.test.ts`
+### 2. Create the test file: `packages/redis/pkg/commands/<command_name>.test.ts`
 
 ```typescript
 import { keygen, newHttpClient, randomID } from "../test-utils";
@@ -54,17 +54,17 @@ test("description", async () => {
 });
 ```
 
-Run tests with: `npx bun test pkg/commands/<command_name>.test.ts`
+Run tests with: `cd packages/redis && npx bun test pkg/commands/<command_name>.test.ts`
 
-### 3. Add export to `pkg/commands/mod.ts`
+### 3. Add export to `packages/redis/pkg/commands/mod.ts`
 
 Insert `export * from "./<command_name>";` in alphabetical order among existing exports.
 
-### 4. Add type export to `pkg/commands/types.ts`
+### 4. Add type export to `packages/redis/pkg/commands/types.ts`
 
 Insert `export { type MyCommand } from "./<command_name>";` in alphabetical order.
 
-### 5. Add method to `pkg/redis.ts`
+### 5. Add method to `packages/redis/pkg/redis.ts`
 
 - Add `MyCommand` to the import block from `"./commands/mod"` (alphabetical within the S/Z/etc group)
 - Add method to the class (alphabetical among similar commands):
@@ -77,7 +77,7 @@ mycommand = (...args: CommandArgs<typeof MyCommand>) =>
   new MyCommand(args, this.opts).exec(this.client);
 ```
 
-### 6. Add method to `pkg/pipeline.ts`
+### 6. Add method to `packages/redis/pkg/pipeline.ts`
 
 - Same import addition as redis.ts
 - Add method using `this.chain()` instead of `.exec()`:
@@ -92,10 +92,10 @@ mycommand = (...args: CommandArgs<typeof MyCommand>) =>
 
 ### Checklist
 
-- [ ] `pkg/commands/<name>.ts` - Command class
-- [ ] `pkg/commands/<name>.test.ts` - Tests
-- [ ] `pkg/commands/mod.ts` - Add `export *` line
-- [ ] `pkg/commands/types.ts` - Add `export { type }` line
-- [ ] `pkg/redis.ts` - Add import + method
-- [ ] `pkg/pipeline.ts` - Add import + method
-- [ ] Run `npx bun test pkg/commands/<name>.test.ts` to verify
+- [ ] `packages/redis/pkg/commands/<name>.ts` - Command class
+- [ ] `packages/redis/pkg/commands/<name>.test.ts` - Tests
+- [ ] `packages/redis/pkg/commands/mod.ts` - Add `export *` line
+- [ ] `packages/redis/pkg/commands/types.ts` - Add `export { type }` line
+- [ ] `packages/redis/pkg/redis.ts` - Add import + method
+- [ ] `packages/redis/pkg/pipeline.ts` - Add import + method
+- [ ] Run `cd packages/redis && npx bun test pkg/commands/<name>.test.ts` to verify

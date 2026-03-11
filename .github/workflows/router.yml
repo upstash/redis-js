@@ -1,4 +1,4 @@
-name: CI
+name: Router
 
 on:
   pull_request:
@@ -21,9 +21,9 @@ jobs:
     uses: ./.github/workflows/tests.yaml
     secrets: inherit
 
-  release:
+  npm-publish:
     if: github.event_name == 'release'
-    uses: ./.github/workflows/release.yml
+    uses: ./.github/workflows/npm-publish.yml
     with:
       prerelease: ${{ github.event.release.prerelease }}
     secrets: inherit

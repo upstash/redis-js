@@ -1,0 +1,62 @@
+name: Canary Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Package to release
+        required: true
+        type: choice
+        options:
+          - "@upstash/redis"
+
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Version snapshot
+        run: pnpm changeset version --snapshot canary
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read snapshot version
+        id: version
+        run: |
+          if [ "${{ inputs.package }}" = "@upstash/redis" ]; then
+            PKG_DIR="packages/redis"
+          else
+            echo "Unknown package: ${{ inputs.package }}"
+            exit 1
+          fi
+          VERSION=$(node -p "require('./${PKG_DIR}/package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Snapshot version: $VERSION"
+
+      - run: pnpm -r build
+
+      - name: Create GitHub prerelease
+        run: |
+          TAG="${{ inputs.package }}@${{ steps.version.outputs.version }}"
+          gh release create "$TAG" \
+            --prerelease \
+            --target "${{ github.sha }}" \
+            --title "$TAG" \
+            --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

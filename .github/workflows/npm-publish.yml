@@ -1,4 +1,4 @@
-name: Release
+name: npm Publish
 
 on:
   workflow_call:
@@ -8,8 +8,8 @@ on:
         required: true
 
 jobs:
-  release:
-    name: Release
+  publish:
+    name: Publish
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -24,32 +24,35 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+      - uses: pnpm/action-setup@v4
         with:
-          bun-version: latest
+          version: 10
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Set package version
         run: |
-          echo $(jq --arg v "${{ env.VERSION }}" '(.version) = $v' package.json) > package.json
-          echo "export const VERSION='${{ env.VERSION }}'" > ./version.ts
-
-      - name: Install Dependencies
-        run: bun install
+          echo $(jq --arg v "${{ env.VERSION }}" '(.version) = $v' packages/redis/package.json) > packages/redis/package.json
+          echo "export const VERSION='${{ env.VERSION }}'" > packages/redis/version.ts
 
       - name: Build
-        run: bun run build
+        run: pnpm -r build
 
       - name: Publish
         if: ${{ !inputs.prerelease }}
-        working-directory: ./dist
+        working-directory: ./packages/redis/dist
         run: |
           npm pkg delete scripts.prepare
           npm publish --provenance --access public
+        env:
+          NPM_CONFIG_PROVENANCE: "true"
 
       - name: Publish release candidate
         if: ${{ inputs.prerelease }}
-        working-directory: ./dist
+        working-directory: ./packages/redis/dist
         run: |
           npm pkg delete scripts.prepare
           npm publish --provenance --access public --tag=canary
+        env:
+          NPM_CONFIG_PROVENANCE: "true"

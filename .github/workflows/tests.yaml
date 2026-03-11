@@ -16,22 +16,32 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
 
       - name: Install Dependencies
-        run: bun install
+        run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: bun run fmt
+        run: pnpm run ci:lint
 
       - name: Run tests
-        run: bun test pkg --bail --timeout 20000
+        run: cd packages/redis && bun test pkg --bail --timeout 20000
 
       - name: Build
-        run: bun run build
+        run: pnpm -r build
 
   vercel-functions-app-router-local:
     needs:
@@ -42,19 +52,29 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
 
       - name: Install Dependencies
-        run: bun install
+        run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: bun run build
+        run: pnpm -r build
 
       - name: Install example
-        run: bun add @upstash/redis@../../dist
+        run: bun add @upstash/redis@../../packages/redis/dist
         working-directory: ./examples/vercel-functions-app-router
 
       - name: Build example
@@ -82,19 +102,29 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
 
       - name: Install Dependencies
-        run: bun install
+        run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: bun run build
+        run: pnpm -r build
 
       - name: Install example
-        run: bun add @upstash/redis@../../dist
+        run: bun add @upstash/redis@../../packages/redis/dist
         working-directory: ./examples/vercel-functions-pages-router
 
       - name: Build example
@@ -131,9 +161,9 @@ jobs:
         with:
           bun-version: latest
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
         with:
-          version: latest
+          version: 10
 
       - name: Install @upstash/redis canary version
         run: pnpm install @upstash/redis@${{needs.release.outputs.version}}
@@ -169,9 +199,9 @@ jobs:
         with:
           bun-version: latest
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
         with:
-          version: latest
+          version: 10
 
       - name: Install @upstash/redis canary version
         run: pnpm install @upstash/redis@${{needs.release.outputs.version}}
@@ -241,20 +271,24 @@ jobs:
         with:
           node-version: 24
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
 
       - name: Install Dependencies
-        run: bun install
+        run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: bun run build
+        run: pnpm -r build
 
       - name: Install example
         run: |
-          bun add @upstash/redis@../../dist
+          bun add @upstash/redis@../../packages/redis/dist
           npm install -g wrangler
         working-directory: examples/cloudflare-workers
 
@@ -333,20 +367,24 @@ jobs:
         with:
           node-version: 24
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
 
       - name: Install Dependencies
-        run: bun install
+        run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: bun run build
+        run: pnpm -r build
 
       - name: Install example
         run: |
-          bun add @upstash/redis@../../dist
+          bun add @upstash/redis@../../packages/redis/dist
           npm install -g wrangler
 
         working-directory: examples/cloudflare-workers-with-typescript
@@ -428,9 +466,9 @@ jobs:
         with:
           node-version: 24
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
         with:
-          version: latest
+          version: 10
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
@@ -438,15 +476,15 @@ jobs:
           bun-version: latest
 
       - name: Install Dependencies
-        run: bun install
+        run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: bun run build
+        run: pnpm -r build
 
       - name: Install example
         working-directory: ./examples/fastly
         run: |
-          bun add @upstash/redis@../../dist
+          bun add @upstash/redis@../../packages/redis/dist
           curl -L https://github.com/fastly/cli/releases/download/v1.7.0/fastly_v1.7.0_linux-amd64.tar.gz > fastly.tar.gz
           tar -xf ./fastly.tar.gz
 
@@ -496,9 +534,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
         with:
-          version: latest
+          version: 10
 
       - name: Install example
         working-directory: ./examples/fastly
@@ -540,19 +578,23 @@ jobs:
         with:
           node-version: 24
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
 
       - name: Install Dependencies
-        run: bun install
+        run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: bun run build
+        run: pnpm -r build
 
       - name: Install example
-        run: bun add @upstash/redis@../../dist
+        run: bun add @upstash/redis@../../packages/redis/dist
         working-directory: examples/nodejs
 
       - name: Run example
@@ -587,6 +629,10 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
@@ -594,16 +640,16 @@ jobs:
 
       - name: Set version
         run: |
-          echo $(jq --arg v "${{ steps.version.outputs.version }}" '(.version) = $v' package.json) > package.json
+          echo $(jq --arg v "${{ steps.version.outputs.version }}" '(.version) = $v' packages/redis/package.json) > packages/redis/package.json
 
       - name: Install Dependencies
-        run: bun install
+        run: pnpm install --no-frozen-lockfile
 
       - name: Build
-        run: bun run build
+        run: pnpm -r build
 
       - name: Publish ci version
-        working-directory: ./dist
+        working-directory: ./packages/redis/dist
         run: |
           npm pkg delete scripts.prepare
           npm publish --provenance --tag=ci --verbose

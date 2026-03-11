@@ -98,6 +98,26 @@ for common problems. If you can't find a solution, please
 See [the documentation](https://upstash.com/docs/redis/sdks/ts/overview) for
 details.
 
+## Release Workflow
+
+### Stable Release
+
+1. Create a changeset (`pnpm changeset`) describing your changes and merge it to `main`
+2. **Changeset** workflow runs on push to `main`. If changesets are pending, it opens a "Version Packages" PR. When that PR is merged, the workflow runs again, publishes git tags, creates GitHub releases, and uploads a `release-meta` artifact
+3. **Router** workflow detects the Changeset completion via `workflow_run`, downloads the `release-meta` artifact, and calls the **npm Publish** workflow with `prerelease: false` and the resolved version
+4. **npm Publish** checks out the released commit, builds, and publishes to npm under the `latest` tag
+
+### Canary Release
+
+1. Trigger the **Canary Release** workflow manually from the Actions tab, selecting the package
+2. It creates a snapshot version (`x.y.z-canary.{timestamp}`), creates a GitHub prerelease, and uploads a `release-meta` artifact
+3. **Router** picks it up the same way, calling **npm Publish** with `prerelease: true`
+4. **npm Publish** publishes to npm under the `canary` tag
+
+### CI Tests
+
+On every pull request, push to `main`, and daily schedule, the **Router** workflow runs the **Tests** workflow (unit tests, lint, build, and example integration tests).
+
 ## Contributing
 
 ### [Install Bun](https://bun.sh/docs/installation)

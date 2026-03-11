@@ -6,6 +6,9 @@ on:
       prerelease:
         type: boolean
         required: true
+      version:
+        type: string
+        required: true
 
 jobs:
   publish:
@@ -14,9 +17,12 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
-      - name: Set env
-        run: echo "VERSION=${GITHUB_REF#refs/*/v}" >> $GITHUB_ENV
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -24,17 +30,13 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Set package version
         run: |
-          echo $(jq --arg v "${{ env.VERSION }}" '(.version) = $v' packages/redis/package.json) > packages/redis/package.json
-          echo "export const VERSION='${{ env.VERSION }}'" > packages/redis/version.ts
+          cd packages/redis
+          npm version "${{ inputs.version }}" --no-git-tag-version --allow-same-version
 
       - name: Build
         run: pnpm -r build
@@ -47,6 +49,7 @@ jobs:
           npm publish --provenance --access public
         env:
           NPM_CONFIG_PROVENANCE: "true"
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish release candidate
         if: ${{ inputs.prerelease }}
@@ -56,3 +59,4 @@ jobs:
           npm publish --provenance --access public --tag=canary
         env:
           NPM_CONFIG_PROVENANCE: "true"
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

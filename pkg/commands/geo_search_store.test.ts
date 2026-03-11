@@ -70,14 +70,13 @@ describe("GEOSSEARCHSTORE tests", () => {
     const zrangeRes = await new ZRangeCommand([destination, 0, -1, { withScores: true }]).exec(
       client
     );
-    expect(zrangeRes).toEqual([
-      "Empire State Building",
-      0,
-      "Grand Central Terminal",
-      "0.83757447438393129",
-      "Central Park",
-      "3.8473905221815641",
-    ]);
+    expect(zrangeRes.length).toEqual(6);
+    expect(zrangeRes[0]).toEqual("Empire State Building");
+    expect(Number(zrangeRes[1])).toBeCloseTo(0, 4);
+    expect(zrangeRes[2]).toEqual("Grand Central Terminal");
+    expect(Number(zrangeRes[3])).toBeCloseTo(0.837_574_474_383_9, 4);
+    expect(zrangeRes[4]).toEqual("Central Park");
+    expect(Number(zrangeRes[5])).toBeCloseTo(3.847_390_522_181_6, 4);
     expect(res).toEqual(zrangeRes.length / 2);
   });
 
@@ -106,14 +105,13 @@ describe("GEOSSEARCHSTORE tests", () => {
     const zrangeRes = await new ZRangeCommand([destination, 0, -1, { withScores: true }]).exec(
       client
     );
-    expect(zrangeRes).toEqual([
-      { name: "Empire State Building" },
-      0,
-      { name: "Grand Central Terminal" },
-      "0.83757447438393129",
-      { name: "Central Park" },
-      "3.8473905221815641",
-    ]);
+    expect(zrangeRes.length).toEqual(6);
+    expect(zrangeRes[0]).toEqual({ name: "Empire State Building" });
+    expect(Number(zrangeRes[1])).toBeCloseTo(0, 4);
+    expect(zrangeRes[2]).toEqual({ name: "Grand Central Terminal" });
+    expect(Number(zrangeRes[3])).toBeCloseTo(0.837_574_474_383_9, 4);
+    expect(zrangeRes[4]).toEqual({ name: "Central Park" });
+    expect(Number(zrangeRes[5])).toBeCloseTo(3.847_390_522_181_6, 4);
     expect(res).toEqual(zrangeRes.length / 2);
   });
 

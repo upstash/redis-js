@@ -141,6 +141,7 @@ export * from "./setex";
 export * from "./setnx";
 export * from "./setrange";
 export * from "./sinter";
+export * from "./sintercard";
 export * from "./sinterstore";
 export * from "./sismember";
 export * from "./smembers";

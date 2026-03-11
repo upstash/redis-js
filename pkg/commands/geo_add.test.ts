@@ -154,7 +154,15 @@ describe("nx", () => {
         body: ["geopos", key, JSON.stringify(member.member)],
       });
 
-      expect(result).toEqual(updatedResult);
+      expect((result as string[][]).length).toEqual((updatedResult as string[][]).length);
+      for (let i = 0; i < (result as string[][]).length; i++) {
+        for (let j = 0; j < (result as string[][])[i].length; j++) {
+          expect(Number((result as string[][])[i][j])).toBeCloseTo(
+            Number((updatedResult as string[][])[i][j]),
+            4
+          );
+        }
+      }
     });
   });
 

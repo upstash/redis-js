@@ -38,7 +38,7 @@ jobs:
         run: pnpm run ci:lint
 
       - name: Run tests
-        run: cd packages/redis && bun test pkg --bail --timeout 20000
+        run: pnpm -r test
 
       - name: Build
         run: pnpm -r build

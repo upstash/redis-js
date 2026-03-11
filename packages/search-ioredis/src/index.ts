@@ -10,7 +10,7 @@ import { IoRedisRequester } from "./requester";
  * ```ts
  * import IORedis from "ioredis";
  * import { createSearch } from "@upstash/search-ioredis";
- * 
+ *
  * const ioredis = new IORedis(process.env.REDIS_URL);
  * const search = createSearch(ioredis);
  * ```

@@ -16,7 +16,7 @@ import { createSearch, s } from "@upstash/search-redis";
 
 // Create node-redis client
 const client = createClient({
-  url: process.env.REDIS_URL
+  url: process.env.REDIS_URL,
 });
 await client.connect();
 
@@ -25,7 +25,7 @@ const search = createSearch(client);
 
 const schema = s.object({
   title: s.string(),
-  price: s.number()
+  price: s.number(),
 });
 
 // Use all Redis search commands

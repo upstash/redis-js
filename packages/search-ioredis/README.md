@@ -22,7 +22,7 @@ const search = createSearch(ioredis);
 
 const schema = s.object({
   title: s.string(),
-  price: s.number()
+  price: s.number(),
 });
 
 // Use Redis Search commands

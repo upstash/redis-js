@@ -28,8 +28,8 @@ jobs:
       actions: read
     outputs:
       has_packages: ${{ steps.meta.outputs.has_packages }}
+      packages: ${{ steps.meta.outputs.packages }}
       prerelease: ${{ steps.meta.outputs.prerelease }}
-      version: ${{ steps.meta.outputs.version }}
 
     steps:
       - name: Download release metadata
@@ -45,8 +45,8 @@ jobs:
         run: |
           if [ -f release-meta.json ]; then
             echo "has_packages=true" >> "$GITHUB_OUTPUT"
+            echo "packages=$(jq -c '.packages' release-meta.json)" >> "$GITHUB_OUTPUT"
             echo "prerelease=$(jq -r '.prerelease' release-meta.json)" >> "$GITHUB_OUTPUT"
-            echo "version=$(jq -r '.packages[0].version' release-meta.json)" >> "$GITHUB_OUTPUT"
           else
             echo "has_packages=false" >> "$GITHUB_OUTPUT"
           fi
@@ -57,5 +57,5 @@ jobs:
     uses: ./.github/workflows/npm-publish.yml
     with:
       prerelease: ${{ needs.load-release-meta.outputs.prerelease == 'true' }}
-      version: ${{ needs.load-release-meta.outputs.version }}
+      packages: ${{ needs.load-release-meta.outputs.packages }}
     secrets: inherit

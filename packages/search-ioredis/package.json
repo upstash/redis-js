@@ -9,13 +9,11 @@
   ],
   "scripts": {
     "build": "tsc",
-    "test": "node --env-file=.env ./node_modules/.bin/vitest run",
+    "test": "vitest run",
     "test:watch": "vitest"
   },
-  "dependencies": {
-    "@upstash/redis": "1.37.0-rc.12"
-  },
   "peerDependencies": {
+    "@upstash/redis": "workspace:*",
     "ioredis": ">=5.0.0"
   },
   "devDependencies": {

@@ -6,7 +6,7 @@ on:
       prerelease:
         type: boolean
         required: true
-      version:
+      packages:
         type: string
         required: true
 
@@ -14,7 +14,29 @@ jobs:
   publish:
     name: Publish
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: ${{ fromJson(inputs.packages) }}
+
     steps:
+      - name: Parse package info
+        id: parse
+        run: |
+          PACKAGE="${{ matrix.package.name }}"
+          VERSION="${{ matrix.package.version }}"
+
+          case "$PACKAGE" in
+            "@upstash/redis")          PKG_DIR="packages/redis" ;;
+            "@upstash/search-ioredis") PKG_DIR="packages/search-ioredis" ;;
+            "@upstash/search-redis")   PKG_DIR="packages/search-redis" ;;
+            *) echo "Unknown package: $PACKAGE"; exit 1 ;;
+          esac
+
+          echo "package=$PACKAGE" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "pkg_dir=$PKG_DIR" >> "$GITHUB_OUTPUT"
+          echo "Package: $PACKAGE @ $VERSION (dir: $PKG_DIR)"
+
       - name: Checkout Repo
         uses: actions/checkout@v4
         with:
@@ -35,28 +57,22 @@ jobs:
 
       - name: Set package version
         run: |
-          cd packages/redis
-          npm version "${{ inputs.version }}" --no-git-tag-version --allow-same-version
+          cd ${{ steps.parse.outputs.pkg_dir }}
+          npm version "${{ steps.parse.outputs.version }}" --no-git-tag-version --allow-same-version
 
       - name: Build
         run: pnpm -r build
 
-      - name: Publish
-        if: ${{ !inputs.prerelease }}
-        working-directory: ./packages/redis/dist
-        run: |
-          npm pkg delete scripts.prepare
-          npm publish --provenance --access public
+      - name: Publish (canary)
+        if: ${{ inputs.prerelease }}
+        run: pnpm --filter "${{ steps.parse.outputs.package }}" publish --tag canary --no-git-checks --access public
         env:
           NPM_CONFIG_PROVENANCE: "true"
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish release candidate
-        if: ${{ inputs.prerelease }}
-        working-directory: ./packages/redis/dist
-        run: |
-          npm pkg delete scripts.prepare
-          npm publish --provenance --access public --tag=canary
+      - name: Publish (stable)
+        if: ${{ !inputs.prerelease }}
+        run: pnpm --filter "${{ steps.parse.outputs.package }}" publish --no-git-checks --access public
         env:
           NPM_CONFIG_PROVENANCE: "true"
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

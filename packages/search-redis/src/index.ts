@@ -9,10 +9,10 @@ import { NodeRedisRequester } from "./requester";
  * ```ts
  * import { createClient } from "redis";
  * import { createSearch } from "@upstash/search-redis";
- * 
+ *
  * const client = createClient({ url: process.env.REDIS_URL });
  * await client.connect();
- * 
+ *
  * const search = createSearch(client);
  * ```
  */

@@ -4,6 +4,7 @@ import { keygen, newHttpClient, randomID } from "./test-utils";
 import { afterEach, describe, expect, test } from "bun:test";
 import { HttpClient } from "./http";
 import type { ScanResultStandard, ScanResultWithType } from "./commands/scan";
+import { s } from "./commands/search";
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
@@ -264,4 +265,53 @@ describe("return type of scan withType", () => {
 
     assertIsType<Promise<ScanResultWithType>>(() => redis.scan("0", { withType: true }));
   });
+});
+
+describe("search", () => {
+  test(
+    "should create index, seed data, and query",
+    async () => {
+      const redis = new Redis(client);
+      const indexName = `test-search-${randomID().slice(0, 8)}`;
+      const prefix = `${indexName}:`;
+
+      const schema = s.object({
+        title: s.string(),
+        category: s.keyword(),
+      });
+
+      const idx = await redis.search.createIndex({
+        name: indexName,
+        schema,
+        dataType: "json",
+        prefix,
+      });
+
+      try {
+        // Seed documents under the index prefix
+        const key1 = `${prefix}doc1`;
+        const key2 = `${prefix}doc2`;
+        await redis.json.set(key1, "$", { title: "hello world", category: "greeting" });
+        await redis.json.set(key2, "$", { title: "goodbye world", category: "farewell" });
+
+        // Wait for indexing to complete
+        await idx.waitIndexing();
+
+        const result = await idx.query({
+          filter: { category: { $eq: "greeting" } },
+          limit: 10,
+        });
+
+        expect(result).toBeDefined();
+        expect(result.length).toBe(1);
+        expect(result[0].key).toBe(key1);
+
+        // Cleanup documents
+        await redis.del(key1, key2);
+      } finally {
+        await idx.drop();
+      }
+    },
+    { timeout: 30_000 }
+  );
 });

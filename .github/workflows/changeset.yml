@@ -35,6 +35,7 @@ jobs:
         with:
           version: pnpm ci:version
           publish: pnpm ci:tag
+          commit: "chore: version packages"
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -13,9 +13,7 @@ export class XAckDelCommand extends Command<number[], number[]> {
   ) {
     const command: unknown[] = ["XACKDEL", key, group];
 
-    command.push(opts.toUpperCase());
-
-    command.push("IDS", ids.length, ...ids);
+    command.push(opts.toUpperCase(), "IDS", ids.length, ...ids);
 
     super(command, cmdOpts);
   }

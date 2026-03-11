@@ -9,6 +9,8 @@ on:
         type: choice
         options:
           - "@upstash/redis"
+          - "@upstash/search-ioredis"
+          - "@upstash/search-redis"
 
 jobs:
   canary:
@@ -35,16 +37,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Resolve package directory
+        id: resolve
+        run: |
+          case "${{ inputs.package }}" in
+            "@upstash/redis")          PKG_DIR="packages/redis" ;;
+            "@upstash/search-ioredis") PKG_DIR="packages/search-ioredis" ;;
+            "@upstash/search-redis")   PKG_DIR="packages/search-redis" ;;
+            *) echo "Unknown package: ${{ inputs.package }}"; exit 1 ;;
+          esac
+          echo "pkg_dir=$PKG_DIR" >> "$GITHUB_OUTPUT"
+
       - name: Read snapshot version
         id: version
         run: |
-          if [ "${{ inputs.package }}" = "@upstash/redis" ]; then
-            PKG_DIR="packages/redis"
-          else
-            echo "Unknown package: ${{ inputs.package }}"
-            exit 1
-          fi
-          VERSION=$(node -p "require('./${PKG_DIR}/package.json').version")
+          VERSION=$(node -p "require('./${{ steps.resolve.outputs.pkg_dir }}/package.json').version")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Snapshot version: $VERSION"
 

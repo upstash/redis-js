@@ -1,0 +1,26 @@
+{
+  "name": "@upstash/search-ioredis",
+  "version": "0.1.0",
+  "description": "Upstash Redis Search extension for ioredis",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "peerDependencies": {
+    "@upstash/redis": "workspace:*",
+    "ioredis": ">=5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.3",
+    "ioredis": "^5.6.1",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "license": "MIT"
+}

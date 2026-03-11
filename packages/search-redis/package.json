@@ -1,0 +1,26 @@
+{
+  "name": "@upstash/search-redis",
+  "version": "0.1.0",
+  "description": "Upstash Redis Search extension for node-redis",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "peerDependencies": {
+    "@upstash/redis": "workspace:*",
+    "redis": ">=4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.3",
+    "redis": "^5.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "license": "MIT"
+}

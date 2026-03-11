@@ -60,3 +60,16 @@ jobs:
             --generate-notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create release metadata
+        run: |
+          jq -n \
+            --arg name "${{ inputs.package }}" \
+            --arg version "${{ steps.version.outputs.version }}" \
+            '{packages: [{name: $name, version: $version}], prerelease: true}' > release-meta.json
+
+      - name: Upload release metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-meta
+          path: release-meta.json

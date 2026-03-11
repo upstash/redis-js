@@ -32,6 +32,7 @@ jobs:
       - run: pnpm -r build
 
       - uses: changesets/action@v1
+        id: changesets
         with:
           version: pnpm ci:version
           publish: pnpm ci:tag
@@ -39,3 +40,17 @@ jobs:
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create release metadata
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          echo "$PUBLISHED" | jq '{packages: ., prerelease: false}' > release-meta.json
+        env:
+          PUBLISHED: ${{ steps.changesets.outputs.publishedPackages }}
+
+      - name: Upload release metadata
+        if: steps.changesets.outputs.published == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-meta
+          path: release-meta.json

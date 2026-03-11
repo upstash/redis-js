@@ -5,11 +5,11 @@ on:
   push:
     branches:
       - main
-  release:
-    types:
-      - published
   schedule:
     - cron: "0 0 * * *"
+  workflow_run:
+    workflows: ["Changeset", "Canary Release"]
+    types: [completed]
 
 permissions:
   id-token: write
@@ -17,13 +17,45 @@ permissions:
 
 jobs:
   tests:
-    if: github.event_name != 'release'
+    if: github.event_name != 'workflow_run'
     uses: ./.github/workflows/tests.yaml
     secrets: inherit
 
+  load-release-meta:
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    outputs:
+      has_packages: ${{ steps.meta.outputs.has_packages }}
+      prerelease: ${{ steps.meta.outputs.prerelease }}
+      version: ${{ steps.meta.outputs.version }}
+
+    steps:
+      - name: Download release metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: release-meta
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Read metadata
+        id: meta
+        run: |
+          if [ -f release-meta.json ]; then
+            echo "has_packages=true" >> "$GITHUB_OUTPUT"
+            echo "prerelease=$(jq -r '.prerelease' release-meta.json)" >> "$GITHUB_OUTPUT"
+            echo "version=$(jq -r '.packages[0].version' release-meta.json)" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_packages=false" >> "$GITHUB_OUTPUT"
+          fi
+
   npm-publish:
-    if: github.event_name == 'release'
+    needs: load-release-meta
+    if: needs.load-release-meta.outputs.has_packages == 'true'
     uses: ./.github/workflows/npm-publish.yml
     with:
-      prerelease: ${{ github.event.release.prerelease }}
+      prerelease: ${{ needs.load-release-meta.outputs.prerelease == 'true' }}
+      version: ${{ needs.load-release-meta.outputs.version }}
     secrets: inherit

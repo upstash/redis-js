@@ -26,16 +26,17 @@ jobs:
           VERSION="${{ matrix.package.version }}"
 
           case "$PACKAGE" in
-            "@upstash/redis")          PKG_DIR="packages/redis" ;;
-            "@upstash/search-ioredis") PKG_DIR="packages/search-ioredis" ;;
-            "@upstash/search-redis")   PKG_DIR="packages/search-redis" ;;
+            "@upstash/redis")          PKG_DIR="packages/redis";          PUBLISH_DIR="packages/redis/dist" ;;
+            "@upstash/search-ioredis") PKG_DIR="packages/search-ioredis"; PUBLISH_DIR="packages/search-ioredis" ;;
+            "@upstash/search-redis")   PKG_DIR="packages/search-redis";   PUBLISH_DIR="packages/search-redis" ;;
             *) echo "Unknown package: $PACKAGE"; exit 1 ;;
           esac
 
           echo "package=$PACKAGE" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "pkg_dir=$PKG_DIR" >> "$GITHUB_OUTPUT"
-          echo "Package: $PACKAGE @ $VERSION (dir: $PKG_DIR)"
+          echo "publish_dir=$PUBLISH_DIR" >> "$GITHUB_OUTPUT"
+          echo "Package: $PACKAGE @ $VERSION (dir: $PKG_DIR, publish: $PUBLISH_DIR)"
 
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -65,14 +66,20 @@ jobs:
 
       - name: Publish (canary)
         if: ${{ inputs.prerelease }}
-        run: pnpm --filter "${{ steps.parse.outputs.package }}" publish --tag canary --no-git-checks --access public
+        working-directory: ./${{ steps.parse.outputs.publish_dir }}
+        run: |
+          npm pkg delete scripts.prepare 2>/dev/null || true
+          npm publish --provenance --access public --tag=canary
         env:
           NPM_CONFIG_PROVENANCE: "true"
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish (stable)
         if: ${{ !inputs.prerelease }}
-        run: pnpm --filter "${{ steps.parse.outputs.package }}" publish --no-git-checks --access public
+        working-directory: ./${{ steps.parse.outputs.publish_dir }}
+        run: |
+          npm pkg delete scripts.prepare 2>/dev/null || true
+          npm publish --provenance --access public
         env:
           NPM_CONFIG_PROVENANCE: "true"
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

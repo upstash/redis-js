@@ -6,6 +6,7 @@ on:
 env:
   UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
   UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+  REDIS_URL: ${{ secrets.REDIS_URL }}
 jobs:
   test:
     runs-on: ubuntu-latest

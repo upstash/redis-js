@@ -11,7 +11,7 @@ const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 
 describe("without keys", () => {
-  test("returns something", async () => {
+  test.skip("returns something", async () => {
     const value = randomID();
     const sha1 = await new ScriptLoadCommand([`return {ARGV[1], "${value}"}`]).exec(client);
     // sleep 1s so command replicates

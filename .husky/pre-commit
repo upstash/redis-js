@@ -1,2 +1,1 @@
-
-bun run fmt
+pnpm run fmt

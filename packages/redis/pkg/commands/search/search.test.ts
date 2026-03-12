@@ -1800,6 +1800,123 @@ describe("Field aliasing with 'from' and stemming", () => {
   });
 });
 
+describe("describe returns FROM aliases", () => {
+  const name = `test-describe-from-${randomID().slice(0, 8)}`;
+  const prefix = `${name}:`;
+
+  afterAll(async () => {
+    const index = initIndex(client, { name });
+    try {
+      await index.drop();
+    } catch {
+      // Ignore
+    }
+  });
+
+  test("string field with .from() is preserved in describe", async () => {
+    const schema = s.object({
+      title: s.string(),
+      titleExact: s.string().noStem().from("title"),
+    });
+
+    await createIndex(client, {
+      name,
+      schema,
+      dataType: "json",
+      prefix,
+    });
+
+    const index = initIndex(client, { name, schema });
+    const description = await index.describe();
+
+    expect(description).toBeDefined();
+    expect(description!.schema).toMatchObject({
+      title: { type: "TEXT" },
+      titleExact: { type: "TEXT", noStem: true, from: "title" },
+    });
+  });
+});
+
+describe("describe returns FROM aliases for all field types", () => {
+  const name = `test-describe-from-types-${randomID().slice(0, 8)}`;
+  const prefix = `${name}:`;
+
+  afterAll(async () => {
+    const index = initIndex(client, { name });
+    try {
+      await index.drop();
+    } catch {
+      // Ignore
+    }
+  });
+
+  test("number, boolean, and date fields with .from() are preserved", async () => {
+    const schema = s.object({
+      price: s.number("F64"),
+      discountPrice: s.number("F64").from("price"),
+      active: s.boolean(),
+      isLive: s.boolean().from("active"),
+      created: s.date(),
+      createdAlias: s.date().from("created"),
+    });
+
+    await createIndex(client, {
+      name,
+      schema,
+      dataType: "json",
+      prefix,
+    });
+
+    const index = initIndex(client, { name, schema });
+    const description = await index.describe();
+
+    expect(description).toBeDefined();
+    expect(description!.schema).toMatchObject({
+      price: { type: "F64" },
+      discountPrice: { type: "F64", from: "price" },
+      active: { type: "BOOL" },
+      isLive: { type: "BOOL", from: "active" },
+      created: { type: "DATE" },
+      createdAlias: { type: "DATE", from: "created" },
+    });
+  });
+});
+
+describe("describe returns FROM with nested path", () => {
+  const name = `test-describe-from-nested-${randomID().slice(0, 8)}`;
+  const prefix = `${name}:`;
+
+  afterAll(async () => {
+    const index = initIndex(client, { name });
+    try {
+      await index.drop();
+    } catch {
+      // Ignore
+    }
+  });
+
+  test(".from() with dotted path is preserved in describe", async () => {
+    const schema = s.object({
+      authorName: s.string().from("metadata.author.displayName"),
+    });
+
+    await createIndex(client, {
+      name,
+      schema,
+      dataType: "json",
+      prefix,
+    });
+
+    const index = initIndex(client, { name, schema });
+    const description = await index.describe();
+
+    expect(description).toBeDefined();
+    expect(description!.schema).toMatchObject({
+      authorName: { type: "TEXT", from: "metadata.author.displayName" },
+    });
+  });
+});
+
 describe("SearchIndex.aggregate (json)", () => {
   const name = `test-aggregate-json-${randomID().slice(0, 8)}`;
   const prefix = `${name}:`;

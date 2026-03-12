@@ -1,6 +1,6 @@
 {
   "name": "@upstash/redis",
-  "version": "1.36.4",
+  "version": "1.37.0",
   "main": "./nodejs.js",
   "module": "./nodejs.mjs",
   "types": "./nodejs.d.ts",

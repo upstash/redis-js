@@ -164,6 +164,10 @@ export function deserializeDescribeResponse<TSchema extends NestedIndexSchema | 
                   fieldInfo.fast = true;
                   break;
                 }
+                case "FROM": {
+                  fieldInfo.from = fieldDescription[++j];
+                  break;
+                }
               }
             }
           }

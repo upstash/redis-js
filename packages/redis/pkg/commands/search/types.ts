@@ -584,6 +584,7 @@ export type DescribeFieldInfo = {
   noTokenize?: boolean;
   noStem?: boolean;
   fast?: boolean;
+  from?: string;
 };
 
 export type IndexDescription<TSchema extends NestedIndexSchema | FlatIndexSchema> = {

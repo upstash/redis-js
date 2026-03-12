@@ -477,6 +477,38 @@ describe("deserializeDescribeResponse", () => {
       },
     });
   });
+
+  test("parses FROM (aliased/from) field option", () => {
+    const rawResponse = [
+      "name",
+      "test",
+      "type",
+      "JSON",
+      "prefixes",
+      ["product:"],
+      "schema",
+      [
+        ["description", "TEXT"],
+        ["descriptionExact", "TEXT", "FROM", "description", "NOSTEM"],
+        ["authorName", "TEXT", "FROM", "metadata.author.displayName"],
+        ["price", "F64", "FAST"],
+      ],
+    ];
+
+    const result = deserializeDescribeResponse(rawResponse);
+
+    expect(result).toEqual({
+      name: "test",
+      dataType: "json",
+      prefixes: ["product:"],
+      schema: {
+        description: { type: "TEXT" },
+        descriptionExact: { type: "TEXT", from: "description", noStem: true },
+        authorName: { type: "TEXT", from: "metadata.author.displayName" },
+        price: { type: "F64", fast: true },
+      },
+    });
+  });
 });
 
 describe("parseCountResponse", () => {

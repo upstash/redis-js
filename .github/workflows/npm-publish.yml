@@ -65,7 +65,14 @@ jobs:
         run: pnpm -r build
 
       - name: Publish (canary)
-        if: ${{ inputs.prerelease }}
+        if: ${{ inputs.prerelease && steps.parse.outputs.publish_dir == steps.parse.outputs.pkg_dir }}
+        run: pnpm --filter "${{ steps.parse.outputs.package }}" publish --tag canary --no-git-checks --access public
+        env:
+          NPM_CONFIG_PROVENANCE: "true"
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish (canary, from dist)
+        if: ${{ inputs.prerelease && steps.parse.outputs.publish_dir != steps.parse.outputs.pkg_dir }}
         working-directory: ./${{ steps.parse.outputs.publish_dir }}
         run: |
           npm pkg delete scripts.prepare 2>/dev/null || true
@@ -75,7 +82,14 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish (stable)
-        if: ${{ !inputs.prerelease }}
+        if: ${{ !inputs.prerelease && steps.parse.outputs.publish_dir == steps.parse.outputs.pkg_dir }}
+        run: pnpm --filter "${{ steps.parse.outputs.package }}" publish --no-git-checks --access public
+        env:
+          NPM_CONFIG_PROVENANCE: "true"
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish (stable, from dist)
+        if: ${{ !inputs.prerelease && steps.parse.outputs.publish_dir != steps.parse.outputs.pkg_dir }}
         working-directory: ./${{ steps.parse.outputs.publish_dir }}
         run: |
           npm pkg delete scripts.prepare 2>/dev/null || true

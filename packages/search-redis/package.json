@@ -2,6 +2,10 @@
   "name": "@upstash/search-redis",
   "version": "0.1.0",
   "description": "Upstash Redis Search extension for node-redis",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:upstash/redis-js.git"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [

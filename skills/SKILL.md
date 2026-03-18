@@ -1,6 +1,6 @@
 ---
 name: redis-js
-description: Work with the Upstash Redis JavaScript/TypeScript SDK for serverless Redis operations. Use for caching, session storage, rate limiting, leaderboards, full-text search, and all Redis data structures. Supports automatic serialization/deserialization of JavaScript types.
+description: Work with the Upstash Redis JavaScript/TypeScript SDK for serverless Redis operations. Use for caching, session storage, rate limiting, leaderboards, full-text search (querying, filtering, aggregating with @upstash/redis search extension), and all Redis data structures. Supports automatic serialization/deserialization of JavaScript types. Search also available via @upstash/search-redis and @upstash/search-ioredis adapters for TCP clients.
 ---
 
 # Upstash Redis SDK - Complete Skills Guide
@@ -81,6 +81,17 @@ Optimization techniques and best practices:
 - **data-serialization.md** - Deep dive into auto serialization, custom serializers, edge cases
 - **error-handling.md** - Error types, retry strategies, timeout handling, debugging tips
 - **redis-replicas.md** - Global database setup, read replicas, read-your-writes consistency
+
+### Search (skills/search/)
+
+Full-text search, filtering, and aggregation extension for Redis:
+
+- **overview.md** - Schema definition, field types, pitfalls, package overview
+- **commands/querying.md** - Query and count with filters, pagination, sorting, highlighting
+- **commands/aggregating.md** - Metric aggregations ($avg, $sum, $stats), bucket aggregations ($terms, $range, $histogram, $facet)
+- **commands/index-management.md** - Create, describe, drop indexes, waitIndexing
+- **commands/aliases.md** - Index aliases for zero-downtime reindexing
+- **adapters.md** - Using search with node-redis and ioredis via @upstash/search-redis and @upstash/search-ioredis
 
 ### Migrations (skills/migrations/)
 

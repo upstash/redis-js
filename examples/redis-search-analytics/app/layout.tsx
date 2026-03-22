@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Redis Analytics Demo",
-  description: "PostHog-like analytics running on Upstash Redis Search",
+  description: "Analytics Demo running on Upstash Redis Search",
 };
 
 export default function RootLayout({

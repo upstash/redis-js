@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { EventType, EventTypeValue } from "@/lib/schema";
 
-const SESSION_STORAGE_KEY = "redis-posthog-session-id";
+const SESSION_STORAGE_KEY = "redis-search-analytics-session-id";
 
 type Tracker = {
   trackPageView: () => void;

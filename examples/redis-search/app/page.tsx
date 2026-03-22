@@ -43,7 +43,7 @@ export default function Home() {
             </Link>
           </Button>
           <Button asChild variant="outline" size="lg">
-            <a href="https://upstash.com/docs/redis/features/redisearch" target="_blank" rel="noopener noreferrer">
+            <a href="https://upstash.com/docs/redis/search/introduction" target="_blank" rel="noopener noreferrer">
               Documentation
             </a>
           </Button>

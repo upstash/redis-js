@@ -1,5 +1,5 @@
 {
-  "name": "redis-posthog",
+  "name": "redis-search-analytics",
   "version": "0.1.0",
   "private": true,
   "engines": {

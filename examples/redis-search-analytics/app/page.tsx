@@ -26,7 +26,7 @@ export default function Home() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-zinc-900">Redis Analytics Demo</h1>
-                <p className="text-sm text-zinc-500">PostHog-like analytics on Upstash Redis Search</p>
+                <p className="text-sm text-zinc-500">Analytics demo on Upstash Redis Search</p>
               </div>
             </div>
           </header>

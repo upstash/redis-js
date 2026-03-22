@@ -32,7 +32,7 @@ export function InfoBanner() {
       {/* Content */}
       <div className="px-4 py-3">
         <p className="text-sm text-amber-800 leading-relaxed">
-          This is a demonstration of PostHog-like analytics built with Upstash Redis Search. 
+          This is a demonstration of analytics built with Upstash Redis Search. 
           Feel free to create posts, comments, and interact with the page.
         </p>
 

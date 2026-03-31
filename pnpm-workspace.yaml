@@ -1,6 +1,9 @@
 packages:
   - "packages/*"
 
+minimumReleaseAge: 10080
+blockExoticSubdeps: true
+
 onlyBuiltDependencies:
   - esbuild
 trustPolicy: no-downgrade

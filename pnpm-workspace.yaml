@@ -8,4 +8,4 @@ blockExoticSubdeps: true
 
 onlyBuiltDependencies:
   - esbuild
-trustPolicy: no-downgrade
+# trustPolicy: no-downgrade

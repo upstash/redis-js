@@ -1,2 +1,11 @@
 packages:
   - "packages/*"
+
+minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  - "@upstash/redis"
+blockExoticSubdeps: true
+
+onlyBuiltDependencies:
+  - esbuild
+# trustPolicy: no-downgrade

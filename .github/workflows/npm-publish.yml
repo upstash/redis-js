@@ -60,6 +60,7 @@ jobs:
         run: |
           cd ${{ steps.parse.outputs.pkg_dir }}
           npm version "${{ steps.parse.outputs.version }}" --no-git-tag-version --allow-same-version
+          echo "export const VERSION='v${{ steps.parse.outputs.version }}';" > ./version.ts
 
       - name: Build
         run: pnpm -r build

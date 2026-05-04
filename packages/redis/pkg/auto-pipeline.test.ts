@@ -3,6 +3,7 @@ import { keygen, newHttpClient } from "./test-utils";
 
 import { afterEach, describe, expect, test } from "bun:test";
 import { ScriptLoadCommand } from "./commands/script_load";
+import { MAX_PIPELINE_SIZE } from "./auto-pipeline";
 
 const client = newHttpClient();
 
@@ -383,6 +384,74 @@ describe("Auto pipeline", () => {
     // first method executed correctly
     const result = await redis.get("foobar");
     expect(result).toBe("foobar");
+  });
+
+  describe("max pipeline size", () => {
+    test("should split into multiple pipelines when exceeding max size", async () => {
+      const redis = Redis.fromEnv({
+        latencyLogging: false,
+        enableAutoPipelining: true,
+      });
+
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(0);
+
+      const totalCommands = MAX_PIPELINE_SIZE + 500;
+      const promises = Array.from({ length: totalCommands }, (_, i) => redis.echo(`msg-${i}`));
+
+      const results = await Promise.all(promises);
+
+      for (let i = 0; i < totalCommands; i++) {
+        expect(results[i]).toBe(`msg-${i}`);
+      }
+
+      // Should have used 2 pipelines: 1000 + 500
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(2);
+    });
+
+    test("should use exactly one pipeline when at max size", async () => {
+      const redis = Redis.fromEnv({
+        latencyLogging: false,
+        enableAutoPipelining: true,
+      });
+
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(0);
+
+      const promises = Array.from({ length: MAX_PIPELINE_SIZE }, (_, i) => redis.echo(`msg-${i}`));
+      const results = await Promise.all(promises);
+
+      for (let i = 0; i < MAX_PIPELINE_SIZE; i++) {
+        expect(results[i]).toBe(`msg-${i}`);
+      }
+
+      // Exactly at the limit — should be 1 pipeline
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(1);
+    });
+
+    test("should split into correct number of pipelines for large batches", async () => {
+      const redis = Redis.fromEnv({
+        latencyLogging: false,
+        enableAutoPipelining: true,
+      });
+
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(0);
+
+      // 2500 commands should result in 3 pipelines: 1000 + 1000 + 500
+      const totalCommands = MAX_PIPELINE_SIZE * 2 + 500;
+      const promises = Array.from({ length: totalCommands }, (_, i) => redis.echo(`msg-${i}`));
+      const results = await Promise.all(promises);
+
+      for (let i = 0; i < totalCommands; i++) {
+        expect(results[i]).toBe(`msg-${i}`);
+      }
+
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(3);
+    });
   });
 
   describe("excluded commands", () => {

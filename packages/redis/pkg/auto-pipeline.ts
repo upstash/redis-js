@@ -8,6 +8,8 @@ import type { CommandArgs } from "./types";
 // properties which are only available in redis
 type redisOnly = Exclude<keyof Redis, keyof Pipeline>;
 
+export const MAX_PIPELINE_SIZE = 1000;
+
 export const EXCLUDE_COMMANDS: Set<keyof Redis> = new Set([
   "scan",
   "keys",
@@ -120,13 +122,20 @@ class AutoPipelineExecutor {
     const index = this.indexInCurrentPipeline++;
     executeWithPipeline(pipeline);
 
+    // If pipeline reached max size, close it so next command starts a new pipeline
+    if (this.indexInCurrentPipeline >= MAX_PIPELINE_SIZE) {
+      this.activePipeline = null;
+    }
+
     const pipelineDone = this.deferExecution().then(() => {
       if (!this.pipelinePromises.has(pipeline)) {
         const pipelinePromise = pipeline.exec({ keepErrors: true });
         this.pipelineCounter += 1;
 
         this.pipelinePromises.set(pipeline, pipelinePromise);
-        this.activePipeline = null;
+        if (this.activePipeline === pipeline) {
+          this.activePipeline = null;
+        }
       }
 
       return this.pipelinePromises.get(pipeline)!;

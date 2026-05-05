@@ -2,4 +2,4 @@
 "@upstash/redis": minor
 ---
 
-Seperate read/write commands into seperate pipelines in auto pipeline
+Separate read/write commands into separate pipelines in auto pipeline

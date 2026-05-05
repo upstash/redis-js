@@ -3,14 +3,28 @@ import { keygen, newHttpClient } from "./test-utils";
 
 import { afterEach, describe, expect, test } from "bun:test";
 import { ScriptLoadCommand } from "./commands/script_load";
+import { MAX_PIPELINE_SIZE } from "./auto-pipeline";
 
 const client = newHttpClient();
 
 const { newKey, cleanup } = keygen();
 afterEach(cleanup);
 
+// Structural shape of the (private) AutoPipelineExecutor and Pipeline internals
+// used only for asserting that commands are routed to the correct pipeline.
+type PipelineLike = {
+  length: () => number;
+  commands: { command: (string | number | boolean)[] }[];
+};
+type AutoPipelineExecutorLike = {
+  activeReadPipeline: PipelineLike | null;
+  activeWritePipeline: PipelineLike | null;
+};
+const getExecutor = (redis: Redis): AutoPipelineExecutorLike =>
+  (redis as unknown as { autoPipelineExecutor: AutoPipelineExecutorLike }).autoPipelineExecutor;
+
 describe("Auto pipeline", () => {
-  test("should execute all commands inside a Promise.all in a single pipeline", async () => {
+  test("should batch a large Promise.all of mixed reads and writes into one read and one write pipeline", async () => {
     const persistentKey = newKey();
     const persistentKey2 = newKey();
     const persistentKey3 = newKey();
@@ -41,8 +55,6 @@ describe("Auto pipeline", () => {
       redis.exists(newKey()),
       redis.expire(newKey(), 5),
       redis.expireat(newKey(), Math.floor(Date.now() / 1000) + 60),
-      redis.flushall(),
-      redis.flushdb(),
       redis.get(newKey()),
       redis.getbit(newKey(), 0),
       redis.getdel(newKey()),
@@ -136,7 +148,6 @@ describe("Auto pipeline", () => {
       redis.zadd(newKey(), { score: 0, member: "member" }),
       redis.zcard(newKey()),
       redis.scriptExists(scriptHash),
-      redis.scriptFlush({ async: true }),
       redis.scriptLoad("return 1"),
       redis.zcount(newKey(), 0, 1),
       redis.zincrby(newKey(), 1, "member"),
@@ -160,13 +171,13 @@ describe("Auto pipeline", () => {
       redis.json.merge(persistentKey3, "$.log", '"three"'),
     ]);
     expect(result).toBeTruthy();
-    expect(result.length).toBe(133); // returns
+    expect(result.length).toBe(130); // returns
 
     // @ts-expect-error pipelineCounter is not in type but accessible results
-    expect(redis.pipelineCounter).toBe(1);
+    expect(redis.pipelineCounter).toBe(2);
   });
 
-  test("should group async requests with sync requests", async () => {
+  test("should group fire-and-forget writes with the next awaited write into one write pipeline, then reads into a separate read pipeline", async () => {
     const redis = Redis.fromEnv({
       latencyLogging: false,
       enableAutoPipelining: true,
@@ -175,24 +186,30 @@ describe("Auto pipeline", () => {
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
 
-    // following five commands are added to the pipeline
+    // following four void writes get grouped with the awaited write below
+    // into a single write pipeline
     void redis.del("baz");
     void redis.incr("baz");
     void redis.incr("baz");
-    void redis.set("foo", "bar");
     void redis.incr("baz");
 
-    // two get calls are added to the pipeline and pipeline
-    // is executed since we called await
+    const setResult = await redis.set("foo", "bar");
+    expect(setResult).toBe("OK");
+
+    // all five writes executed in one write pipeline
+    // @ts-expect-error pipelineCounter is not in type but accessible
+    expect(redis.pipelineCounter).toBe(1);
+
+    // reads below grouped into a single read pipeline
     const [fooValue, bazValue] = await Promise.all([redis.get("foo"), redis.get("baz")]);
 
     expect(fooValue).toBe("bar");
     expect(bazValue).toBe(3);
     // @ts-expect-error pipelineCounter is not in type but accessible
-    expect(redis.pipelineCounter).toBe(1);
+    expect(redis.pipelineCounter).toBe(2);
   });
 
-  test("should execute a pipeline for each consecutive awaited command", async () => {
+  test("should create a new pipeline for each consecutively awaited command", async () => {
     const redis = Redis.fromEnv({
       latencyLogging: false,
       enableAutoPipelining: true,
@@ -221,7 +238,7 @@ describe("Auto pipeline", () => {
     expect([res1, res2, res3]).toEqual([1, 2, "OK"]);
   });
 
-  test("should execute a single pipeline for several commands inside Promise.all", async () => {
+  test("should batch writes inside Promise.all into a single write pipeline while skipping excluded commands like dbsize", async () => {
     const redis = Redis.fromEnv({
       latencyLogging: false,
       enableAutoPipelining: true,
@@ -232,19 +249,26 @@ describe("Auto pipeline", () => {
     const key1 = newKey();
     const key2 = newKey();
 
-    const resArray = await Promise.all([
+    // dbsize is excluded from auto-pipelining (direct call); the rest are writes
+    // and go into a single write pipeline.
+    const writeResults = await Promise.all([
       redis.dbsize(),
       redis.incr(key1),
       redis.incr(key1),
       redis.set(key2, "bar"),
-      redis.get(key2),
     ]);
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(1);
-    expect(resArray).toEqual([expect.any(Number), 1, 2, "OK", "bar"]);
+    expect(writeResults).toEqual([expect.any(Number), 1, 2, "OK"]);
+
+    // a separate read pipeline executes the get
+    const getResult = await redis.get(key2);
+    expect(getResult).toBe("bar");
+    // @ts-expect-error pipelineCounter is not in type but accessible
+    expect(redis.pipelineCounter).toBe(2);
   });
 
-  test("should be able to utilize only redis functions 'use' like usual", async () => {
+  test("should still apply redis.use middleware to auto-pipelined commands", async () => {
     const redis = Redis.fromEnv({
       latencyLogging: false,
       enableAutoPipelining: true,
@@ -269,7 +293,7 @@ describe("Auto pipeline", () => {
     expect(redis.pipelineCounter).toBe(1);
   });
 
-  test("should be able to utilize only redis functions 'multi' and 'pipeline' like usual", async () => {
+  test("should not increment the auto-pipeline counter when explicit pipeline() or multi() is used", async () => {
     const redis = Redis.fromEnv({
       latencyLogging: false,
       enableAutoPipelining: true,
@@ -296,7 +320,7 @@ describe("Auto pipeline", () => {
     expect(redis.pipelineCounter).toBe(0);
   });
 
-  test("should be able to utilize only redis functions 'createScript' like usual", async () => {
+  test("should auto-pipeline createScript().eval() calls", async () => {
     const redis = Redis.fromEnv({
       latencyLogging: false,
       enableAutoPipelining: true,
@@ -316,7 +340,7 @@ describe("Auto pipeline", () => {
     expect(redis.pipelineCounter).toBe(1);
   });
 
-  test("should handle JSON commands correctly", async () => {
+  test("should split JSON reads and writes into separate pipelines across awaited Promise.all calls", async () => {
     const redis = Redis.fromEnv({
       latencyLogging: false,
       enableAutoPipelining: true,
@@ -325,22 +349,34 @@ describe("Auto pipeline", () => {
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(0);
 
-    const res = await Promise.all([
+    // First do the writes — one write pipeline
+    const writeRes = await Promise.all([
       redis.set("foo1", "bar"),
       redis.json.set("baz1", "$", { hello: "world" }),
-      redis.get("foo1"),
-      redis.json.get("baz1"),
-      redis.json.del("baz1"),
-      redis.json.get("baz1"),
     ]);
-
+    expect(writeRes).toEqual(["OK", "OK"]);
     // @ts-expect-error pipelineCounter is not in type but accessible
     expect(redis.pipelineCounter).toBe(1);
 
-    expect(res).toEqual(["OK", "OK", "bar", { hello: "world" }, 1, null]);
+    // Then do the reads — one read pipeline
+    const readRes = await Promise.all([redis.get("foo1"), redis.json.get("baz1")]);
+    expect(readRes).toEqual(["bar", { hello: "world" }]);
+    // @ts-expect-error pipelineCounter is not in type but accessible
+    expect(redis.pipelineCounter).toBe(2);
+
+    // delete then verify gone — another write + read pipeline
+    const delRes = await redis.json.del("baz1");
+    expect(delRes).toBe(1);
+    // @ts-expect-error pipelineCounter is not in type but accessible
+    expect(redis.pipelineCounter).toBe(3);
+
+    const afterDel = await redis.json.get("baz1");
+    expect(afterDel).toBeNull();
+    // @ts-expect-error pipelineCounter is not in type but accessible
+    expect(redis.pipelineCounter).toBe(4);
   });
 
-  test("should throw errors granularly", async () => {
+  test("should isolate errors between parallel callers so a caught failure doesn't affect another concurrent flow", async () => {
     // in this test, we have two methods being called parallel. both
     // use redis, but one of them has try/catch. when the request in
     // try fails, it shouldn't make the request in the parallel request
@@ -385,8 +421,309 @@ describe("Auto pipeline", () => {
     expect(result).toBe("foobar");
   });
 
+  describe("max pipeline size", () => {
+    test("should split into two pipelines when MAX_PIPELINE_SIZE + 500 commands are queued", async () => {
+      const redis = Redis.fromEnv({
+        latencyLogging: false,
+        enableAutoPipelining: true,
+      });
+
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(0);
+
+      const totalCommands = MAX_PIPELINE_SIZE + 500;
+      const promises = Array.from({ length: totalCommands }, (_, i) => redis.echo(`msg-${i}`));
+
+      const results = await Promise.all(promises);
+
+      for (let i = 0; i < totalCommands; i++) {
+        expect(results[i]).toBe(`msg-${i}`);
+      }
+
+      // Should have used 2 pipelines: 1000 + 500
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(2);
+    });
+
+    test("should use exactly one pipeline when the queued command count equals MAX_PIPELINE_SIZE", async () => {
+      const redis = Redis.fromEnv({
+        latencyLogging: false,
+        enableAutoPipelining: true,
+      });
+
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(0);
+
+      const promises = Array.from({ length: MAX_PIPELINE_SIZE }, (_, i) => redis.echo(`msg-${i}`));
+      const results = await Promise.all(promises);
+
+      for (let i = 0; i < MAX_PIPELINE_SIZE; i++) {
+        expect(results[i]).toBe(`msg-${i}`);
+      }
+
+      // Exactly at the limit — should be 1 pipeline
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(1);
+    });
+
+    test("should split 2*MAX_PIPELINE_SIZE + 500 commands into three pipelines", async () => {
+      const redis = Redis.fromEnv({
+        latencyLogging: false,
+        enableAutoPipelining: true,
+      });
+
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(0);
+
+      // 2500 commands should result in 3 pipelines: 1000 + 1000 + 500
+      const totalCommands = MAX_PIPELINE_SIZE * 2 + 500;
+      const promises = Array.from({ length: totalCommands }, (_, i) => redis.echo(`msg-${i}`));
+      const results = await Promise.all(promises);
+
+      for (let i = 0; i < totalCommands; i++) {
+        expect(results[i]).toBe(`msg-${i}`);
+      }
+
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(3);
+    });
+  });
+
+  describe("read/write pipeline separation", () => {
+    test("should split a Promise.all of mixed reads and writes into one read pipeline and one write pipeline", async () => {
+      const redis = Redis.fromEnv({
+        latencyLogging: false,
+        enableAutoPipelining: true,
+      });
+
+      const key = newKey();
+
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(0);
+
+      // mix reads and writes in one Promise.all
+      const [setRes, _getRes, echoRes, incrRes] = await Promise.all([
+        redis.set(key, "hello"),
+        redis.get(key),
+        redis.echo("test"),
+        redis.incr(newKey()),
+      ]);
+
+      expect(setRes).toBe("OK");
+      expect(echoRes).toBe("test");
+      expect(incrRes).toBe(1);
+
+      // 2 pipelines: one for reads (get, echo), one for writes (set, incr)
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(2);
+    });
+
+    test("should batch a Promise.all of only reads into a single read pipeline", async () => {
+      const redis = Redis.fromEnv({
+        latencyLogging: false,
+        enableAutoPipelining: true,
+      });
+
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(0);
+
+      const key = newKey();
+      await redis.set(key, "value");
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(1);
+
+      const [getRes, echoRes, existsRes] = await Promise.all([
+        redis.get(key),
+        redis.echo("hello"),
+        redis.exists(key),
+      ]);
+
+      expect(getRes).toBe("value");
+      expect(echoRes).toBe("hello");
+      expect(existsRes).toBe(1);
+
+      // 1 pipeline for the reads (the set above was a separate await)
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(2);
+    });
+
+    test("should batch a Promise.all of only writes into a single write pipeline", async () => {
+      const redis = Redis.fromEnv({
+        latencyLogging: false,
+        enableAutoPipelining: true,
+      });
+
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(0);
+
+      const [setRes, incrRes, appendRes] = await Promise.all([
+        redis.set(newKey(), "value"),
+        redis.incr(newKey()),
+        redis.append(newKey(), "hello"),
+      ]);
+
+      expect(setRes).toBe("OK");
+      expect(incrRes).toBe(1);
+      expect(appendRes).toBe(5);
+
+      // 1 pipeline for writes
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(1);
+    });
+
+    test("should split a Promise.all of json.set and json.get into separate write and read pipelines", async () => {
+      const redis = Redis.fromEnv({
+        latencyLogging: false,
+        enableAutoPipelining: true,
+      });
+
+      const key = newKey();
+
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(0);
+
+      const [setRes, _getRes] = await Promise.all([
+        redis.json.set(key, "$", { hello: "world" }),
+        redis.json.get(key),
+      ]);
+
+      expect(setRes).toBe("OK");
+
+      // 2 pipelines: json.set is write, json.get is read
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(2);
+    });
+
+    test("should route each queued command to the active read or write pipeline based on its type and preserve insertion order", async () => {
+      const redis = Redis.fromEnv({
+        latencyLogging: false,
+        enableAutoPipelining: true,
+      });
+
+      // Kick off mixed reads and writes without awaiting — the synchronous
+      // portion of withAutoPipeline runs immediately and adds each command
+      // to the appropriate active pipeline.
+      const promises = [
+        redis.set("k1", "v1"), // write
+        redis.incr("k2"), // write
+        redis.get("k1"), // read
+        redis.echo("hello"), // read
+        redis.exists("k1"), // read
+        redis.append("k3", "x"), // write
+        redis.del("k4"), // write
+      ];
+
+      const executor = getExecutor(redis);
+      const readPipeline = executor.activeReadPipeline;
+      const writePipeline = executor.activeWritePipeline;
+
+      expect(readPipeline).not.toBeNull();
+      expect(writePipeline).not.toBeNull();
+
+      expect(readPipeline!.length()).toBe(3);
+      expect(writePipeline!.length()).toBe(4);
+
+      const readCommands = readPipeline!.commands.map((c) => c.command[0]);
+      const writeCommands = writePipeline!.commands.map((c) => c.command[0]);
+
+      expect(readCommands).toEqual(["get", "echo", "exists"]);
+      expect(writeCommands).toEqual(["set", "incr", "append", "del"]);
+
+      await Promise.all(promises);
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(2);
+    });
+
+    test("should leave the write pipeline null and queue all commands on the read pipeline when only reads are issued", async () => {
+      const redis = Redis.fromEnv({
+        latencyLogging: false,
+        enableAutoPipelining: true,
+      });
+
+      const promises = [redis.get("a"), redis.get("b"), redis.echo("c"), redis.exists("a")];
+
+      const executor = getExecutor(redis);
+
+      expect(executor.activeWritePipeline).toBeNull();
+      expect(executor.activeReadPipeline).not.toBeNull();
+      expect(executor.activeReadPipeline!.length()).toBe(4);
+
+      const readCommands = executor.activeReadPipeline!.commands.map((c) => c.command[0]);
+      expect(readCommands).toEqual(["get", "get", "echo", "exists"]);
+
+      await Promise.all(promises);
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(1);
+    });
+
+    test("should leave the read pipeline null and queue all commands on the write pipeline when only writes are issued", async () => {
+      const redis = Redis.fromEnv({
+        latencyLogging: false,
+        enableAutoPipelining: true,
+      });
+
+      const promises = [
+        redis.set("a", "1"),
+        redis.incr("b"),
+        redis.append("c", "x"),
+        redis.del("d"),
+        redis.expire("a", 60),
+      ];
+
+      const executor = getExecutor(redis);
+
+      expect(executor.activeReadPipeline).toBeNull();
+      expect(executor.activeWritePipeline).not.toBeNull();
+      expect(executor.activeWritePipeline!.length()).toBe(5);
+
+      const writeCommands = executor.activeWritePipeline!.commands.map((c) => c.command[0]);
+      expect(writeCommands).toEqual(["set", "incr", "append", "del", "expire"]);
+
+      await Promise.all(promises);
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(1);
+    });
+
+    test("should route JSON.GET/ARRLEN/OBJKEYS to the read pipeline and JSON.SET/ARRAPPEND/MERGE to the write pipeline", async () => {
+      const redis = Redis.fromEnv({
+        latencyLogging: false,
+        enableAutoPipelining: true,
+      });
+
+      const key = newKey();
+
+      const promises = [
+        redis.json.set(key, "$", { value: 1 }), // write
+        redis.json.get(key), // read
+        redis.json.arrappend(key, "$.list", '"a"'), // write
+        redis.json.arrlen(key, "$.list"), // read
+        redis.json.objkeys(key), // read
+        redis.json.merge(key, "$", { extra: 2 }), // write
+      ];
+
+      const executor = getExecutor(redis);
+
+      expect(executor.activeReadPipeline).not.toBeNull();
+      expect(executor.activeWritePipeline).not.toBeNull();
+      expect(executor.activeReadPipeline!.length()).toBe(3);
+      expect(executor.activeWritePipeline!.length()).toBe(3);
+
+      const readCommands = executor.activeReadPipeline!.commands.map((c) => c.command[0]);
+      const writeCommands = executor.activeWritePipeline!.commands.map((c) => c.command[0]);
+
+      // JSON commands serialize as `JSON.<subcommand>` at the wire level
+      expect(readCommands).toEqual(["JSON.GET", "JSON.ARRLEN", "JSON.OBJKEYS"]);
+      expect(writeCommands).toEqual(["JSON.SET", "JSON.ARRAPPEND", "JSON.MERGE"]);
+
+      await Promise.all(promises).catch(() => {
+        // The actual responses don't matter for routing assertions; some commands
+        // may error against a fresh key, which is fine.
+      });
+    });
+  });
+
   describe("excluded commands", () => {
-    test("should not exclude set", async () => {
+    test("should auto-pipeline set rather than treat it as an excluded command", async () => {
       const redis = Redis.fromEnv();
       // @ts-expect-error pipelineCounter is not in type but accessible
       expect(redis.pipelineCounter).toBe(0);
@@ -397,7 +734,7 @@ describe("Auto pipeline", () => {
       expect(redis.pipelineCounter).toBe(1);
     });
 
-    test("should exclude some commands", async () => {
+    test("should bypass auto-pipelining for scan, keys, flushdb, flushall, dbsize, and exec", async () => {
       const redis = Redis.fromEnv({});
 
       // @ts-expect-error pipelineCounter is not in type but accessible

@@ -8,6 +8,104 @@ import type { CommandArgs } from "./types";
 // properties which are only available in redis
 type redisOnly = Exclude<keyof Redis, keyof Pipeline>;
 
+export const MAX_PIPELINE_SIZE = 1000;
+
+const READ_COMMANDS: Set<string> = new Set([
+  // String
+  "get",
+  "getrange",
+  "mget",
+  "strlen",
+  // Bit
+  "bitcount",
+  "bitpos",
+  "getbit",
+  // Hash
+  "hexists",
+  "hget",
+  "hgetall",
+  "hkeys",
+  "hlen",
+  "hmget",
+  "hrandfield",
+  "hscan",
+  "hstrlen",
+  "httl",
+  "hvals",
+  "hexpiretime",
+  "hpexpiretime",
+  "hpttl",
+  // List
+  "lindex",
+  "llen",
+  "lpos",
+  "lrange",
+  // Set
+  "scard",
+  "sdiff",
+  "sinter",
+  "sintercard",
+  "sismember",
+  "smembers",
+  "smismember",
+  "srandmember",
+  "sscan",
+  "sunion",
+  // Sorted set
+  "zcard",
+  "zcount",
+  "zlexcount",
+  "zmscore",
+  "zrange",
+  "zrank",
+  "zrevrank",
+  "zscan",
+  "zscore",
+  "zunion",
+  // Key metadata
+  "exists",
+  "type",
+  "ttl",
+  "pttl",
+  "randomkey",
+  "touch",
+  // HyperLogLog
+  "pfcount",
+  // Stream
+  "xinfo",
+  "xlen",
+  "xpending",
+  "xrange",
+  "xread",
+  "xrevrange",
+  // Geo
+  "geodist",
+  "geohash",
+  "geopos",
+  "geosearch",
+  // Script / eval
+  "scriptExists",
+  "evalRo",
+  "evalshaRo",
+  // Utility
+  "dbsize",
+  "echo",
+  "ping",
+  "time",
+  "scan",
+  "keys",
+  // JSON namespace
+  "arrindex",
+  "arrlen",
+  "objkeys",
+  "objlen",
+  "resp",
+  // Functions namespace
+  "list",
+  "stats",
+  "callRo",
+]);
+
 export const EXCLUDE_COMMANDS: Set<keyof Redis> = new Set([
   "scan",
   "keys",
@@ -78,7 +176,8 @@ export function createAutoPipelineProxy(
       const isFunction = typeof targetFunction === "function";
       if (isFunction) {
         return (...args: CommandArgs<typeof Command>) => {
-          return redis.autoPipelineExecutor.withAutoPipeline((pipeline) => {
+          const commandMode = READ_COMMANDS.has(command as string) ? "read" : "write";
+          return redis.autoPipelineExecutor.withAutoPipeline(commandMode, (pipeline) => {
             const targetFunction =
               namespace === "json"
                 ? pipeline.json[command as keyof typeof pipeline.json]
@@ -96,10 +195,14 @@ export function createAutoPipelineProxy(
   }) as Redis;
 }
 
+type CommandMode = "read" | "write";
+
 class AutoPipelineExecutor {
   private pipelinePromises = new WeakMap<Pipeline, Promise<unknown[]>>();
-  private activePipeline: Pipeline | null = null;
-  private indexInCurrentPipeline = 0;
+  private activeReadPipeline: Pipeline | null = null;
+  private activeWritePipeline: Pipeline | null = null;
+  private readIndex = 0;
+  private writeIndex = 0;
   private redis: Redis;
   pipeline: Pipeline; // only to make sure that proxy can work
   pipelineCounter = 0; // to keep track of how many times a pipeline was executed
@@ -109,16 +212,33 @@ class AutoPipelineExecutor {
     this.pipeline = redis.pipeline();
   }
 
-  async withAutoPipeline<T>(executeWithPipeline: (pipeline: Pipeline) => unknown): Promise<T> {
-    const pipeline = this.activePipeline ?? this.redis.pipeline();
+  async withAutoPipeline<T>(
+    commandMode: CommandMode,
+    executeWithPipeline: (pipeline: Pipeline) => unknown
+  ): Promise<T> {
+    const isRead = commandMode === "read";
+    const activePipeline = isRead ? this.activeReadPipeline : this.activeWritePipeline;
+    const pipeline = activePipeline ?? this.redis.pipeline();
 
-    if (!this.activePipeline) {
-      this.activePipeline = pipeline;
-      this.indexInCurrentPipeline = 0;
+    if (!activePipeline) {
+      if (isRead) {
+        this.activeReadPipeline = pipeline;
+        this.readIndex = 0;
+      } else {
+        this.activeWritePipeline = pipeline;
+        this.writeIndex = 0;
+      }
     }
 
-    const index = this.indexInCurrentPipeline++;
+    const index = isRead ? this.readIndex++ : this.writeIndex++;
     executeWithPipeline(pipeline);
+
+    // If pipeline reached max size, close it so next command starts a new pipeline
+    if (isRead && this.readIndex >= MAX_PIPELINE_SIZE) {
+      this.activeReadPipeline = null;
+    } else if (!isRead && this.writeIndex >= MAX_PIPELINE_SIZE) {
+      this.activeWritePipeline = null;
+    }
 
     const pipelineDone = this.deferExecution().then(() => {
       if (!this.pipelinePromises.has(pipeline)) {
@@ -126,7 +246,12 @@ class AutoPipelineExecutor {
         this.pipelineCounter += 1;
 
         this.pipelinePromises.set(pipeline, pipelinePromise);
-        this.activePipeline = null;
+        if (this.activeReadPipeline === pipeline) {
+          this.activeReadPipeline = null;
+        }
+        if (this.activeWritePipeline === pipeline) {
+          this.activeWritePipeline = null;
+        }
       }
 
       return this.pipelinePromises.get(pipeline)!;

@@ -24,7 +24,7 @@ const getExecutor = (redis: Redis): AutoPipelineExecutorLike =>
   (redis as unknown as { autoPipelineExecutor: AutoPipelineExecutorLike }).autoPipelineExecutor;
 
 describe("Auto pipeline", () => {
-  test("should execute all commands inside a Promise.all in a single pipeline", async () => {
+  test("should batch a large Promise.all of mixed reads and writes into one read and one write pipeline", async () => {
     const persistentKey = newKey();
     const persistentKey2 = newKey();
     const persistentKey3 = newKey();
@@ -177,7 +177,7 @@ describe("Auto pipeline", () => {
     expect(redis.pipelineCounter).toBe(2);
   });
 
-  test("should group async requests with sync requests", async () => {
+  test("should group fire-and-forget writes with the next awaited write into one write pipeline, then reads into a separate read pipeline", async () => {
     const redis = Redis.fromEnv({
       latencyLogging: false,
       enableAutoPipelining: true,
@@ -209,7 +209,7 @@ describe("Auto pipeline", () => {
     expect(redis.pipelineCounter).toBe(2);
   });
 
-  test("should execute a pipeline for each consecutive awaited command", async () => {
+  test("should create a new pipeline for each consecutively awaited command", async () => {
     const redis = Redis.fromEnv({
       latencyLogging: false,
       enableAutoPipelining: true,
@@ -238,7 +238,7 @@ describe("Auto pipeline", () => {
     expect([res1, res2, res3]).toEqual([1, 2, "OK"]);
   });
 
-  test("should execute a single pipeline for several commands inside Promise.all", async () => {
+  test("should batch writes inside Promise.all into a single write pipeline while skipping excluded commands like dbsize", async () => {
     const redis = Redis.fromEnv({
       latencyLogging: false,
       enableAutoPipelining: true,
@@ -268,7 +268,7 @@ describe("Auto pipeline", () => {
     expect(redis.pipelineCounter).toBe(2);
   });
 
-  test("should be able to utilize only redis functions 'use' like usual", async () => {
+  test("should still apply redis.use middleware to auto-pipelined commands", async () => {
     const redis = Redis.fromEnv({
       latencyLogging: false,
       enableAutoPipelining: true,
@@ -293,7 +293,7 @@ describe("Auto pipeline", () => {
     expect(redis.pipelineCounter).toBe(1);
   });
 
-  test("should be able to utilize only redis functions 'multi' and 'pipeline' like usual", async () => {
+  test("should not increment the auto-pipeline counter when explicit pipeline() or multi() is used", async () => {
     const redis = Redis.fromEnv({
       latencyLogging: false,
       enableAutoPipelining: true,
@@ -320,7 +320,7 @@ describe("Auto pipeline", () => {
     expect(redis.pipelineCounter).toBe(0);
   });
 
-  test("should be able to utilize only redis functions 'createScript' like usual", async () => {
+  test("should auto-pipeline createScript().eval() calls", async () => {
     const redis = Redis.fromEnv({
       latencyLogging: false,
       enableAutoPipelining: true,
@@ -340,7 +340,7 @@ describe("Auto pipeline", () => {
     expect(redis.pipelineCounter).toBe(1);
   });
 
-  test("should handle JSON commands correctly", async () => {
+  test("should split JSON reads and writes into separate pipelines across awaited Promise.all calls", async () => {
     const redis = Redis.fromEnv({
       latencyLogging: false,
       enableAutoPipelining: true,
@@ -376,7 +376,7 @@ describe("Auto pipeline", () => {
     expect(redis.pipelineCounter).toBe(4);
   });
 
-  test("should throw errors granularly", async () => {
+  test("should isolate errors between parallel callers so a caught failure doesn't affect another concurrent flow", async () => {
     // in this test, we have two methods being called parallel. both
     // use redis, but one of them has try/catch. when the request in
     // try fails, it shouldn't make the request in the parallel request
@@ -422,7 +422,7 @@ describe("Auto pipeline", () => {
   });
 
   describe("max pipeline size", () => {
-    test("should split into multiple pipelines when exceeding max size", async () => {
+    test("should split into two pipelines when MAX_PIPELINE_SIZE + 500 commands are queued", async () => {
       const redis = Redis.fromEnv({
         latencyLogging: false,
         enableAutoPipelining: true,
@@ -445,7 +445,7 @@ describe("Auto pipeline", () => {
       expect(redis.pipelineCounter).toBe(2);
     });
 
-    test("should use exactly one pipeline when at max size", async () => {
+    test("should use exactly one pipeline when the queued command count equals MAX_PIPELINE_SIZE", async () => {
       const redis = Redis.fromEnv({
         latencyLogging: false,
         enableAutoPipelining: true,
@@ -466,7 +466,7 @@ describe("Auto pipeline", () => {
       expect(redis.pipelineCounter).toBe(1);
     });
 
-    test("should split into correct number of pipelines for large batches", async () => {
+    test("should split 2*MAX_PIPELINE_SIZE + 500 commands into three pipelines", async () => {
       const redis = Redis.fromEnv({
         latencyLogging: false,
         enableAutoPipelining: true,
@@ -490,7 +490,7 @@ describe("Auto pipeline", () => {
   });
 
   describe("read/write pipeline separation", () => {
-    test("should use separate pipelines for reads and writes", async () => {
+    test("should split a Promise.all of mixed reads and writes into one read pipeline and one write pipeline", async () => {
       const redis = Redis.fromEnv({
         latencyLogging: false,
         enableAutoPipelining: true,
@@ -518,7 +518,7 @@ describe("Auto pipeline", () => {
       expect(redis.pipelineCounter).toBe(2);
     });
 
-    test("should use a single pipeline for only reads", async () => {
+    test("should batch a Promise.all of only reads into a single read pipeline", async () => {
       const redis = Redis.fromEnv({
         latencyLogging: false,
         enableAutoPipelining: true,
@@ -547,7 +547,7 @@ describe("Auto pipeline", () => {
       expect(redis.pipelineCounter).toBe(2);
     });
 
-    test("should use a single pipeline for only writes", async () => {
+    test("should batch a Promise.all of only writes into a single write pipeline", async () => {
       const redis = Redis.fromEnv({
         latencyLogging: false,
         enableAutoPipelining: true,
@@ -571,7 +571,7 @@ describe("Auto pipeline", () => {
       expect(redis.pipelineCounter).toBe(1);
     });
 
-    test("should separate JSON reads and writes into different pipelines", async () => {
+    test("should split a Promise.all of json.set and json.get into separate write and read pipelines", async () => {
       const redis = Redis.fromEnv({
         latencyLogging: false,
         enableAutoPipelining: true,
@@ -594,7 +594,7 @@ describe("Auto pipeline", () => {
       expect(redis.pipelineCounter).toBe(2);
     });
 
-    test("should route reads to the read pipeline and writes to the write pipeline", async () => {
+    test("should route each queued command to the active read or write pipeline based on its type and preserve insertion order", async () => {
       const redis = Redis.fromEnv({
         latencyLogging: false,
         enableAutoPipelining: true,
@@ -634,7 +634,7 @@ describe("Auto pipeline", () => {
       expect(redis.pipelineCounter).toBe(2);
     });
 
-    test("should route only reads to the read pipeline when no writes are issued", async () => {
+    test("should leave the write pipeline null and queue all commands on the read pipeline when only reads are issued", async () => {
       const redis = Redis.fromEnv({
         latencyLogging: false,
         enableAutoPipelining: true,
@@ -656,7 +656,7 @@ describe("Auto pipeline", () => {
       expect(redis.pipelineCounter).toBe(1);
     });
 
-    test("should route only writes to the write pipeline when no reads are issued", async () => {
+    test("should leave the read pipeline null and queue all commands on the write pipeline when only writes are issued", async () => {
       const redis = Redis.fromEnv({
         latencyLogging: false,
         enableAutoPipelining: true,
@@ -684,7 +684,7 @@ describe("Auto pipeline", () => {
       expect(redis.pipelineCounter).toBe(1);
     });
 
-    test("should route JSON reads and writes to their respective pipelines", async () => {
+    test("should route JSON.GET/ARRLEN/OBJKEYS to the read pipeline and JSON.SET/ARRAPPEND/MERGE to the write pipeline", async () => {
       const redis = Redis.fromEnv({
         latencyLogging: false,
         enableAutoPipelining: true,
@@ -723,7 +723,7 @@ describe("Auto pipeline", () => {
   });
 
   describe("excluded commands", () => {
-    test("should not exclude set", async () => {
+    test("should auto-pipeline set rather than treat it as an excluded command", async () => {
       const redis = Redis.fromEnv();
       // @ts-expect-error pipelineCounter is not in type but accessible
       expect(redis.pipelineCounter).toBe(0);
@@ -734,7 +734,7 @@ describe("Auto pipeline", () => {
       expect(redis.pipelineCounter).toBe(1);
     });
 
-    test("should exclude some commands", async () => {
+    test("should bypass auto-pipelining for scan, keys, flushdb, flushall, dbsize, and exec", async () => {
       const redis = Redis.fromEnv({});
 
       // @ts-expect-error pipelineCounter is not in type but accessible

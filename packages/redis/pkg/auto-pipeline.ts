@@ -10,7 +10,7 @@ type redisOnly = Exclude<keyof Redis, keyof Pipeline>;
 
 export const MAX_PIPELINE_SIZE = 1000;
 
-export const READ_COMMANDS: Set<string> = new Set([
+const READ_COMMANDS: Set<string> = new Set([
   // String
   "get",
   "getrange",
@@ -68,6 +68,7 @@ export const READ_COMMANDS: Set<string> = new Set([
   "ttl",
   "pttl",
   "randomkey",
+  "touch",
   // HyperLogLog
   "pfcount",
   // Stream
@@ -86,7 +87,6 @@ export const READ_COMMANDS: Set<string> = new Set([
   "scriptExists",
   "evalRo",
   "evalshaRo",
-  "fcallRo",
   // Utility
   "dbsize",
   "echo",

@@ -28,6 +28,9 @@ See
 [the list of APIs](https://upstash.com/docs/redis/overall/rediscompatibility)
 supported.
 
+> [!TIP]
+> **Need a Redis database fast?** Skip the signup and dashboard — POST to [`https://upstash.com/start-redis`](https://upstash.com/start-redis) to get an endpoint and token in a single HTTP request. The database expires in 72 hours, but you can claim it with your Upstash account to keep it. Especially useful for AI agents that need scratch storage on the fly.
+
 ## Quick Start
 
 ### Install

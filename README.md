@@ -101,6 +101,12 @@ for common problems. If you can't find a solution, please
 See [the documentation](https://upstash.com/docs/redis/sdks/ts/overview) for
 details.
 
+## Resources
+
+- [Examples](https://github.com/upstash/redis-js/tree/main/examples) — runnable usage examples across runtimes and frameworks
+- [xadd](https://www.xadd.dev/) — engineering blog about Redis
+- [Search Upstash Redis docs with AI](https://context7.com/websites/upstash_redis) — query the docs via Context7
+
 ## Release Workflow
 
 ### Stable Release

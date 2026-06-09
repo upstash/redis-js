@@ -76,17 +76,3 @@ The v6 `TelemetryIntegration` exposes only success-path hooks — no `onError`:
 
 **AI SDK v7 adds an `onError` hook to the telemetry integration** — the clean way
 to capture failed LLM calls. This example will adopt it on upgrade.
-
-## Gotchas
-
-Verified behavior on `@upstash/redis@1.38` / `ai@6`:
-
-| Symptom | Fix |
-| --- | --- |
-| `$terms` / `$eq` on a `FACET` field → *"cannot be used with $terms"* | Use `s.keyword()` for group-by dimensions. KEYWORD supports `$terms` and `$eq`/`$in`. |
-| `orderBy: { ts: "DESC" }` → *"Field `ts` is not a fast field"* | Declare the date as `s.date().fast()`. |
-| Root `{ $must, $mustNot }` doesn't type-check | The bare must/mustNot node is only valid **nested** (e.g. under `$and`). |
-| `functionId` is `undefined` in hooks | It's `event.functionId`, not `event.telemetry?.functionId`. |
-
-Aggregation result shapes: buckets use `docCount`; `$avg` → `{ value }`;
-`$stats` → `{ count, min, max, sum, avg }`; `$percentiles` → `{ values: { "50.0": … } }`.

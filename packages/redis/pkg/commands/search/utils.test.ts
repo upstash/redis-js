@@ -3,6 +3,7 @@ import {
   flattenSchema,
   deserializeQueryResponse,
   deserializeDescribeResponse,
+  deserializeAggregateResponse,
   parseCountResponse,
 } from "./utils";
 import { s } from "./schema-builder";
@@ -534,5 +535,29 @@ describe("parseCountResponse", () => {
     const result = parseCountResponse("0");
 
     expect(result).toBe(0);
+  });
+});
+
+describe("deserializeAggregateResponse", () => {
+  test("returns empty object when the aggregation matches no documents (null)", () => {
+    // Redis returns null when an aggregation matches nothing — must not crash.
+    const result = deserializeAggregateResponse(null as unknown as any[]);
+
+    expect(result).toEqual({});
+  });
+
+  test("returns empty object for an empty response array", () => {
+    const result = deserializeAggregateResponse([]);
+
+    expect(result).toEqual({});
+  });
+
+  test("parses a named buckets aggregation", () => {
+    const result = deserializeAggregateResponse([
+      "by_tool",
+      ["buckets", [["key", "search", "docCount", 3]]],
+    ]);
+
+    expect(result).toEqual({ by_tool: { buckets: [{ key: "search", docCount: 3 }] } });
   });
 });

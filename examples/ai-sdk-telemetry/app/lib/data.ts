@@ -63,7 +63,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     recentGenerations(since, 10),
   ]);
 
-  const latency: LatencyRow[] = latencyRes.buckets.map((b) => ({
+  const latency: LatencyRow[] = (latencyRes?.buckets ?? []).map((b) => ({
     tool: b.key,
     p50: round(b.p.values["50.0"]),
     p95: round(b.p.values["95.0"]),
@@ -72,7 +72,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     calls: b.docCount,
   }));
 
-  const tokens: TokenRow[] = tokenRes.buckets.map((b) => ({
+  const tokens: TokenRow[] = (tokenRes?.buckets ?? []).map((b) => ({
     functionId: b.key,
     total: b.tokens.sum,
     avg: round(b.tokens.avg),
@@ -81,7 +81,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     calls: b.tokens.count,
   }));
 
-  const finishReasons: FinishReasonRow[] = reasonRes.buckets.map((b) => ({
+  const finishReasons: FinishReasonRow[] = (reasonRes?.buckets ?? []).map((b) => ({
     reason: b.key,
     count: b.docCount,
   }));

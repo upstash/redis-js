@@ -188,12 +188,6 @@ export function parseCountResponse(rawResponse: any): number {
 }
 
 export function deserializeAggregateResponse(rawResponse: any[]): any {
-  // An aggregation that matches no documents comes back as null (or an empty
-  // array). There are no buckets to parse, so return an empty result object —
-  // callers see each named aggregation as `undefined` rather than crashing.
-  if (!Array.isArray(rawResponse) || rawResponse.length === 0) {
-    return {};
-  }
   // Response is a flat key-value array: [key, val, key, val, ...]
   return parseAggregationArray(rawResponse);
 }

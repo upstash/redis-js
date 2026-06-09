@@ -1,4 +1,4 @@
-import { Activity, AlertTriangle, Coins, Database } from "lucide-react";
+import { Activity, Coins, Gauge, Wrench } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -20,12 +20,17 @@ import { LatencyChart } from "@/components/dashboard/latency-chart";
 import { TokenChart } from "@/components/dashboard/token-chart";
 import { FinishReasonChart } from "@/components/dashboard/finish-reason-chart";
 import { RefreshButton } from "@/components/dashboard/refresh-button";
+import { ControlPanel } from "@/components/dashboard/control-panel";
+import { CodeSnippets } from "@/components/dashboard/code-snippets";
 
 // Aggregations are read fresh on every request — never cache the dashboard.
 export const dynamic = "force-dynamic";
 
 export default async function Page() {
   const data = await getDashboardData();
+  const avgTokensPerGen = data.totalGenerations
+    ? Math.round(data.totalTokens / data.totalGenerations)
+    : 0;
 
   return (
     <main className="mx-auto max-w-6xl space-y-6 px-4 py-8 md:px-6">
@@ -39,26 +44,35 @@ export default async function Page() {
         <RefreshButton />
       </header>
 
+      <section className="grid gap-4 lg:grid-cols-2">
+        <CodeSnippets />
+        <ControlPanel index={data.index} />
+      </section>
+
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
           icon={<Activity className="size-4" />}
           label="Generations"
           value={data.totalGenerations.toLocaleString()}
+          sub={`${data.last30mGenerations.toLocaleString()} in last 30 min`}
         />
         <StatCard
           icon={<Coins className="size-4" />}
           label="Total tokens"
           value={data.totalTokens.toLocaleString()}
+          sub={`${data.totalInputTokens.toLocaleString()} in · ${data.totalOutputTokens.toLocaleString()} out`}
         />
         <StatCard
-          icon={<Database className="size-4" />}
+          icon={<Wrench className="size-4" />}
           label="Tools tracked"
-          value={data.latency.length.toLocaleString()}
+          value={data.toolsTracked.toLocaleString()}
+          sub={`${data.failedToolCalls.toLocaleString()} failed call${data.failedToolCalls === 1 ? "" : "s"}`}
         />
         <StatCard
-          icon={<AlertTriangle className="size-4" />}
-          label="Failed tool calls"
-          value={data.failedToolCalls.toLocaleString()}
+          icon={<Gauge className="size-4" />}
+          label="Avg tokens / gen"
+          value={avgTokensPerGen.toLocaleString()}
+          sub="across all generations"
         />
       </section>
 
@@ -77,9 +91,10 @@ export default async function Page() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Average tokens per function</CardTitle>
+            <CardTitle>Tokens per agent</CardTitle>
             <CardDescription>
-              From a <code>$stats</code> aggregation grouped by functionId.
+              Average tokens from a <code>$stats</code> aggregation grouped by agent (
+              <code>functionId</code>).
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -115,7 +130,7 @@ export default async function Page() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Function</TableHead>
+                    <TableHead>Agent</TableHead>
                     <TableHead>Model</TableHead>
                     <TableHead className="text-right">Tokens</TableHead>
                     <TableHead>Finish</TableHead>
@@ -152,10 +167,12 @@ function StatCard({
   icon,
   label,
   value,
+  sub,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
+  sub?: string;
 }) {
   return (
     <Card>
@@ -167,6 +184,7 @@ function StatCard({
       </CardHeader>
       <CardContent>
         <p className="text-2xl font-semibold tabular-nums">{value}</p>
+        {sub ? <p className="mt-1 text-xs text-muted-foreground tabular-nums">{sub}</p> : null}
       </CardContent>
     </Card>
   );

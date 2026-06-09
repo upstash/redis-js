@@ -48,7 +48,11 @@ export async function tokenStatsPerFunction(sinceISO: string) {
       aggregations: {
         by_fn: {
           $terms: { field: "functionId" },
-          $aggs: { tokens: { $stats: { field: "totalTokens" } } },
+          $aggs: {
+            tokens: { $stats: { field: "totalTokens" } },
+            inputTokens: { $stats: { field: "inputTokens" } },
+            outputTokens: { $stats: { field: "outputTokens" } },
+          },
         },
       },
     });

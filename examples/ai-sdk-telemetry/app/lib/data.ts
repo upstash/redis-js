@@ -1,4 +1,4 @@
-import { telemetryIndex } from "@/src/redis";
+import { telemetryIndex, INDEX_NAME, EVENT_PREFIX } from "@/src/redis";
 import {
   latencyPerTool,
   tokenStatsPerFunction,
@@ -23,6 +23,8 @@ export type LatencyRow = {
 export type TokenRow = {
   functionId: string;
   total: number;
+  input: number;
+  output: number;
   avg: number;
   min: number;
   max: number;
@@ -39,7 +41,20 @@ export type RecentRow = {
   ts: string;
 };
 
+// Metadata about the index itself, read from SEARCH.DESCRIBE plus a couple of
+// counts — lets the UI show that the index exists and what it contains.
+export type IndexStatus = {
+  name: string;
+  exists: boolean;
+  dataType: string;
+  prefix: string;
+  fieldCount: number;
+  generations: number;
+  toolCalls: number;
+};
+
 export type DashboardData = {
+  index: IndexStatus;
   latency: LatencyRow[];
   tokens: TokenRow[];
   finishReasons: FinishReasonRow[];
@@ -47,6 +62,10 @@ export type DashboardData = {
   failedToolCalls: number;
   totalGenerations: number;
   totalTokens: number;
+  totalInputTokens: number;
+  totalOutputTokens: number;
+  toolsTracked: number;
+  last30mGenerations: number;
 };
 
 export async function getDashboardData(): Promise<DashboardData> {
@@ -54,13 +73,16 @@ export async function getDashboardData(): Promise<DashboardData> {
   await telemetryIndex().waitIndexing();
 
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const since30m = new Date(Date.now() - 30 * 60 * 1000).toISOString();
 
-  const [latencyRes, tokenRes, failures, reasonRes, recentRes] = await Promise.all([
+  const [latencyRes, tokenRes, failures, reasonRes, recentRes, index, last30m] = await Promise.all([
     latencyPerTool(),
     tokenStatsPerFunction(since),
     failedToolCallCount(),
     finishReasonBreakdown(),
     recentGenerations(since, 10),
+    getIndexStatus(),
+    telemetryIndex().count({ filter: { type: { $eq: "generation" }, ts: { $gte: since30m } } }),
   ]);
 
   const latency: LatencyRow[] = latencyRes.buckets.map((b) => ({
@@ -75,6 +97,8 @@ export async function getDashboardData(): Promise<DashboardData> {
   const tokens: TokenRow[] = tokenRes.buckets.map((b) => ({
     functionId: b.key,
     total: b.tokens.sum,
+    input: b.inputTokens.sum,
+    output: b.outputTokens.sum,
     avg: round(b.tokens.avg),
     min: b.tokens.min,
     max: b.tokens.max,
@@ -95,6 +119,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   }));
 
   return {
+    index,
     latency,
     tokens,
     finishReasons,
@@ -102,6 +127,31 @@ export async function getDashboardData(): Promise<DashboardData> {
     failedToolCalls: failures,
     totalGenerations: finishReasons.reduce((sum, r) => sum + r.count, 0),
     totalTokens: tokens.reduce((sum, t) => sum + t.total, 0),
+    totalInputTokens: tokens.reduce((sum, t) => sum + t.input, 0),
+    totalOutputTokens: tokens.reduce((sum, t) => sum + t.output, 0),
+    toolsTracked: latency.length,
+    last30mGenerations: last30m.count,
+  };
+}
+
+// SEARCH.DESCRIBE confirms the index exists and exposes its schema/prefix; two
+// counts show how many events of each type are currently indexed.
+async function getIndexStatus(): Promise<IndexStatus> {
+  const index = telemetryIndex();
+  const [description, generations, toolCalls] = await Promise.all([
+    index.describe(),
+    index.count({ filter: { type: { $eq: "generation" } } }),
+    index.count({ filter: { type: { $eq: "toolCall" } } }),
+  ]);
+
+  return {
+    name: INDEX_NAME,
+    exists: description !== null,
+    dataType: description?.dataType ?? "json",
+    prefix: description?.prefixes?.[0] ?? EVENT_PREFIX,
+    fieldCount: description ? Object.keys(description.schema ?? {}).length : 0,
+    generations: generations.count,
+    toolCalls: toolCalls.count,
   };
 }
 

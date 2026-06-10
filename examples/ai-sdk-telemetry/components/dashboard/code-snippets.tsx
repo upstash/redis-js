@@ -26,6 +26,36 @@ await generateText({
   },
 });`;
 
+const TELEMETRY_SNIPPET = `import { bindTelemetryIntegration } from "ai";
+import type {
+  TelemetryIntegration, OnFinishEvent, OnToolCallFinishEvent,
+} from "ai";
+import { Redis } from "@upstash/redis";
+
+const redis = Redis.fromEnv();
+
+// One integration → a JSON doc per tool call and per generation.
+export const redisSearchTelemetry = (): TelemetryIntegration =>
+  bindTelemetryIntegration({
+    onToolCallFinish: (e: OnToolCallFinishEvent) =>
+      redis.json.set(\`ai:event:\${crypto.randomUUID()}\`, "$", {
+        type: "toolCall",
+        toolName: e.toolCall.toolName,
+        success: e.success,
+        durationMs: e.durationMs,
+        ts: new Date().toISOString(),
+      }),
+    onFinish: (e: OnFinishEvent) =>
+      redis.json.set(\`ai:event:\${crypto.randomUUID()}\`, "$", {
+        type: "generation",
+        functionId: e.functionId,
+        model: e.model?.modelId,
+        finishReason: e.finishReason,
+        totalTokens: e.totalUsage.totalTokens,
+        ts: new Date().toISOString(),
+      }),
+  });`;
+
 const QUERY_EXAMPLES: { label: string; code: string }[] = [
   {
     label: "Latency",
@@ -87,6 +117,7 @@ await index.query({
 
 const TABS: { label: string; code: string }[] = [
   { label: "Integrate", code: INTEGRATION_SNIPPET },
+  { label: "Telemetry", code: TELEMETRY_SNIPPET },
   ...QUERY_EXAMPLES,
 ];
 

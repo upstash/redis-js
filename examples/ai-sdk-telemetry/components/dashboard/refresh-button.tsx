@@ -13,6 +13,7 @@ export function RefreshButton() {
     <Button
       variant="outline"
       size="sm"
+      className="cursor-pointer"
       onClick={() => startTransition(() => router.refresh())}
       disabled={pending}
     >

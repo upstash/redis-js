@@ -7,10 +7,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "tsx scripts/test-acceptance.ts",
-    "setup": "tsx scripts/setup-index.ts",
-    "seed": "tsx scripts/seed.ts",
-    "analytics": "tsx scripts/run-analytics.ts"
+    "test": "tsx --env-file=.env scripts/test-acceptance.ts",
+    "setup": "tsx --env-file=.env scripts/setup-index.ts",
+    "seed": "tsx --env-file=.env scripts/seed.ts",
+    "demo": "tsx --env-file=.env scripts/populate-demo.ts",
+    "analytics": "tsx --env-file=.env scripts/run-analytics.ts"
   },
   "keywords": [],
   "author": "",

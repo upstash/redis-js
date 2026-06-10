@@ -64,7 +64,6 @@ export type DashboardData = {
   totalTokens: number;
   totalInputTokens: number;
   totalOutputTokens: number;
-  toolsTracked: number;
   last30mGenerations: number;
 };
 
@@ -129,7 +128,6 @@ export async function getDashboardData(): Promise<DashboardData> {
     totalTokens: tokens.reduce((sum, t) => sum + t.total, 0),
     totalInputTokens: tokens.reduce((sum, t) => sum + t.input, 0),
     totalOutputTokens: tokens.reduce((sum, t) => sum + t.output, 0),
-    toolsTracked: latency.length,
     last30mGenerations: last30m.count,
   };
 }

@@ -28,6 +28,9 @@ export const dynamic = "force-dynamic";
 
 export default async function Page() {
   const data = await getDashboardData();
+  // OpenAI key lives only on the server — read it here and pass a boolean to the
+  // client so the data-ingestion buttons can be disabled when it's missing.
+  const hasApiKey = Boolean(process.env.OPENAI_API_KEY);
   const avgTokensPerGen = data.totalGenerations
     ? Math.round(data.totalTokens / data.totalGenerations)
     : 0;
@@ -46,7 +49,7 @@ export default async function Page() {
 
       <section className="grid gap-4 lg:grid-cols-2">
         <CodeSnippets />
-        <ControlPanel index={data.index} />
+        <ControlPanel index={data.index} hasApiKey={hasApiKey} />
       </section>
 
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -64,9 +67,9 @@ export default async function Page() {
         />
         <StatCard
           icon={<Wrench className="size-4" />}
-          label="Tools tracked"
-          value={data.toolsTracked.toLocaleString()}
-          sub={`${data.failedToolCalls.toLocaleString()} failed call${data.failedToolCalls === 1 ? "" : "s"}`}
+          label="Tool calls"
+          value={data.index.toolCalls.toLocaleString()}
+          sub={`${data.failedToolCalls.toLocaleString()} failed`}
         />
         <StatCard
           icon={<Gauge className="size-4" />}

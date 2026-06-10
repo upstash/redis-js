@@ -119,7 +119,7 @@ function CodeGroup({ tabs }: { tabs: { label: string; code: string }[] }) {
             type="button"
             onClick={() => setActive(i)}
             className={cn(
-              "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
+              "cursor-pointer rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
               i === active
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
@@ -149,7 +149,7 @@ function CodeBlock({ code }: { code: string }) {
         type="button"
         onClick={copy}
         aria-label="Copy code"
-        className="absolute right-2 top-2 z-10 rounded-md border bg-background/80 p-1.5 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
+        className="absolute right-2 top-2 z-10 cursor-pointer rounded-md border bg-background/80 p-1.5 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
       >
         {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
       </button>

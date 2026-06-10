@@ -6,14 +6,21 @@ import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/c
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { seedAction, runAgentAction, type ActionState } from "@/app/actions";
 import type { IndexStatus } from "@/app/lib/data";
 
-export function ControlPanel({ index }: { index: IndexStatus }) {
+export function ControlPanel({
+  index,
+  hasApiKey,
+}: {
+  index: IndexStatus;
+  hasApiKey: boolean;
+}) {
   return (
     <div className="flex h-full flex-col gap-4">
       <IndexCard index={index} />
-      <GenerateCard />
+      <GenerateCard hasApiKey={hasApiKey} />
     </div>
   );
 }
@@ -48,7 +55,7 @@ function IndexCard({ index }: { index: IndexStatus }) {
   );
 }
 
-function GenerateCard() {
+function GenerateCard({ hasApiKey }: { hasApiKey: boolean }) {
   const [runState, runFormAction, runPending] = useActionState<ActionState, FormData>(
     runAgentAction,
     { status: "idle" }
@@ -72,18 +79,24 @@ function GenerateCard() {
           </CardDescription>
         </div>
 
-        <form action={runFormAction} className="flex gap-2">
-          <Input
-            name="prompt"
-            placeholder="Ask the agent…"
-            defaultValue="What's the weather in Paris and Tokyo?"
-            disabled={runPending}
-          />
-          <Button type="submit" disabled={runPending}>
-            {runPending ? <Loader2 className="animate-spin" /> : <Play />}
-            Run
-          </Button>
-        </form>
+        <GatedControl hasApiKey={hasApiKey}>
+          <form action={runFormAction} className="flex gap-2">
+            <Input
+              name="prompt"
+              placeholder="Ask the agent…"
+              defaultValue="What's the weather in Paris and Tokyo?"
+              disabled={runPending || !hasApiKey}
+            />
+            <Button
+              type="submit"
+              className="cursor-pointer"
+              disabled={runPending || !hasApiKey}
+            >
+              {runPending ? <Loader2 className="animate-spin" /> : <Play />}
+              Run
+            </Button>
+          </form>
+        </GatedControl>
 
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
           <span className="h-px flex-1 bg-border" />
@@ -92,20 +105,58 @@ function GenerateCard() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Button variant="outline" onClick={onSeed} disabled={seedPending}>
-            {seedPending ? <Loader2 className="animate-spin" /> : <Database />}
-            Seed sample data
-          </Button>
+          <GatedControl hasApiKey={hasApiKey}>
+            <Button
+              variant="outline"
+              className="cursor-pointer"
+              onClick={onSeed}
+              disabled={seedPending || !hasApiKey}
+            >
+              {seedPending ? <Loader2 className="animate-spin" /> : <Database />}
+              Seed sample data
+            </Button>
+          </GatedControl>
           <span className="text-xs text-muted-foreground">Runs 5 sample prompts.</span>
         </div>
 
-        <ResultMessage
-          runState={runState}
-          seedState={seedState}
-          pending={runPending || seedPending}
-        />
+        {hasApiKey ? (
+          <ResultMessage
+            runState={runState}
+            seedState={seedState}
+            pending={runPending || seedPending}
+          />
+        ) : (
+          <p className="flex items-center gap-2 text-sm text-muted-foreground">
+            <AlertCircle className="size-4 shrink-0" />
+            Set <code className="font-mono text-xs">OPENAI_API_KEY</code> in the backend to enable
+            data ingestion.
+          </p>
+        )}
       </CardContent>
     </Card>
+  );
+}
+
+// Disabled controls don't fire pointer events, so when the key is missing we wrap
+// them in a tooltip trigger that carries the not-allowed cursor and explains why.
+function GatedControl({
+  hasApiKey,
+  children,
+}: {
+  hasApiKey: boolean;
+  children: React.ReactNode;
+}) {
+  if (hasApiKey) return <>{children}</>;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className="cursor-not-allowed">{children}</div>
+      </TooltipTrigger>
+      <TooltipContent>
+        Set OPENAI_API_KEY in the backend to enable data ingestion.
+      </TooltipContent>
+    </Tooltip>
   );
 }
 

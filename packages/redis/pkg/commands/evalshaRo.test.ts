@@ -27,6 +27,8 @@ describe("with keys", () => {
     const key = newKey();
     await new SetCommand([key, value]).exec(client);
     const sha1 = await new ScriptLoadCommand([`return redis.call("GET", KEYS[1])`]).exec(client);
+    // sleep 1s so the script replicates to read replicas before EVALSHA_RO runs
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     const res = await new EvalshaROCommand([sha1, [key], []]).exec(client);
     expect(res).toEqual(value);
   });

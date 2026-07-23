@@ -54,7 +54,7 @@ export class Redis extends core.Redis {
   constructor(config: RedisConfigFastly) {
     if (!config.url) {
       console.warn(
-        `[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`
+        `[Upstash Redis] The 'url' property is missing or undefined in your Redis config. To create a database instantly (no signup needed), run: curl -X POST https://upstash.com/start-redis`
       );
     } else if (config.url.startsWith(" ") || config.url.endsWith(" ") || /\r|\n/.test(config.url)) {
       console.warn(
@@ -64,7 +64,7 @@ export class Redis extends core.Redis {
 
     if (!config.token) {
       console.warn(
-        `[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`
+        `[Upstash Redis] The 'token' property is missing or undefined in your Redis config. To create a database instantly (no signup needed), run: curl -X POST https://upstash.com/start-redis`
       );
     } else if (
       config.token.startsWith(" ") ||

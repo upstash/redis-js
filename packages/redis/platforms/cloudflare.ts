@@ -56,7 +56,7 @@ export class Redis extends core.Redis {
   constructor(config: RedisConfigCloudflare, env?: Env) {
     if (!config.url) {
       console.warn(
-        `[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`
+        `[Upstash Redis] The 'url' property is missing or undefined in your Redis config. To create a database instantly (no signup needed), run: curl -X POST https://upstash.com/start-redis`
       );
     } else if (config.url.startsWith(" ") || config.url.endsWith(" ") || /\r|\n/.test(config.url)) {
       console.warn(
@@ -66,7 +66,7 @@ export class Redis extends core.Redis {
 
     if (!config.token) {
       console.warn(
-        `[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`
+        `[Upstash Redis] The 'token' property is missing or undefined in your Redis config. To create a database instantly (no signup needed), run: curl -X POST https://upstash.com/start-redis`
       );
     } else if (
       config.token.startsWith(" ") ||
@@ -140,18 +140,18 @@ export class Redis extends core.Redis {
           UPSTASH_REDIS_REST_TOKEN
         : undefined);
 
-    const messageInfo =
-      !url && !token
-        ? "Unable to find environment variables: `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`"
-        : url
-          ? token
-            ? undefined
-            : "Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`"
-          : "Unable to find environment variable: `UPSTASH_REDIS_REST_URL`";
+    const missing: string[] = [];
+    if (!url) missing.push("UPSTASH_REDIS_REST_URL");
+    if (!token) missing.push("UPSTASH_REDIS_REST_TOKEN");
 
-    if (messageInfo) {
+    if (missing.length > 0) {
+      // Both can be missing at once, so the wording and the number of
+      // `wrangler secret put` commands follow how many are actually missing.
+      const plural = missing.length > 1;
+      const names = missing.map((name) => `\`${name}\``).join(" and ");
+      const commands = missing.map((name) => `\`wrangler secret put ${name}\``).join(" and ");
       console.warn(
-        `[Upstash Redis] ${messageInfo}. Please add it via \`wrangler secret put ${url ? "UPSTASH_REDIS_REST_TOKEN" : "UPSTASH_REDIS_REST_URL"}\` and provide it as an argument to the \`Redis.fromEnv\` function`
+        `[Upstash Redis] Unable to find environment variable${plural ? "s" : ""}: ${names}. Please add ${plural ? "them" : "it"} via ${commands} and provide ${plural ? "them as arguments" : "it as an argument"} to the \`Redis.fromEnv\` function. To create a database instantly (no signup needed), run: curl -X POST https://upstash.com/start-redis`
       );
     }
     return new Redis({ ...opts, url, token }, env);

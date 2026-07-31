@@ -107,7 +107,7 @@ export class Redis extends core.Redis {
 
     if (!configOrRequester.url) {
       console.warn(
-        `[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`
+        `[Upstash Redis] The 'url' property is missing or undefined in your Redis config. To create a database instantly (no signup needed), run: curl -X POST https://upstash.com/start-redis`
       );
     } else if (
       configOrRequester.url.startsWith(" ") ||
@@ -121,7 +121,7 @@ export class Redis extends core.Redis {
 
     if (!configOrRequester.token) {
       console.warn(
-        `[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`
+        `[Upstash Redis] The 'token' property is missing or undefined in your Redis config. To create a database instantly (no signup needed), run: curl -X POST https://upstash.com/start-redis`
       );
     } else if (
       configOrRequester.token.startsWith(" ") ||
@@ -210,13 +210,15 @@ export class Redis extends core.Redis {
 
     const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
     if (!url) {
-      console.warn("[Upstash Redis] Unable to find environment variable: `UPSTASH_REDIS_REST_URL`");
+      console.warn(
+        "[Upstash Redis] Unable to find environment variable: `UPSTASH_REDIS_REST_URL`. To create a database instantly (no signup needed), run: curl -X POST https://upstash.com/start-redis"
+      );
     }
 
     const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
     if (!token) {
       console.warn(
-        "[Upstash Redis] Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`"
+        "[Upstash Redis] Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`. To create a database instantly (no signup needed), run: curl -X POST https://upstash.com/start-redis"
       );
     }
     return new Redis({ ...config, url, token });

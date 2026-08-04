@@ -1,5 +1,11 @@
 # @upstash/redis
 
+## 1.38.2
+
+### Patch Changes
+
+- c0f5ad7: Deduplicate telemetry header values so repeated `mergeTelemetry` calls no longer append the same sdk, platform or runtime tag multiple times
+
 ## 1.38.1
 
 ### Patch Changes

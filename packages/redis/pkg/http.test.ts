@@ -212,4 +212,37 @@ describe("http", () => {
       server.stop(true);
     }
   });
+
+  describe("mergeTelemetry", () => {
+    test("appends distinct values", () => {
+      const client = new HttpClient({
+        baseUrl: SERVER_URL,
+        headers: { authorization: "Bearer test-token" },
+      });
+
+      client.mergeTelemetry({ sdk: "@upstash/redis@1.0.0", runtime: "node@v20" });
+      client.mergeTelemetry({ sdk: "@upstash/ratelimit@2.0.0" });
+
+      expect(client.headers["Upstash-Telemetry-Sdk"]).toBe(
+        "@upstash/redis@1.0.0,@upstash/ratelimit@2.0.0"
+      );
+      expect(client.headers["Upstash-Telemetry-Runtime"]).toBe("node@v20");
+    });
+
+    test("does not duplicate values on repeated calls", () => {
+      const client = new HttpClient({
+        baseUrl: SERVER_URL,
+        headers: { authorization: "Bearer test-token" },
+      });
+
+      client.mergeTelemetry({ sdk: "@upstash/redis@1.0.0", platform: "vercel" });
+      client.mergeTelemetry({ sdk: "@upstash/ratelimit@2.0.0" });
+      client.mergeTelemetry({ sdk: "@upstash/ratelimit@2.0.0", platform: "vercel" });
+
+      expect(client.headers["Upstash-Telemetry-Sdk"]).toBe(
+        "@upstash/redis@1.0.0,@upstash/ratelimit@2.0.0"
+      );
+      expect(client.headers["Upstash-Telemetry-Platform"]).toBe("vercel");
+    });
+  });
 });

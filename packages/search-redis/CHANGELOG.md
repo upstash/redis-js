@@ -1,5 +1,12 @@
 # @upstash/search-redis
 
+## 2.0.2
+
+### Patch Changes
+
+- Updated dependencies [c0f5ad7]
+  - @upstash/redis@1.38.2
+
 ## 2.0.1
 
 ### Patch Changes

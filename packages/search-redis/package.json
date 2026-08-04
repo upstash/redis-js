@@ -1,6 +1,6 @@
 {
   "name": "@upstash/search-redis",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Upstash Redis Search extension for node-redis",
   "repository": {
     "type": "git",

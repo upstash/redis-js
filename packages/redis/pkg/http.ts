@@ -450,6 +450,14 @@ function merge(obj: Record<string, string>, key: string, value?: string): Record
   if (!value) {
     return obj;
   }
-  obj[key] = obj[key] ? [obj[key], value].join(",") : value;
+  if (!obj[key]) {
+    obj[key] = value;
+    return obj;
+  }
+  const values = obj[key].split(",");
+  if (!values.includes(value)) {
+    values.push(value);
+    obj[key] = values.join(",");
+  }
   return obj;
 }

@@ -1,5 +1,11 @@
 # @upstash/redis
 
+## 1.38.3
+
+### Patch Changes
+
+- 777dc30: Trim telemetry header values before deduplicating so whitespace around existing values does not defeat the dedup check
+
 ## 1.38.2
 
 ### Patch Changes

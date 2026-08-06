@@ -244,5 +244,30 @@ describe("http", () => {
       );
       expect(client.headers["Upstash-Telemetry-Platform"]).toBe("vercel");
     });
+
+    test("keeps distinct versions of the same sdk", () => {
+      const client = new HttpClient({
+        baseUrl: SERVER_URL,
+        headers: { authorization: "Bearer test-token" },
+      });
+
+      client.mergeTelemetry({ sdk: "@upstash/redis@1.0.0" });
+      client.mergeTelemetry({ sdk: "@upstash/redis@1.1.0" });
+
+      expect(client.headers["Upstash-Telemetry-Sdk"]).toBe(
+        "@upstash/redis@1.0.0,@upstash/redis@1.1.0"
+      );
+    });
+
+    test("ignores whitespace around existing values", () => {
+      const client = new HttpClient({
+        baseUrl: SERVER_URL,
+        headers: { authorization: "Bearer test-token", "Upstash-Telemetry-Sdk": "sdk-a, sdk-b" },
+      });
+
+      client.mergeTelemetry({ sdk: "sdk-b" });
+
+      expect(client.headers["Upstash-Telemetry-Sdk"]).toBe("sdk-a, sdk-b");
+    });
   });
 });

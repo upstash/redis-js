@@ -655,6 +655,18 @@ jobs:
           npm pkg delete scripts.prepare
           npm publish --provenance --tag=ci --verbose
 
-      - name: Sleep for 10s
-        run: sleep 10s
+      - name: Wait for npm to serve the ci version
         shell: bash
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          VERSION="${VERSION#v}"
+          for i in $(seq 1 36); do
+            if npm view "@upstash/redis@${VERSION}" version >/dev/null 2>&1; then
+              echo "@upstash/redis@${VERSION} is available on npm"
+              exit 0
+            fi
+            echo "waiting for @upstash/redis@${VERSION} to appear on npm ($i/36)..."
+            sleep 5
+          done
+          echo "::error::@upstash/redis@${VERSION} not visible on npm after 3 minutes"
+          exit 1

@@ -1,0 +1,7 @@
+{
+  "deploy": {
+    "org": "upstash",
+    "app": "upstash-redis"
+  }
+}
+

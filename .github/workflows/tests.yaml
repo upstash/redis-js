@@ -173,9 +173,7 @@ jobs:
       - name: Deploy
         run: |
           pnpm --dir=examples/vercel-functions-app-router add @upstash/redis@${{needs.release.outputs.version}}
-          # Pinned: vercel@59.x deploys the monorepo root without honouring the project's Root Directory
-          # ("No Next.js version detected"); 58.4.4 is the last version that deployed these examples.
-          DEPLOYMENT_URL=$(npx vercel@58.4.4 --token=${{ secrets.VERCEL_TOKEN }})
+          DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
         env:
           VERCEL_ORG_ID: ${{secrets.VERCEL_TEAM_ID}}
@@ -213,9 +211,7 @@ jobs:
       - name: Deploy
         run: |
           pnpm --dir=examples/vercel-functions-pages-router add @upstash/redis@${{needs.release.outputs.version}}
-          # Pinned: vercel@59.x deploys the monorepo root without honouring the project's Root Directory
-          # ("No Next.js version detected"); 58.4.4 is the last version that deployed these examples.
-          DEPLOYMENT_URL=$(npx vercel@58.4.4 --token=${{ secrets.VERCEL_TOKEN }})
+          DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }})
           echo "DEPLOYMENT_URL=${DEPLOYMENT_URL}" >> $GITHUB_ENV
         env:
           VERCEL_ORG_ID: ${{secrets.VERCEL_TEAM_ID}}

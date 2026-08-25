@@ -259,8 +259,8 @@ export class HttpClient implements Requester {
     let res: Response | null = null;
     let error: Error | null = null;
     for (let i = 0; i <= this.retry.attempts; i++) {
-      if (this.telemetryEnabled) {
-        // Attempt number (0 = first try) so the server can track how often clients retry.
+      if (i > 0 && this.telemetryEnabled) {
+        // Mark retried attempts with the retry count so the server can track how often clients retry.
         requestHeaders["Upstash-Telemetry-Retry"] = String(i);
       }
       try {

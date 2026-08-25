@@ -299,7 +299,7 @@ describe("http", () => {
   });
 
   describe("retry telemetry", () => {
-    test("sends Upstash-Telemetry-Retry with the attempt number", async () => {
+    test("sends Upstash-Telemetry-Retry only on retried attempts", async () => {
       await withMockFetch(2, async (calls) => {
         const client = new HttpClient({
           baseUrl: SERVER_URL,
@@ -311,15 +311,15 @@ describe("http", () => {
         const res = await client.request({ body: ["get", "foo"] });
         expect(res.result).toBe("OK");
         expect(calls).toHaveLength(3);
-        expect(calls[0]["Upstash-Telemetry-Retry"]).toBe("0");
+        expect(calls[0]["Upstash-Telemetry-Retry"]).toBeUndefined();
         expect(calls[1]["Upstash-Telemetry-Retry"]).toBe("1");
         expect(calls[2]["Upstash-Telemetry-Retry"]).toBe("2");
 
-        // the attempt counter must not leak into the client's shared headers or the next request
+        // the retry counter must not leak into the client's shared headers or the next request
         expect(client.headers["Upstash-Telemetry-Retry"]).toBeUndefined();
         await client.request({ body: ["get", "foo"] });
         expect(calls).toHaveLength(4);
-        expect(calls[3]["Upstash-Telemetry-Retry"]).toBe("0");
+        expect(calls[3]["Upstash-Telemetry-Retry"]).toBeUndefined();
       });
     });
 
@@ -352,7 +352,8 @@ describe("http", () => {
         expect(await redis.get("foo")).toBe("OK");
         expect(calls).toHaveLength(2);
         expect(calls[0]["Upstash-Telemetry-Sdk"]).toStartWith("@upstash/redis@");
-        expect(calls[0]["Upstash-Telemetry-Retry"]).toBe("0");
+        expect(calls[0]["Upstash-Telemetry-Retry"]).toBeUndefined();
+        expect(calls[1]["Upstash-Telemetry-Sdk"]).toStartWith("@upstash/redis@");
         expect(calls[1]["Upstash-Telemetry-Retry"]).toBe("1");
       });
     });

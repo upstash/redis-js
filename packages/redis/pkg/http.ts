@@ -151,6 +151,7 @@ export class HttpClient implements Requester {
   public readYourWrites: boolean;
   public upstashSyncToken = "";
   private hasCredentials: boolean;
+  /** Set once `mergeTelemetry` has been called, i.e. telemetry is enabled on the Redis client. */
   private telemetryEnabled = false;
 
   public readonly retry: {

@@ -24,7 +24,8 @@ const withMockFetch = async (
     if (attempt++ < failures) {
       throw new Error("simulated network error");
     }
-    return new Response(JSON.stringify({ result: "OK" }), { status: 200 });
+    // Redis decodes base64 results by default, so return a valid base64 payload
+    return new Response(JSON.stringify({ result: btoa("OK") }), { status: 200 });
   }) as typeof fetch;
   try {
     await run(calls);
@@ -313,6 +314,12 @@ describe("http", () => {
         expect(calls[0]["Upstash-Telemetry-Retry"]).toBe("0");
         expect(calls[1]["Upstash-Telemetry-Retry"]).toBe("1");
         expect(calls[2]["Upstash-Telemetry-Retry"]).toBe("2");
+
+        // the attempt counter must not leak into the client's shared headers or the next request
+        expect(client.headers["Upstash-Telemetry-Retry"]).toBeUndefined();
+        await client.request({ body: ["get", "foo"] });
+        expect(calls).toHaveLength(4);
+        expect(calls[3]["Upstash-Telemetry-Retry"]).toBe("0");
       });
     });
 
@@ -329,6 +336,43 @@ describe("http", () => {
         expect(calls).toHaveLength(2);
         for (const headers of calls) {
           expect(headers["Upstash-Telemetry-Retry"]).toBeUndefined();
+        }
+      });
+    });
+
+    test("is sent by the Redis client together with the other telemetry headers", async () => {
+      await withMockFetch(1, async (calls) => {
+        const redis = new Redis({
+          url: SERVER_URL,
+          token: "test-token",
+          enableAutoPipelining: false,
+          retry: { retries: 2, backoff: () => 0 },
+        });
+
+        expect(await redis.get("foo")).toBe("OK");
+        expect(calls).toHaveLength(2);
+        expect(calls[0]["Upstash-Telemetry-Sdk"]).toStartWith("@upstash/redis@");
+        expect(calls[0]["Upstash-Telemetry-Retry"]).toBe("0");
+        expect(calls[1]["Upstash-Telemetry-Retry"]).toBe("1");
+      });
+    });
+
+    test("is not sent by the Redis client when enableTelemetry is false", async () => {
+      await withMockFetch(1, async (calls) => {
+        const redis = new Redis({
+          url: SERVER_URL,
+          token: "test-token",
+          enableTelemetry: false,
+          enableAutoPipelining: false,
+          retry: { retries: 2, backoff: () => 0 },
+        });
+
+        expect(await redis.get("foo")).toBe("OK");
+        expect(calls).toHaveLength(2);
+        for (const headers of calls) {
+          expect(Object.keys(headers).filter((h) => h.startsWith("Upstash-Telemetry-"))).toEqual(
+            []
+          );
         }
       });
     });

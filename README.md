@@ -156,6 +156,7 @@ We collect the following:
 - SDK version
 - Platform (Deno, Cloudflare, Vercel)
 - Runtime version (node@18.x)
+- Retry attempt number of each request (to measure retry rates)
 
 You can opt out by setting the `UPSTASH_DISABLE_TELEMETRY` environment variable
 to any truthy value.

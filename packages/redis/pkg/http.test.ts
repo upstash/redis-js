@@ -298,7 +298,7 @@ describe("http", () => {
   });
 
   describe("retry telemetry", () => {
-    test("sends Upstash-Telemetry-Retry only on retried attempts", async () => {
+    test("sends Upstash-Telemetry-Retry with the attempt number", async () => {
       await withMockFetch(2, async (calls) => {
         const client = new HttpClient({
           baseUrl: SERVER_URL,
@@ -310,7 +310,7 @@ describe("http", () => {
         const res = await client.request({ body: ["get", "foo"] });
         expect(res.result).toBe("OK");
         expect(calls).toHaveLength(3);
-        expect(calls[0]["Upstash-Telemetry-Retry"]).toBeUndefined();
+        expect(calls[0]["Upstash-Telemetry-Retry"]).toBe("0");
         expect(calls[1]["Upstash-Telemetry-Retry"]).toBe("1");
         expect(calls[2]["Upstash-Telemetry-Retry"]).toBe("2");
       });

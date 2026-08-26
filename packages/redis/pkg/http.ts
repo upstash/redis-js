@@ -256,6 +256,10 @@ export class HttpClient implements Requester {
     let res: Response | null = null;
     let error: Error | null = null;
     for (let i = 0; i <= this.retry.attempts; i++) {
+      if (i > 0 && requestHeaders["Upstash-Telemetry-Sdk"]) {
+        // Mark retried attempts with the retry count so the server can track how often clients retry.
+        requestHeaders["Upstash-Telemetry-Retry"] = String(i);
+      }
       try {
         res = await fetch(requestUrl, requestOptions);
         break;

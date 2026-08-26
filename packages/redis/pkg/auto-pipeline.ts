@@ -107,6 +107,7 @@ const READ_COMMANDS: Set<string> = new Set([
 ]);
 
 export const EXCLUDE_COMMANDS: Set<keyof Redis> = new Set([
+  "vector",
   "scan",
   "keys",
   "flushdb",

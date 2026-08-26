@@ -1,5 +1,12 @@
 # @upstash/redis
 
+## 1.38.3
+
+### Patch Changes
+
+- f020866: Send an `Upstash-Telemetry-Retry` header with the retry count on retried requests so retry rates are visible in server-side telemetry
+- 777dc30: Trim telemetry header values before deduplicating so whitespace around existing values does not defeat the dedup check
+
 ## 1.38.2
 
 ### Patch Changes

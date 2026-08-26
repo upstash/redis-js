@@ -151,8 +151,6 @@ export class HttpClient implements Requester {
   public readYourWrites: boolean;
   public upstashSyncToken = "";
   private hasCredentials: boolean;
-  /** Set once `mergeTelemetry` has been called, i.e. telemetry is enabled on the Redis client. */
-  private telemetryEnabled = false;
 
   public readonly retry: {
     attempts: number;
@@ -212,7 +210,6 @@ export class HttpClient implements Requester {
   }
 
   public mergeTelemetry(telemetry: Telemetry): void {
-    this.telemetryEnabled = true;
     this.headers = merge(this.headers, "Upstash-Telemetry-Runtime", telemetry.runtime);
     this.headers = merge(this.headers, "Upstash-Telemetry-Platform", telemetry.platform);
     this.headers = merge(this.headers, "Upstash-Telemetry-Sdk", telemetry.sdk);
@@ -259,7 +256,7 @@ export class HttpClient implements Requester {
     let res: Response | null = null;
     let error: Error | null = null;
     for (let i = 0; i <= this.retry.attempts; i++) {
-      if (i > 0 && this.telemetryEnabled) {
+      if (i > 0 && requestHeaders["Upstash-Telemetry-Sdk"]) {
         // Mark retried attempts with the retry count so the server can track how often clients retry.
         requestHeaders["Upstash-Telemetry-Retry"] = String(i);
       }

@@ -240,15 +240,16 @@ jobs:
       - name: Install Dependencies
         run: bun install
 
-      - uses: denoland/setup-deno@v1
+      - uses: denoland/setup-deno@v2
         with:
-          deno-version: v1.x
+          # `deno deploy` ships with the Deno 2 CLI (deployctl / Deploy Classic were sunset on 2026-07-20)
+          deno-version: v2.x
 
       - name: Install @upstash/redis canary version
         run: sed -i 's;@upstash/redis@latest;@upstash/redis@${{needs.release.outputs.version}};' ./examples/deno/main.ts
 
       - name: Deploy
-        run: deno run -A https://deno.land/x/deploy@1.12.0/deployctl.ts deploy --project=upstash-redis ./main.ts
+        run: deno deploy --non-interactive --org upstash --app upstash-redis --prod
         working-directory: examples/deno
         env:
           DENO_DEPLOY_TOKEN: ${{ secrets.DENO_DEPLOY_TOKEN }}
@@ -257,7 +258,7 @@ jobs:
         run: bun test main.test.ts
         working-directory: examples/deno
         env:
-          DEPLOYMENT_URL: https://upstash-redis-70jbfgxwz310.deno.dev
+          DEPLOYMENT_URL: https://upstash-redis.upstash.deno.net
 
   cloudflare-workers-local:
     needs:
@@ -655,6 +656,18 @@ jobs:
           npm pkg delete scripts.prepare
           npm publish --provenance --tag=ci --verbose
 
-      - name: Sleep for 10s
-        run: sleep 10s
+      - name: Wait for npm to serve the ci version
         shell: bash
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          VERSION="${VERSION#v}"
+          for i in $(seq 1 36); do
+            if npm view "@upstash/redis@${VERSION}" version >/dev/null 2>&1; then
+              echo "@upstash/redis@${VERSION} is available on npm"
+              exit 0
+            fi
+            echo "waiting for @upstash/redis@${VERSION} to appear on npm ($i/36)..."
+            sleep 5
+          done
+          echo "::error::@upstash/redis@${VERSION} not visible on npm after 3 minutes"
+          exit 1

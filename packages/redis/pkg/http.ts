@@ -216,6 +216,17 @@ export class HttpClient implements Requester {
   }
 
   public async request<TResult>(req: UpstashRequest): Promise<UpstashResponse<TResult>> {
+    /**
+     * We've received a new `upstash-sync-token` in the previous response. We use it in the next
+     * request to observe the effects of previous requests.
+     *
+     * This has to happen *before* the headers are merged below: `mergeHeaders` copies
+     * `this.headers`, so writing the token afterwards would only reach the request after this one.
+     */
+    if (this.readYourWrites) {
+      this.headers["upstash-sync-token"] = this.upstashSyncToken;
+    }
+
     const requestHeaders = mergeHeaders(this.headers, req.headers ?? {});
     const requestUrl = [this.baseUrl, ...(req.path ?? [])].join("/");
     const isEventStream = requestHeaders.Accept === "text/event-stream";
@@ -243,14 +254,6 @@ export class HttpClient implements Requester {
         "[Upstash Redis] Redis client was initialized without url or token." +
           " Failed to execute command."
       );
-    }
-
-    /**
-     * We've recieved a new `upstash-sync-token` in the previous response. We use it in the next request to observe the effects of previous requests.
-     */
-    if (this.readYourWrites) {
-      const newHeader = this.upstashSyncToken;
-      this.headers["upstash-sync-token"] = newHeader;
     }
 
     let res: Response | null = null;

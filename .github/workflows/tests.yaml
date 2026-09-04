@@ -249,7 +249,10 @@ jobs:
         run: sed -i 's;@upstash/redis@latest;@upstash/redis@${{needs.release.outputs.version}};' ./examples/deno/main.ts
 
       - name: Deploy
-        run: deno deploy --non-interactive --org upstash --app upstash-redis --prod
+        # The bundled `deno deploy` subcommand duplicates every flag it forwards to the
+        # deploy CLI, so it always exits 2 with `Option "--org" can only occur once`.
+        # Invoke the CLI from JSR directly until that wrapper is fixed.
+        run: deno run -A jsr:@deno/deploy --non-interactive --org upstash --app upstash-redis --prod
         working-directory: examples/deno
         env:
           DENO_DEPLOY_TOKEN: ${{ secrets.DENO_DEPLOY_TOKEN }}

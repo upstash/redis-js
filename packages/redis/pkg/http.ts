@@ -191,7 +191,10 @@ export class HttpClient implements Requester {
       ...config.headers,
     };
 
-    const authHeader = this.headers.authorization ?? this.headers.Authorization ?? "";
+    const authKey = Object.keys(this.headers).find(
+      (key) => key.toLowerCase() === "authorization"
+    );
+    const authHeader = authKey ? this.headers[authKey] : "";
     this.hasCredentials = Boolean(this.baseUrl && authHeader.split(" ")[1]);
 
     if (this.options.responseEncoding === "base64") {

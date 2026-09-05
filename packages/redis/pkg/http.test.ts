@@ -377,5 +377,16 @@ describe("http", () => {
         }
       });
     });
+
+    test("should handle missing or capitalized Authorization header gracefully", () => {
+      const client1 = new HttpClient({ baseUrl: "https://example.com", headers: {} });
+      expect(client1.baseUrl).toBe("https://example.com");
+
+      const client2 = new HttpClient({
+        baseUrl: "https://example.com",
+        headers: { Authorization: "Bearer test-token" },
+      });
+      expect(client2.baseUrl).toBe("https://example.com");
+    });
   });
 });

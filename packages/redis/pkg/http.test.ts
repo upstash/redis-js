@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, test, expect, spyOn } from "bun:test";
 import { Redis } from "../platforms/nodejs";
 import { serve } from "bun";
 import { UpstashJSONParseError } from "./error";
@@ -374,6 +374,62 @@ describe("http", () => {
           expect(Object.keys(headers).filter((h) => h.startsWith("Upstash-Telemetry-"))).toEqual(
             []
           );
+        }
+      });
+    });
+
+    test("should handle authorization header casing variations based on observable warning behavior", async () => {
+      await withMockFetch(1, async () => {
+        const warnSpy = spyOn(console, "warn").mockImplementation(() => {});
+
+        try {
+          // 1. Missing Authorization header: constructor does not throw, request emits missing-credentials warning
+          const clientNoAuth = new HttpClient({ baseUrl: "https://example.com", headers: {} });
+          expect(clientNoAuth.baseUrl).toBe("https://example.com");
+          await clientNoAuth.request({ body: ["GET", "key"] });
+          expect(warnSpy).toHaveBeenCalledWith(
+            expect.stringContaining("[Upstash Redis] Redis client was initialized without url or token.")
+          );
+          warnSpy.mockClear();
+
+          // 2. Lowercase authorization: valid Bearer token, request does NOT emit missing-credentials warning
+          const clientLower = new HttpClient({
+            baseUrl: "https://example.com",
+            headers: { authorization: "Bearer token-123" },
+          });
+          await clientLower.request({ body: ["GET", "key"] });
+          expect(warnSpy).not.toHaveBeenCalled();
+          warnSpy.mockClear();
+
+          // 3. Capitalized Authorization: valid Bearer token, request does NOT emit warning
+          const clientUpper = new HttpClient({
+            baseUrl: "https://example.com",
+            headers: { Authorization: "Bearer token-123" },
+          });
+          await clientUpper.request({ body: ["GET", "key"] });
+          expect(warnSpy).not.toHaveBeenCalled();
+          warnSpy.mockClear();
+
+          // 4. Mixed-case spelling (aUtHoRiZaTiOn): valid Bearer token, request does NOT emit warning
+          const clientMixed = new HttpClient({
+            baseUrl: "https://example.com",
+            headers: { aUtHoRiZaTiOn: "Bearer token-123" },
+          });
+          await clientMixed.request({ body: ["GET", "key"] });
+          expect(warnSpy).not.toHaveBeenCalled();
+          warnSpy.mockClear();
+
+          // 5. Empty Bearer token: treated as missing credentials, request DOES emit warning
+          const clientEmptyToken = new HttpClient({
+            baseUrl: "https://example.com",
+            headers: { authorization: "Bearer " },
+          });
+          await clientEmptyToken.request({ body: ["GET", "key"] });
+          expect(warnSpy).toHaveBeenCalledWith(
+            expect.stringContaining("[Upstash Redis] Redis client was initialized without url or token.")
+          );
+        } finally {
+          warnSpy.mockRestore();
         }
       });
     });

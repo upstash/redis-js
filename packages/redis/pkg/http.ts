@@ -191,7 +191,11 @@ export class HttpClient implements Requester {
       ...config.headers,
     };
 
-    this.hasCredentials = Boolean(this.baseUrl && this.headers.authorization.split(" ")[1]);
+    const authKey = Object.keys(this.headers).find(
+      (key) => key.toLowerCase() === "authorization"
+    );
+    const authHeader = authKey ? this.headers[authKey] : "";
+    this.hasCredentials = Boolean(this.baseUrl && authHeader.split(" ")[1]);
 
     if (this.options.responseEncoding === "base64") {
       this.headers["Upstash-Encoding"] = "base64";

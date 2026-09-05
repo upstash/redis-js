@@ -378,15 +378,32 @@ describe("http", () => {
       });
     });
 
-    test("should handle missing or capitalized Authorization header gracefully", () => {
-      const client1 = new HttpClient({ baseUrl: "https://example.com", headers: {} });
-      expect(client1.baseUrl).toBe("https://example.com");
+    test("should handle authorization header variations and credential state", () => {
+      // 1. Missing Authorization header should not throw and marks hasCredentials false
+      const clientNoAuth = new HttpClient({ baseUrl: "https://example.com", headers: {} });
+      expect(clientNoAuth.baseUrl).toBe("https://example.com");
+      expect((clientNoAuth as any).hasCredentials).toBe(false);
 
-      const client2 = new HttpClient({
+      // 2. Lowercase authorization header with Bearer token marks hasCredentials true
+      const clientLower = new HttpClient({
         baseUrl: "https://example.com",
-        headers: { Authorization: "Bearer test-token" },
+        headers: { authorization: "Bearer token-123" },
       });
-      expect(client2.baseUrl).toBe("https://example.com");
+      expect((clientLower as any).hasCredentials).toBe(true);
+
+      // 3. Capitalized Authorization header with Bearer token marks hasCredentials true
+      const clientUpper = new HttpClient({
+        baseUrl: "https://example.com",
+        headers: { Authorization: "Bearer token-123" },
+      });
+      expect((clientUpper as any).hasCredentials).toBe(true);
+
+      // 4. Absence of token does not mark client authenticated
+      const clientEmptyToken = new HttpClient({
+        baseUrl: "https://example.com",
+        headers: { authorization: "Bearer " },
+      });
+      expect((clientEmptyToken as any).hasCredentials).toBe(false);
     });
   });
 });

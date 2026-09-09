@@ -165,6 +165,14 @@ import {
   TtlCommand,
   TypeCommand,
   UnlinkCommand,
+  VectorAddCommand,
+  VectorCountCommand,
+  VectorCreateCommand,
+  VectorDelCommand,
+  VectorDropCommand,
+  VectorGetCommand,
+  VectorInfoCommand,
+  VectorQueryCommand,
   XAckCommand,
   XAckDelCommand,
   XAddCommand,
@@ -1446,6 +1454,61 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    */
   zunion = (...args: CommandArgs<typeof ZUnionCommand>) =>
     this.chain(new ZUnionCommand(args, this.commandOptions));
+
+  /**
+   * Vector index commands.
+   */
+  get vector() {
+    return {
+      /**
+       * Creates a vector index. Returns `1` if created, `0` if it already existed (with `existsOk`).
+       */
+      create: (...args: CommandArgs<typeof VectorCreateCommand>) =>
+        this.chain(new VectorCreateCommand(args, this.commandOptions)),
+
+      /**
+       * Adds a vector to an index. Returns `1` if inserted, `0` if an existing id was overwritten.
+       */
+      add: (...args: CommandArgs<typeof VectorAddCommand>) =>
+        this.chain(new VectorAddCommand(args, this.commandOptions)),
+
+      /**
+       * Returns the vector stored under an id, or `null`.
+       */
+      get: (...args: CommandArgs<typeof VectorGetCommand>) =>
+        this.chain(new VectorGetCommand(args, this.commandOptions)),
+
+      /**
+       * Returns the `topK` nearest neighbours of a query vector.
+       */
+      query: (...args: CommandArgs<typeof VectorQueryCommand>) =>
+        this.chain(new VectorQueryCommand(args, this.commandOptions)),
+
+      /**
+       * Deletes the vector stored under an id. Returns `1` if it existed, `0` otherwise.
+       */
+      del: (...args: CommandArgs<typeof VectorDelCommand>) =>
+        this.chain(new VectorDelCommand(args, this.commandOptions)),
+
+      /**
+       * Returns the number of vectors in an index.
+       */
+      count: (...args: CommandArgs<typeof VectorCountCommand>) =>
+        this.chain(new VectorCountCommand(args, this.commandOptions)),
+
+      /**
+       * Returns the dimension and metric of an index, or `null`.
+       */
+      info: (...args: CommandArgs<typeof VectorInfoCommand>) =>
+        this.chain(new VectorInfoCommand(args, this.commandOptions)),
+
+      /**
+       * Drops an index. Returns `1` if it existed, `0` otherwise.
+       */
+      drop: (...args: CommandArgs<typeof VectorDropCommand>) =>
+        this.chain(new VectorDropCommand(args, this.commandOptions)),
+    };
+  }
 
   /**
    * @see https://redis.io/commands/?group=json

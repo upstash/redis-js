@@ -315,3 +315,60 @@ describe("search", () => {
     { timeout: 30_000 }
   );
 });
+
+describe("vector", () => {
+  test(
+    "should create an index, add vectors, query and drop through the Redis client",
+    async () => {
+      const redis = new Redis(client);
+      const name = `test-vector-${randomID().slice(0, 8)}`;
+
+      const index = await redis.vector.createIndex({ name, dimension: 3, metric: "COSINE" });
+      try {
+        expect(index.name).toBe(name);
+        expect(await index.info()).toEqual({ dimension: 3, metric: "COSINE" });
+
+        expect(await index.add("a", [1, 0, 0])).toBe(1);
+        expect(await index.add("b", [0, 1, 0])).toBe(1);
+        expect(await index.count()).toBe(2);
+
+        const hits = await index.query({ vector: [1, 0, 0], topK: 1 });
+        expect(hits).toEqual([{ id: "a", score: 1 }]);
+
+        const sameIndex = redis.vector.index(name);
+        expect(await sameIndex.get("b")).toEqual([0, 1, 0]);
+        expect(await sameIndex.delete("b")).toBe(1);
+        expect(await sameIndex.count()).toBe(1);
+      } finally {
+        expect(await index.drop()).toBe(1);
+      }
+    },
+    { timeout: 20_000 }
+  );
+
+  test("should chain vector commands in a pipeline and a transaction", async () => {
+    const redis = new Redis(client);
+    const name = `test-vector-${randomID().slice(0, 8)}`;
+
+    const res = await redis
+      .pipeline()
+      .vector.create(name, { dimension: 2, metric: "DOT" })
+      .vector.add(name, "a", [1, 1])
+      .vector.info(name)
+      .vector.count(name)
+      .vector.get(name, "a")
+      .vector.del(name, "a")
+      .vector.drop(name)
+      .exec();
+    expect(res).toEqual([1, 1, { dimension: 2, metric: "DOT" }, 1, [1, 1], 1, 1]);
+
+    const tx = await redis
+      .multi()
+      .vector.create(name, { dimension: 2, metric: "DOT" })
+      .vector.add(name, "a", new Float32Array([1, 1]))
+      .vector.count(name)
+      .vector.drop(name)
+      .exec();
+    expect(tx).toEqual([1, 1, 1, 1]);
+  });
+});

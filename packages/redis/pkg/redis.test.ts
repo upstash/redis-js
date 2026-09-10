@@ -315,3 +315,42 @@ describe("search", () => {
     { timeout: 30_000 }
   );
 });
+
+describe("array", () => {
+  test("should expose array commands on the client, pipelines and transactions", async () => {
+    const redis = new Redis(client);
+    const key = `test-array-${randomID().slice(0, 8)}`;
+    try {
+      expect(await redis.arset(key, 0, "a", "b")).toBe(2);
+      const value = await redis.arget(key, 1);
+      expect(value).toEqual("b");
+      expect(await redis.argrep(key, "-", "+", { predicates: [{ exact: "a" }] })).toEqual([0]);
+
+      const res = await redis
+        .pipeline()
+        .arinsert(key, "c")
+        .armget(key, 0, 2)
+        .arcount(key)
+        .arop(key, 0, 2, { match: "c" })
+        .exec();
+      expect(res).toEqual([2, ["a", "c"], 3, 1]);
+
+      const tx = await redis.multi().ardel(key, 0).arlen(key).exec();
+      expect(tx).toEqual([1, 3]);
+    } finally {
+      await redis.del(key);
+    }
+  });
+
+  test("should auto-pipeline array commands", async () => {
+    const redis = new Redis(client, { enableAutoPipelining: true });
+    const key = `test-array-${randomID().slice(0, 8)}`;
+    try {
+      const [set, count] = await Promise.all([redis.arset(key, 0, "x"), redis.arcount(key)]);
+      expect(set).toBe(1);
+      expect(count).toBe(1);
+    } finally {
+      await redis.del(key);
+    }
+  });
+});

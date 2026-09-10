@@ -11,6 +11,18 @@ type redisOnly = Exclude<keyof Redis, keyof Pipeline>;
 export const MAX_PIPELINE_SIZE = 1000;
 
 const READ_COMMANDS: Set<string> = new Set([
+  // Array
+  "arcount",
+  "arget",
+  "argetrange",
+  "argrep",
+  "arinfo",
+  "arlastitems",
+  "arlen",
+  "armget",
+  "arnext",
+  "arop",
+  "arscan",
   // String
   "get",
   "getrange",

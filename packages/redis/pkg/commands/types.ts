@@ -1,4 +1,27 @@
 export { type AppendCommand } from "./append";
+export { type ArCountCommand } from "./arcount";
+export { type ArDelCommand } from "./ardel";
+export { type ArDelRangeCommand } from "./ardelrange";
+export { type ArGetCommand } from "./arget";
+export { type ArGetRangeCommand } from "./argetrange";
+export {
+  type ArGrepCommand,
+  type ArGrepOptions,
+  type ArGrepPredicate,
+  type ArGrepResult,
+} from "./argrep";
+export { type ArInfoCommand, type ArInfoOptions, type ArInfoResult } from "./arinfo";
+export { type ArInsertCommand } from "./arinsert";
+export { type ArLastItemsCommand, type ArLastItemsOptions } from "./arlastitems";
+export { type ArLenCommand } from "./arlen";
+export { type ArMGetCommand } from "./armget";
+export { type ArMSetCommand, type ArMSetValues } from "./armset";
+export { type ArNextCommand } from "./arnext";
+export { type ArOpCommand, type ArOpOperation } from "./arop";
+export { type ArRingCommand } from "./arring";
+export { type ArScanCommand, type ArScanOptions } from "./arscan";
+export { type ArSeekCommand } from "./arseek";
+export { type ArSetCommand } from "./arset";
 export { type BitCountCommand } from "./bitcount";
 export { type BitOpCommand } from "./bitop";
 export { type BitPosCommand } from "./bitpos";

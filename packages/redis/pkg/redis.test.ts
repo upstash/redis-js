@@ -315,3 +315,44 @@ describe("search", () => {
     { timeout: 30_000 }
   );
 });
+
+describe("array", () => {
+  test("should expose array commands on the client, pipelines and transactions", async () => {
+    const redis = new Redis(client);
+    const key = `test-array-${randomID().slice(0, 8)}`;
+    try {
+      expect(await redis.arinsert(key, "a", "b")).toBe(1);
+      const value = await redis.arget(key, 1);
+      expect(value).toEqual("b");
+      expect(await redis.argrep(key, "-", "+", { predicates: [{ exact: "a" }] })).toEqual([0]);
+
+      // ARSET writes positionally and does not move the append cursor
+      const res = await redis
+        .pipeline()
+        .arset(key, 5, "c")
+        .armget(key, 0, 5)
+        .arcount(key)
+        .arop(key, 0, 5, { match: "c" })
+        .arnext(key)
+        .exec();
+      expect(res).toEqual([1, ["a", "c"], 3, 1, 2]);
+
+      const tx = await redis.multi().ardel(key, 0).arlen(key).exec();
+      expect(tx).toEqual([1, 6]);
+    } finally {
+      await redis.del(key);
+    }
+  });
+
+  test("should auto-pipeline array commands", async () => {
+    const redis = new Redis(client, { enableAutoPipelining: true });
+    const key = `test-array-${randomID().slice(0, 8)}`;
+    try {
+      const [set, count] = await Promise.all([redis.arset(key, 0, "x"), redis.arcount(key)]);
+      expect(set).toBe(1);
+      expect(count).toBe(1);
+    } finally {
+      await redis.del(key);
+    }
+  });
+});

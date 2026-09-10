@@ -5,6 +5,7 @@ import { ArGetRangeCommand } from "./argetrange";
 import { ArInsertCommand } from "./arinsert";
 import { ArNextCommand } from "./arnext";
 import { ArSeekCommand } from "./arseek";
+import { ArSetCommand } from "./arset";
 
 const client = newHttpClient();
 const { newKey, cleanup } = keygen();
@@ -25,6 +26,13 @@ describe("ARINSERT / ARNEXT / ARSEEK", () => {
     await new ArInsertCommand([key, "a", "b"]).exec(client);
     await new ArDelCommand([key, 1]).exec(client);
     expect(await new ArInsertCommand([key, "c"]).exec(client)).toBe(2);
+  });
+
+  test("arset does not move the cursor", async () => {
+    const key = newKey();
+    await new ArSetCommand([key, 5, "x"]).exec(client);
+    expect(await new ArNextCommand([key]).exec(client)).toBe(0);
+    expect(await new ArInsertCommand([key, "a"]).exec(client)).toBe(0);
   });
 
   test("arseek moves the cursor", async () => {

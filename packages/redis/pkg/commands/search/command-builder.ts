@@ -108,18 +108,27 @@ function buildScoreFuncField(
 export function buildCreateIndexCommand<TSchema extends NestedIndexSchema | FlatIndexSchema>(
   params: CreateIndexParameters<TSchema>
 ): string[] {
-  const { name, schema, dataType, prefix, language, skipInitialScan, existsOk } = params;
-  const prefixArray = Array.isArray(prefix) ? prefix : [prefix];
+  const { name, schema, dataType, language, skipInitialScan, existsOk } = params;
+
+  let source: string[];
+  if (params.dataType === "stream") {
+    source = ["ON", "STREAM", params.stream];
+  } else {
+    const prefixArray = Array.isArray(params.prefix) ? params.prefix : [params.prefix];
+    source = [
+      "ON",
+      dataType.toUpperCase(),
+      "PREFIX",
+      prefixArray.length.toString(),
+      ...prefixArray,
+    ];
+  }
 
   const payload: string[] = [
     name,
     ...(skipInitialScan ? ["SKIPINITIALSCAN"] : []),
     ...(existsOk ? ["EXISTSOK"] : []),
-    "ON",
-    dataType.toUpperCase(),
-    "PREFIX",
-    prefixArray.length.toString(),
-    ...prefixArray,
+    ...source,
     ...(language ? ["LANGUAGE", language] : []),
     "SCHEMA",
   ];

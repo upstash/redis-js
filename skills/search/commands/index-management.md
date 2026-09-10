@@ -2,7 +2,7 @@
 
 ## Overview
 
-Create, inspect, and drop search indexes. Wait for indexing to complete after data changes. Indexes automatically track Redis keys matching a specified prefix.
+Create, inspect, and drop search indexes. Wait for indexing to complete after data changes. Indexes automatically track Redis keys matching a specified prefix, or the entries of a single stream.
 
 ## Good For
 
@@ -47,6 +47,46 @@ const hashIndex = await redis.search.createIndex({
 });
 ```
 
+### Create a Stream Index
+
+A stream index is bound to one exact stream key (no `prefix`). Every entry added with `XADD` becomes a document whose `key` is the entry ID. The stream does not need to exist yet, and entries removed with `XDEL`/`XTRIM` (or by deleting the stream) leave the index too.
+
+```typescript
+const events = await redis.search.createIndex({
+  name: "event-search",
+  dataType: "stream",
+  stream: "events", // exact stream key, not a prefix
+  schema: s.object({
+    message: s.string(),
+    service: s.keyword(),
+    severity: s.number("U64"),
+    occurredAt: s.date().fast(),
+  }),
+});
+
+await redis.xadd("events", "*", {
+  message: "Payment authorization failed",
+  service: "checkout",
+  severity: 4,
+  occurredAt: new Date().toISOString(),
+});
+await events.waitIndexing();
+
+const hits = await events.query({
+  filter: { message: "authorization", severity: { $gte: 3 } },
+});
+// [{ key: "1757000000000-0", score: 0.5, data: { message: "...", service: "checkout", severity: 4, ... } }]
+
+// Read the full original entry by its ID
+const [entry] = await redis.xrange("events", hits[0].key, hits[0].key);
+```
+
+Notes:
+
+- Stream schemas are flat (stream entries are flat field-value pairs).
+- Only one index can be bound to a stream at a time; drop it before binding another.
+- Search's document limit applies to stream entries: at the limit, `XADD` to the indexed stream can fail.
+
 ### Create with Options
 
 ```typescript
@@ -87,7 +127,7 @@ const untypedIndex = redis.search.index({ name: "products" });
 const description = await index.describe();
 // {
 //   name: "products",
-//   dataType: "json",
+//   dataType: "json", // "hash" | "string" | "json" | "stream"
 //   prefixes: ["product:"],
 //   language: "english",
 //   schema: { name: { type: "TEXT" }, price: { type: "F64", fast: true } }

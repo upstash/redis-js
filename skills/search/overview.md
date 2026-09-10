@@ -85,7 +85,7 @@ For detailed usage of each command category, see:
 
 ### Data is upserted with regular Redis commands, not through search
 
-There is no `index.upsert()` or `index.add()` method. You store data using standard Redis commands (`set`, `json.set`, `hset`), and the search index automatically picks up keys matching its prefix.
+There is no `index.upsert()` or `index.add()` method. You store data using standard Redis commands (`set`, `json.set`, `hset`, or `xadd` for stream indexes), and the search index automatically picks up keys matching its prefix (or entries of its stream).
 
 ```typescript
 // Create the index

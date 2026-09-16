@@ -41,6 +41,9 @@ jobs:
       - name: Build
         run: pnpm -r build
 
+      - name: Check Redis package contents
+        run: pnpm --filter @upstash/redis check:pack
+
       - name: Run tests
         run: pnpm -r test
 

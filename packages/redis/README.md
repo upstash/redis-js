@@ -98,6 +98,11 @@ for common problems. If you can't find a solution, please
 See [the documentation](https://upstash.com/docs/redis/sdks/ts/overview) for
 details.
 
+The npm package includes documentation in `node_modules/@upstash/redis/docs/`
+and TypeScript source in `node_modules/@upstash/redis/src/` for offline reference
+and coding agents. Start with `docs/overview.mdx`; the source preserves the
+`pkg/` implementation and `platforms/` adapters under `src/`.
+
 ## Contributing
 
 ### [Install Bun](https://bun.sh/docs/installation)
@@ -118,6 +123,14 @@ bun run test
 ```sh
 bun run build
 ```
+
+The build stages source alongside the compiled entrypoints in `dist/`. Packing
+or publishing from `dist/` fetches the latest Redis TypeScript docs from
+`upstash/docs` using `prepack`. This requires network access. Source tests and
+test helpers are excluded from the npm package.
+
+After building, run `bun run check:pack` to verify the package contents without
+connecting to Redis.
 
 ### Telemetry
 

@@ -1,6 +1,5 @@
 import { afterAll, describe, expect, test } from "bun:test";
 import { keygen, newHttpClient } from "../../test-utils";
-import { Pipeline } from "../../pipeline";
 import { createVectorIndex, initVectorIndex, VectorIndex } from "./vector";
 
 const client = newHttpClient();
@@ -67,23 +66,5 @@ describe("VectorIndex", () => {
     expect(await index.drop()).toBe(1);
     expect(await index.info()).toBeNull();
     expect(await index.drop()).toBe(0);
-  });
-});
-
-describe("pipeline.vector", () => {
-  test("chains vector commands", async () => {
-    const name = newKey();
-    const p = new Pipeline({ client, multiExec: false });
-    const res = await p.vector
-      .create(name, { dimension: 2, metric: "DOT" })
-      .vector.add(name, "a", [1, 1])
-      .vector.info(name)
-      .vector.count(name)
-      .vector.get(name, "a")
-      .vector.del(name, "a")
-      .vector.drop(name)
-      .exec();
-
-    expect(res).toEqual([1, 1, { dimension: 2, metric: "DOT" }, 1, [1, 1], 1, 1]);
   });
 });

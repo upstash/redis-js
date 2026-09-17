@@ -345,30 +345,4 @@ describe("vector", () => {
     },
     { timeout: 20_000 }
   );
-
-  test("should chain vector commands in a pipeline and a transaction", async () => {
-    const redis = new Redis(client);
-    const name = `test-vector-${randomID().slice(0, 8)}`;
-
-    const res = await redis
-      .pipeline()
-      .vector.create(name, { dimension: 2, metric: "DOT" })
-      .vector.add(name, "a", [1, 1])
-      .vector.info(name)
-      .vector.count(name)
-      .vector.get(name, "a")
-      .vector.del(name, "a")
-      .vector.drop(name)
-      .exec();
-    expect(res).toEqual([1, 1, { dimension: 2, metric: "DOT" }, 1, [1, 1], 1, 1]);
-
-    const tx = await redis
-      .multi()
-      .vector.create(name, { dimension: 2, metric: "DOT" })
-      .vector.add(name, "a", new Float32Array([1, 1]))
-      .vector.count(name)
-      .vector.drop(name)
-      .exec();
-    expect(tx).toEqual([1, 1, 1, 1]);
-  });
 });

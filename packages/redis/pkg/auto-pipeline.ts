@@ -106,17 +106,6 @@ const READ_COMMANDS: Set<string> = new Set([
   "callRo",
 ]);
 
-/**
- * Namespaces that exist on both `Redis` and `Pipeline` but expose a different shape:
- * `Redis` returns handle factories (`createIndex`, `index`, ...) while `Pipeline` exposes flat,
- * chainable commands. The auto-pipeline proxy must hand back the `Redis` side, otherwise
- * `redis.vector.createIndex(...)` resolves to `pipeline.vector` and throws.
- *
- * `search` only lives on `Redis` today, so the `commandInRedisButNotPipeline` check already covers
- * it; listing it here keeps it working if `Pipeline` ever gains a `search` namespace.
- */
-export const BYPASS_NAMESPACES: Set<keyof Redis> = new Set(["search", "vector"]);
-
 export const EXCLUDE_COMMANDS: Set<keyof Redis> = new Set([
   "scan",
   "keys",
@@ -170,9 +159,8 @@ export function createAutoPipelineProxy(
         const commandInRedisButNotPipeline =
           command in redis && !(command in redis.autoPipelineExecutor.pipeline);
         const isCommandExcluded = EXCLUDE_COMMANDS.has(command as keyof Redis);
-        const isBypassedNamespace = BYPASS_NAMESPACES.has(command as keyof Redis);
 
-        if (commandInRedisButNotPipeline || isCommandExcluded || isBypassedNamespace) {
+        if (commandInRedisButNotPipeline || isCommandExcluded) {
           return redis[command as redisOnly];
         }
       }

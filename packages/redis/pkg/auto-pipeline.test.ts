@@ -735,12 +735,13 @@ describe("Auto pipeline", () => {
       expect(redis.pipelineCounter).toBe(1);
     });
 
-    test("should expose the redis-side vector namespace, not the pipeline one", async () => {
+    // `vector` and `search` are handle-based namespaces that only exist on `Redis`, so the proxy
+    // must pass them straight through. Adding a namespace of the same name to `Pipeline` would
+    // shadow them and break `createIndex`; these tests are the guard against that.
+    test("should expose the vector namespace under auto-pipelining", async () => {
       const redis = Redis.fromEnv({});
       const name = `auto-pipeline-vector-${randomID().slice(0, 8)}`;
 
-      // Without the namespace bypass, `redis.vector` resolves to `pipeline.vector`,
-      // whose shape is flat (create/add/...) and has no `createIndex`.
       expect(Object.keys(redis.vector)).toEqual(["createIndex", "index"]);
 
       const index = await redis.vector.createIndex({ name, dimension: 2, metric: "COSINE" });
@@ -752,7 +753,7 @@ describe("Auto pipeline", () => {
       }
     });
 
-    test("should expose the redis-side search namespace, not the pipeline one", async () => {
+    test("should expose the search namespace under auto-pipelining", async () => {
       const redis = Redis.fromEnv({});
       const name = `auto-pipeline-search-${randomID().slice(0, 8)}`;
 

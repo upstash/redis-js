@@ -124,14 +124,6 @@ bun run test
 bun run build
 ```
 
-The build stages source alongside the compiled entrypoints in `dist/`. Packing
-or publishing from `dist/` fetches the latest Redis TypeScript docs from
-`upstash/docs` using `prepack`. This requires network access. Source tests and
-test helpers are excluded from the npm package.
-
-After building, run `bun run check:pack` to verify the package contents without
-connecting to Redis.
-
 ### Telemetry
 
 This library sends anonymous telemetry data to help us improve your experience.

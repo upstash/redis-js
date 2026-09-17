@@ -1,6 +1,5 @@
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
-import { toNumberOrString } from "../util";
 
 export type ArInfoOptions = {
   /**
@@ -10,11 +9,8 @@ export type ArInfoOptions = {
 };
 
 export type ArInfoResult = {
-  /**
-   * Highest occupied index plus one, as reported by `arlen`. Values above
-   * `Number.MAX_SAFE_INTEGER` are returned as strings.
-   */
-  len: number | string;
+  /** Highest occupied index plus one, as reported by `arlen`. A string, like every index. */
+  len: string;
   /** Number of occupied slots, as reported by `arcount`. */
   count: number;
   /** Number of indexes covered by one slice. */
@@ -25,11 +21,8 @@ export type ArInfoResult = {
   directorySize: number;
   /** Number of entries in the top-level directory. */
   superDirEntries: number;
-  /**
-   * Index the next `arinsert` would write to. Values above `Number.MAX_SAFE_INTEGER` are
-   * returned as strings.
-   */
-  nextInsertIndex: number | string;
+  /** Index the next `arinsert` would write to. A string, like every index. */
+  nextInsertIndex: string;
   /** Slices stored in dense form. Only with `full`. */
   denseSlices?: number;
   /** Slices stored in sparse form. Only with `full`. */
@@ -56,10 +49,18 @@ export function deserializeArInfoResponse(result: RawArInfo): ArInfoResult {
       ])
     : Object.entries(result);
 
+  // `len` and `next-insert-index` are indexes and stay strings; the rest are small counts.
+  const indexFields = new Set(["len", "nextInsertIndex"]);
+
   const info: Record<string, unknown> = {};
   for (const [field, value] of entries) {
-    info[toCamelCase(String(field))] =
-      typeof value === "number" || typeof value === "string" ? toNumberOrString(value) : value;
+    const name = toCamelCase(String(field));
+    if (indexFields.has(name)) {
+      info[name] = String(value);
+      continue;
+    }
+    const numeric = typeof value === "number" ? value : Number(value);
+    info[name] = Number.isNaN(numeric) ? value : numeric;
   }
   return info as ArInfoResult;
 }

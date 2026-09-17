@@ -321,10 +321,10 @@ describe("array", () => {
     const redis = new Redis(client);
     const key = `test-array-${randomID().slice(0, 8)}`;
     try {
-      expect(await redis.arinsert(key, "a", "b")).toBe(1);
+      expect(await redis.arinsert(key, "a", "b")).toBe("1");
       const value = await redis.arget(key, 1);
       expect(value).toEqual("b");
-      expect(await redis.argrep(key, "-", "+", { predicates: [{ exact: "a" }] })).toEqual([0]);
+      expect(await redis.argrep(key, "-", "+", { predicates: [{ exact: "a" }] })).toEqual(["0"]);
 
       // ARSET writes positionally and does not move the append cursor
       const res = await redis
@@ -335,10 +335,10 @@ describe("array", () => {
         .arop(key, 0, 5, { match: "c" })
         .arnext(key)
         .exec();
-      expect(res).toEqual([1, ["a", "c"], 3, 1, 2]);
+      expect(res).toEqual([1, ["a", "c"], 3, 1, "2"]);
 
       const tx = await redis.multi().ardel(key, 0).arlen(key).exec();
-      expect(tx).toEqual([1, 6]);
+      expect(tx).toEqual([1, "6"]);
     } finally {
       await redis.del(key);
     }

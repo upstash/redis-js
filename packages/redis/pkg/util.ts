@@ -21,16 +21,6 @@ function parseRecursive(obj: unknown): unknown {
   return parsed;
 }
 
-/**
- * Redis returns integers outside JavaScript's safe range as strings, and {@link parseResponse}
- * keeps them that way. Custom deserializers should use this instead of `Number()` so those values
- * survive: a reply is converted only when it round-trips exactly.
- */
-export function toNumberOrString(value: string | number): number | string {
-  const parsed = Number(value);
-  return Number.isNaN(parsed) || parsed.toString() !== String(value) ? String(value) : parsed;
-}
-
 export function parseResponse<TResult>(result: unknown): TResult {
   try {
     /**

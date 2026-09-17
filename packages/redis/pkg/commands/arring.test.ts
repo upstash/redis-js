@@ -20,8 +20,8 @@ describe("ARRING / ARLASTITEMS", () => {
 
   test("keeps the newest values and wraps", async () => {
     const key = newKey();
-    expect(await new ArRingCommand([key, 3, "a", "b", "c"]).exec(client)).toBe(2);
-    expect(await new ArRingCommand([key, 3, "d"]).exec(client)).toBe(0);
+    expect(await new ArRingCommand([key, 3, "a", "b", "c"]).exec(client)).toBe("2");
+    expect(await new ArRingCommand([key, 3, "d"]).exec(client)).toBe("0");
 
     expect(await new ArLastItemsCommand([key, 3]).exec(client)).toEqual(["b", "c", "d"]);
     expect(await new ArLastItemsCommand([key, 3, { rev: true }]).exec(client)).toEqual([

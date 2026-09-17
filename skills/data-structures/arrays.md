@@ -23,17 +23,17 @@ await redis.arset("readings", 0, 21.5, 21.7, 22.1); // 3 = newly occupied slots
 await redis.armset("readings", { 100: 19.8, 200: 20.4 });
 
 // Appends continue after the cursor; the reply is the index of the last value
-await redis.arinsert("log", "boot", "ready"); // 1
-await redis.arnext("log"); // 2, where the next append lands
+await redis.arinsert("log", "boot", "ready"); // "1"
+await redis.arnext("log"); // "2", where the next append lands
 
 // Reads
 await redis.arget("readings", 0); // 21.5
 await redis.armget("readings", 0, 50, 100); // [21.5, null, 19.8]
 await redis.argetrange("readings", 0, 3); // [21.5, 21.7, 22.1, null], one entry per index
-await redis.arscan("readings", 0, 1000, { limit: 10 }); // [[0, 21.5], [1, 21.7], ...] occupied slots only
+await redis.arscan("readings", 0, 1000, { limit: 10 }); // [["0", 21.5], ["1", 21.7], ...] occupied slots only
 
 // Search values ("-" / "+" = whole array)
-await redis.argrep("log", "-", "+", { predicates: [{ match: "boot" }] }); // [0]
+await redis.argrep("log", "-", "+", { predicates: [{ match: "boot" }] }); // ["0"]
 await redis.argrep("log", "-", "+", {
   predicates: [{ glob: "err*" }, { re: "^warn" }], // OR by default, combine: "AND" for all
   noCase: true,
@@ -49,7 +49,7 @@ await redis.arlastitems("recent", 10); // add { rev: true } for newest-first
 
 // Size: arcount = stored values, arlen = highest index + 1
 await redis.arcount("readings"); // 5
-await redis.arlen("readings"); // 201
+await redis.arlen("readings"); // "201"
 
 // Delete (leaves holes)
 await redis.ardel("readings", 0, 1);
@@ -60,5 +60,5 @@ await redis.ardelrange("readings", [100, 199], [200, 299]);
 
 - `arset` does not move the append cursor. An `arinsert` after `arset` on a fresh key writes to index `0` and overwrites it. Use one style per array, or `arseek` the cursor first.
 - `arlen` is not the number of values in a sparse array; use `arcount`.
-- Assuming every index is a `number`. Indexes run to 2^64-2, so anything above `Number.MAX_SAFE_INTEGER` comes back as a string (`arlen`, `arinsert`, `arring`, `arnext`, `arscan`, `argrep` and `arinfo`'s `len`/`nextInsertIndex` are typed `number | string`). Pass big indexes in as strings too.
+- Treating a returned index as a `number`. Indexes run to 2^64-2, past what a JavaScript number holds exactly, so every command that returns one returns a **string** (`arlen`, `arinsert`, `arring`, `arnext`, and the index in `arscan`/`argrep` pairs and `arinfo`'s `len`/`nextInsertIndex`) — the same way the `scan` cursor stays a string. Counts (`arcount`, `ardel`, `ardelrange`) are still numbers. Index _arguments_ accept both, so a returned index can be passed straight back.
 - `argetrange` returns one element per index (nulls for holes) and rejects ranges over 1,000,000 indexes. Use `arscan` for sparse ranges.

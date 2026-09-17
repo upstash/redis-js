@@ -29,7 +29,7 @@ describe("ARDEL / ARDELRANGE / ARCOUNT / ARLEN", () => {
 
     expect(await new ArDelCommand([key, 1, 1, 99]).exec(client)).toBe(1);
     expect(await new ArCountCommand([key]).exec(client)).toBe(4);
-    expect(await new ArLenCommand([key]).exec(client)).toBe(5);
+    expect(await new ArLenCommand([key]).exec(client)).toBe("5");
 
     expect(await new ArDelRangeCommand([key, [0, 2], [4, 4]]).exec(client)).toBe(3);
     expect(await new ArCountCommand([key]).exec(client)).toBe(1);
@@ -38,12 +38,12 @@ describe("ARDEL / ARDELRANGE / ARCOUNT / ARLEN", () => {
   test("sparse arrays: arlen tracks extent, arcount tracks contents", async () => {
     const key = newKey();
     await new ArSetCommand([key, 1000, "x"]).exec(client);
-    expect(await new ArLenCommand([key]).exec(client)).toBe(1001);
+    expect(await new ArLenCommand([key]).exec(client)).toBe("1001");
     expect(await new ArCountCommand([key]).exec(client)).toBe(1);
   });
 
   test("missing keys count as 0", async () => {
     expect(await new ArCountCommand([newKey()]).exec(client)).toBe(0);
-    expect(await new ArLenCommand([newKey()]).exec(client)).toBe(0);
+    expect(await new ArLenCommand([newKey()]).exec(client)).toBe("0");
   });
 });

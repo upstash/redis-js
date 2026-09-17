@@ -1,5 +1,6 @@
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
+import { parseResponse } from "../util";
 
 /**
  * A single `ARGREP` predicate:
@@ -39,16 +40,16 @@ export type ArGrepOptions = {
 };
 
 /**
- * Matching indexes, or `[index, value]` pairs when `withValues` is `true`. Indexes above
- * `Number.MAX_SAFE_INTEGER` are returned as strings.
+ * Matching indexes, or `[index, value]` pairs when `withValues` is `true`. Indexes are returned as
+ * strings; see `arlen`.
  */
 export type ArGrepResult<TData, TOpts extends ArGrepOptions> = TOpts extends { withValues: true }
-  ? [number | string, TData][]
+  ? [string, TData][]
   : TOpts extends { withValues: false }
-    ? (number | string)[]
+    ? string[]
     : "withValues" extends keyof TOpts
-      ? (number | string)[] | [number | string, TData][]
-      : (number | string)[];
+      ? string[] | [string, TData][]
+      : string[];
 
 /**
  * Returns the indexes in `[start, end]` whose value matches the given predicates, or
@@ -96,6 +97,12 @@ export class ArGrepCommand<
       command.push("LIMIT", opts.limit);
     }
 
-    super(command, cmdOpts);
+    super(command, {
+      deserialize: (result) =>
+        parseResponse<unknown[]>(result).map((item) =>
+          Array.isArray(item) ? [String(item[0]), item[1]] : String(item)
+        ) as ArGrepResult<TData, TOpts>,
+      ...cmdOpts,
+    });
   }
 }

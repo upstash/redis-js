@@ -6,13 +6,17 @@ import { Command } from "./command";
  *
  * Because arrays are sparse this can be larger than the number of stored values, see `arcount`.
  *
+ * Indexes are returned as strings: they run up to 2^64-2, past what a JavaScript number can hold
+ * exactly. This matches how the SDK keeps the `scan` cursor a string, and the value can be passed
+ * straight back into any command that takes an index.
  *
- * Indexes above `Number.MAX_SAFE_INTEGER` are returned as strings, so the result is
- * `number | string`.
  * @see https://upstash.com/docs/redis/commands/array/arlen
  */
-export class ArLenCommand extends Command<number | string, number | string> {
-  constructor(cmd: [key: string], opts?: CommandOptions<number | string, number | string>) {
-    super(["ARLEN", ...cmd], opts);
+export class ArLenCommand extends Command<number | string, string> {
+  constructor(cmd: [key: string], opts?: CommandOptions<number | string, string>) {
+    super(["ARLEN", ...cmd], {
+      deserialize: String,
+      ...opts,
+    });
   }
 }

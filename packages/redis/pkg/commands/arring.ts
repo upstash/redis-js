@@ -5,18 +5,18 @@ import { Command } from "./command";
  * Appends values to a fixed-size ring of `size` slots, wrapping back to index `0` and overwriting
  * the oldest values once the ring is full. Calling it with a different `size` reshapes the ring.
  *
- * Returns the index the last value was written to.
+ * Returns the index the last value was written to, as a string; see `arlen`.
  *
- *
- * Indexes above `Number.MAX_SAFE_INTEGER` are returned as strings, so the result is
- * `number | string`.
  * @see https://upstash.com/docs/redis/commands/array/arring
  */
-export class ArRingCommand<TData = string> extends Command<number | string, number | string> {
+export class ArRingCommand<TData = string> extends Command<number | string, string> {
   constructor(
     cmd: [key: string, size: number, ...values: TData[]],
-    opts?: CommandOptions<number | string, number | string>
+    opts?: CommandOptions<number | string, string>
   ) {
-    super(["ARRING", ...cmd], opts);
+    super(["ARRING", ...cmd], {
+      deserialize: String,
+      ...opts,
+    });
   }
 }

@@ -27,7 +27,7 @@ describe("ARINFO", () => {
         "next-insert-index",
         3,
       ])
-    ).toEqual({ len: 3, count: 3, sliceSize: 4096, nextInsertIndex: 3 });
+    ).toEqual({ len: "3", count: 3, sliceSize: 4096, nextInsertIndex: "3" });
   });
 
   test("keeps integers outside the safe range as strings", () => {
@@ -41,9 +41,9 @@ describe("ARINFO", () => {
     await new ArInsertCommand([key, "a", "b", "c"]).exec(client);
 
     const info = await new ArInfoCommand([key]).exec(client);
-    expect(info.len).toBe(3);
+    expect(info.len).toBe("3");
     expect(info.count).toBe(3);
-    expect(info.nextInsertIndex).toBe(3);
+    expect(info.nextInsertIndex).toBe("3");
     expect(info.denseSlices).toBeUndefined();
 
     const full = await new ArInfoCommand([key, { full: true }]).exec(client);

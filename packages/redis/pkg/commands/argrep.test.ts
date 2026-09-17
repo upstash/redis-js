@@ -46,13 +46,13 @@ describe("ARGREP", () => {
     const key = newKey();
     await new ArSetCommand([key, 0, "error: disk", "ok", "ERROR: net"]).exec(client);
 
-    const indexes: (number | string)[] = await new ArGrepCommand([
+    const indexes: string[] = await new ArGrepCommand([
       key,
       "-",
       "+",
       { predicates: [{ match: "error" }] },
     ]).exec(client);
-    expect(indexes).toEqual([0]);
+    expect(indexes).toEqual(["0"]);
 
     expect(
       await new ArGrepCommand([
@@ -61,22 +61,22 @@ describe("ARGREP", () => {
         10,
         { predicates: [{ match: "error" }], noCase: true },
       ]).exec(client)
-    ).toEqual([0, 2]);
+    ).toEqual(["0", "2"]);
   });
 
   test("returns index-value pairs with withValues", async () => {
     const key = newKey();
     await new ArSetCommand([key, 0, "apple", "banana", "avocado"]).exec(client);
 
-    const pairs: [number | string, string][] = await new ArGrepCommand([
+    const pairs: [string, string][] = await new ArGrepCommand([
       key,
       "-",
       "+",
       { predicates: [{ glob: "a*" }], withValues: true },
     ]).exec(client);
     expect(pairs).toEqual([
-      [0, "apple"],
-      [2, "avocado"],
+      ["0", "apple"],
+      ["2", "avocado"],
     ]);
   });
 
@@ -90,6 +90,6 @@ describe("ARGREP", () => {
         "+",
         { predicates: [{ glob: "a*" }, { match: "cot" }], combine: "AND" },
       ]).exec(client)
-    ).toEqual([1]);
+    ).toEqual(["1"]);
   });
 });

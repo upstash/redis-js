@@ -27,13 +27,13 @@ describe("ARSCAN", () => {
     await new ArSetCommand([key, 5000, "c"]).exec(client);
 
     expect(await new ArScanCommand([key, 0, 10_000]).exec(client)).toEqual([
-      [10, "a"],
-      [1000, "b"],
-      [5000, "c"],
+      ["10", "a"],
+      ["1000", "b"],
+      ["5000", "c"],
     ]);
     expect(await new ArScanCommand([key, 0, 10_000, { limit: 2 }]).exec(client)).toEqual([
-      [10, "a"],
-      [1000, "b"],
+      ["10", "a"],
+      ["1000", "b"],
     ]);
   });
 });

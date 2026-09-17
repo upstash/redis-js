@@ -14,10 +14,10 @@ afterAll(cleanup);
 describe("ARINSERT / ARNEXT / ARSEEK", () => {
   test("appends and returns the index of the last value", async () => {
     const key = newKey();
-    expect(await new ArNextCommand([key]).exec(client)).toBe(0);
-    expect(await new ArInsertCommand([key, "a", "b"]).exec(client)).toBe(1);
-    expect(await new ArInsertCommand([key, "c"]).exec(client)).toBe(2);
-    expect(await new ArNextCommand([key]).exec(client)).toBe(3);
+    expect(await new ArNextCommand([key]).exec(client)).toBe("0");
+    expect(await new ArInsertCommand([key, "a", "b"]).exec(client)).toBe("1");
+    expect(await new ArInsertCommand([key, "c"]).exec(client)).toBe("2");
+    expect(await new ArNextCommand([key]).exec(client)).toBe("3");
     expect(await new ArGetRangeCommand([key, 0, 2]).exec(client)).toEqual(["a", "b", "c"]);
   });
 
@@ -25,22 +25,22 @@ describe("ARINSERT / ARNEXT / ARSEEK", () => {
     const key = newKey();
     await new ArInsertCommand([key, "a", "b"]).exec(client);
     await new ArDelCommand([key, 1]).exec(client);
-    expect(await new ArInsertCommand([key, "c"]).exec(client)).toBe(2);
+    expect(await new ArInsertCommand([key, "c"]).exec(client)).toBe("2");
   });
 
   test("arset does not move the cursor", async () => {
     const key = newKey();
     await new ArSetCommand([key, 5, "x"]).exec(client);
-    expect(await new ArNextCommand([key]).exec(client)).toBe(0);
-    expect(await new ArInsertCommand([key, "a"]).exec(client)).toBe(0);
+    expect(await new ArNextCommand([key]).exec(client)).toBe("0");
+    expect(await new ArInsertCommand([key, "a"]).exec(client)).toBe("0");
   });
 
   test("arseek moves the cursor", async () => {
     const key = newKey();
     await new ArInsertCommand([key, "a", "b", "c"]).exec(client);
     expect(await new ArSeekCommand([key, 10]).exec(client)).toBe(1);
-    expect(await new ArNextCommand([key]).exec(client)).toBe(10);
-    expect(await new ArInsertCommand([key, "z"]).exec(client)).toBe(10);
+    expect(await new ArNextCommand([key]).exec(client)).toBe("10");
+    expect(await new ArInsertCommand([key, "z"]).exec(client)).toBe("10");
   });
 
   test("arseek on a missing key returns 0", async () => {

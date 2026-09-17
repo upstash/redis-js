@@ -98,6 +98,11 @@ for common problems. If you can't find a solution, please
 See [the documentation](https://upstash.com/docs/redis/sdks/ts/overview) for
 details.
 
+The npm package includes documentation in `node_modules/@upstash/redis/docs/`
+and TypeScript source in `node_modules/@upstash/redis/src/` for offline reference
+and coding agents. Start with `docs/overview.mdx`; the Redis implementation is
+in `src/pkg/redis.ts` and platform adapters are in `src/platforms/`.
+
 ## Contributing
 
 ### [Install Bun](https://bun.sh/docs/installation)

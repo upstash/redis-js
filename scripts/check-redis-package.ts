@@ -23,9 +23,9 @@ for (const platform of ["nodejs", "cloudflare", "fastly"]) {
 }
 
 for (const file of [
-  "src/redis.ts",
-  "src/http.ts",
-  "src/commands/get.ts",
+  "src/pkg/redis.ts",
+  "src/pkg/http.ts",
+  "src/pkg/commands/get.ts",
   "src/version.ts",
   "docs/overview.mdx",
   "docs/getstarted.mdx",
@@ -35,7 +35,6 @@ for (const file of [
 }
 
 for (const file of files) {
-  assert(!file.startsWith("src/pkg/"), `Unexpected nested source: ${file}`);
   assert(
     !/^src\/.*(?:\.(?:test|test-d|spec)\.|\/test-utils\.|\/__(?:tests|snapshots)__\/)/.test(file),
     `Unexpected test file: ${file}`

@@ -213,6 +213,8 @@ import {
 } from "./commands/search";
 import type { InitIndexParameters } from "./commands/search/search";
 import { createIndex, initIndex, listAliases, addAlias, delAlias } from "./commands/search/search";
+import type { CreateVectorIndexParameters } from "./commands/vector/vector";
+import { createVectorIndex, initVectorIndex } from "./commands/vector/vector";
 import { Subscriber } from "./commands/subscribe";
 import { ZDiffStoreCommand } from "./commands/zdiffstore";
 import { ZMScoreCommand } from "./commands/zmscore";
@@ -544,6 +546,34 @@ export class Redis {
         delete: ({ alias }: { alias: string }) => {
           return delAlias(this.client, { alias });
         },
+      },
+    };
+  }
+
+  /**
+   * Vector index commands.
+   *
+   * @example
+   * ```typescript
+   * const index = await redis.vector.createIndex({ name: "docs", dimension: 3, metric: "COSINE" });
+   * await index.add("doc-1", [0.1, 0.2, 0.3]);
+   * const hits = await index.query({ vector: [0.1, 0.2, 0.3], topK: 5 });
+   * ```
+   */
+  get vector() {
+    return {
+      /**
+       * Creates a vector index and returns a handle to it.
+       */
+      createIndex: (params: CreateVectorIndexParameters) => {
+        return createVectorIndex(this.client, params, this.opts);
+      },
+
+      /**
+       * Returns a handle to an existing vector index without sending any command.
+       */
+      index: (name: string) => {
+        return initVectorIndex(this.client, name, this.opts);
       },
     };
   }

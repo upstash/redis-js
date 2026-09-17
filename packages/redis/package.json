@@ -63,7 +63,7 @@
     "doc": "./docs"
   },
   "scripts": {
-    "build": "tsup && node ../../scripts/stage-redis-source.mjs && cp package.json README.md ../../LICENSE dist/",
+    "build": "tsup && mkdir -p dist/src && cp -R pkg/. dist/src/ && cp -R platforms version.ts dist/src/ && sed -i.bak 's|\\.\\./pkg/|../|g' dist/src/platforms/*.ts && sed -i.bak 's|\\.\\./pkg/|./|g' dist/src/redis.ts && rm dist/src/platforms/*.bak dist/src/redis.ts.bak && cp package.json README.md ../../LICENSE dist/",
     "test": "bun test pkg --bail --timeout 20000",
     "check-exports": "bun run build && cd dist && attw -P",
     "check:pack": "bun ../../scripts/check-redis-package.ts",

@@ -7,12 +7,15 @@ import { Command } from "./command";
  *
  * Returns the index the last value was written to.
  *
+ *
+ * Indexes above `Number.MAX_SAFE_INTEGER` are returned as strings, so the result is
+ * `number | string`.
  * @see https://upstash.com/docs/redis/commands/array/arring
  */
-export class ArRingCommand<TData = string> extends Command<number, number> {
+export class ArRingCommand<TData = string> extends Command<number | string, number | string> {
   constructor(
     cmd: [key: string, size: number, ...values: TData[]],
-    opts?: CommandOptions<number, number>
+    opts?: CommandOptions<number | string, number | string>
   ) {
     super(["ARRING", ...cmd], opts);
   }

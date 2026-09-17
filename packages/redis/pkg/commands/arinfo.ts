@@ -1,5 +1,6 @@
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
+import { toNumberOrString } from "../util";
 
 export type ArInfoOptions = {
   /**
@@ -9,8 +10,11 @@ export type ArInfoOptions = {
 };
 
 export type ArInfoResult = {
-  /** Highest occupied index plus one, as reported by `arlen`. */
-  len: number;
+  /**
+   * Highest occupied index plus one, as reported by `arlen`. Values above
+   * `Number.MAX_SAFE_INTEGER` are returned as strings.
+   */
+  len: number | string;
   /** Number of occupied slots, as reported by `arcount`. */
   count: number;
   /** Number of indexes covered by one slice. */
@@ -21,8 +25,11 @@ export type ArInfoResult = {
   directorySize: number;
   /** Number of entries in the top-level directory. */
   superDirEntries: number;
-  /** Index the next `arinsert` would write to. */
-  nextInsertIndex: number;
+  /**
+   * Index the next `arinsert` would write to. Values above `Number.MAX_SAFE_INTEGER` are
+   * returned as strings.
+   */
+  nextInsertIndex: number | string;
   /** Slices stored in dense form. Only with `full`. */
   denseSlices?: number;
   /** Slices stored in sparse form. Only with `full`. */
@@ -51,8 +58,8 @@ export function deserializeArInfoResponse(result: RawArInfo): ArInfoResult {
 
   const info: Record<string, unknown> = {};
   for (const [field, value] of entries) {
-    const numeric = typeof value === "number" ? value : Number(value);
-    info[toCamelCase(String(field))] = Number.isNaN(numeric) ? value : numeric;
+    info[toCamelCase(String(field))] =
+      typeof value === "number" || typeof value === "string" ? toNumberOrString(value) : value;
   }
   return info as ArInfoResult;
 }

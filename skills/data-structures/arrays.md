@@ -60,4 +60,5 @@ await redis.ardelrange("readings", [100, 199], [200, 299]);
 
 - `arset` does not move the append cursor. An `arinsert` after `arset` on a fresh key writes to index `0` and overwrites it. Use one style per array, or `arseek` the cursor first.
 - `arlen` is not the number of values in a sparse array; use `arcount`.
+- Assuming every index is a `number`. Indexes run to 2^64-2, so anything above `Number.MAX_SAFE_INTEGER` comes back as a string (`arlen`, `arinsert`, `arring`, `arnext`, `arscan`, `argrep` and `arinfo`'s `len`/`nextInsertIndex` are typed `number | string`). Pass big indexes in as strings too.
 - `argetrange` returns one element per index (nulls for holes) and rejects ranges over 1,000,000 indexes. Use `arscan` for sparse ranges.

@@ -46,7 +46,7 @@ describe("ARGREP", () => {
     const key = newKey();
     await new ArSetCommand([key, 0, "error: disk", "ok", "ERROR: net"]).exec(client);
 
-    const indexes: number[] = await new ArGrepCommand([
+    const indexes: (number | string)[] = await new ArGrepCommand([
       key,
       "-",
       "+",
@@ -68,7 +68,7 @@ describe("ARGREP", () => {
     const key = newKey();
     await new ArSetCommand([key, 0, "apple", "banana", "avocado"]).exec(client);
 
-    const pairs: [number, string][] = await new ArGrepCommand([
+    const pairs: [number | string, string][] = await new ArGrepCommand([
       key,
       "-",
       "+",

@@ -39,15 +39,16 @@ export type ArGrepOptions = {
 };
 
 /**
- * `number[]` of matching indexes, or `[index, value]` pairs when `withValues` is `true`.
+ * Matching indexes, or `[index, value]` pairs when `withValues` is `true`. Indexes above
+ * `Number.MAX_SAFE_INTEGER` are returned as strings.
  */
 export type ArGrepResult<TData, TOpts extends ArGrepOptions> = TOpts extends { withValues: true }
-  ? [number, TData][]
+  ? [number | string, TData][]
   : TOpts extends { withValues: false }
-    ? number[]
+    ? (number | string)[]
     : "withValues" extends keyof TOpts
-      ? number[] | [number, TData][]
-      : number[];
+      ? (number | string)[] | [number | string, TData][]
+      : (number | string)[];
 
 /**
  * Returns the indexes in `[start, end]` whose value matches the given predicates, or

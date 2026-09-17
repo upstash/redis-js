@@ -6,10 +6,13 @@ import { Command } from "./command";
  *
  * Because arrays are sparse this can be larger than the number of stored values, see `arcount`.
  *
+ *
+ * Indexes above `Number.MAX_SAFE_INTEGER` are returned as strings, so the result is
+ * `number | string`.
  * @see https://upstash.com/docs/redis/commands/array/arlen
  */
-export class ArLenCommand extends Command<number, number> {
-  constructor(cmd: [key: string], opts?: CommandOptions<number, number>) {
+export class ArLenCommand extends Command<number | string, number | string> {
+  constructor(cmd: [key: string], opts?: CommandOptions<number | string, number | string>) {
     super(["ARLEN", ...cmd], opts);
   }
 }

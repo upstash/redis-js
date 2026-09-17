@@ -9,8 +9,11 @@ import { Command } from "./command";
  *
  * @see https://upstash.com/docs/redis/commands/array/arnext
  */
-export class ArNextCommand extends Command<number | null, number | null> {
-  constructor(cmd: [key: string], opts?: CommandOptions<number | null, number | null>) {
+export class ArNextCommand extends Command<number | string | null, number | string | null> {
+  constructor(
+    cmd: [key: string],
+    opts?: CommandOptions<number | string | null, number | string | null>
+  ) {
     super(["ARNEXT", ...cmd], opts);
   }
 }

@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
+import ts from "typescript";
 
 const directory = fileURLToPath(new URL("../packages/redis/dist/", import.meta.url));
 const [pack] = JSON.parse(
@@ -20,9 +23,9 @@ for (const platform of ["nodejs", "cloudflare", "fastly"]) {
 }
 
 for (const file of [
-  "src/pkg/redis.ts",
-  "src/pkg/http.ts",
-  "src/pkg/commands/get.ts",
+  "src/redis.ts",
+  "src/http.ts",
+  "src/commands/get.ts",
   "src/version.ts",
   "docs/overview.mdx",
   "docs/getstarted.mdx",
@@ -32,8 +35,20 @@ for (const file of [
 }
 
 for (const file of files) {
+  assert(!file.startsWith("src/pkg/"), `Unexpected nested source: ${file}`);
   assert(
     !/^src\/.*(?:\.(?:test|test-d|spec)\.|\/test-utils\.|\/__(?:tests|snapshots)__\/)/.test(file),
     `Unexpected test file: ${file}`
   );
+  if (file.startsWith("src/") && file.endsWith(".ts")) {
+    const source = readFileSync(`${directory}/${file}`, "utf8");
+    for (const { fileName } of ts.preProcessFile(source).importedFiles) {
+      if (!fileName.startsWith(".")) continue;
+      const target = path.posix.join(path.posix.dirname(file), fileName);
+      assert(
+        [target, `${target}.ts`, `${target}/index.ts`].some((candidate) => files.has(candidate)),
+        `Unresolved source import in ${file}: ${fileName}`
+      );
+    }
+  }
 }

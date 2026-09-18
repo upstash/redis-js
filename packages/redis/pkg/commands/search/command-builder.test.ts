@@ -543,6 +543,68 @@ describe("buildCreateIndexCommand", () => {
     });
   });
 
+  describe("stream index", () => {
+    test("builds stream index command with the stream key instead of PREFIX", () => {
+      const schema = s.object({
+        message: s.string(),
+        severity: s.number("U64"),
+        service: s.keyword(),
+      });
+
+      const command = buildCreateIndexCommand({
+        name: "event-search",
+        schema,
+        dataType: "stream",
+        stream: "events",
+      });
+
+      expect(command).toEqual([
+        "SEARCH.CREATE",
+        "event-search",
+        "ON",
+        "STREAM",
+        "events",
+        "SCHEMA",
+        "message",
+        "TEXT",
+        "severity",
+        "U64",
+        "FAST",
+        "service",
+        "KEYWORD",
+      ]);
+    });
+
+    test("builds stream index command with options", () => {
+      const command = buildCreateIndexCommand({
+        name: "event-search",
+        schema: s.object({ description: s.string().from("message") }),
+        dataType: "stream",
+        stream: "events",
+        language: "turkish",
+        skipInitialScan: true,
+        existsOk: true,
+      });
+
+      expect(command).toEqual([
+        "SEARCH.CREATE",
+        "event-search",
+        "SKIPINITIALSCAN",
+        "EXISTSOK",
+        "ON",
+        "STREAM",
+        "events",
+        "LANGUAGE",
+        "turkish",
+        "SCHEMA",
+        "description",
+        "TEXT",
+        "FROM",
+        "message",
+      ]);
+    });
+  });
+
   describe("string/JSON index", () => {
     test("builds nested string index command", () => {
       const schema = s.object({

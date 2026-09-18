@@ -9,8 +9,27 @@ import type {
   ScanResultStandard,
   ScanResultWithType,
 } from "./commands/mod";
+import type { ArGrepOptions, ArMSetValues, ArOpOperation } from "./commands/mod";
 import {
   AppendCommand,
+  ArCountCommand,
+  ArDelCommand,
+  ArDelRangeCommand,
+  ArGetCommand,
+  ArGetRangeCommand,
+  ArGrepCommand,
+  ArInfoCommand,
+  ArInsertCommand,
+  ArLastItemsCommand,
+  ArLenCommand,
+  ArMGetCommand,
+  ArMSetCommand,
+  ArNextCommand,
+  ArOpCommand,
+  ArRingCommand,
+  ArScanCommand,
+  ArSeekCommand,
+  ArSetCommand,
   BitCountCommand,
   BitFieldCommand,
   BitOpCommand,
@@ -603,6 +622,122 @@ export class Redis {
    */
   append = (...args: CommandArgs<typeof AppendCommand>) =>
     new AppendCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://upstash.com/docs/redis/commands/array/arcount
+   */
+  arcount = (...args: CommandArgs<typeof ArCountCommand>) =>
+    new ArCountCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://upstash.com/docs/redis/commands/array/ardel
+   */
+  ardel = (...args: CommandArgs<typeof ArDelCommand>) =>
+    new ArDelCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://upstash.com/docs/redis/commands/array/ardelrange
+   */
+  ardelrange = (...args: CommandArgs<typeof ArDelRangeCommand>) =>
+    new ArDelRangeCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://upstash.com/docs/redis/commands/array/arget
+   */
+  arget = <TData = string>(...args: CommandArgs<typeof ArGetCommand>) =>
+    new ArGetCommand<TData>(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://upstash.com/docs/redis/commands/array/argetrange
+   */
+  argetrange = <TData = string>(...args: CommandArgs<typeof ArGetRangeCommand>) =>
+    new ArGetRangeCommand<TData>(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://upstash.com/docs/redis/commands/array/argrep
+   */
+  argrep = <TData = string, TOpts extends ArGrepOptions = ArGrepOptions>(
+    key: string,
+    start: number | string,
+    end: number | string,
+    opts: TOpts
+  ) => new ArGrepCommand<TData, TOpts>([key, start, end, opts], this.opts).exec(this.client);
+
+  /**
+   * @see https://upstash.com/docs/redis/commands/array/arinfo
+   */
+  arinfo = (...args: CommandArgs<typeof ArInfoCommand>) =>
+    new ArInfoCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://upstash.com/docs/redis/commands/array/arinsert
+   */
+  arinsert = <TData>(key: string, ...values: TData[]) =>
+    new ArInsertCommand<TData>([key, ...values], this.opts).exec(this.client);
+
+  /**
+   * @see https://upstash.com/docs/redis/commands/array/arlastitems
+   */
+  arlastitems = <TData = string>(...args: CommandArgs<typeof ArLastItemsCommand>) =>
+    new ArLastItemsCommand<TData>(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://upstash.com/docs/redis/commands/array/arlen
+   */
+  arlen = (...args: CommandArgs<typeof ArLenCommand>) =>
+    new ArLenCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://upstash.com/docs/redis/commands/array/armget
+   */
+  armget = <TData = string>(...args: CommandArgs<typeof ArMGetCommand>) =>
+    new ArMGetCommand<TData>(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://upstash.com/docs/redis/commands/array/armset
+   */
+  armset = <TData>(key: string, values: ArMSetValues<TData>) =>
+    new ArMSetCommand<TData>([key, values], this.opts).exec(this.client);
+
+  /**
+   * @see https://upstash.com/docs/redis/commands/array/arnext
+   */
+  arnext = (...args: CommandArgs<typeof ArNextCommand>) =>
+    new ArNextCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://upstash.com/docs/redis/commands/array/arop
+   */
+  arop = <TData = string>(
+    key: string,
+    start: number | string,
+    end: number | string,
+    operation: ArOpOperation<TData>
+  ) => new ArOpCommand<TData>([key, start, end, operation], this.opts).exec(this.client);
+
+  /**
+   * @see https://upstash.com/docs/redis/commands/array/arring
+   */
+  arring = <TData>(key: string, size: number, ...values: TData[]) =>
+    new ArRingCommand<TData>([key, size, ...values], this.opts).exec(this.client);
+
+  /**
+   * @see https://upstash.com/docs/redis/commands/array/arscan
+   */
+  arscan = <TData = string>(...args: CommandArgs<typeof ArScanCommand>) =>
+    new ArScanCommand<TData>(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://upstash.com/docs/redis/commands/array/arseek
+   */
+  arseek = (...args: CommandArgs<typeof ArSeekCommand>) =>
+    new ArSeekCommand(args, this.opts).exec(this.client);
+
+  /**
+   * @see https://upstash.com/docs/redis/commands/array/arset
+   */
+  arset = <TData>(key: string, index: number | string, ...values: TData[]) =>
+    new ArSetCommand<TData>([key, index, ...values], this.opts).exec(this.client);
 
   /**
    * @see https://redis.io/commands/bitcount

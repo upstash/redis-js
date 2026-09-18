@@ -78,7 +78,8 @@ const hits = await events.query({
 // [{ key: "1757000000000-0", score: 0.5, data: { message: "...", service: "checkout", severity: 4, ... } }]
 
 // Read the full original entry by its ID
-const [entry] = await redis.xrange("events", hits[0].key, hits[0].key);
+const entries = await redis.xrange("events", hits[0].key, hits[0].key);
+const entry = entries[hits[0].key];
 ```
 
 Notes:

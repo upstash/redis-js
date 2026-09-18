@@ -3,6 +3,7 @@ import { keygen, newHttpClient, randomID } from "./test-utils";
 
 import { afterEach, describe, expect, test } from "bun:test";
 import { HttpClient } from "./http";
+import { createAutoPipelineProxy } from "./auto-pipeline";
 import type { ScanResultStandard, ScanResultWithType } from "./commands/scan";
 import { s } from "./commands/search";
 const client = newHttpClient();
@@ -345,12 +346,24 @@ describe("array", () => {
   });
 
   test("should auto-pipeline array commands", async () => {
-    const redis = new Redis(client, { enableAutoPipelining: true });
+    const redis = createAutoPipelineProxy(new Redis(client));
     const key = `test-array-${randomID().slice(0, 8)}`;
     try {
-      const [set, count] = await Promise.all([redis.arset(key, 0, "x"), redis.arcount(key)]);
-      expect(set).toBe(1);
-      expect(count).toBe(1);
+      expect(await redis.arset(key, 0, "x")).toBe(1);
+
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(1);
+
+      const results = await Promise.all([
+        redis.arget(key, 0),
+        redis.arcount(key),
+        redis.arlen(key),
+      ]);
+      expect(results).toEqual(["x", 1, "1"]);
+
+      // All three reads should share one additional pipeline.
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(2);
     } finally {
       await redis.del(key);
     }

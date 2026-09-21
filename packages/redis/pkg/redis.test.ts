@@ -3,6 +3,7 @@ import { keygen, newHttpClient, randomID } from "./test-utils";
 
 import { afterEach, describe, expect, test } from "bun:test";
 import { HttpClient } from "./http";
+import { createAutoPipelineProxy } from "./auto-pipeline";
 import type { ScanResultStandard, ScanResultWithType } from "./commands/scan";
 import { s } from "./commands/search";
 const client = newHttpClient();
@@ -314,4 +315,57 @@ describe("search", () => {
     },
     { timeout: 30_000 }
   );
+});
+
+describe("array", () => {
+  test("should expose array commands on the client, pipelines and transactions", async () => {
+    const redis = new Redis(client);
+    const key = `test-array-${randomID().slice(0, 8)}`;
+    try {
+      expect(await redis.arinsert(key, "a", "b")).toBe("1");
+      const value = await redis.arget(key, 1);
+      expect(value).toEqual("b");
+      expect(await redis.argrep(key, "-", "+", { predicates: [{ exact: "a" }] })).toEqual(["0"]);
+
+      // ARSET writes positionally and does not move the append cursor
+      const res = await redis
+        .pipeline()
+        .arset(key, 5, "c")
+        .armget(key, 0, 5)
+        .arcount(key)
+        .arop(key, 0, 5, { match: "c" })
+        .arnext(key)
+        .exec();
+      expect(res).toEqual([1, ["a", "c"], 3, 1, "2"]);
+
+      const tx = await redis.multi().ardel(key, 0).arlen(key).exec();
+      expect(tx).toEqual([1, "6"]);
+    } finally {
+      await redis.del(key);
+    }
+  });
+
+  test("should auto-pipeline array commands", async () => {
+    const redis = createAutoPipelineProxy(new Redis(client));
+    const key = `test-array-${randomID().slice(0, 8)}`;
+    try {
+      expect(await redis.arset(key, 0, "x")).toBe(1);
+
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(1);
+
+      const results = await Promise.all([
+        redis.arget(key, 0),
+        redis.arcount(key),
+        redis.arlen(key),
+      ]);
+      expect(results).toEqual(["x", 1, "1"]);
+
+      // All three reads should share one additional pipeline.
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(2);
+    } finally {
+      await redis.del(key);
+    }
+  });
 });

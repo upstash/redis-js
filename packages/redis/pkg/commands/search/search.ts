@@ -25,14 +25,40 @@ import {
 
 export type CreateIndexParameters<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
   name: string;
-  prefix: string | string[];
   language?: Language;
   skipInitialScan?: boolean;
   existsOk?: boolean;
 } & (
-  | { dataType: "string"; schema: TSchema extends NestedIndexSchema ? TSchema : never }
-  | { dataType: "json"; schema: TSchema extends NestedIndexSchema ? TSchema : never }
-  | { dataType: "hash"; schema: TSchema extends FlatIndexSchema ? TSchema : never }
+  | {
+      dataType: "string";
+      prefix: string | string[];
+      schema: TSchema extends NestedIndexSchema ? TSchema : never;
+    }
+  | {
+      dataType: "json";
+      prefix: string | string[];
+      schema: TSchema extends NestedIndexSchema ? TSchema : never;
+    }
+  | {
+      dataType: "hash";
+      prefix: string | string[];
+      schema: TSchema extends FlatIndexSchema ? TSchema : never;
+    }
+  | {
+      /**
+       * Index the entries of a single Redis stream. Each entry becomes a document whose key is
+       * the entry ID and whose fields are the entry's fields.
+       *
+       * @see https://upstash.com/docs/redis/search/streams
+       */
+      dataType: "stream";
+      /**
+       * Exact key of the stream to index. The stream does not need to exist yet.
+       */
+      stream: string;
+      prefix?: never;
+      schema: TSchema extends FlatIndexSchema ? TSchema : never;
+    }
 );
 
 export type InitIndexParameters<TSchema extends NestedIndexSchema | FlatIndexSchema> = {

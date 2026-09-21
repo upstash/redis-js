@@ -1,5 +1,14 @@
 # @upstash/search-ioredis
 
+## 3.0.0
+
+### Patch Changes
+
+- Updated dependencies [6801501]
+- Updated dependencies [3f6e286]
+- Updated dependencies [33658bc]
+  - @upstash/redis@1.39.0
+
 ## 2.0.4
 
 ### Patch Changes

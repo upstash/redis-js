@@ -3,11 +3,12 @@ import { keygen, newHttpClient } from "./test-utils";
 import { afterAll, describe, expect, test } from "bun:test";
 
 import { Redis as PublicRedis } from "../platforms/nodejs";
+import { GetCommand } from "./commands/get";
 import { SetCommand } from "./commands/set";
 import { Redis } from "./redis";
 
 const client = newHttpClient();
-const { cleanup } = keygen();
+const { newKey, cleanup } = keygen();
 afterAll(cleanup);
 describe("Read Your Writes Feature", () => {
   test("successfully retrieves Upstash-Sync-Token in the response header and updates local state", async () => {
@@ -17,6 +18,39 @@ describe("Read Your Writes Feature", () => {
     await new SetCommand(["key", "value"]).exec(client);
 
     expect(updatedSync).not.toEqual(initialSync);
+  });
+
+  /**
+   * Every other test here asserts the token the client *stored* after a response. None of them
+   * asserted the token it actually *sends*, which is the half read-your-writes depends on — so this
+   * captures the outgoing `upstash-sync-token` header instead.
+   *
+   * `request()` snapshots the outgoing headers with `mergeHeaders(this.headers, ...)` and only then
+   * writes the freshest token into `this.headers`, so the write lands one request too late: the read
+   * that follows a write travels without the token that proves the write happened.
+   */
+  test("sends the token from the write on the request that follows it", async () => {
+    const key = newKey();
+    const sentTokens: (string | null)[] = [];
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = ((input: Parameters<typeof realFetch>[0], init?: RequestInit) => {
+      sentTokens.push(new Headers(init?.headers).get("upstash-sync-token"));
+      return realFetch(input, init);
+    }) as typeof globalThis.fetch;
+
+    try {
+      await new SetCommand([key, "value"]).exec(client);
+      // The token the server handed back for the write — the position a subsequent read must be
+      // able to observe.
+      const tokenFromWrite = client.upstashSyncToken;
+
+      await new GetCommand([key]).exec(client);
+
+      expect(sentTokens).toHaveLength(2);
+      expect(sentTokens[1]).toBe(tokenFromWrite);
+    } finally {
+      globalThis.fetch = realFetch;
+    }
   });
 
   test("succesfully updates sync state with pipeline", async () => {

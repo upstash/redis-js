@@ -1,5 +1,13 @@
 # @upstash/redis
 
+## 1.39.0
+
+### Minor Changes
+
+- 6801501: Add array commands: `arset`, `armset`, `arget`, `armget`, `argetrange`, `arscan`, `argrep`, `ardel`, `ardelrange`, `arcount`, `arlen`, `arinsert`, `arring`, `arlastitems`, `arnext`, `arseek`, `arop` and `arinfo`, available on the client, in pipelines and in transactions.
+- 3f6e286: Support search indexes over Redis streams: `redis.search.createIndex({ dataType: "stream", stream: "events", schema })` indexes every entry of the stream as a document keyed by its entry ID. `describe()` reports `dataType: "stream"` with the stream key in `prefixes`.
+- 33658bc: Add vector index support: `redis.vector.createIndex()` / `redis.vector.index()` return a `VectorIndex` with `add`, `get`, `query`, `delete`, `count`, `info` and `drop`, backed by the new `VECTOR.CREATE`, `VECTOR.ADD`, `VECTOR.GET`, `VECTOR.QUERY`, `VECTOR.DEL`, `VECTOR.COUNT`, `VECTOR.INFO` and `VECTOR.DROP` commands.
+
 ## 1.38.4
 
 ### Patch Changes

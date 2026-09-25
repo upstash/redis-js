@@ -539,6 +539,9 @@ export class Redis {
    * entire script to the server. If the script is loaded on the server, it tries again by sending
    * the entire script. Afterwards, the script is cached on the server.
    *
+   * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
+   * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   *
    * @param script - The script to create
    * @param opts - Optional options to pass to the script `{ readonly?: boolean }`
    * @returns A new script

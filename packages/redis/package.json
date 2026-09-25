@@ -63,8 +63,8 @@
     "doc": "./docs"
   },
   "scripts": {
-    "build": "tsup && mkdir -p dist/src && cp -R pkg platforms version.ts dist/src/ && cp package.json README.md ../../LICENSE dist/",
-    "test": "bun test pkg --bail --timeout 20000",
+    "build": "tsup && mkdir -p dist/src && cp -R pkg platforms version.ts dist/src/ && find dist/src \\( -name '*.test.ts' -o -name test-utils.ts \\) -delete && cp package.json README.md ../../LICENSE dist/",
+    "test": "bun test ./pkg --bail --timeout 20000",
     "check-exports": "bun run build && cd dist && attw -P",
     "prepack": "giget gh:upstash/docs/redis/sdks/ts docs --force-clean 1>&2"
   },

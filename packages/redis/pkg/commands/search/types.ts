@@ -589,7 +589,10 @@ export type DescribeFieldInfo = {
 
 export type IndexDescription<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
   name: string;
-  dataType: "hash" | "string" | "json";
+  dataType: "hash" | "string" | "json" | "stream";
+  /**
+   * Key prefixes tracked by the index. For a stream index, this holds the single stream key.
+   */
   prefixes: string[];
   language?: Language;
   schema: IsDefaultSchema<TSchema> extends true

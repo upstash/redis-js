@@ -1,9 +1,10 @@
 import { Redis } from "../platforms/nodejs";
-import { keygen, newHttpClient } from "./test-utils";
+import { keygen, newHttpClient, randomID } from "./test-utils";
 
 import { afterEach, describe, expect, test } from "bun:test";
 import { ScriptLoadCommand } from "./commands/script_load";
 import { MAX_PIPELINE_SIZE } from "./auto-pipeline";
+import { s } from "./commands/search";
 
 const client = newHttpClient();
 
@@ -732,6 +733,43 @@ describe("Auto pipeline", () => {
 
       // @ts-expect-error pipelineCounter is not in type but accessible
       expect(redis.pipelineCounter).toBe(1);
+    });
+
+    // `vector` and `search` are handle-based namespaces that only exist on `Redis`, so the proxy
+    // must pass them straight through. Adding a namespace of the same name to `Pipeline` would
+    // shadow them and break `createIndex`; these tests are the guard against that.
+    test("should expose the vector namespace under auto-pipelining", async () => {
+      const redis = Redis.fromEnv({});
+      const name = `auto-pipeline-vector-${randomID().slice(0, 8)}`;
+
+      expect(Object.keys(redis.vector)).toEqual(["createIndex", "index"]);
+
+      const index = await redis.vector.createIndex({ name, dimension: 2, metric: "COSINE" });
+      try {
+        expect(await index.add("a", [1, 0])).toBe(1);
+        expect(await redis.vector.index(name).count()).toBe(1);
+      } finally {
+        await index.drop();
+      }
+    });
+
+    test("should expose the search namespace under auto-pipelining", async () => {
+      const redis = Redis.fromEnv({});
+      const name = `auto-pipeline-search-${randomID().slice(0, 8)}`;
+
+      expect(Object.keys(redis.search)).toEqual(["createIndex", "index", "alias"]);
+
+      const index = await redis.search.createIndex({
+        name,
+        dataType: "hash",
+        prefix: `${name}:`,
+        schema: s.object({ title: s.string() }),
+      });
+      try {
+        expect(await index.describe()).toMatchObject({ name });
+      } finally {
+        await index.drop();
+      }
     });
 
     test("should bypass auto-pipelining for scan, keys, flushdb, flushall, dbsize, and exec", async () => {

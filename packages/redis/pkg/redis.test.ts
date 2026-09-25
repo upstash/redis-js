@@ -3,6 +3,7 @@ import { keygen, newHttpClient, randomID } from "./test-utils";
 
 import { afterEach, describe, expect, test } from "bun:test";
 import { HttpClient } from "./http";
+import { createAutoPipelineProxy } from "./auto-pipeline";
 import type { ScanResultStandard, ScanResultWithType } from "./commands/scan";
 import { s } from "./commands/search";
 const client = newHttpClient();
@@ -314,4 +315,88 @@ describe("search", () => {
     },
     { timeout: 30_000 }
   );
+});
+
+describe("vector", () => {
+  test(
+    "should create an index, add vectors, query and drop through the Redis client",
+    async () => {
+      const redis = new Redis(client);
+      const name = `test-vector-${randomID().slice(0, 8)}`;
+
+      const index = await redis.vector.createIndex({ name, dimension: 3, metric: "COSINE" });
+      try {
+        expect(index.name).toBe(name);
+        expect(await index.info()).toEqual({ dimension: 3, metric: "COSINE" });
+
+        expect(await index.add("a", [1, 0, 0])).toBe(1);
+        expect(await index.add("b", [0, 1, 0])).toBe(1);
+        expect(await index.count()).toBe(2);
+
+        const hits = await index.query({ vector: [1, 0, 0], topK: 1 });
+        expect(hits).toEqual([{ id: "a", score: 1 }]);
+
+        const sameIndex = redis.vector.index(name);
+        expect(await sameIndex.get("b")).toEqual([0, 1, 0]);
+        expect(await sameIndex.delete("b")).toBe(1);
+        expect(await sameIndex.count()).toBe(1);
+      } finally {
+        expect(await index.drop()).toBe(1);
+      }
+    },
+    { timeout: 20_000 }
+  );
+});
+
+describe("array", () => {
+  test("should expose array commands on the client, pipelines and transactions", async () => {
+    const redis = new Redis(client);
+    const key = `test-array-${randomID().slice(0, 8)}`;
+    try {
+      expect(await redis.arinsert(key, "a", "b")).toBe("1");
+      const value = await redis.arget(key, 1);
+      expect(value).toEqual("b");
+      expect(await redis.argrep(key, "-", "+", { predicates: [{ exact: "a" }] })).toEqual(["0"]);
+
+      // ARSET writes positionally and does not move the append cursor
+      const res = await redis
+        .pipeline()
+        .arset(key, 5, "c")
+        .armget(key, 0, 5)
+        .arcount(key)
+        .arop(key, 0, 5, { match: "c" })
+        .arnext(key)
+        .exec();
+      expect(res).toEqual([1, ["a", "c"], 3, 1, "2"]);
+
+      const tx = await redis.multi().ardel(key, 0).arlen(key).exec();
+      expect(tx).toEqual([1, "6"]);
+    } finally {
+      await redis.del(key);
+    }
+  });
+
+  test("should auto-pipeline array commands", async () => {
+    const redis = createAutoPipelineProxy(new Redis(client));
+    const key = `test-array-${randomID().slice(0, 8)}`;
+    try {
+      expect(await redis.arset(key, 0, "x")).toBe(1);
+
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(1);
+
+      const results = await Promise.all([
+        redis.arget(key, 0),
+        redis.arcount(key),
+        redis.arlen(key),
+      ]);
+      expect(results).toEqual(["x", 1, "1"]);
+
+      // All three reads should share one additional pipeline.
+      // @ts-expect-error pipelineCounter is not in type but accessible
+      expect(redis.pipelineCounter).toBe(2);
+    } finally {
+      await redis.del(key);
+    }
+  });
 });

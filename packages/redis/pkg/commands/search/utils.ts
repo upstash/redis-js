@@ -128,10 +128,9 @@ export function deserializeDescribeResponse<TSchema extends NestedIndexSchema | 
         break;
       }
       case "type": {
-        description["dataType"] = (rawResponse[i + 1] as string).toLowerCase() as
-          | "hash"
-          | "string"
-          | "json";
+        description["dataType"] = (
+          rawResponse[i + 1] as string
+        ).toLowerCase() as IndexDescription<TSchema>["dataType"];
         break;
       }
       case "prefixes": {

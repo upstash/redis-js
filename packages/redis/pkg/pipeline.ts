@@ -953,6 +953,8 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    * @see node_modules/@upstash/redis/docs/commands/hash/hmget.mdx
    * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
    * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * With automaticDeserialization: false, hmget returns an array of values in field order instead,
+   * such as ["123", null], with null for each field when the key is missing.
    */
   hmget = <TData extends Record<string, unknown>>(...args: CommandArgs<typeof HMGetCommand>) =>
     this.chain(new HMGetCommand<TData>(args, this.commandOptions));
@@ -1620,6 +1622,8 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    * @see node_modules/@upstash/redis/docs/commands/stream/xrange.mdx
    * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
    * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * With automaticDeserialization: false, xrange returns [id, [field, value, ...]] entries instead,
+   * such as [["1790341484470-0", ["text", "123"]]], and [] for a missing key.
    */
   xrange = <TData extends Record<string, unknown>>(...args: CommandArgs<typeof XRangeCommand>) =>
     this.chain(new XRangeCommand<Record<string, TData>>(args, this.commandOptions));
@@ -1629,6 +1633,8 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
    * @see node_modules/@upstash/redis/docs/commands/stream/xrevrange.mdx
    * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
    * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * With automaticDeserialization: false, xrevrange returns [id, [field, value, ...]] entries instead,
+   * such as [["1790341484470-0", ["text", "123"]]], and [] for a missing key.
    */
   xrevrange = <TData extends Record<string, unknown>>(
     ...args: CommandArgs<typeof XRevRangeCommand>

@@ -29,6 +29,9 @@ export function deserialize<TData extends Record<string, unknown>>(
  * In case the hash does not exist or all fields are empty `null` is returned
  *
  * @see https://redis.io/commands/hmget
+ * @see node_modules/@upstash/redis/docs/commands/hash/hmget.mdx
+ * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
+ * automaticDeserialization: false to the Redis constructor to receive raw strings.
  */
 export class HMGetCommand<TData extends Record<string, unknown>> extends Command<
   (string | null)[],

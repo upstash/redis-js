@@ -12,6 +12,9 @@ export type ZRangeCommandOptions = {
   ({ offset: number; count: number } | { offset?: never; count?: never });
 /**
  * @see https://redis.io/commands/zrange
+ * @see node_modules/@upstash/redis/docs/commands/zset/zrange.mdx
+ * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
+ * automaticDeserialization: false to the Redis constructor to receive raw strings.
  */
 export class ZRangeCommand<TData extends unknown[]> extends Command<string[], TData> {
   constructor(

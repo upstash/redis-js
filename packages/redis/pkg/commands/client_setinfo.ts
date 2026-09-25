@@ -5,6 +5,7 @@ export type ClientSetInfoAttribute = "LIB-NAME" | "lib-name" | "LIB-VER" | "lib-
 
 /**
  * @see https://redis.io/commands/client-setinfo
+ * @see node_modules/@upstash/redis/docs/commands/connection/client_setinfo.mdx
  */
 export class ClientSetInfoCommand extends Command<string, string> {
   constructor(

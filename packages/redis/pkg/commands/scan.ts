@@ -32,6 +32,7 @@ export type ScanResultWithType = [string, { key: string; type: string }[]];
 
 /**
  * @see https://redis.io/commands/scan
+ * @see node_modules/@upstash/redis/docs/commands/generic/scan.mdx
  */
 export class ScanCommand<TData = ScanResultStandard> extends Command<[string, string[]], TData> {
   constructor(

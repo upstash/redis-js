@@ -2,6 +2,7 @@ import type { CommandOptions } from "./command";
 import { Command } from "./command";
 /**
  * @see https://redis.io/commands/zremrangebyscore
+ * @see node_modules/@upstash/redis/docs/commands/zset/zremrangebyscore.mdx
  */
 export class ZRemRangeByScoreCommand extends Command<number, number> {
   constructor(

@@ -8,6 +8,7 @@ import { Command } from "./command";
  * already at the highest supported index. Indexes are returned as strings; see `arlen`.
  *
  * @see https://upstash.com/docs/redis/commands/array/arnext
+ * @see node_modules/@upstash/redis/docs/commands/array/arnext.mdx
  */
 export class ArNextCommand extends Command<number | string | null, string | null> {
   constructor(cmd: [key: string], opts?: CommandOptions<number | string | null, string | null>) {

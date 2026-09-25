@@ -12,6 +12,7 @@ import { deserialize } from "./hmget";
  * In case all fields are non-existent or the hash doesn't exist, `null` is returned
  *
  * @see https://redis.io/commands/hgetdel
+ * @see node_modules/@upstash/redis/docs/commands/hash/hgetdel.mdx
  */
 export class HGetDelCommand<TData extends Record<string, unknown>> extends Command<
   (string | null)[],

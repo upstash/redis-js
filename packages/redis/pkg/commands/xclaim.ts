@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/xclaim
+ * @see node_modules/@upstash/redis/docs/commands/stream/xclaim.mdx
  */
 export class XClaimCommand extends Command<unknown[], unknown[]> {
   constructor(

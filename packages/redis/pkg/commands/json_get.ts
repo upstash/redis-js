@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/json.get
+ * @see node_modules/@upstash/redis/docs/commands/json/get.mdx
  */
 export class JsonGetCommand<
   TData extends (unknown | Record<string, unknown>) | (unknown | Record<string, unknown>)[],

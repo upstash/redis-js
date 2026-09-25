@@ -7,6 +7,7 @@ export type ScriptFlushCommandOptions =
 
 /**
  * @see https://redis.io/commands/script-flush
+ * @see node_modules/@upstash/redis/docs/commands/scripts/script_flush.mdx
  */
 export class ScriptFlushCommand extends Command<"OK", "OK"> {
   constructor([opts]: [opts?: ScriptFlushCommandOptions], cmdOpts?: CommandOptions<"OK", "OK">) {

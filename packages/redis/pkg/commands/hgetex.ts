@@ -18,6 +18,7 @@ type HGetExCommandOptions =
  * In case all fields are non-existent or the hash doesn't exist, `null` is returned
  *
  * @see https://redis.io/commands/hgetex
+ * @see node_modules/@upstash/redis/docs/commands/hash/hgetex.mdx
  */
 export class HGetExCommand<TData extends Record<string, unknown>> extends Command<
   (string | null)[],

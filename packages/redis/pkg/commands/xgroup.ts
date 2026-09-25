@@ -43,6 +43,7 @@ type XGroupReturnType<T extends XGroupCommandType> = T["type"] extends "CREATE"
 
 /**
  * @see https://redis.io/commands/xgroup
+ * @see node_modules/@upstash/redis/docs/commands/stream/xgroup.mdx
  */
 export class XGroupCommand<TOptions extends XGroupCommandType = XGroupCommandType> extends Command<
   any,

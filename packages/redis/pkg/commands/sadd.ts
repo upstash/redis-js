@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/sadd
+ * @see node_modules/@upstash/redis/docs/commands/set/sadd.mdx
  */
 export class SAddCommand<TData = string> extends Command<number, number> {
   constructor(

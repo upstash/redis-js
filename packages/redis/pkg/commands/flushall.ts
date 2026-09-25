@@ -2,6 +2,7 @@ import type { CommandOptions } from "./command";
 import { Command } from "./command";
 /**
  * @see https://redis.io/commands/flushall
+ * @see node_modules/@upstash/redis/docs/commands/server/flushall.mdx
  */
 export class FlushAllCommand extends Command<"OK", "OK"> {
   constructor(args?: [{ async?: boolean }], opts?: CommandOptions<"OK", "OK">) {

@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/hincrbyfloat
+ * @see node_modules/@upstash/redis/docs/commands/hash/hincrbyfloat.mdx
  */
 export class HIncrByFloatCommand extends Command<number, number> {
   constructor(

@@ -5,6 +5,7 @@ type XAckDelOption = "KEEPREF" | "keepref" | "DELREF" | "delref" | "ACKED" | "ac
 
 /**
  * @see https://redis.io/commands/xackdel
+ * @see node_modules/@upstash/redis/docs/commands/stream/xackdel.mdx
  */
 export class XAckDelCommand extends Command<number[], number[]> {
   constructor(

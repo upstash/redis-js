@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/renamenx
+ * @see node_modules/@upstash/redis/docs/commands/generic/renamenx.mdx
  */
 export class RenameNXCommand extends Command<"0" | "1", 0 | 1> {
   constructor(cmd: [source: string, destination: string], opts?: CommandOptions<"0" | "1", 0 | 1>) {

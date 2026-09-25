@@ -5,6 +5,7 @@ import type { ScanCommandOptions } from "./scan";
 
 /**
  * @see https://redis.io/commands/hscan
+ * @see node_modules/@upstash/redis/docs/commands/hash/hscan.mdx
  */
 export class HScanCommand extends Command<
   [string, (string | number)[]],

@@ -2,6 +2,7 @@ import type { CommandOptions } from "./command";
 import { Command } from "./command";
 /**
  * @see https://redis.io/commands/spop
+ * @see node_modules/@upstash/redis/docs/commands/set/spop.mdx
  */
 export class SPopCommand<TData> extends Command<string | string[] | null, TData | null> {
   constructor(

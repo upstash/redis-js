@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/bitop
+ * @see node_modules/@upstash/redis/docs/commands/bitmap/bitop.mdx
  */
 export class BitOpCommand extends Command<number, number> {
   constructor(

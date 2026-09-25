@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/hincrby
+ * @see node_modules/@upstash/redis/docs/commands/hash/hincrby.mdx
  */
 export class HIncrByCommand extends Command<number, number> {
   constructor(

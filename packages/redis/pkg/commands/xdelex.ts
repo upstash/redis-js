@@ -5,6 +5,7 @@ type XDelExOption = "KEEPREF" | "keepref" | "DELREF" | "delref" | "ACKED" | "ack
 
 /**
  * @see https://redis.io/commands/xdelex
+ * @see node_modules/@upstash/redis/docs/commands/stream/xdelex.mdx
  */
 export class XDelExCommand extends Command<number[], number[]> {
   constructor(

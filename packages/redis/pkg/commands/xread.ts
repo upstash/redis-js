@@ -51,6 +51,7 @@ type XReadOptions = XReadCommandOptions extends [infer K, infer I, ...any[]]
 
 /**
  * @see https://redis.io/commands/xread
+ * @see node_modules/@upstash/redis/docs/commands/stream/xread.mdx
  */
 export class XReadCommand extends Command<number, unknown[]> {
   constructor([key, id, options]: XReadOptions, opts?: CommandOptions<number, unknown[]>) {

@@ -41,6 +41,7 @@ type XReadGroupOptions = XReadGroupCommandOptions extends [
 
 /**
  * @see https://redis.io/commands/xreadgroup
+ * @see node_modules/@upstash/redis/docs/commands/stream/xreadgroup.mdx
  */
 export class XReadGroupCommand extends Command<number, unknown[]> {
   constructor(

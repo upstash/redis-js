@@ -5,6 +5,7 @@ import { Command } from "./command";
  * Returns the number of occupied slots in an array. A missing key counts as `0`.
  *
  * @see https://upstash.com/docs/redis/commands/array/arcount
+ * @see node_modules/@upstash/redis/docs/commands/array/arcount.mdx
  */
 export class ArCountCommand extends Command<number, number> {
   constructor(cmd: [key: string], opts?: CommandOptions<number, number>) {

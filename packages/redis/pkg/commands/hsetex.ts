@@ -21,6 +21,7 @@ type HSetExCommandOptions = {
  * Returns 1 on success and 0 otherwise.
  *
  * @see https://redis.io/commands/hsetex
+ * @see node_modules/@upstash/redis/docs/commands/hash/hsetex.mdx
  */
 export class HSetExCommand<TData> extends Command<number, number> {
   constructor(

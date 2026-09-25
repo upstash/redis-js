@@ -51,12 +51,22 @@
     "upstash"
   ],
   "files": [
-    "./*"
+    "./*",
+    "!src/**/*.test.*",
+    "!src/**/*.test-d.*",
+    "!src/**/*.spec.*",
+    "!src/**/test-utils.*",
+    "!src/**/__tests__/**",
+    "!src/**/__snapshots__/**"
   ],
+  "directories": {
+    "doc": "./docs"
+  },
   "scripts": {
-    "build": "tsup && cp package.json README.md ../../LICENSE dist/",
-    "test": "bun test pkg --bail --timeout 20000",
-    "check-exports": "bun run build && cd dist && attw -P"
+    "build": "tsup && mkdir -p dist/src && cp -R pkg platforms version.ts dist/src/ && find dist/src \\( -name '*.test.ts' -o -name test-utils.ts \\) -delete && cp package.json README.md ../../LICENSE dist/",
+    "test": "bun test ./pkg --bail --timeout 20000",
+    "check-exports": "bun run build && cd dist && attw -P",
+    "prepack": "giget gh:upstash/docs/redis/sdks/ts docs --force-clean 1>&2"
   },
   "publishConfig": {
     "access": "public"
@@ -69,6 +79,7 @@
   "homepage": "https://github.com/upstash/upstash-redis#readme",
   "devDependencies": {
     "@types/bun": "1.3.6",
+    "giget": "3.3.1",
     "tsup": "^8.2.3",
     "typescript": "latest"
   },

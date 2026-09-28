@@ -1,3 +1,4 @@
+import { parseResponse } from "../util";
 import type { CommandOptions } from "./command.ts";
 import { Command } from "./command.ts";
 
@@ -89,23 +90,13 @@ export class GeoSearchCommand<
 
     const transform = (result: string[] | string[][]) => {
       if (!opts?.withCoord && !opts?.withDist && !opts?.withHash) {
-        return result.map((member) => {
-          try {
-            return { member: JSON.parse(member as string) };
-          } catch {
-            return { member };
-          }
-        });
+        return result.map((member) => ({ member: parseResponse<TMemberType>(member) }));
       }
       return result.map((members) => {
         let counter = 1;
         const obj = {} as any;
 
-        try {
-          obj.member = JSON.parse(members[0]);
-        } catch {
-          obj.member = members[0];
-        }
+        obj.member = parseResponse<TMemberType>(members[0]);
 
         if (opts.withDist) {
           obj.dist = Number.parseFloat(members[counter++]);

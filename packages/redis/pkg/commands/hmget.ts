@@ -30,8 +30,9 @@ export function deserialize<TData extends Record<string, unknown>>(
  *
  * @see https://redis.io/commands/hmget
  * @see node_modules/@upstash/redis/docs/commands/hash/hmget.mdx
- * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
- * automaticDeserialization: false to the Redis constructor to receive raw strings.
+ * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+ * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+ * to receive raw strings.
  * With automaticDeserialization: false, hmget returns an array of values in field order instead,
  * such as ["123", null], with null for each field when the key is missing.
  */

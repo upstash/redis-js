@@ -659,8 +659,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/eval_ro
    * @see node_modules/@upstash/redis/docs/commands/scripts/eval_ro.mdx
-   * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
-   * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
    */
   evalRo = <TArgs extends unknown[], TData = unknown>(
     ...args: [script: string, keys: string[], args: TArgs]
@@ -669,8 +670,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/eval
    * @see node_modules/@upstash/redis/docs/commands/scripts/eval.mdx
-   * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
-   * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
    */
   eval = <TArgs extends unknown[], TData = unknown>(
     ...args: [script: string, keys: string[], args: TArgs]
@@ -679,8 +681,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/evalsha_ro
    * @see node_modules/@upstash/redis/docs/commands/scripts/evalsha_ro.mdx
-   * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
-   * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
    */
   evalshaRo = <TArgs extends unknown[], TData = unknown>(
     ...args: [sha1: string, keys: string[], args: TArgs]
@@ -689,8 +692,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/evalsha
    * @see node_modules/@upstash/redis/docs/commands/scripts/evalsha.mdx
-   * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
-   * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
    */
   evalsha = <TArgs extends unknown[], TData = unknown>(
     ...args: [sha1: string, keys: string[], args: TArgs]
@@ -770,8 +774,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/get
    * @see node_modules/@upstash/redis/docs/commands/string/get.mdx
-   * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
-   * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
    */
   get = <TData>(...args: CommandArgs<typeof GetCommand>) =>
     this.chain(new GetCommand<TData>(args, this.commandOptions));
@@ -785,8 +790,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/getdel
    * @see node_modules/@upstash/redis/docs/commands/string/getdel.mdx
-   * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
-   * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
    */
   getdel = <TData>(...args: CommandArgs<typeof GetDelCommand>) =>
     this.chain(new GetDelCommand<TData>(args, this.commandOptions));
@@ -889,8 +895,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/hget
    * @see node_modules/@upstash/redis/docs/commands/hash/hget.mdx
-   * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
-   * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
    */
   hget = <TData>(...args: CommandArgs<typeof HGetCommand>) =>
     this.chain(new HGetCommand<TData>(args, this.commandOptions));
@@ -898,8 +905,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/hgetall
    * @see node_modules/@upstash/redis/docs/commands/hash/hgetall.mdx
-   * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
-   * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
    * With automaticDeserialization: false, hgetall returns a flat array instead, such as
    * ["text", "123", "version", "1"], and [] for a missing key.
    */
@@ -951,8 +959,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/hmget
    * @see node_modules/@upstash/redis/docs/commands/hash/hmget.mdx
-   * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
-   * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
    * With automaticDeserialization: false, hmget returns an array of values in field order instead,
    * such as ["123", null], with null for each field when the key is missing.
    */
@@ -1049,8 +1058,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/lindex
    * @see node_modules/@upstash/redis/docs/commands/list/lindex.mdx
-   * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
-   * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
    */
   lindex = (...args: CommandArgs<typeof LIndexCommand>) =>
     this.chain(new LIndexCommand(args, this.commandOptions));
@@ -1079,8 +1089,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/lpop
    * @see node_modules/@upstash/redis/docs/commands/list/lpop.mdx
-   * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
-   * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
    */
   lpop = <TData>(...args: CommandArgs<typeof LPopCommand>) =>
     this.chain(new LPopCommand<TData>(args, this.commandOptions));
@@ -1115,8 +1126,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/lrange
    * @see node_modules/@upstash/redis/docs/commands/list/lrange.mdx
-   * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
-   * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
    */
   lrange = <TResult = string>(...args: CommandArgs<typeof LRangeCommand>) =>
     this.chain(new LRangeCommand<TResult>(args, this.commandOptions));
@@ -1145,8 +1157,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/mget
    * @see node_modules/@upstash/redis/docs/commands/string/mget.mdx
-   * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
-   * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
    */
   mget = <TData extends unknown[]>(...args: CommandArgs<typeof MGetCommand>) =>
     this.chain(new MGetCommand<TData>(args, this.commandOptions));
@@ -1254,8 +1267,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/rpop
    * @see node_modules/@upstash/redis/docs/commands/list/rpop.mdx
-   * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
-   * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
    */
   rpop = <TData = string>(...args: CommandArgs<typeof RPopCommand>) =>
     this.chain(new RPopCommand<TData>(args, this.commandOptions));
@@ -1620,8 +1634,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/xrange
    * @see node_modules/@upstash/redis/docs/commands/stream/xrange.mdx
-   * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
-   * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
    * With automaticDeserialization: false, xrange returns [id, [field, value, ...]] entries instead,
    * such as [["1790341484470-0", ["text", "123"]]], and [] for a missing key.
    */
@@ -1631,8 +1646,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/xrevrange
    * @see node_modules/@upstash/redis/docs/commands/stream/xrevrange.mdx
-   * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
-   * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
    * With automaticDeserialization: false, xrevrange returns [id, [field, value, ...]] entries instead,
    * such as [["1790341484470-0", ["text", "123"]]], and [] for a missing key.
    */
@@ -1699,8 +1715,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/zrange
    * @see node_modules/@upstash/redis/docs/commands/zset/zrange.mdx
-   * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
-   * automaticDeserialization: false to the Redis constructor to receive raw strings.
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
    */
   zrange = <TData extends unknown[]>(
     ...args:

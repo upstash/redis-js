@@ -13,8 +13,9 @@ export type ZRangeCommandOptions = {
 /**
  * @see https://redis.io/commands/zrange
  * @see node_modules/@upstash/redis/docs/commands/zset/zrange.mdx
- * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
- * automaticDeserialization: false to the Redis constructor to receive raw strings.
+ * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+ * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+ * to receive raw strings.
  */
 export class ZRangeCommand<TData extends unknown[]> extends Command<string[], TData> {
   constructor(

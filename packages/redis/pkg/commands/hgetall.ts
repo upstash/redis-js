@@ -24,8 +24,9 @@ function deserialize<TData extends Record<string, unknown>>(result: string[]): T
 /**
  * @see https://redis.io/commands/hgetall
  * @see node_modules/@upstash/redis/docs/commands/hash/hgetall.mdx
- * Responses are JSON-parsed automatically: a stored JSON string comes back as an object. Pass
- * automaticDeserialization: false to the Redis constructor to receive raw strings.
+ * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+ * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+ * to receive raw strings.
  * With automaticDeserialization: false, hgetall returns a flat array instead, such as
  * ["text", "123", "version", "1"], and [] for a missing key.
  */

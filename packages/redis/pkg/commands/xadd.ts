@@ -27,6 +27,7 @@ type XAddCommandOptions = {
 
 /**
  * @see https://redis.io/commands/xadd
+ * @see node_modules/@upstash/redis/docs/commands/stream/xadd.mdx
  *
  * Stream ID formats:
  * - "*" - Fully automatic ID generation

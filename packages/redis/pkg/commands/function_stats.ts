@@ -6,6 +6,7 @@ type RedisFunctionStats = ReturnType<typeof deserialize>;
 
 /**
  * @see https://redis.io/docs/latest/commands/function-stats/
+ * @see node_modules/@upstash/redis/docs/commands/functions/stats.mdx
  *
  * Note: `running_script` is always null in Upstash and therefore not included in the type.
  */

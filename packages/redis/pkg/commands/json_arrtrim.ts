@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/json.arrtrim
+ * @see node_modules/@upstash/redis/docs/commands/json/arrtrim.mdx
  */
 export class JsonArrTrimCommand extends Command<(null | string)[], (null | number)[]> {
   constructor(

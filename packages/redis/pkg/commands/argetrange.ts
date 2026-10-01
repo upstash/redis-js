@@ -8,6 +8,7 @@ import { Command } from "./command";
  * Ranges wider than 1,000,000 indexes are rejected by the server.
  *
  * @see https://upstash.com/docs/redis/commands/array/argetrange
+ * @see node_modules/@upstash/redis/docs/commands/array/argetrange.mdx
  */
 export class ArGetRangeCommand<TData = string> extends Command<unknown[], (TData | null)[]> {
   constructor(

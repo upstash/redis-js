@@ -20,6 +20,7 @@ function deserialize<TData extends Record<string, unknown>>(result: string[]): T
 
 /**
  * @see https://redis.io/commands/hrandfield
+ * @see node_modules/@upstash/redis/docs/commands/hash/hrandfield.mdx
  */
 export class HRandFieldCommand<
   TData extends string | string[] | Record<string, unknown>,

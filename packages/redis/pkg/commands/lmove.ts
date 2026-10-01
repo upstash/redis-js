@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/lmove
+ * @see node_modules/@upstash/redis/docs/commands/list/lmove.mdx
  */
 export class LMoveCommand<TData = string> extends Command<TData, TData> {
   constructor(

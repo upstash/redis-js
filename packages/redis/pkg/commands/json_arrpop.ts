@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/json.arrpop
+ * @see node_modules/@upstash/redis/docs/commands/json/arrpop.mdx
  */
 export class JsonArrPopCommand<TData> extends Command<(null | string)[], (TData | null)[]> {
   constructor(

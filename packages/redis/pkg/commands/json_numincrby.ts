@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/json.numincrby
+ * @see node_modules/@upstash/redis/docs/commands/json/numincrby.mdx
  */
 export class JsonNumIncrByCommand extends Command<(null | string)[], (null | number)[]> {
   constructor(

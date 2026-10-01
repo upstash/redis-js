@@ -2,6 +2,7 @@ import type { CommandOptions } from "./command";
 import { Command } from "./command";
 /**
  * @see https://redis.io/commands/srandmember
+ * @see node_modules/@upstash/redis/docs/commands/set/srandmember.mdx
  */
 export class SRandMemberCommand<TData> extends Command<string | null, TData | null> {
   constructor(

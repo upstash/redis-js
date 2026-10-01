@@ -2,6 +2,7 @@ import { Command, type CommandOptions } from "./command";
 
 /**
  * @see https://redis.io/commands/psubscribe
+ * @see node_modules/@upstash/redis/docs/commands/pubsub/psubscribe.mdx
  */
 export class PSubscribeCommand extends Command<number, number> {
   constructor(cmd: [...patterns: string[]], opts?: CommandOptions<number, number>) {

@@ -9,6 +9,7 @@ import { Command } from "./command";
  * Indexes are returned as strings; see `arlen`.
  *
  * @see https://upstash.com/docs/redis/commands/array/arinsert
+ * @see node_modules/@upstash/redis/docs/commands/array/arinsert.mdx
  */
 export class ArInsertCommand<TData = string> extends Command<number | string, string> {
   constructor(

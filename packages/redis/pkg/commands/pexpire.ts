@@ -4,6 +4,7 @@ import type { ExpireOption } from "./expire";
 
 /**
  * @see https://redis.io/commands/pexpire
+ * @see node_modules/@upstash/redis/docs/commands/generic/pexpire.mdx
  */
 export class PExpireCommand extends Command<"0" | "1", 0 | 1> {
   constructor(

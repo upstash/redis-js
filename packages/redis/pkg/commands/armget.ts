@@ -6,6 +6,7 @@ import { Command } from "./command";
  * empty slots.
  *
  * @see https://upstash.com/docs/redis/commands/array/armget
+ * @see node_modules/@upstash/redis/docs/commands/array/armget.mdx
  */
 export class ArMGetCommand<TData = string> extends Command<unknown[], (TData | null)[]> {
   constructor(

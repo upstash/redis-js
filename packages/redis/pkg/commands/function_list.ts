@@ -30,6 +30,7 @@ type RedisFunctionLibrary = {
 
 /**
  * @see https://redis.io/docs/latest/commands/function-list/
+ * @see node_modules/@upstash/redis/docs/commands/functions/list.mdx
  */
 export class FunctionListCommand extends Command<unknown, RedisFunctionLibrary[]> {
   constructor(

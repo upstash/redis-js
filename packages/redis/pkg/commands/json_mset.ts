@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/json.mset
+ * @see node_modules/@upstash/redis/docs/commands/json/mset.mdx
  */
 export class JsonMSetCommand<
   TData extends

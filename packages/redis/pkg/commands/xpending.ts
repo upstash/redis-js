@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/xpending
+ * @see node_modules/@upstash/redis/docs/commands/stream/xpending.mdx
  */
 export class XPendingCommand extends Command<unknown[], unknown[]> {
   constructor(

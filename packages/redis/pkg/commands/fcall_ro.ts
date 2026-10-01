@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/docs/latest/commands/fcall_ro/
+ * @see node_modules/@upstash/redis/docs/commands/functions/call_ro.mdx
  */
 export class FCallRoCommand<TData> extends Command<unknown, TData> {
   constructor(

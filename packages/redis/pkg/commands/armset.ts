@@ -13,6 +13,7 @@ export type ArMSetValues<TData> = Record<number | string, TData> | [number | str
  * Returns the number of slots that were newly occupied. Overwriting an existing value contributes `0`.
  *
  * @see https://upstash.com/docs/redis/commands/array/armset
+ * @see node_modules/@upstash/redis/docs/commands/array/armset.mdx
  */
 export class ArMSetCommand<TData = string> extends Command<number, number> {
   constructor(

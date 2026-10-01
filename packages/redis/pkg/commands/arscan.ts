@@ -16,6 +16,7 @@ export type ArScanOptions = {
  * Indexes are returned as strings; see `arlen`.
  *
  * @see https://upstash.com/docs/redis/commands/array/arscan
+ * @see node_modules/@upstash/redis/docs/commands/array/arscan.mdx
  */
 export class ArScanCommand<TData = string> extends Command<unknown[], [string, TData][]> {
   constructor(

@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/hsetnx
+ * @see node_modules/@upstash/redis/docs/commands/hash/hsetnx.mdx
  */
 export class HSetNXCommand<TData> extends Command<"0" | "1", 0 | 1> {
   constructor(

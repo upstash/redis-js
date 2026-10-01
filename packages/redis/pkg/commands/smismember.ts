@@ -2,6 +2,7 @@ import type { CommandOptions } from "./command";
 import { Command } from "./command";
 /**
  * @see https://redis.io/commands/smismember
+ * @see node_modules/@upstash/redis/docs/commands/set/smismember.mdx
  */
 export class SMIsMemberCommand<TMembers extends unknown[]> extends Command<
   ("0" | "1")[],

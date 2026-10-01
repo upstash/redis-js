@@ -2,6 +2,7 @@ import type { CommandOptions } from "./command";
 import { Command } from "./command";
 /**
  * @see https://redis.io/commands/zpopmin
+ * @see node_modules/@upstash/redis/docs/commands/zset/zpopmin.mdx
  */
 export class ZPopMinCommand<TData> extends Command<string[], TData[]> {
   constructor(

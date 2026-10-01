@@ -17,6 +17,7 @@ type Arg2<TData> = ScoreMember<TData> | ZAddCommandOptions;
 export type ScoreMember<TData> = { score: number; member: TData };
 /**
  * @see https://redis.io/commands/zadd
+ * @see node_modules/@upstash/redis/docs/commands/zset/zadd.mdx
  */
 export class ZAddCommand<TData = string> extends Command<number | null, number | null> {
   constructor(

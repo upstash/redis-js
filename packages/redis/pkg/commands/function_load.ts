@@ -22,6 +22,7 @@ export type FunctionLoadArgs = {
 
 /**
  * @see https://redis.io/docs/latest/commands/function-load/
+ * @see node_modules/@upstash/redis/docs/commands/functions/load.mdx
  */
 export class FunctionLoadCommand extends Command<string, string> {
   constructor([args]: [args: FunctionLoadArgs], opts?: CommandOptions<string, string>) {

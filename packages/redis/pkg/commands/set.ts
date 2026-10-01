@@ -13,6 +13,7 @@ export type SetCommandOptions = { get?: boolean } & (
 
 /**
  * @see https://redis.io/commands/set
+ * @see node_modules/@upstash/redis/docs/commands/string/set.mdx
  */
 export class SetCommand<TData, TResult = TData | "OK" | null> extends Command<
   TResult,

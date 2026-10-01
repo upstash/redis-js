@@ -22,6 +22,7 @@ export type ArOpOperation<TData = string> = ArOpKeyword | Lowercase<ArOpKeyword>
  * lose precision.
  *
  * @see https://upstash.com/docs/redis/commands/array/arop
+ * @see node_modules/@upstash/redis/docs/commands/array/arop.mdx
  */
 export class ArOpCommand<TData = string> extends Command<string | number | null, number | null> {
   constructor(

@@ -8,6 +8,7 @@ import { Command } from "./command";
  * Returns `1` if the cursor was moved, `0` if the key does not exist.
  *
  * @see https://upstash.com/docs/redis/commands/array/arseek
+ * @see node_modules/@upstash/redis/docs/commands/array/arseek.mdx
  */
 export class ArSeekCommand extends Command<0 | 1, 0 | 1> {
   constructor(cmd: [key: string, index: number | string], opts?: CommandOptions<0 | 1, 0 | 1>) {

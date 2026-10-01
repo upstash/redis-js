@@ -69,6 +69,7 @@ export function deserializeArInfoResponse(result: RawArInfo): ArInfoResult {
  * Describes how an array is laid out in memory. Throws if the key does not exist.
  *
  * @see https://upstash.com/docs/redis/commands/array/arinfo
+ * @see node_modules/@upstash/redis/docs/commands/array/arinfo.mdx
  */
 export class ArInfoCommand extends Command<RawArInfo, ArInfoResult> {
   constructor(

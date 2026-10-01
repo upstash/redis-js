@@ -7,6 +7,10 @@ import type { Redis } from "./redis";
  * entire script to the server. If the script is loaded on the server, it tries again by sending
  * the entire script. Afterwards, the script is cached on the server.
  *
+ * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+ * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+ * to receive raw strings.
+ *
  * @example
  * ```ts
  * const redis = new Redis({...})

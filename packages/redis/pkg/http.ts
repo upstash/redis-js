@@ -264,7 +264,7 @@ export class HttpClient implements Requester {
           ]);
           const myOptions = {
             status: 200,
-            statusText: requestOptions.signal.reason ?? "Aborted",
+            statusText: "Aborted",
           };
           res = new Response(myBlob, myOptions);
           break;

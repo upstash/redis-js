@@ -798,6 +798,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
     this.chain(new GetDelCommand<TData>(args, this.commandOptions));
   /**
    * @see https://redis.io/commands/getex
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
    */
   getex = <TData>(...args: CommandArgs<typeof GetExCommand>) =>
     this.chain(new GetExCommand<TData>(args, this.commandOptions));
@@ -811,6 +814,9 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/getset
    * @see node_modules/@upstash/redis/docs/commands/string/getset.mdx
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
    */
   getset = <TData>(key: string, value: TData) =>
     this.chain(new GetSetCommand<TData>([key, value], this.commandOptions));
@@ -917,6 +923,11 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/hgetdel
    * @see node_modules/@upstash/redis/docs/commands/hash/hgetdel.mdx
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
+   * With automaticDeserialization: false, hgetdel returns an array of values in field order instead,
+   * such as ["123", null], with null for each field when the key is missing.
    */
   hgetdel = <TData extends Record<string, unknown>>(...args: CommandArgs<typeof HGetDelCommand>) =>
     this.chain(new HGetDelCommand<TData>(args, this.commandOptions));
@@ -924,6 +935,11 @@ export class Pipeline<TCommands extends Command<any, any>[] = []> {
   /**
    * @see https://redis.io/commands/hgetex
    * @see node_modules/@upstash/redis/docs/commands/hash/hgetex.mdx
+   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
+   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * to receive raw strings.
+   * With automaticDeserialization: false, hgetex returns an array of values in field order instead,
+   * such as ["123", null], with null for each field when the key is missing.
    */
   hgetex = <TData extends Record<string, unknown>>(...args: CommandArgs<typeof HGetExCommand>) =>
     this.chain(new HGetExCommand<TData>(args, this.commandOptions));

@@ -259,10 +259,8 @@ export class HttpClient implements Requester {
         } else if (requestOptions.signal?.aborted) {
           const reason: unknown = requestOptions.signal.reason;
           const myBlob = new Blob([
-            // Object reasons (e.g. the default DOMException) would serialize to an object
-            JSON.stringify({
-              result: typeof reason === "string" || typeof reason === "number" ? reason : null,
-            }),
+            // Error reasons (e.g. the default DOMException) would serialize to an empty object
+            JSON.stringify({ result: reason instanceof Error ? null : (reason ?? null) }),
           ]);
           const myOptions = {
             status: 200,

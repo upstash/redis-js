@@ -402,4 +402,12 @@ describe("static abort signal", () => {
   test("returns the reason when aborted with a numeric reason", async () => {
     expect(await abortedClient(5).get<number>("foo")).toBe(5);
   });
+
+  test("returns null when aborted with an error reason", async () => {
+    expect(await abortedClient(new Error("boom")).get("foo")).toBeNull();
+  });
+
+  test("returns the reason when aborted with an object reason", async () => {
+    expect(await abortedClient({ a: 1 }).get("foo")).toEqual({ a: 1 });
+  });
 });

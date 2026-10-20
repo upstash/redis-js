@@ -379,7 +379,7 @@ describe("http", () => {
   });
 });
 
-const abortedClient = (reason?: string) => {
+const abortedClient = (reason?: unknown) => {
   const controller = new AbortController();
   controller.abort(reason);
   return new Redis({
@@ -397,5 +397,9 @@ describe("static abort signal", () => {
 
   test("returns the reason when aborted with a string reason", async () => {
     expect(await abortedClient("Abort works!").get("foo")).toBe("Abort works!");
+  });
+
+  test("returns the reason when aborted with a numeric reason", async () => {
+    expect(await abortedClient(5).get<number>("foo")).toBe(5);
   });
 });

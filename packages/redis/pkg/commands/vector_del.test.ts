@@ -19,7 +19,7 @@ afterAll(async () => {
 });
 
 test("deletes an existing vector", async () => {
-  await new VectorAddCommand([index, "a", [1, 2]]).exec(client);
+  await new VectorAddCommand([index, "a", [0.6, 0.8]]).exec(client);
   expect(await new VectorDelCommand([index, "a"]).exec(client)).toEqual(1);
   expect(await new VectorGetCommand([index, "a"]).exec(client)).toBeNull();
 });

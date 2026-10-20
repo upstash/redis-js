@@ -1519,8 +1519,9 @@ export class Redis {
   /**
    * @see https://redis.io/commands/psubscribe
    * @see node_modules/@upstash/redis/docs/commands/pubsub/psubscribe.mdx
-   * Responses are JSON-parsed automatically: a stored "123" comes back as the number 123, "true" as
-   * true, and '{"a":1}' as an object. Pass automaticDeserialization: false to the Redis constructor
+   * Messages are JSON-parsed automatically: a published "123" arrives as the number 123. Unlike
+   * subscribe, a message that is not valid JSON (such as "hello") never reaches the listener and
+   * emits an "error" event instead. Pass automaticDeserialization: false to the Redis constructor
    * to receive raw strings.
    */
   psubscribe = <TMessage>(patterns: string | string[]): Subscriber<TMessage> => {

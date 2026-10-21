@@ -187,7 +187,7 @@ describe("special data", () => {
   });
 });
 
-describe("disable base64 encoding", () => {
+describe("base64 encoding", () => {
   test("emojis", async () => {
     const key = newKey();
     const value = "😀";
@@ -203,7 +203,7 @@ describe("disable base64 encoding", () => {
     const client = new HttpClient({
       baseUrl: url,
       headers: { authorization: `Bearer ${token}` },
-      responseEncoding: false,
+      responseEncoding: "base64",
     });
     const redis = new Redis(client);
     await redis.set(key, value);
@@ -227,7 +227,7 @@ describe("disable base64 encoding", () => {
     const client = new HttpClient({
       baseUrl: url,
       headers: { authorization: `Bearer ${token}` },
-      responseEncoding: false,
+      responseEncoding: "base64",
     });
     const redis = new Redis(client);
     redis.use(async (r, next) => {

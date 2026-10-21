@@ -91,26 +91,13 @@ export type RequesterConfig = {
   retry?: RetryConfig;
 
   /**
-   * Due to the nature of dynamic and custom data, it is possible to write data to redis that is not
-   * valid json and will therefore cause errors when deserializing. This used to happen very
-   * frequently with non-utf8 data, such as emojis.
+   * Response encoding requested from the server.
    *
-   * By default we will therefore encode the data as base64 on the server, before sending it to the
-   * client. The client will then decode the base64 data and parse it as utf8.
+   * By default the server returns string values as plain JSON strings. Set this to "base64" to have
+   * the server base64-encode string values, which the client decodes as utf8. This increases the
+   * response size by about 33%.
    *
-   * For very large entries, this can add a few milliseconds, so if you are sure that your data is
-   * valid utf8, you can disable this behaviour by setting this option to false.
-   *
-   * Here's what the response body looks like:
-   *
-   * ```json
-   * {
-   *  result?: "base64-encoded",
-   *  error?: string
-   * }
-   * ```
-   *
-   * @default "base64"
+   * @default false
    */
   responseEncoding?: false | "base64";
 
@@ -161,7 +148,7 @@ export class HttpClient implements Requester {
     this.options = {
       backend: config.options?.backend,
       agent: config.agent,
-      responseEncoding: config.responseEncoding ?? "base64", // default to base64
+      responseEncoding: config.responseEncoding ?? false,
       cache: config.cache,
       signal: config.signal,
       keepAlive: config.keepAlive ?? true,
@@ -270,12 +257,14 @@ export class HttpClient implements Requester {
         if (requestOptions.signal?.aborted && isSignalFunction) {
           throw error_;
         } else if (requestOptions.signal?.aborted) {
+          const reason: unknown = requestOptions.signal.reason;
           const myBlob = new Blob([
-            JSON.stringify({ result: requestOptions.signal.reason ?? "Aborted" }),
+            // Error reasons (e.g. the default DOMException) would serialize to an empty object
+            JSON.stringify({ result: reason instanceof Error ? null : (reason ?? null) }),
           ]);
           const myOptions = {
             status: 200,
-            statusText: requestOptions.signal.reason ?? "Aborted",
+            statusText: "Aborted",
           };
           res = new Response(myBlob, myOptions);
           break;

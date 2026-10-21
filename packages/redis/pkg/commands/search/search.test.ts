@@ -300,6 +300,7 @@ describe("SearchIndex.query (string)", () => {
       const result = await index.query({ filter: { name: { $eq: "Laptop" } } });
 
       expect(result.length).toBe(2);
+      result.sort((a, b) => a.key.localeCompare(b.key));
       expect(result.map((r) => r.data.name)).toEqual(["Laptop Pro", "Laptop Basic"]);
     });
 
@@ -310,6 +311,7 @@ describe("SearchIndex.query (string)", () => {
       });
 
       expect(result.length).toBe(2);
+      result.sort((a, b) => a.key.localeCompare(b.key));
       expect(result.map((r) => r.data.name)).toEqual(["Laptop Pro", "Laptop Basic"]);
     });
 
@@ -329,6 +331,7 @@ describe("SearchIndex.query (string)", () => {
       });
 
       expect(result.length).toBe(2);
+      result.sort((a, b) => a.key.localeCompare(b.key));
       expect(result.map((r) => r.data.name)).toEqual(["Laptop Pro", "Laptop Basic"]);
     });
 
@@ -359,6 +362,7 @@ describe("SearchIndex.query (string)", () => {
       });
 
       expect(result.length).toBe(2);
+      result.sort((a, b) => a.key.localeCompare(b.key));
       expect(result.map((r) => r.data.name)).toEqual(["Laptop Pro", "Laptop Basic"]);
     });
 
@@ -379,6 +383,7 @@ describe("SearchIndex.query (string)", () => {
       const result = await index.query({ filter: { price: { $gt: 500 } } });
 
       expect(result.length).toBe(2);
+      result.sort((a, b) => a.key.localeCompare(b.key));
       expect(result).toEqual([
         expect.objectContaining({
           data: expect.objectContaining({ name: "Laptop Pro", price: 1299.99 }),
@@ -632,6 +637,7 @@ describe("SearchIndex.query (string)", () => {
       });
 
       expect(result.length).toBe(2);
+      result.sort((a, b) => a.key.localeCompare(b.key));
       expect(result[0].data).toEqual(expect.objectContaining({ name: "Laptop Pro" }));
       expect(result[1].data).toEqual(expect.objectContaining({ name: "Laptop Basic" }));
     });
@@ -756,6 +762,7 @@ describe("SearchIndex.query (json)", () => {
       const index = initIndex(client, { name, schema });
       const result = await index.query({ filter: { name: { $eq: "Laptop" } } });
 
+      result.sort((a, b) => a.key.localeCompare(b.key));
       expect(result).toEqual([
         expect.objectContaining({ data: expect.objectContaining({ name: "Laptop Pro" }) }),
         expect.objectContaining({ data: expect.objectContaining({ name: "Laptop Basic" }) }),
@@ -768,6 +775,7 @@ describe("SearchIndex.query (json)", () => {
         filter: { name: { $fuzzy: { value: "Laptopp", distance: 2 } } },
       });
 
+      result.sort((a, b) => a.key.localeCompare(b.key));
       expect(result).toEqual([
         expect.objectContaining({ data: expect.objectContaining({ name: "Laptop Pro" }) }),
         expect.objectContaining({ data: expect.objectContaining({ name: "Laptop Basic" }) }),
@@ -791,6 +799,7 @@ describe("SearchIndex.query (json)", () => {
         filter: { name: { $regex: "Laptop.*" } },
       });
 
+      result.sort((a, b) => a.key.localeCompare(b.key));
       expect(result).toEqual([
         expect.objectContaining({ data: expect.objectContaining({ name: "Laptop Pro" }) }),
         expect.objectContaining({ data: expect.objectContaining({ name: "Laptop Basic" }) }),
@@ -1007,6 +1016,7 @@ describe("SearchIndex.query (json)", () => {
         filter: { name: { $eq: "Laptop" } },
       });
 
+      result.sort((a, b) => a.key.localeCompare(b.key));
       expect(result).toEqual([
         expect.objectContaining({ data: expect.objectContaining({ name: "Laptop Pro" }) }),
         expect.objectContaining({ data: expect.objectContaining({ name: "Laptop Basic" }) }),
@@ -2067,12 +2077,13 @@ describe("SearchIndex.aggregate (json)", () => {
       },
     });
 
+    result.by_cat.buckets.sort((a, b) => a.key - b.key);
     expect(result).toEqual({
       by_cat: {
         buckets: [
-          { key: 2, docCount: 3, avg_price: { value: 50 } },
           { key: 0, docCount: 3, avg_price: { value: 30 } },
           { key: 1, docCount: 3, avg_price: { value: 40 } },
+          { key: 2, docCount: 3, avg_price: { value: 50 } },
         ],
         sumOtherDocCount: 0,
         docCountErrorUpperBound: 0,
@@ -2097,17 +2108,10 @@ describe("SearchIndex.aggregate (json)", () => {
       },
     });
 
+    result.by_cat.buckets.sort((a, b) => a.key - b.key);
     expect(result).toEqual({
       by_cat: {
         buckets: [
-          {
-            key: 2,
-            docCount: 3,
-            avg_price: { value: 50 },
-            min_price: { value: 20 },
-            max_price: { value: 80 },
-            sum_qty: { value: 15 },
-          },
           {
             key: 0,
             docCount: 3,
@@ -2123,6 +2127,14 @@ describe("SearchIndex.aggregate (json)", () => {
             min_price: { value: 10 },
             max_price: { value: 70 },
             sum_qty: { value: 12 },
+          },
+          {
+            key: 2,
+            docCount: 3,
+            avg_price: { value: 50 },
+            min_price: { value: 20 },
+            max_price: { value: 80 },
+            sum_qty: { value: 15 },
           },
         ],
         sumOtherDocCount: 0,

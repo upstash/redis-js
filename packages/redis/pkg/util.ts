@@ -1,5 +1,21 @@
 import type { ScanResultWithType } from "./commands/scan";
 
+/**
+ * JSON.parse that ignores one leading UTF-8 BOM (U+FEFF), as the base64 decoder
+ * (TextDecoder) used to strip it before deserialization. Callers keep the exact
+ * string (BOM included) when parsing fails.
+ */
+export function parseJSON(value: string): unknown {
+  return JSON.parse(stripBOM(value) as string);
+}
+
+/**
+ * Non-string values (e.g. integer replies) are returned unchanged.
+ */
+function stripBOM(value: unknown): unknown {
+  return typeof value === "string" && value.startsWith("\uFEFF") ? value.slice(1) : value;
+}
+
 function parseRecursive(obj: unknown): unknown {
   const parsed = Array.isArray(obj)
     ? obj.map((o) => {
@@ -9,13 +25,13 @@ function parseRecursive(obj: unknown): unknown {
           return o;
         }
       })
-    : JSON.parse(obj as string);
+    : parseJSON(obj as string);
 
   /**
    * Parsing very large numbers can result in MAX_SAFE_INTEGER
    * overflow. In that case we return the number as string instead.
    */
-  if (typeof parsed === "number" && parsed.toString() !== obj) {
+  if (typeof parsed === "number" && parsed.toString() !== stripBOM(obj)) {
     return obj;
   }
   return parsed;

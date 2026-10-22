@@ -6,7 +6,7 @@ Default `responseEncoding` to `false`. The server now returns string values as p
 
 Behavior changes with the new default:
 
-- String values that start with a UTF-8 BOM keep it. A value like `"﻿{...}"` is now returned as a string instead of being parsed as JSON.
+- String values that start with a UTF-8 BOM keep it. Automatic deserialization still ignores the BOM, so a BOM-prefixed JSON value is parsed as before; other BOM-prefixed strings, and all strings with `automaticDeserialization: false`, are returned exactly, BOM included.
 - Invalid UTF-8 (binary data) is still replaced with `U+FFFD`, but the server now replaces each invalid byte, so the number of replacement characters can differ. Binary values were not preserved before either.
 - A nested `OK` status reply (e.g. a Lua script returning `{redis.call("SET", ...)}`) no longer sometimes decodes to `8`.
 - Error replies nested in arrays (e.g. Lua `pcall` results) are no longer garbled.

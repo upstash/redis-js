@@ -1,3 +1,4 @@
+import { parseJSON } from "../util.ts";
 import type { CommandOptions } from "./command.ts";
 import { Command } from "./command.ts";
 
@@ -91,7 +92,7 @@ export class GeoSearchCommand<
       if (!opts?.withCoord && !opts?.withDist && !opts?.withHash) {
         return result.map((member) => {
           try {
-            return { member: JSON.parse(member as string) };
+            return { member: parseJSON(member as string) };
           } catch {
             return { member };
           }
@@ -102,7 +103,7 @@ export class GeoSearchCommand<
         const obj = {} as any;
 
         try {
-          obj.member = JSON.parse(members[0]);
+          obj.member = parseJSON(members[0]);
         } catch {
           obj.member = members[0];
         }

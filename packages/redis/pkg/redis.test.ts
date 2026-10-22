@@ -187,6 +187,49 @@ describe("special data", () => {
   });
 });
 
+describe("values with a leading UTF-8 BOM", () => {
+  // The base64 decoder (TextDecoder) used to strip a leading BOM, so BOM-prefixed JSON
+  // was deserialized. Plain JSON responses keep the BOM, so deserialization must ignore it.
+  const BOM = "\uFEFF";
+
+  test("deserializes BOM-prefixed JSON", async () => {
+    const redis = new Redis(client);
+    const objectKey = newKey();
+    const numberKey = newKey();
+    await redis.set(objectKey, `${BOM}{"a":1}`);
+    await redis.set(numberKey, `${BOM}123`);
+
+    expect(await redis.get(objectKey)).toEqual({ a: 1 });
+    expect(await redis.get(numberKey)).toEqual(123);
+    expect(await redis.mget(objectKey, numberKey)).toEqual([{ a: 1 }, 123]);
+  });
+
+  test("deserializes BOM-prefixed JSON in hash fields", async () => {
+    const redis = new Redis(client);
+    const key = newKey();
+    await redis.hset(key, { field: `${BOM}{"a":1}` });
+
+    expect(await redis.hgetall(key)).toEqual({ field: { a: 1 } });
+    expect(await redis.hmget(key, "field")).toEqual({ field: { a: 1 } });
+  });
+
+  test("keeps the BOM when the value is not JSON", async () => {
+    const redis = new Redis(client);
+    const key = newKey();
+    await redis.set(key, `${BOM}hello`);
+
+    expect(await redis.get(key)).toEqual(`${BOM}hello`);
+  });
+
+  test("keeps the BOM without automatic deserialization", async () => {
+    const redis = new Redis(client, { automaticDeserialization: false });
+    const key = newKey();
+    await redis.set(key, `${BOM}{"a":1}`);
+
+    expect(await redis.get(key)).toEqual(`${BOM}{"a":1}`);
+  });
+});
+
 describe("base64 encoding", () => {
   test("emojis", async () => {
     const key = newKey();

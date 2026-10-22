@@ -199,8 +199,8 @@ describe("values with a leading UTF-8 BOM", () => {
     await redis.set(objectKey, `${BOM}{"a":1}`);
     await redis.set(numberKey, `${BOM}123`);
 
-    expect(await redis.get(objectKey)).toEqual({ a: 1 });
-    expect(await redis.get(numberKey)).toEqual(123);
+    expect(await redis.get<{ a: number }>(objectKey)).toEqual({ a: 1 });
+    expect(await redis.get<number>(numberKey)).toEqual(123);
     expect(await redis.mget(objectKey, numberKey)).toEqual([{ a: 1 }, 123]);
   });
 
@@ -218,7 +218,7 @@ describe("values with a leading UTF-8 BOM", () => {
     const key = newKey();
     await redis.set(key, `${BOM}hello`);
 
-    expect(await redis.get(key)).toEqual(`${BOM}hello`);
+    expect(await redis.get<string>(key)).toEqual(`${BOM}hello`);
   });
 
   test("keeps the BOM without automatic deserialization", async () => {
@@ -226,7 +226,7 @@ describe("values with a leading UTF-8 BOM", () => {
     const key = newKey();
     await redis.set(key, `${BOM}{"a":1}`);
 
-    expect(await redis.get(key)).toEqual(`${BOM}{"a":1}`);
+    expect(await redis.get<string>(key)).toEqual(`${BOM}{"a":1}`);
   });
 });
 

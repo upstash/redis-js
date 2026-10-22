@@ -2,6 +2,7 @@ import type { CommandOptions } from "./command";
 import { Command } from "./command";
 /**
  * @see https://redis.io/commands/ping
+ * @see node_modules/@upstash/redis/docs/commands/auth/ping.mdx
  */
 export class PingCommand extends Command<string | "PONG", string | "PONG"> {
   constructor(cmd?: [message?: string], opts?: CommandOptions<string | "PONG", string | "PONG">) {

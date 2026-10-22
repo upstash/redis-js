@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/json.arrindex
+ * @see node_modules/@upstash/redis/docs/commands/json/arrindex.mdx
  */
 export class JsonArrIndexCommand<TValue> extends Command<(null | string)[], (null | number)[]> {
   constructor(

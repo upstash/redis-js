@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/xdel
+ * @see node_modules/@upstash/redis/docs/commands/stream/xdel.mdx
  */
 export class XDelCommand extends Command<number, number> {
   constructor(

@@ -219,6 +219,7 @@ export class Subscriber<TMessage = any> extends EventTarget {
 
 /**
  * @see https://redis.io/commands/subscribe
+ * @see node_modules/@upstash/redis/docs/commands/pubsub/subscribe.mdx
  */
 export class SubscribeCommand extends Command<number, number> {
   constructor(

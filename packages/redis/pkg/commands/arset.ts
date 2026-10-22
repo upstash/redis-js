@@ -8,6 +8,7 @@ import { Command } from "./command";
  * Returns the number of slots that were newly occupied. Overwriting an existing value contributes `0`.
  *
  * @see https://upstash.com/docs/redis/commands/array/arset
+ * @see node_modules/@upstash/redis/docs/commands/array/arset.mdx
  */
 export class ArSetCommand<TData = string> extends Command<number, number> {
   constructor(

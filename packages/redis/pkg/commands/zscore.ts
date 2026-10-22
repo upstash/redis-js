@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/zscore
+ * @see node_modules/@upstash/redis/docs/commands/zset/zscore.mdx
  */
 export class ZScoreCommand<TData> extends Command<string | null, number | null> {
   constructor(

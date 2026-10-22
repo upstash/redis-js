@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/bitcount
+ * @see node_modules/@upstash/redis/docs/commands/bitmap/bitcount.mdx
  */
 export class BitCountCommand extends Command<number, number> {
   constructor(

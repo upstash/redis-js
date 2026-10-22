@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/json.objlen
+ * @see node_modules/@upstash/redis/docs/commands/json/objlen.mdx
  */
 export class JsonObjLenCommand extends Command<(number | null)[], (number | null)[]> {
   constructor(

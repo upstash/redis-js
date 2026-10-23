@@ -1,3 +1,4 @@
+import { parseJSON } from "../util";
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
 
@@ -11,7 +12,7 @@ export function deserialize<TData extends Record<string, unknown>>(
   const obj: Record<string, unknown> = {};
   for (const [i, field] of fields.entries()) {
     try {
-      obj[field] = JSON.parse(result[i]!);
+      obj[field] = parseJSON(result[i]!);
     } catch {
       obj[field] = result[i];
     }

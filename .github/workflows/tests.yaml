@@ -659,18 +659,22 @@ jobs:
           npm pkg delete scripts.prepare
           npm publish --provenance --tag=ci --verbose
 
+      # npm can take several minutes to serve a new version after publish (we have seen
+      # 2-7 minutes), so wait up to 15 minutes. --prefer-online skips npm's local metadata
+      # cache, which could otherwise hide a version that has already landed.
       - name: Wait for npm to serve the ci version
         shell: bash
+        timeout-minutes: 16
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           VERSION="${VERSION#v}"
-          for i in $(seq 1 36); do
-            if npm view "@upstash/redis@${VERSION}" version >/dev/null 2>&1; then
+          for i in $(seq 1 90); do
+            if npm view "@upstash/redis@${VERSION}" version --prefer-online >/dev/null 2>&1; then
               echo "@upstash/redis@${VERSION} is available on npm"
               exit 0
             fi
-            echo "waiting for @upstash/redis@${VERSION} to appear on npm ($i/36)..."
-            sleep 5
+            echo "waiting for @upstash/redis@${VERSION} to appear on npm ($i/90)..."
+            sleep 10
           done
-          echo "::error::@upstash/redis@${VERSION} not visible on npm after 3 minutes"
+          echo "::error::@upstash/redis@${VERSION} not visible on npm after 15 minutes"
           exit 1

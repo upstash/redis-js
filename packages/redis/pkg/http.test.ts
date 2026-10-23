@@ -24,8 +24,7 @@ const withMockFetch = async (
     if (attempt++ < failures) {
       throw new Error("simulated network error");
     }
-    // Redis decodes base64 results by default, so return a valid base64 payload
-    return new Response(JSON.stringify({ result: btoa("OK") }), { status: 200 });
+    return new Response(JSON.stringify({ result: "OK" }), { status: 200 });
   }) as typeof fetch;
   try {
     await run(calls);
@@ -377,5 +376,38 @@ describe("http", () => {
         }
       });
     });
+  });
+});
+
+const abortedClient = (reason?: unknown) => {
+  const controller = new AbortController();
+  controller.abort(reason);
+  return new Redis({
+    url: SERVER_URL,
+    token: "test-token",
+    signal: controller.signal,
+    enableAutoPipelining: false,
+  });
+};
+
+describe("static abort signal", () => {
+  test("returns null when aborted without a reason", async () => {
+    expect(await abortedClient().get("foo")).toBeNull();
+  });
+
+  test("returns the reason when aborted with a string reason", async () => {
+    expect(await abortedClient("Abort works!").get("foo")).toBe("Abort works!");
+  });
+
+  test("returns the reason when aborted with a numeric reason", async () => {
+    expect(await abortedClient(5).get<number>("foo")).toBe(5);
+  });
+
+  test("returns null when aborted with an error reason", async () => {
+    expect(await abortedClient(new Error("boom")).get("foo")).toBeNull();
+  });
+
+  test("returns the reason when aborted with an object reason", async () => {
+    expect(await abortedClient({ a: 1 }).get("foo")).toEqual({ a: 1 });
   });
 });

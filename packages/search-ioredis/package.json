@@ -1,6 +1,6 @@
 {
   "name": "@upstash/search-ioredis",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Upstash Redis Search extension for ioredis",
   "repository": {
     "type": "git",

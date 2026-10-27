@@ -57,6 +57,7 @@ export type ArGrepResult<TData, TOpts extends ArGrepOptions> = TOpts extends { w
  * and highest possible index.
  *
  * @see https://upstash.com/docs/redis/commands/array/argrep
+ * @see node_modules/@upstash/redis/docs/commands/array/argrep.mdx
  */
 export class ArGrepCommand<
   TData = string,

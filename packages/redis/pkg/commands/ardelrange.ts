@@ -7,6 +7,7 @@ import { Command } from "./command";
  * Returns the total number of values removed across all ranges.
  *
  * @see https://upstash.com/docs/redis/commands/array/ardelrange
+ * @see node_modules/@upstash/redis/docs/commands/array/ardelrange.mdx
  */
 export class ArDelRangeCommand extends Command<number, number> {
   constructor(

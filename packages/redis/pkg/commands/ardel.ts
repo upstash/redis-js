@@ -7,6 +7,7 @@ import { Command } from "./command";
  * Returns the number of slots that held a value.
  *
  * @see https://upstash.com/docs/redis/commands/array/ardel
+ * @see node_modules/@upstash/redis/docs/commands/array/ardel.mdx
  */
 export class ArDelCommand extends Command<number, number> {
   constructor(

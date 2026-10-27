@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/json.arrlen
+ * @see node_modules/@upstash/redis/docs/commands/json/arrlen.mdx
  */
 export class JsonArrLenCommand extends Command<(null | string)[], (null | number)[]> {
   constructor(

@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/decr
+ * @see node_modules/@upstash/redis/docs/commands/string/decr.mdx
  */
 export class DecrCommand extends Command<number, number> {
   constructor(cmd: [key: string], opts?: CommandOptions<number, number>) {

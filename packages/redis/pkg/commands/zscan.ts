@@ -5,6 +5,7 @@ import type { ScanCommandOptions } from "./scan";
 
 /**
  * @see https://redis.io/commands/zscan
+ * @see node_modules/@upstash/redis/docs/commands/zset/zscan.mdx
  */
 export class ZScanCommand extends Command<
   [string, (string | number)[]],

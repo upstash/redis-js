@@ -11,6 +11,7 @@ import { Command } from "./command";
  * straight back into any command that takes an index.
  *
  * @see https://upstash.com/docs/redis/commands/array/arlen
+ * @see node_modules/@upstash/redis/docs/commands/array/arlen.mdx
  */
 export class ArLenCommand extends Command<number | string, string> {
   constructor(cmd: [key: string], opts?: CommandOptions<number | string, string>) {

@@ -11,6 +11,7 @@ export type ZUnionStoreCommandOptions = {
 
 /**
  * @see https://redis.io/commands/zunionstore
+ * @see node_modules/@upstash/redis/docs/commands/zset/zunionstore.mdx
  */
 export class ZUnionStoreCommand extends Command<number, number> {
   constructor(

@@ -13,6 +13,7 @@ export type ArLastItemsOptions = {
  * cursor. Values come back oldest-first unless `rev` is set.
  *
  * @see https://upstash.com/docs/redis/commands/array/arlastitems
+ * @see node_modules/@upstash/redis/docs/commands/array/arlastitems.mdx
  */
 export class ArLastItemsCommand<TData = string> extends Command<unknown[], (TData | null)[]> {
   constructor(

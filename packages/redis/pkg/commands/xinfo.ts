@@ -10,6 +10,7 @@ type XInfoCommands =
 
 /**
  * @see https://redis.io/commands/xinfo
+ * @see node_modules/@upstash/redis/docs/commands/stream/xinfo.mdx
  */
 export class XInfoCommand extends Command<number, unknown[]> {
   constructor(

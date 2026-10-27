@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/json.merge
+ * @see node_modules/@upstash/redis/docs/commands/json/merge.mdx
  */
 export class JsonMergeCommand<
   TData extends string | number | Record<string, unknown> | Array<unknown>,

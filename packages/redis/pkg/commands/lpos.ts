@@ -3,6 +3,7 @@ import { Command } from "./command";
 
 /**
  * @see https://redis.io/commands/lpos
+ * @see node_modules/@upstash/redis/docs/commands/list/lpos.mdx
  */
 export class LPosCommand<TData = number> extends Command<TData, TData> {
   constructor(

@@ -768,3 +768,72 @@ describe("buildCreateIndexCommand", () => {
     });
   });
 });
+
+describe("hybrid search", () => {
+  test("builds SEARCH.CREATE with HYBRID fields", () => {
+    const params: CreateIndexParameters<any> = {
+      name: "products",
+      dataType: "hash",
+      prefix: "product:",
+      schema: s.object({
+        name: s.string(),
+        description: s.hybrid(),
+        body: s.hybrid().noStem().from("content"),
+      }),
+    };
+
+    expect(buildCreateIndexCommand(params)).toEqual([
+      "SEARCH.CREATE",
+      "products",
+      "ON",
+      "HASH",
+      "PREFIX",
+      "1",
+      "product:",
+      "SCHEMA",
+      "name",
+      "TEXT",
+      "description",
+      "HYBRID",
+      "body",
+      "HYBRID",
+      "NOSTEM",
+      "FROM",
+      "content",
+    ]);
+  });
+
+  test("serializes $rrf with $ann and $standard retrievers", () => {
+    type HybridSchema = { name: "TEXT"; description: { type: "HYBRID" } };
+    const command = buildQueryCommand<HybridSchema>("SEARCH.QUERY", "products", {
+      filter: {
+        $rrf: {
+          retrievers: [
+            { $standard: { query: { description: "noise cancelling" }, weight: 2 } },
+            { $ann: { field: "description", query: "noise cancelling", profile: "precise" } },
+          ],
+          rankConstant: 30,
+          window: 50,
+        },
+      },
+      limit: 10,
+    });
+
+    expect(command).toEqual([
+      "SEARCH.QUERY",
+      "products",
+      JSON.stringify({
+        $rrf: {
+          retrievers: [
+            { $standard: { query: { description: "noise cancelling" }, weight: 2 } },
+            { $ann: { field: "description", query: "noise cancelling", profile: "precise" } },
+          ],
+          rankConstant: 30,
+          window: 50,
+        },
+      }),
+      "LIMIT",
+      "10",
+    ]);
+  });
+});

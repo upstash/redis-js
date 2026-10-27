@@ -2717,3 +2717,112 @@ describe("alias commands", () => {
     expect(aliases[alias]).toBe(indexName);
   });
 });
+
+describe("Hybrid search (json)", () => {
+  const name = `test-hybrid-${randomID().slice(0, 8)}`;
+  const prefix = `${name}:`;
+  const schema = s.object({
+    name: s.string(),
+    description: s.hybrid(),
+    category: s.keyword(),
+    price: s.number(),
+  });
+  let index: SearchIndex<typeof schema>;
+
+  beforeAll(async () => {
+    index = await createIndex(client, { name, schema, dataType: "json", prefix });
+
+    const products = [
+      {
+        name: "Studio Headphones",
+        description: "Over-ear headphones with active noise cancelling",
+        category: "audio",
+        price: 199,
+      },
+      {
+        name: "Travel Earplugs",
+        description: "Soft foam earplugs that keep airplane cabin sound out",
+        category: "travel",
+        price: 9,
+      },
+      {
+        name: "Sport Earbuds",
+        description: "Sweat-proof wireless earbuds for running",
+        category: "sports",
+        price: 79,
+      },
+    ];
+    for (const [i, product] of products.entries()) {
+      await new JsonSetCommand([`${prefix}${i + 1}`, "$", product]).exec(client);
+    }
+    await index.waitIndexing();
+  });
+
+  afterAll(async () => {
+    await index.drop();
+    await new DelCommand([`${prefix}1`, `${prefix}2`, `${prefix}3`]).exec(client);
+  });
+
+  test("describe returns HYBRID fields", async () => {
+    const description = await index.describe();
+    expect(description?.schema.description).toEqual({ type: "HYBRID" });
+  });
+
+  test("$ann searches by meaning", async () => {
+    const results = await index.query({
+      filter: { $ann: { field: "description", query: "block noise on a flight" } },
+    });
+
+    expect(results.length).toBe(3);
+    for (const result of results) {
+      expect(result.score).toBeGreaterThanOrEqual(0);
+      expect(result.score).toBeLessThanOrEqual(1);
+    }
+  });
+
+  test("$ann with a filter", async () => {
+    const results = await index.query({
+      filter: {
+        $ann: {
+          field: "description",
+          query: "headphones for running",
+          profile: "precise",
+          filter: { category: "sports" },
+        },
+      },
+    });
+
+    expect(results.map((r) => r.key)).toEqual([`${prefix}3`]);
+    expect(results[0].data.name).toBe("Sport Earbuds");
+  });
+
+  test("HYBRID fields work with full-text queries", async () => {
+    const results = await index.query({ filter: { description: "earplugs" } });
+    expect(results.map((r) => r.key)).toEqual([`${prefix}2`]);
+  });
+
+  test("$rrf merges full-text and semantic search", async () => {
+    const results = await index.query({
+      filter: {
+        $rrf: {
+          retrievers: [
+            { $standard: { query: { description: "noise cancelling" }, weight: 2 } },
+            { $ann: { field: "description", query: "noise cancelling" } },
+          ],
+          window: 10,
+        },
+      },
+      limit: 2,
+    });
+
+    expect(results.length).toBe(2);
+    expect(results[0].key).toBe(`${prefix}1`);
+  });
+
+  test("count accepts $rrf without $ann", async () => {
+    const result = await index.count({
+      filter: { $rrf: { retrievers: [{ description: "earplugs" }, { name: "headphones" }] } },
+    });
+    expect(result.count).toBe(2);
+  });
+});

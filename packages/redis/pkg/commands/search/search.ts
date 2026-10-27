@@ -1,6 +1,7 @@
 import type {
   AggregateOptions,
   AggregateResult,
+  CountRetriever,
   FlatIndexSchema,
   IndexDescription,
   Language,
@@ -118,8 +119,14 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
     return deserializeAggregateResponse(rawResult);
   }
 
-  async count({ filter }: { filter: RootQueryFilter<TSchema> }): Promise<{ count: number }> {
-    const command = buildQueryCommand<TSchema>("SEARCH.COUNT", this.name, { filter });
+  async count({
+    filter,
+  }: {
+    filter: RootQueryFilter<TSchema> | CountRetriever<TSchema>;
+  }): Promise<{ count: number }> {
+    const command = buildQueryCommand<TSchema>("SEARCH.COUNT", this.name, {
+      filter,
+    } as QueryOptions<TSchema>);
     const rawResult = await new ExecCommand<any>(command as [string, ...string[]]).exec(
       this.client
     );

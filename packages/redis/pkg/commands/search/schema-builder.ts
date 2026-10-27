@@ -207,6 +207,42 @@ class DateFieldBuilder<
   }
 }
 
+class HybridFieldBuilder<
+  TNoStem extends Record<"noStem", boolean> = { noStem: false },
+  TFrom extends Record<"from", string | null> = { from: null },
+> {
+  private _noStem: TNoStem;
+  private _from: TFrom;
+
+  constructor(noStem = { noStem: false } as TNoStem, from = { from: null } as TFrom) {
+    this._noStem = noStem;
+    this._from = from;
+  }
+
+  noStem(): HybridFieldBuilder<{ noStem: true }, TFrom> {
+    return new HybridFieldBuilder({ noStem: true }, this._from);
+  }
+
+  from(field: string): HybridFieldBuilder<TNoStem, { from: string }> {
+    return new HybridFieldBuilder(this._noStem, { from: field } as { from: string });
+  }
+
+  [BUILD](): { type: "HYBRID" } & (TNoStem["noStem"] extends true
+    ? { noStem: true }
+    : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+      {}) &
+    (TFrom["from"] extends string
+      ? { from: TFrom["from"] }
+      : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+        {}) {
+    return {
+      type: "HYBRID",
+      ...(this._noStem.noStem ? { noStem: true } : {}),
+      ...(this._from.from ? { from: this._from.from } : {}),
+    } as any;
+  }
+}
+
 class KeywordFieldBuilder {
   [BUILD](): { type: "KEYWORD" } {
     return { type: "KEYWORD" } as const;
@@ -224,6 +260,7 @@ type FieldBuilder =
   | NumericFieldBuilder<NumericField["type"], { from: string | null }>
   | BoolFieldBuilder<{ fast: boolean }, { from: string | null }>
   | DateFieldBuilder<{ fast: boolean }, { from: string | null }>
+  | HybridFieldBuilder<{ noStem: boolean }, { from: string | null }>
   | KeywordFieldBuilder
   | FacetFieldBuilder;
 
@@ -239,6 +276,14 @@ export const s = {
   },
   date(): DateFieldBuilder {
     return new DateFieldBuilder();
+  },
+  /**
+   * A TEXT field that is also embedded for semantic search with `$ann`.
+   *
+   * @see https://upstash.com/docs/redis/search/hybrid-search
+   */
+  hybrid(): HybridFieldBuilder {
+    return new HybridFieldBuilder();
   },
   keyword(): KeywordFieldBuilder {
     return new KeywordFieldBuilder();

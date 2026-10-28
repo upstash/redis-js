@@ -422,6 +422,45 @@ describe("Auto pipeline", () => {
     expect(result).toBe("foobar");
   });
 
+  test("should not shift other results when a command throws while it is being built", async () => {
+    const redis = Redis.fromEnv({
+      latencyLogging: false,
+      enableAutoPipelining: true,
+    });
+    const key1 = newKey();
+    const key2 = newKey();
+    const counter = newKey();
+
+    // JSON.stringify cannot serialize a BigInt, so this set throws before it reaches the pipeline
+    const [first, bad, second, third] = await Promise.allSettled([
+      redis.set(key1, "value1"),
+      redis.set(newKey(), { id: 1n }),
+      redis.set(key2, "value2"),
+      redis.incr(counter),
+    ]);
+
+    expect(first).toEqual({ status: "fulfilled", value: "OK" });
+    expect(bad.status).toBe("rejected");
+    expect(second).toEqual({ status: "fulfilled", value: "OK" });
+    expect(third).toEqual({ status: "fulfilled", value: 1 });
+    // @ts-expect-error pipelineCounter is not in type but accessible
+    expect(redis.pipelineCounter).toBe(1);
+  });
+
+  test("should not break the next command when the first command of a pipeline throws while it is being built", async () => {
+    const redis = Redis.fromEnv({
+      latencyLogging: false,
+      enableAutoPipelining: true,
+    });
+    const key = newKey();
+    await redis.set(key, "value");
+
+    // two streams but one id: XReadCommand throws before anything is queued
+    await expect(redis.xread([newKey(), newKey()], ["0"])).rejects.toThrow("Unbalanced XREAD");
+
+    expect(await redis.get<string>(key)).toBe("value");
+  });
+
   describe("max pipeline size", () => {
     test("should split into two pipelines when MAX_PIPELINE_SIZE + 500 commands are queued", async () => {
       const redis = Redis.fromEnv({

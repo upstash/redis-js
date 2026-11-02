@@ -1,5 +1,15 @@
 # @upstash/redis
 
+## 1.41.0
+
+### Minor Changes
+
+- dbf1863: Support hybrid search: `s.hybrid()` declares a `HYBRID` field, and `query()` accepts the `$ann`, `$rrf` and `$standard` retrievers. `count()` and `aggregate()` accept `$rrf` and `$standard` without `$ann`.
+
+### Patch Changes
+
+- 4d3f58e: Include TypeScript source and Redis SDK documentation in the npm package for offline reference and coding agents. Command JSDoc links each documented method to its bundled docs page and notes automatic JSON deserialization on commands that return stored values.
+
 ## 1.40.0
 
 ### Minor Changes

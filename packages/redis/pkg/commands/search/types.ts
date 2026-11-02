@@ -7,6 +7,7 @@ export const FIELD_TYPES = [
   "DATE",
   "KEYWORD",
   "FACET",
+  "HYBRID",
 ] as const;
 export type FieldType = (typeof FIELD_TYPES)[number];
 
@@ -43,8 +44,20 @@ export type FacetField = {
   type: "FACET";
 };
 
+/**
+ * A TEXT field that also stores a vector embedding, so it can be searched by meaning with `$ann`.
+ *
+ * @see https://upstash.com/docs/redis/search/hybrid-search
+ */
+export type HybridField = {
+  type: "HYBRID";
+  noStem?: boolean;
+  from?: string;
+};
+
 export type DetailedField =
   | TextField
+  | HybridField
   | NumericField
   | BoolField
   | DateField
@@ -89,7 +102,7 @@ export type GetFieldAtPath<
     ? TSchema[Path]
     : never;
 
-type FieldValueType<T extends FieldType> = T extends "TEXT"
+type FieldValueType<T extends FieldType> = T extends "TEXT" | "HYBRID"
   ? string
   : T extends "U64" | "I64" | "F64"
     ? number
@@ -162,7 +175,7 @@ export type QueryOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> =
         scoreFunc?: ScoreBy<string>;
       }
     : {
-        filter?: RootQueryFilter<TSchema>;
+        filter?: RootQueryFilter<TSchema> | Retriever<TSchema>;
         /** Maximum number of results to return */
         limit?: number;
         /** Number of results to skip */
@@ -388,7 +401,7 @@ type FacetOperations = {
 }[keyof FacetOperationMap<string>];
 
 // Create a union type for all operations for a given field type
-type OperationsForFieldType<T extends FieldType> = T extends "TEXT"
+type OperationsForFieldType<T extends FieldType> = T extends "TEXT" | "HYBRID"
   ? StringOperations
   : T extends "U64" | "I64" | "F64"
     ? NumberOperations
@@ -579,6 +592,92 @@ type RootOrNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
   $mustNot?: QueryFilter<TSchema> | QueryFilter<TSchema>[];
 };
 
+// Retrievers
+// @see https://upstash.com/docs/redis/search/retrievers/overview
+
+/**
+ * Runs a semantic search on a HYBRID field.
+ *
+ * @see https://upstash.com/docs/redis/search/retrievers/ann
+ */
+export type AnnRetriever<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
+  $ann: {
+    /** The HYBRID field to search */
+    field: IsDefaultSchema<TSchema> extends true ? string : HybridPaths<TSchema>;
+    /** The text to search for. Cannot be empty. */
+    query: string;
+    /** Accuracy and speed trade-off. Defaults to `balanced`. */
+    profile?: "fast" | "balanced" | "precise";
+    /** Only documents that match this query are returned */
+    filter?: RootQueryFilter<TSchema>;
+    /** Scales how much the results add to the `$rrf` score. Valid only inside `$rrf`. */
+    weight?: number;
+  };
+};
+
+/**
+ * Runs one query. Use it inside `$rrf` to set the weight of a query.
+ *
+ * @see https://upstash.com/docs/redis/search/retrievers/standard
+ */
+export type StandardRetriever<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
+  $standard: {
+    query: RootQueryFilter<TSchema>;
+    /** Scales how much the query adds to the `$rrf` score. Valid only inside `$rrf`. */
+    weight?: number;
+  };
+};
+
+/**
+ * Merges the results of 2 to 10 retrievers with Reciprocal Rank Fusion.
+ *
+ * @see https://upstash.com/docs/redis/search/retrievers/rrf
+ */
+export type RrfRetriever<
+  TSchema extends NestedIndexSchema | FlatIndexSchema,
+  TAllowAnn extends boolean = true,
+> = {
+  $rrf: {
+    /** 2 to 10 retrievers to merge */
+    retrievers: (
+      | RootQueryFilter<TSchema>
+      | StandardRetriever<TSchema>
+      | (TAllowAnn extends true ? AnnRetriever<TSchema> : never)
+    )[];
+    /** Higher values give lower-ranked results more influence. Defaults to `60`. */
+    rankConstant?: number;
+    /** The number of results each retriever contributes. Defaults to `LIMIT`. */
+    window?: number;
+  };
+};
+
+export type Retriever<TSchema extends NestedIndexSchema | FlatIndexSchema> =
+  | AnnRetriever<TSchema>
+  | StandardRetriever<TSchema>
+  | RrfRetriever<TSchema>;
+
+/**
+ * Retrievers accepted by `SEARCH.COUNT` and `SEARCH.AGGREGATE`, which do not support `$ann`.
+ */
+export type CountRetriever<TSchema extends NestedIndexSchema | FlatIndexSchema> =
+  | StandardRetriever<TSchema>
+  | RrfRetriever<TSchema, false>;
+
+// Helper type to extract only HYBRID field paths from schema
+export type HybridPaths<T, Prefix extends string = ""> = {
+  [K in keyof T]: K extends string
+    ? T[K] extends "HYBRID" | { type: "HYBRID" }
+      ? Prefix extends ""
+        ? K
+        : `${Prefix}${K}`
+      : T[K] extends FieldType | DetailedField
+        ? never
+        : T[K] extends object
+          ? HybridPaths<T[K], `${Prefix}${K}.`>
+          : never
+    : never;
+}[keyof T];
+
 export type DescribeFieldInfo = {
   type: FieldType;
   noTokenize?: boolean;
@@ -645,7 +744,7 @@ export type AggregateOptions<TSchema extends NestedIndexSchema | FlatIndexSchema
         };
       }
     : {
-        filter?: RootQueryFilter<TSchema>;
+        filter?: RootQueryFilter<TSchema> | CountRetriever<TSchema>;
         aggregations: {
           [key: string]: Aggregation<TSchema>;
         };

@@ -1081,3 +1081,103 @@ describe("schema with 'from' field alias", () => {
     expect(results).toHaveLength(1);
   });
 });
+
+// ─── hybrid search ───────────────────────────────────────────────────────
+
+describe("hybrid search - types", () => {
+  const hybridSchema = s.object({
+    name: s.string(),
+    description: s.hybrid(),
+    category: s.keyword(),
+    price: s.number(),
+    details: s.object({
+      summary: s.hybrid(),
+    }),
+  });
+
+  test("$ann accepts HYBRID fields and a typed filter", async () => {
+    const index = initIndex(mockRequester([]), { name: "idx", schema: hybridSchema });
+
+    await index.query({
+      filter: {
+        $ann: {
+          field: "description",
+          query: "block noise on a flight",
+          profile: "fast",
+          filter: { category: "audio", price: { $lt: 100 } },
+        },
+      },
+    });
+
+    await index.query({
+      filter: { $ann: { field: "details.summary", query: "wireless" } },
+    });
+
+    await index.query({
+      filter: {
+        // @ts-expect-error $ann only works on HYBRID fields
+        $ann: { field: "name", query: "wireless" },
+      },
+    });
+  });
+
+  test("HYBRID fields accept text operators", async () => {
+    const index = initIndex(mockRequester([]), { name: "idx", schema: hybridSchema });
+
+    await index.query({ filter: { description: { $phrase: "noise cancelling" } } });
+  });
+
+  test("$rrf merges plain queries, $standard and $ann", async () => {
+    const index = initIndex(mockRequester([]), { name: "idx", schema: hybridSchema });
+
+    await index.query({
+      filter: {
+        $rrf: {
+          retrievers: [
+            { description: "noise cancelling" },
+            { $standard: { query: { name: "headphones" }, weight: 2 } },
+            { $ann: { field: "description", query: "noise cancelling", weight: 1 } },
+          ],
+          rankConstant: 60,
+          window: 100,
+        },
+      },
+      limit: 10,
+      offset: 10,
+    });
+  });
+
+  test("count accepts $rrf without $ann", async () => {
+    const index = initIndex(mockRequester(2), { name: "idx", schema: hybridSchema });
+
+    const result = await index.count({
+      filter: { $rrf: { retrievers: [{ name: "headphones" }, { description: "bluetooth" }] } },
+    });
+    expect(result).toEqual({ count: 2 });
+
+    await index.count({
+      filter: {
+        $rrf: {
+          retrievers: [
+            { name: "headphones" },
+            // @ts-expect-error SEARCH.COUNT does not support $ann
+            { $ann: { field: "description", query: "headphones" } },
+          ],
+        },
+      },
+    });
+  });
+
+  test("query result infers HYBRID fields as strings", async () => {
+    const index = initIndex(mockRequester([["product:1", "0.9", [["description", "over-ear"]]]]), {
+      name: "idx",
+      schema: hybridSchema,
+    });
+
+    const result = await index.query({
+      filter: { $ann: { field: "description", query: "headphones" } },
+    });
+    const description: string | undefined = result[0]?.data.description;
+    expect(typeof description).toBe("string");
+  });
+});

@@ -125,3 +125,17 @@ describe("Schema Builder", () => {
     });
   });
 });
+
+describe("Schema Builder - hybrid fields", () => {
+  test("builds hybrid fields with options", () => {
+    const schema = s.object({
+      description: s.hybrid(),
+      body: s.hybrid().noStem().from("content"),
+    });
+
+    expect(schema).toEqual({
+      description: { type: "HYBRID" },
+      body: { type: "HYBRID", noStem: true, from: "content" },
+    });
+  });
+});

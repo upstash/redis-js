@@ -266,6 +266,41 @@ Boost the score of specific conditions:
 }
 ```
 
+## Hybrid Search
+
+`HYBRID` fields (`s.hybrid()`) work like `TEXT` fields and are also embedded for semantic search. Use retrievers at the root of `filter`:
+
+```typescript
+// Search by meaning
+await index.query({
+  filter: {
+    $ann: {
+      field: "description",
+      query: "block noise on a flight",
+      filter: { category: "travel" },
+    },
+  },
+});
+
+// Merge full-text and semantic results with Reciprocal Rank Fusion
+await index.query({
+  filter: {
+    $rrf: {
+      retrievers: [
+        { $standard: { query: { description: "noise cancelling" }, weight: 2 } },
+        { $ann: { field: "description", query: "noise cancelling" } },
+      ],
+      window: 100, // set it to page with offset
+    },
+  },
+  limit: 10,
+});
+```
+
+- `$ann` only works on `HYBRID` fields. `profile` is `"fast"`, `"balanced"` (default) or `"precise"`.
+- A retriever must be the only key of its object, and cannot be nested inside `$must`/`$should`/`$mustNot`.
+- `orderBy` is not supported with `$rrf` or `$ann`. `count()` and `aggregate()` accept `$rrf` only without `$ann`.
+
 ## Counting
 
 Count matching documents without returning them:

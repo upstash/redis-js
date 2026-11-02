@@ -57,12 +57,13 @@ const index = await redis.search.createIndex({
 | `s.date()`     | DATE        | `string`   | Date range queries               |
 | `s.keyword()`  | KEYWORD     | `string`   | Exact match, lexicographic range |
 | `s.facet()`    | FACET       | `string`   | Faceted aggregations             |
+| `s.hybrid()`   | HYBRID      | `string`   | Full-text and semantic search    |
 | `s.object({})` | (nested)    | `object`   | Nested field groups              |
 
 ### Field Options
 
 - `.noTokenize()` - (TEXT only) Don't split on whitespace/punctuation. Use for SKUs, URLs, emails
-- `.noStem()` - (TEXT only) Don't reduce words to stems. Use for brand names, proper nouns
+- `.noStem()` - (TEXT, HYBRID) Don't reduce words to stems. Use for brand names, proper nouns
 - `.fast()` - (BOOL, DATE) Enable fast filtering
 - `.from("fieldName")` - Map index field to a different field name in the stored data
 

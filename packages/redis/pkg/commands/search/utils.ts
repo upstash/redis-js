@@ -302,7 +302,7 @@ function parseBucket(bucket: any[], aggregation: any, nested: boolean): any {
   for (let i = 0; i < bucket.length; i += 2) {
     const key = bucket[i];
     const value = bucket[i + 1];
-    if (key === "key" && Array.isArray(value)) {
+    if (key === "key" && Array.isArray(value) && (!aggregation || "$composite" in aggregation)) {
       // The key of a $composite bucket maps source names to values
       bucketObj[key] = parsePairs(value, true);
     } else if (Array.isArray(value) && value.length > 0 && typeof value[0] === "string") {

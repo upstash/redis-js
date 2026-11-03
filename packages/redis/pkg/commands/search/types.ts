@@ -678,9 +678,11 @@ type MetricPaths<TSchema> = FastPaths<TSchema, NumericType | "DATE">;
 
 /** Bucket aggregations can have sub-aggregations, except `$facet`. */
 type BucketAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
-  $aggs?: {
-    [key: string]: Exclude<Aggregation<TSchema>, FacetAggregation<TSchema>>;
-  };
+  $aggs?:
+    | {
+        [key: string]: Exclude<Aggregation<TSchema>, FacetAggregation<TSchema>>;
+      }
+    | undefined;
 };
 
 /** Metric aggregations cannot have sub-aggregations. */
@@ -973,9 +975,11 @@ type TermsResult<
     keyAsString?: boolean | string;
   } & SubAggregations<TSchema, TAgg>)[];
   sumOtherDocCount: number;
-} & (TAgg extends { $terms: { order: unknown } }
+} & (TAgg extends { $terms: { order: infer TOrder } }
   ? // Missing when ordered by a sub-aggregation
-    { docCountErrorUpperBound?: number }
+    Exclude<keyof TOrder, "count" | "key"> extends never
+    ? { docCountErrorUpperBound: number }
+    : { docCountErrorUpperBound?: number }
   : { docCountErrorUpperBound: number });
 
 type RangeBucket = Bucket<string> & {
@@ -1046,9 +1050,10 @@ type ExtendedStatsResult = {
 };
 
 // Percentiles are keyed by default
+// Percentiles are keyed unless `keyed` is `false`
 type PercentilesResult<TAgg> = TAgg extends { $percentiles: { keyed: infer TKeyed } }
   ? Flag<
-      TKeyed,
+      [TKeyed] extends [undefined] ? true : TKeyed,
       { values: { [key: string]: number } },
       { values: Array<{ key: number; value: number }> }
     >

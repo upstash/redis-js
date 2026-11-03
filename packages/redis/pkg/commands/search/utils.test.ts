@@ -594,7 +594,9 @@ describe("deserializeAggregateResponse", () => {
       r: { $range: { field: "price", ranges: [{ key: "[1]", to: 10 }], keyed: true } },
     };
 
-    expect(Object.keys(deserializeAggregateResponse(raw, aggregations).r.buckets)).toEqual(["1"]);
+    expect(deserializeAggregateResponse(raw, aggregations)).toEqual({
+      r: { buckets: { 1: { key: [1], docCount: 1 } } },
+    });
   });
 
   test("turns empty keyed buckets into an object", () => {

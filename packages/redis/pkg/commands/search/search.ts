@@ -10,6 +10,8 @@ import type {
   QueryResult,
   RootQueryFilter,
 } from "./types";
+
+type SelectOptions<TSelect> = TSelect extends undefined ? undefined : { select: TSelect };
 import type { Requester } from "../../http";
 import { ExecCommand } from "../exec";
 import {
@@ -98,20 +100,21 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
     return deserializeDescribeResponse<TSchema>(rawResult);
   }
 
-  async query<TOpts extends QueryOptions<TSchema>>(
-    options?: TOpts
-  ): Promise<QueryResult<TSchema, TOpts>[]> {
+  // Only `select` is inferred, so the rest of the options get excess property checks
+  async query<TSelect extends QueryOptions<TSchema>["select"] = undefined>(
+    options?: QueryOptions<TSchema> & { select?: TSelect }
+  ): Promise<QueryResult<TSchema, SelectOptions<TSelect>>[]> {
     const command = buildQueryCommand<TSchema>("SEARCH.QUERY", this.name, options);
     const rawResult = await new ExecCommand<string[]>(command as [string, ...string[]]).exec(
       this.client
     );
     if (!rawResult) return rawResult;
-    return deserializeQueryResponse<TSchema, TOpts>(rawResult);
+    return deserializeQueryResponse<TSchema, SelectOptions<TSelect>>(rawResult);
   }
 
-  async aggregate<TOpts extends AggregateOptions<TSchema>>(
-    options: TOpts
-  ): Promise<AggregateResult<TSchema, TOpts>> {
+  async aggregate<TAggs extends AggregateOptions<TSchema>["aggregations"]>(
+    options: AggregateOptions<TSchema> & { aggregations: TAggs }
+  ): Promise<AggregateResult<TSchema, { aggregations: TAggs }>> {
     const command = buildAggregateCommand(this.name, options);
     const rawResult = await new ExecCommand<(string | number)[]>(
       command as [string, ...string[]]

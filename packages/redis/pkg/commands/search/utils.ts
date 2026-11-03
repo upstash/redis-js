@@ -4,7 +4,6 @@ import type {
   FlatIndexSchema,
   IndexDescription,
   Language,
-  QueryOptions,
   QueryResult,
 } from "./types";
 import { FIELD_TYPES, type FieldType, type NestedIndexSchema } from "./types";
@@ -20,6 +19,11 @@ type FlattenedField = {
 
 function isFieldType(value: any): value is FieldType {
   return typeof value === "string" && (FIELD_TYPES as readonly string[]).includes(value);
+}
+
+// Numeric fields are always FAST, the same as `s.number()`, so they can be sorted and aggregated
+function isNumericType(type: string): boolean {
+  return type === "U64" || type === "I64" || type === "F64";
 }
 
 function isDetailedField(value: any): value is DetailedField {
@@ -44,12 +48,13 @@ export function flattenSchema(
       fields.push({
         path: pathString,
         type: value,
+        fast: isNumericType(value) ? true : undefined,
       });
     } else if (isDetailedField(value)) {
       fields.push({
         path: pathString,
         type: value.type as FieldType,
-        fast: "fast" in value ? value.fast : undefined,
+        fast: isNumericType(value.type) ? true : "fast" in value ? value.fast : undefined,
         noTokenize: "noTokenize" in value ? value.noTokenize : undefined,
         noStem: "noStem" in value ? value.noStem : undefined,
         from: "from" in value ? value.from : undefined,
@@ -65,7 +70,7 @@ export function flattenSchema(
 
 export function deserializeQueryResponse<
   TSchema extends NestedIndexSchema | FlatIndexSchema = any,
-  TOptions extends QueryOptions<TSchema> | undefined = any,
+  TOptions extends { select?: unknown } | undefined = any,
 >(rawResponse: unknown[]): QueryResult<TSchema, TOptions>[] {
   return rawResponse.map((itemRaw) => {
     const raw = itemRaw as [string, string, unknown[]?];
@@ -250,26 +255,53 @@ function parseStatsValue(arr: any[]): any {
 
 function parseBucketsValue(arr: any[]): any {
   // Format: ["buckets", [bucket1_array, bucket2_array, ...], extraKey, extraVal, ...]
+  // With `keyed: true`: ["buckets", [key1, bucket1_array, key2, bucket2_array, ...], ...]
   if (arr[0] === "buckets" && Array.isArray(arr[1])) {
-    const result: any = {
-      buckets: arr[1].map((bucket: any[]) => {
-        const bucketObj: any = {};
-        for (let i = 0; i < bucket.length; i += 2) {
-          const key = bucket[i];
-          const value = bucket[i + 1];
-          bucketObj[key] =
-            Array.isArray(value) && value.length > 0 && typeof value[0] === "string"
-              ? parseStatsValue(value)
-              : value;
-        }
-        return bucketObj;
-      }),
-    };
-    // Parse remaining key-value pairs (e.g. sumOtherDocCount, docCountErrorUpperBound)
+    const rawBuckets: any[] = arr[1];
+    const keyed = rawBuckets.length > 0 && !Array.isArray(rawBuckets[0]);
+    let buckets: any;
+    if (keyed) {
+      buckets = {};
+      for (let i = 0; i < rawBuckets.length; i += 2) {
+        buckets[rawBuckets[i]] = parseBucket(rawBuckets[i + 1]);
+      }
+    } else {
+      buckets = rawBuckets.map((bucket: any[]) => parseBucket(bucket));
+    }
+    const result: any = { buckets };
+    // Parse remaining key-value pairs (e.g. sumOtherDocCount, docCountErrorUpperBound, afterKey)
     for (let i = 2; i < arr.length; i += 2) {
-      result[arr[i]] = arr[i + 1];
+      // `afterKey` of $composite is a list of source names and cursor values
+      result[arr[i]] = arr[i] === "afterKey" ? parsePairs(arr[i + 1]) : arr[i + 1];
     }
     return result;
   }
   return arr;
+}
+
+function parseBucket(bucket: any[]): any {
+  const bucketObj: any = {};
+  for (let i = 0; i < bucket.length; i += 2) {
+    const key = bucket[i];
+    const value = bucket[i + 1];
+    if (key === "key" && Array.isArray(value)) {
+      // The key of a $composite bucket maps source names to values
+      bucketObj[key] = parsePairs(value);
+    } else if (Array.isArray(value) && value.length > 0 && typeof value[0] === "string") {
+      // A sub-aggregation
+      bucketObj[key] = value[0] === "buckets" ? parseBucketsValue(value) : parseStatsValue(value);
+    } else {
+      bucketObj[key] = value;
+    }
+  }
+  return bucketObj;
+}
+
+/** Turns `[name, value, name, value, ...]` into an object, keeping the values as they are. */
+function parsePairs(arr: any[]): any {
+  const result: any = {};
+  for (let i = 0; i < arr.length; i += 2) {
+    result[arr[i]] = arr[i + 1];
+  }
+  return result;
 }

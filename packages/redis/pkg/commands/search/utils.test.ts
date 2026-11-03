@@ -4,6 +4,7 @@ import {
   deserializeQueryResponse,
   deserializeDescribeResponse,
   parseCountResponse,
+  deserializeAggregateResponse,
 } from "./utils";
 import { s } from "./schema-builder";
 
@@ -17,9 +18,10 @@ describe("flattenSchema", () => {
 
       const result = flattenSchema(schema);
 
+      // Numeric fields are always FAST, the same as s.number()
       expect(result).toEqual([
         { path: "name", type: "TEXT" },
-        { path: "age", type: "U64" },
+        { path: "age", type: "U64", fast: true },
       ]);
     });
 
@@ -534,5 +536,75 @@ describe("parseCountResponse", () => {
     const result = parseCountResponse("0");
 
     expect(result).toBe(0);
+  });
+});
+
+describe("deserializeAggregateResponse", () => {
+  test("parses $composite keys and afterKey into objects", () => {
+    const raw = [
+      "c",
+      [
+        "buckets",
+        [
+          ["key", ["cat", "123", "p", 20], "docCount", 2],
+          ["key", ["cat", "b", "p", 0], "docCount", 1],
+        ],
+        "afterKey",
+        ["cat", "str:b", "p", "f64:0"],
+      ],
+    ];
+
+    expect(deserializeAggregateResponse(raw)).toEqual({
+      c: {
+        buckets: [
+          { key: { cat: "123", p: 20 }, docCount: 2 },
+          { key: { cat: "b", p: 0 }, docCount: 1 },
+        ],
+        afterKey: { cat: "str:b", p: "f64:0" },
+      },
+    });
+  });
+
+  test("parses keyed buckets into an object", () => {
+    const raw = ["h", ["buckets", [0, ["key", 0, "docCount", 1], 10, ["key", 10, "docCount", 2]]]];
+
+    expect(deserializeAggregateResponse(raw)).toEqual({
+      h: { buckets: { 0: { key: 0, docCount: 1 }, 10: { key: 10, docCount: 2 } } },
+    });
+  });
+
+  test("parses bucket sub-aggregations", () => {
+    const raw = [
+      "t",
+      [
+        "buckets",
+        [
+          [
+            "key",
+            "a",
+            "docCount",
+            2,
+            "p",
+            ["buckets", [["key", 0, "docCount", 2]]],
+            "s",
+            ["value", 5],
+          ],
+        ],
+        "sumOtherDocCount",
+        0,
+        "docCountErrorUpperBound",
+        0,
+      ],
+    ];
+
+    expect(deserializeAggregateResponse(raw)).toEqual({
+      t: {
+        buckets: [
+          { key: "a", docCount: 2, p: { buckets: [{ key: 0, docCount: 2 }] }, s: { value: 5 } },
+        ],
+        sumOtherDocCount: 0,
+        docCountErrorUpperBound: 0,
+      },
+    });
   });
 });

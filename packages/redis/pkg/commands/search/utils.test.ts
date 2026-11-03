@@ -1,4 +1,3 @@
-import type { FieldType } from "./types";
 import { describe, test, expect } from "bun:test";
 import {
   flattenSchema,
@@ -557,7 +556,7 @@ describe("deserializeAggregateResponse", () => {
     expect(deserializeAggregateResponse(raw)).toEqual({
       c: {
         buckets: [
-          { key: { cat: "a", p: "19.99" }, docCount: 2 },
+          { key: { cat: "a", p: 19.99 }, docCount: 2 },
           { key: { cat: "b", p: 0 }, docCount: 1 },
         ],
         afterKey: { cat: "str:b", p: "f64:0" },
@@ -565,88 +564,37 @@ describe("deserializeAggregateResponse", () => {
     });
   });
 
-  test("fixes bucket keys from the field types", () => {
-    // Automatic deserialization has already turned "42" into 42
+  test("keeps top-level bucket values and converts nested ones, as before", () => {
     const raw = [
+      "code",
+      [
+        "buckets",
+        [["key", "007", "docCount", 1, "price", ["buckets", [["key", "1.5", "docCount", 1]]]]],
+      ],
       "price",
       ["buckets", [["key", "19.99", "docCount", 1]]],
-      "code",
-      [
-        "buckets",
-        [
-          ["key", "007", "docCount", 1, "price", ["buckets", [["key", "1.5", "docCount", 1]]]],
-          ["key", 42, "docCount", 1],
-        ],
-      ],
-      "h",
-      ["buckets", [["key", "0.5", "docCount", "1"]]],
-      "r",
-      ["buckets", [["key", "10", "docCount", 1, "from", "10.5"]]],
-      "c",
-      ["buckets", [["key", ["code", 42, "price", "1.5", "h", "0.5"], "docCount", 1]]],
     ];
     const aggregations = {
-      price: { $terms: { field: "price" } },
       code: { $terms: { field: "code" }, $aggs: { price: { $terms: { field: "price" } } } },
-      h: { $histogram: { field: "price", interval: 0.5 } },
-      r: { $range: { field: "price", ranges: [{ from: 10.5 }] } },
-      c: {
-        $composite: {
-          sources: [
-            { code: { $terms: { field: "code" } } },
-            { price: { $terms: { field: "price" } } },
-            { h: { $histogram: { field: "price", interval: 0.5 } } },
-          ],
-        },
-      },
-    };
-    const fieldTypes = new Map<string, FieldType>([
-      ["price", "F64"],
-      ["code", "KEYWORD"],
-    ]);
-
-    expect(deserializeAggregateResponse(raw, aggregations, fieldTypes)).toEqual({
-      price: { buckets: [{ key: 19.99, docCount: 1 }] },
-      code: {
-        buckets: [
-          { key: "007", docCount: 1, price: { buckets: [{ key: 1.5, docCount: 1 }] } },
-          { key: "42", docCount: 1 },
-        ],
-      },
-      h: { buckets: [{ key: 0.5, docCount: 1 }] },
-      r: { buckets: [{ key: "10", docCount: 1, from: 10.5 }] },
-      c: { buckets: [{ key: { code: "42", price: 1.5, h: 0.5 }, docCount: 1 }] },
-    });
-  });
-
-  test("keeps the old key handling without a schema", () => {
-    const raw = [
-      "code",
-      [
-        "buckets",
-        [["key", "007", "docCount", 1, "sub", ["buckets", [["key", "1.5", "docCount", 1]]]]],
-      ],
-      "c",
-      ["buckets", [["key", ["code", "007", "h", "0.5"], "docCount", 1]]],
-    ];
-    const aggregations = {
-      code: { $terms: { field: "code" }, $aggs: { sub: { $terms: { field: "price" } } } },
-      c: {
-        $composite: {
-          sources: [
-            { code: { $terms: { field: "code" } } },
-            { h: { $histogram: { field: "price", interval: 0.5 } } },
-          ],
-        },
-      },
+      price: { $terms: { field: "price" } },
     };
 
     expect(deserializeAggregateResponse(raw, aggregations)).toEqual({
       code: {
-        buckets: [{ key: "007", docCount: 1, sub: { buckets: [{ key: 1.5, docCount: 1 }] } }],
+        buckets: [{ key: "007", docCount: 1, price: { buckets: [{ key: 1.5, docCount: 1 }] } }],
       },
-      c: { buckets: [{ key: { code: "007", h: 0.5 }, docCount: 1 }] },
+      price: { buckets: [{ key: "19.99", docCount: 1 }] },
     });
+  });
+
+  test("reads keyed from the request", () => {
+    // A keyed $range with the custom key "[1]", which automatic deserialization turned into [1]
+    const raw = ["r", ["buckets", [[1], ["key", [1], "docCount", 1]]]];
+    const aggregations = {
+      r: { $range: { field: "price", ranges: [{ key: "[1]", to: 10 }], keyed: true } },
+    };
+
+    expect(Object.keys(deserializeAggregateResponse(raw, aggregations).r.buckets)).toEqual(["1"]);
   });
 
   test("turns empty keyed buckets into an object", () => {

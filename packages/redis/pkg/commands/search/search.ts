@@ -2,7 +2,6 @@ import type {
   AggregateOptions,
   AggregateResult,
   CountRetriever,
-  FieldType,
   FlatIndexSchema,
   IndexDescription,
   Language,
@@ -22,7 +21,6 @@ import {
   deserializeAggregateResponse,
   deserializeDescribeResponse,
   deserializeQueryResponse,
-  flattenSchema,
   parseCountResponse,
 } from "./utils";
 
@@ -118,13 +116,7 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
     const rawResult = await new ExecCommand<(string | number)[]>(
       command as [string, ...string[]]
     ).exec(this.client);
-    return deserializeAggregateResponse(rawResult, options.aggregations, this.fieldTypes());
-  }
-
-  /** The field types by path, when the schema is known */
-  private fieldTypes(): Map<string, FieldType> | undefined {
-    if (!this.schema) return undefined;
-    return new Map(flattenSchema(this.schema).map((field) => [field.path, field.type]));
+    return deserializeAggregateResponse(rawResult, options.aggregations);
   }
 
   async count({

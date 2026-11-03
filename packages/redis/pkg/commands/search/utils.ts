@@ -187,93 +187,17 @@ export function parseCountResponse(rawResponse: any): number {
 }
 
 /**
- * @param aggregations The aggregations of the request
- * @param fieldTypes The field types of the index by path, when its schema is known
+ * @param aggregations The aggregations of the request, which tell which buckets are keyed
  */
 export function deserializeAggregateResponse(
   rawResponse: any[],
-  aggregations?: Record<string, any>,
-  fieldTypes?: ReadonlyMap<string, FieldType>
+  aggregations?: Record<string, any>
 ): any {
   // Response is a flat key-value array: [key, val, key, val, ...]
-  const result = parseAggregationArray(rawResponse);
-  if (aggregations) normalizeBuckets(result, aggregations, fieldTypes, false);
-  return result;
+  return parseAggregationArray(rawResponse, aggregations);
 }
 
-const NUMERIC_TYPES = new Set<FieldType>(["U64", "I64", "F64"]);
-
-/** Fixes the type of a bucket key, which arrives as text or as a number. */
-function normalizeKey(
-  key: unknown,
-  operator: string | undefined,
-  params: any,
-  fieldTypes: ReadonlyMap<string, FieldType> | undefined,
-  nested: boolean
-): unknown {
-  if (operator === "$histogram" || operator === "$dateHistogram") {
-    return coerceNumericString(key);
-  }
-  if (operator !== "$terms") return key;
-  if (!fieldTypes) {
-    // Without a schema, keep the old behavior: nested keys that look like numbers become numbers
-    return nested ? coerceNumericString(key) : key;
-  }
-  const type = fieldTypes.get(params?.field);
-  if (type && NUMERIC_TYPES.has(type)) return coerceNumericString(key);
-  // KEYWORD values that look like JSON, such as "42", are parsed by automatic deserialization,
-  // which keeps a string unless it turns back into the same text
-  if (type === "KEYWORD" && typeof key !== "string") return JSON.stringify(key);
-  return key;
-}
-
-/**
- * Fixes buckets that only the request explains:
- * - The server sends empty `keyed: true` buckets as a list.
- * - Float keys arrive as strings, and KEYWORD keys can look like numbers.
- */
-function normalizeBuckets(
-  result: any,
-  aggregations: Record<string, any>,
-  fieldTypes: ReadonlyMap<string, FieldType> | undefined,
-  nested: boolean
-): void {
-  for (const [name, aggregation] of Object.entries(aggregations)) {
-    const value = result?.[name];
-    if (!value || !aggregation || !value.buckets || typeof value.buckets !== "object") continue;
-    const operator = Object.keys(aggregation).find((key) => key !== "$aggs");
-    const params = operator ? aggregation[operator] : undefined;
-    if (params?.keyed === true && Array.isArray(value.buckets) && value.buckets.length === 0) {
-      value.buckets = {};
-    }
-    for (const bucket of Object.values<any>(value.buckets)) {
-      if (!bucket || typeof bucket !== "object") continue;
-      if (operator === "$composite") {
-        if (bucket.key && typeof bucket.key === "object") {
-          for (const source of params?.sources ?? []) {
-            for (const [sourceName, sourceAggregation] of Object.entries<any>(source ?? {})) {
-              const sourceOperator = Object.keys(sourceAggregation ?? {})[0];
-              if (!sourceOperator || !(sourceName in bucket.key)) continue;
-              // `nested: false` keeps the composite keys as they are when the schema is unknown
-              bucket.key[sourceName] = normalizeKey(
-                bucket.key[sourceName],
-                sourceOperator,
-                sourceAggregation[sourceOperator],
-                fieldTypes,
-                false
-              );
-            }
-          }
-        }
-      } else {
-        bucket.key = normalizeKey(bucket.key, operator, params, fieldTypes, nested);
-      }
-      if (aggregation.$aggs) normalizeBuckets(bucket, aggregation.$aggs, fieldTypes, true);
-    }
-  }
-}
-
-function parseAggregationArray(arr: any[]): any {
+function parseAggregationArray(arr: any[], aggregations?: Record<string, any>): any {
   const result: any = {};
 
   for (let i = 0; i < arr.length; i += 2) {
@@ -284,7 +208,10 @@ function parseAggregationArray(arr: any[]): any {
       // Check if it's a stats-like array or buckets array
       if (value.length > 0 && typeof value[0] === "string") {
         // Stats or buckets format
-        result[key] = value[0] === "buckets" ? parseBucketsValue(value) : parseStatsValue(value);
+        result[key] =
+          value[0] === "buckets"
+            ? parseBucketsValue(value, aggregations?.[key], false)
+            : parseStatsValue(value);
       } else {
         // Nested aggregation
         result[key] = parseAggregationArray(value);
@@ -330,62 +257,72 @@ function parseStatsValue(arr: any[]): any {
   return result;
 }
 
-function parseBucketsValue(arr: any[]): any {
+/** `keyed: true` from the request, or from the response shape when the request is unknown */
+function isKeyed(aggregation: any, rawBuckets: any[]): boolean {
+  if (aggregation && typeof aggregation === "object") {
+    const operator = Object.keys(aggregation).find((key) => key !== "$aggs");
+    return operator !== undefined && aggregation[operator]?.keyed === true;
+  }
+  return rawBuckets.length > 0 && !Array.isArray(rawBuckets[0]);
+}
+
+/**
+ * Values of nested buckets that look like numbers become numbers, and values of top-level
+ * buckets stay as they are, except for `$composite` keys.
+ */
+function parseBucketsValue(arr: any[], aggregation: any, nested: boolean): any {
   // Format: ["buckets", [bucket1_array, bucket2_array, ...], extraKey, extraVal, ...]
   // With `keyed: true`: ["buckets", [key1, bucket1_array, key2, bucket2_array, ...], ...]
   if (arr[0] === "buckets" && Array.isArray(arr[1])) {
     const rawBuckets: any[] = arr[1];
-    const keyed = rawBuckets.length > 0 && !Array.isArray(rawBuckets[0]);
     let buckets: any;
-    if (keyed) {
+    if (isKeyed(aggregation, rawBuckets)) {
       buckets = {};
       for (let i = 0; i < rawBuckets.length; i += 2) {
-        buckets[rawBuckets[i]] = parseBucket(rawBuckets[i + 1]);
+        buckets[rawBuckets[i]] = parseBucket(rawBuckets[i + 1], aggregation, nested);
       }
     } else {
-      buckets = rawBuckets.map((bucket: any[]) => parseBucket(bucket));
+      buckets = rawBuckets.map((bucket: any[]) => parseBucket(bucket, aggregation, nested));
     }
     const result: any = { buckets };
     // Parse remaining key-value pairs (e.g. sumOtherDocCount, docCountErrorUpperBound, afterKey)
     for (let i = 2; i < arr.length; i += 2) {
+      const value = arr[i + 1];
       // `afterKey` of $composite is a list of source names and cursor values
-      result[arr[i]] = arr[i] === "afterKey" ? parsePairs(arr[i + 1]) : arr[i + 1];
+      if (arr[i] === "afterKey" && Array.isArray(value)) result[arr[i]] = parsePairs(value, false);
+      else result[arr[i]] = nested ? coerceNumericString(value) : value;
     }
     return result;
   }
   return arr;
 }
 
-// Bucket values that are text even when they look like numbers
-const TEXT_BUCKET_VALUES = new Set(["key", "keyAsString", "fromAsString", "toAsString"]);
-
-function parseBucket(bucket: any[]): any {
+function parseBucket(bucket: any[], aggregation: any, nested: boolean): any {
   const bucketObj: any = {};
   for (let i = 0; i < bucket.length; i += 2) {
     const key = bucket[i];
     const value = bucket[i + 1];
     if (key === "key" && Array.isArray(value)) {
       // The key of a $composite bucket maps source names to values
-      bucketObj[key] = parsePairs(value);
+      bucketObj[key] = parsePairs(value, true);
     } else if (Array.isArray(value) && value.length > 0 && typeof value[0] === "string") {
       // A sub-aggregation
-      bucketObj[key] = value[0] === "buckets" ? parseBucketsValue(value) : parseStatsValue(value);
-    } else if (TEXT_BUCKET_VALUES.has(key)) {
-      // Keys are converted by `normalizeBuckets`, which knows the aggregation
-      bucketObj[key] = value;
+      bucketObj[key] =
+        value[0] === "buckets"
+          ? parseBucketsValue(value, aggregation?.$aggs?.[key], true)
+          : parseStatsValue(value);
     } else {
-      // Counts and bounds such as `docCount` and `to`
-      bucketObj[key] = coerceNumericString(value);
+      bucketObj[key] = nested ? coerceNumericString(value) : value;
     }
   }
   return bucketObj;
 }
 
-/** Turns `[name, value, name, value, ...]` into an object, keeping the values as they are. */
-function parsePairs(arr: any[]): any {
+/** Turns `[name, value, name, value, ...]` into an object. */
+function parsePairs(arr: any[], coerce: boolean): any {
   const result: any = {};
   for (let i = 0; i < arr.length; i += 2) {
-    result[arr[i]] = arr[i + 1];
+    result[arr[i]] = coerce ? coerceNumericString(arr[i + 1]) : arr[i + 1];
   }
   return result;
 }

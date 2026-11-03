@@ -192,17 +192,19 @@ export type InferSchemaData<TSchema> =
 export type QueryOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> =
   IsDefaultSchema<TSchema> extends true
     ? {
-        filter?: Record<string, any>;
-        limit?: number;
-        offset?: number;
-        select?: Record<string, true>;
-        highlight?: {
-          fields: readonly string[];
-          preTag?: string;
-          postTag?: string;
-        };
-        orderBy?: Record<string, "ASC" | "DESC">;
-        scoreFunc?: ScoreBy<string>;
+        filter?: Record<string, any> | undefined;
+        limit?: number | undefined;
+        offset?: number | undefined;
+        select?: Record<string, true> | undefined;
+        highlight?:
+          | {
+              fields: readonly string[];
+              preTag?: string | undefined;
+              postTag?: string | undefined;
+            }
+          | undefined;
+        orderBy?: Record<string, "ASC" | "DESC"> | undefined;
+        scoreFunc?: ScoreBy<string> | undefined;
       }
     : {
         // Retrievers that do not support some options (`$ann` with `orderBy`, for example) are
@@ -238,17 +240,17 @@ export type ScoreBy<TSchemaPaths extends string> =
   | ScoreByField<false, TSchemaPaths>
   | {
       fields: readonly ScoreByField<true, TSchemaPaths>[];
-      combineMode?: CombineMode;
-      scoreMode?: ScoreMode;
+      combineMode?: CombineMode | undefined;
+      scoreMode?: ScoreMode | undefined;
     };
 
 type ScoreByField<TMultiple extends boolean, TSchemaPaths extends string> =
   | {
       field: TSchemaPaths;
-      modifier?: ScoreModifier;
-      factor?: number;
-      missing?: number;
-      scoreMode?: TMultiple extends true ? never : ScoreMode;
+      modifier?: ScoreModifier | undefined;
+      factor?: number | undefined;
+      missing?: number | undefined;
+      scoreMode?: TMultiple extends true ? never : ScoreMode | undefined;
     }
   | TSchemaPaths;
 
@@ -443,7 +445,7 @@ type SharedClauses<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
   $should?: QueryGroup<TSchema> | undefined;
   $mustNot?: QueryGroup<TSchema> | undefined;
   /** A number scales the score of this query. `{ query, value }` scales the score of one sub-query. */
-  $boost?: number | { query: QueryFilter<TSchema>; value: number };
+  $boost?: number | { query: QueryFilter<TSchema>; value: number } | undefined;
   // Retrievers are valid only at the root of a query and inside `$rrf`
   $ann?: never;
   $standard?: never;
@@ -709,7 +711,11 @@ export type RangeAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema
   BucketAggregation<TSchema> & {
     $range: {
       field: HistogramPaths<TSchema>;
-      ranges: readonly { key?: string; from?: number; to?: number }[];
+      ranges: readonly {
+        key?: string | undefined;
+        from?: number | undefined;
+        to?: number | undefined;
+      }[];
       keyed?: boolean | undefined;
     };
   };
@@ -863,7 +869,7 @@ export type FacetAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema
       depth?: number | undefined;
       size?: number | undefined;
       minDocCount?: number | undefined;
-      order?: { count: "desc" | "asc" } | { path: "desc" | "asc" };
+      order?: { count: "desc" | "asc" } | { path: "desc" | "asc" } | undefined;
     };
   };
 

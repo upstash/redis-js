@@ -15,6 +15,7 @@ import { DelCommand } from "../del";
 import { JsonSetCommand } from "../json_set";
 import { s } from "./schema-builder";
 import type { InferFilterFromSchema, SearchIndex } from "./search";
+import type { FlatIndexSchema } from "./types";
 import { createIndex } from "./search";
 
 const client = newHttpClient();
@@ -81,7 +82,7 @@ const products = [
     featured: false,
     createdAt: "2024-05-20T00:00:00Z",
     updatedAt: "2024-05-21T00:00:00Z",
-    details: { brand: "sony", summary: "Jogging music" },
+    details: { brand: "42", summary: "Jogging music" },
   },
 ];
 
@@ -297,10 +298,15 @@ const valid: Record<string, () => Promise<unknown>> = {
       expect(typeof bucket.key).toBe("number");
     }
   },
+  "FlatIndexSchema as the schema type": async () => {
+    const flat = index as unknown as SearchIndex<FlatIndexSchema>;
+    await flat.query({ filter: { name: "headphones" }, orderBy: { price: "ASC" }, highlight: { fields: ["name"] } });
+    return flat.aggregate({ aggregations: { a: { $avg: { field: "price" } } } });
+  },
   "KEYWORD bucket keys keep leading zeros": async () => {
     const result = await index.aggregate({ aggregations: { b: { $terms: { field: "details.brand" } }, c: { $composite: { sources: [{ b: { $terms: { field: "details.brand" } } }] } } } });
-    expect(result.b.buckets.map((bucket) => bucket.key)).toContain("007");
-    expect(result.c.buckets.map((bucket) => bucket.key.b)).toContain("007");
+    expect(result.b.buckets.map((bucket) => bucket.key).sort()).toEqual(["007", "42", "sony"]);
+    expect(result.c.buckets.map((bucket) => bucket.key.b).sort()).toEqual(["007", "42", "sony"]);
   },
 };
 

@@ -1,3 +1,4 @@
+import type { FieldType } from "./types";
 import { describe, test, expect } from "bun:test";
 import {
   flattenSchema,
@@ -564,49 +565,88 @@ describe("deserializeAggregateResponse", () => {
     });
   });
 
-  test("turns float keys into numbers only when they are known to be numbers", () => {
+  test("fixes bucket keys from the field types", () => {
+    // Automatic deserialization has already turned "42" into 42
     const raw = [
       "price",
       ["buckets", [["key", "19.99", "docCount", 1]]],
       "code",
       [
         "buckets",
-        [["key", "007", "docCount", 1, "price", ["buckets", [["key", "1.5", "docCount", 1]]]]],
+        [
+          ["key", "007", "docCount", 1, "price", ["buckets", [["key", "1.5", "docCount", 1]]]],
+          ["key", 42, "docCount", 1],
+        ],
       ],
       "h",
       ["buckets", [["key", "0.5", "docCount", "1"]]],
       "r",
       ["buckets", [["key", "10", "docCount", 1, "from", "10.5"]]],
       "c",
-      ["buckets", [["key", ["code", "007", "price", "1.5", "h", "0.5"], "docCount", 1]]],
+      ["buckets", [["key", ["code", 42, "price", "1.5", "h", "0.5"], "docCount", 1]]],
     ];
     const aggregations = {
       price: { $terms: { field: "price" } },
       code: { $terms: { field: "code" }, $aggs: { price: { $terms: { field: "price" } } } },
-      h: { $histogram: { field: "other", interval: 0.5 } },
+      h: { $histogram: { field: "price", interval: 0.5 } },
       r: { $range: { field: "price", ranges: [{ from: 10.5 }] } },
       c: {
         $composite: {
           sources: [
             { code: { $terms: { field: "code" } } },
             { price: { $terms: { field: "price" } } },
-            { h: { $histogram: { field: "other", interval: 0.5 } } },
+            { h: { $histogram: { field: "price", interval: 0.5 } } },
+          ],
+        },
+      },
+    };
+    const fieldTypes = new Map<string, FieldType>([
+      ["price", "F64"],
+      ["code", "KEYWORD"],
+    ]);
+
+    expect(deserializeAggregateResponse(raw, aggregations, fieldTypes)).toEqual({
+      price: { buckets: [{ key: 19.99, docCount: 1 }] },
+      code: {
+        buckets: [
+          { key: "007", docCount: 1, price: { buckets: [{ key: 1.5, docCount: 1 }] } },
+          { key: "42", docCount: 1 },
+        ],
+      },
+      h: { buckets: [{ key: 0.5, docCount: 1 }] },
+      r: { buckets: [{ key: "10", docCount: 1, from: 10.5 }] },
+      c: { buckets: [{ key: { code: "42", price: 1.5, h: 0.5 }, docCount: 1 }] },
+    });
+  });
+
+  test("keeps the old key handling without a schema", () => {
+    const raw = [
+      "code",
+      [
+        "buckets",
+        [["key", "007", "docCount", 1, "sub", ["buckets", [["key", "1.5", "docCount", 1]]]]],
+      ],
+      "c",
+      ["buckets", [["key", ["code", "007", "h", "0.5"], "docCount", 1]]],
+    ];
+    const aggregations = {
+      code: { $terms: { field: "code" }, $aggs: { sub: { $terms: { field: "price" } } } },
+      c: {
+        $composite: {
+          sources: [
+            { code: { $terms: { field: "code" } } },
+            { h: { $histogram: { field: "price", interval: 0.5 } } },
           ],
         },
       },
     };
 
-    expect(deserializeAggregateResponse(raw, aggregations, new Set(["price"]))).toEqual({
-      price: { buckets: [{ key: 19.99, docCount: 1 }] },
+    expect(deserializeAggregateResponse(raw, aggregations)).toEqual({
       code: {
-        buckets: [{ key: "007", docCount: 1, price: { buckets: [{ key: 1.5, docCount: 1 }] } }],
+        buckets: [{ key: "007", docCount: 1, sub: { buckets: [{ key: 1.5, docCount: 1 }] } }],
       },
-      h: { buckets: [{ key: 0.5, docCount: 1 }] },
-      r: { buckets: [{ key: "10", docCount: 1, from: 10.5 }] },
-      c: { buckets: [{ key: { code: "007", price: 1.5, h: 0.5 }, docCount: 1 }] },
+      c: { buckets: [{ key: { code: "007", h: 0.5 }, docCount: 1 }] },
     });
-    // Without a schema, $terms keys stay as they are
-    expect(deserializeAggregateResponse(raw, aggregations).price.buckets[0].key).toBe("19.99");
   });
 
   test("turns empty keyed buckets into an object", () => {

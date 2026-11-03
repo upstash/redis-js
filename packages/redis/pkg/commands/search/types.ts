@@ -131,8 +131,10 @@ export type PathsOfType<TSchema, TTypes extends FieldType> = {
 }[SchemaPaths<TSchema>];
 
 /**
- * Paths of fields of `TTypes` that sort, score and aggregate. These need to be `FAST`: numeric
- * and KEYWORD fields always are, and BOOL and DATE fields are when declared with `.fast()`.
+ * Paths of fields of `TTypes` that sort, score and aggregate. These need to be `FAST`. KEYWORD
+ * fields always are, and BOOL and DATE fields are when declared with `.fast()`. Numeric fields
+ * are accepted as they are: `s.number()` creates them `FAST`, and a plain `"F64"` may belong to
+ * an index created elsewhere with `FAST`.
  */
 type FastPaths<TSchema, TTypes extends FieldType> = {
   [P in SchemaPaths<TSchema>]: GetFieldAtPath<TSchema, P> extends infer TField
@@ -161,10 +163,13 @@ type InferSchemaDataField<T> = T extends FieldType
       ? InferSchemaData<T>
       : unknown;
 
+// Also true for `FlatIndexSchema` and other schemas without known field names
 type IsDefaultSchema<T> = [T] extends [NestedIndexSchema | FlatIndexSchema]
   ? [NestedIndexSchema | FlatIndexSchema] extends [T]
     ? true
-    : false
+    : string extends keyof T
+      ? true
+      : false
   : false;
 
 type AsAnyIfUnknown<T> = unknown extends T ? any : T;
@@ -422,7 +427,7 @@ type PathOperations<TSchema, TPath extends string> =
 
 // Create a type for a query leaf (only field paths, no boolean operators)
 type FieldClauses<TSchema> = {
-  [P in SchemaPaths<TSchema>]?: PathOperations<TSchema, P>;
+  [P in SchemaPaths<TSchema>]?: PathOperations<TSchema, P> | undefined;
 };
 
 type NoFieldClauses<TSchema> = {
@@ -435,8 +440,8 @@ type QueryGroup<TSchema extends NestedIndexSchema | FlatIndexSchema> =
   | readonly QueryFilter<TSchema>[];
 
 type SharedClauses<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
-  $should?: QueryGroup<TSchema>;
-  $mustNot?: QueryGroup<TSchema>;
+  $should?: QueryGroup<TSchema> | undefined;
+  $mustNot?: QueryGroup<TSchema> | undefined;
   /** A number scales the score of this query. `{ query, value }` scales the score of one sub-query. */
   $boost?: number | { query: QueryFilter<TSchema>; value: number };
   // Retrievers are valid only at the root of a query and inside `$rrf`
@@ -451,8 +456,8 @@ export type QueryFilter<TSchema extends NestedIndexSchema | FlatIndexSchema> =
     :
         | (FieldClauses<TSchema> &
             SharedClauses<TSchema> & {
-              $must?: QueryGroup<TSchema>;
-              $and?: QueryGroup<TSchema>;
+              $must?: QueryGroup<TSchema> | undefined;
+              $and?: QueryGroup<TSchema> | undefined;
               $or?: never;
             })
         // Next to a field, `$must` or `$and`, an `$or` only adds to the score and stops filtering
@@ -460,7 +465,7 @@ export type QueryFilter<TSchema extends NestedIndexSchema | FlatIndexSchema> =
         | (NoFieldClauses<TSchema> &
             Omit<SharedClauses<TSchema>, "$boost"> & {
               $or: QueryGroup<TSchema>;
-              $boost?: number;
+              $boost?: number | undefined;
               $must?: never;
               $and?: never;
             });
@@ -493,7 +498,7 @@ type RetrieverAlone<TSchema, TKey extends string> =
 type RetrieverWeight<TInRrf extends boolean> = TInRrf extends true
   ? {
       /** Scales how much the retriever adds to the `$rrf` score. Defaults to `1`. */
-      weight?: number;
+      weight?: number | undefined;
     }
   : { weight?: never };
 
@@ -512,9 +517,9 @@ export type AnnRetriever<
     /** The text to search for. Cannot be empty. */
     query: string;
     /** Accuracy and speed trade-off. Defaults to `balanced`. */
-    profile?: "fast" | "balanced" | "precise";
+    profile?: "fast" | "balanced" | "precise" | undefined;
     /** Only documents that match this query are returned */
-    filter?: QueryFilter<TSchema>;
+    filter?: QueryFilter<TSchema> | undefined;
   } & RetrieverWeight<TInRrf>;
 } & RetrieverAlone<TSchema, "$ann">;
 
@@ -549,9 +554,9 @@ export type RrfRetriever<
       | (TAllowAnn extends true ? AnnRetriever<TSchema, true> : never)
     )[];
     /** Higher values give lower-ranked results more influence. Defaults to `60`. */
-    rankConstant?: number;
+    rankConstant?: number | undefined;
     /** The number of results each retriever contributes. Defaults to `LIMIT`. */
-    window?: number;
+    window?: number | undefined;
   };
 } & RetrieverAlone<TSchema, "$rrf">;
 
@@ -630,13 +635,13 @@ export type FacetPaths<T, Prefix extends string = ""> = {
 export type AggregateOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> =
   IsDefaultSchema<TSchema> extends true
     ? {
-        filter?: Record<string, any>;
+        filter?: Record<string, any> | undefined;
         aggregations: {
           [key: string]: Record<string, any>;
         };
       }
     : {
-        filter?: QueryFilter<TSchema> | CountRetriever<TSchema>;
+        filter?: QueryFilter<TSchema> | CountRetriever<TSchema> | undefined;
         aggregations: {
           [key: string]: Aggregation<TSchema>;
         };
@@ -685,18 +690,18 @@ export type TermsAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema
   BucketAggregation<TSchema> & {
     $terms: {
       field: TermsPaths<TSchema>;
-      size?: number;
-      segmentSize?: number;
-      showTermDocCountError?: boolean;
-      minDocCount?: number;
+      size?: number | undefined;
+      segmentSize?: number | undefined;
+      showTermDocCountError?: boolean | undefined;
+      minDocCount?: number | undefined;
       /** `{ count: "desc" }`, `{ key: "asc" }`, or `{ <sub-aggregation name>: "desc" }` */
-      order?: Record<string, "asc" | "desc">;
+      order?: Record<string, "asc" | "desc"> | undefined;
       /** Bucket key used when the field is missing */
-      missing?: string | number;
+      missing?: string | number | undefined;
       /** A regex, or a list of values */
-      include?: string | readonly string[];
+      include?: string | readonly string[] | undefined;
       /** A regex, or a list of values */
-      exclude?: string | readonly string[];
+      exclude?: string | readonly string[] | undefined;
     };
   };
 
@@ -705,7 +710,7 @@ export type RangeAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema
     $range: {
       field: HistogramPaths<TSchema>;
       ranges: readonly { key?: string; from?: number; to?: number }[];
-      keyed?: boolean;
+      keyed?: boolean | undefined;
     };
   };
 
@@ -714,11 +719,11 @@ export type HistogramAggregation<TSchema extends NestedIndexSchema | FlatIndexSc
     $histogram: {
       field: HistogramPaths<TSchema>;
       interval: number;
-      offset?: number;
-      minDocCount?: number;
-      hardBounds?: Bounds;
-      extendedBounds?: Bounds;
-      keyed?: boolean;
+      offset?: number | undefined;
+      minDocCount?: number | undefined;
+      hardBounds?: Bounds | undefined;
+      extendedBounds?: Bounds | undefined;
+      keyed?: boolean | undefined;
     };
   };
 
@@ -731,18 +736,18 @@ export type DateHistogramAggregation<TSchema extends NestedIndexSchema | FlatInd
       field: DatePaths<TSchema>;
       /** Such as `"1m"`, `"1h"` or `"1d"` */
       fixedInterval: string;
-      offset?: string;
-      minDocCount?: number;
-      hardBounds?: Bounds;
-      extendedBounds?: Bounds;
-      keyed?: boolean;
+      offset?: string | undefined;
+      minDocCount?: number | undefined;
+      hardBounds?: Bounds | undefined;
+      extendedBounds?: Bounds | undefined;
+      keyed?: boolean | undefined;
     };
   };
 
 type CompositeSourceOptions = {
-  order?: "asc" | "desc";
-  missingBucket?: boolean;
-  missingOrder?: "default" | "first" | "last";
+  order?: "asc" | "desc" | undefined;
+  missingBucket?: boolean | undefined;
+  missingOrder?: "default" | "first" | "last" | undefined;
 };
 
 type CompositeSource<TSchema> =
@@ -767,7 +772,7 @@ export type CompositeAggregation<TSchema extends NestedIndexSchema | FlatIndexSc
       // `undefined` lets TypeScript infer arrays of differently named sources
       sources: readonly { [name: string]: CompositeSource<TSchema> | undefined }[];
       /** Buckets per page. Defaults to `10`. */
-      size?: number;
+      size?: number | undefined;
       /** The `afterKey` of the previous page */
       after?: Record<string, string> | undefined;
     };
@@ -777,7 +782,7 @@ export type StatsAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema
   MetricAggregation & {
     $stats: {
       field: MetricPaths<TSchema>;
-      missing?: number;
+      missing?: number | undefined;
     };
   };
 
@@ -785,7 +790,7 @@ export type AvgAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> 
   MetricAggregation & {
     $avg: {
       field: MetricPaths<TSchema>;
-      missing?: number;
+      missing?: number | undefined;
     };
   };
 
@@ -793,9 +798,9 @@ export type SumAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> 
   MetricAggregation & {
     $sum: {
       field: MetricPaths<TSchema>;
-      missing?: number;
+      missing?: number | undefined;
       /** Return `null` instead of `0` when no values are collected */
-      nullIfNoMatch?: boolean;
+      nullIfNoMatch?: boolean | undefined;
     };
   };
 
@@ -803,7 +808,7 @@ export type MinAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> 
   MetricAggregation & {
     $min: {
       field: MetricPaths<TSchema>;
-      missing?: number;
+      missing?: number | undefined;
     };
   };
 
@@ -811,7 +816,7 @@ export type MaxAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> 
   MetricAggregation & {
     $max: {
       field: MetricPaths<TSchema>;
-      missing?: number;
+      missing?: number | undefined;
     };
   };
 
@@ -819,7 +824,7 @@ export type CountAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema
   MetricAggregation & {
     $count: {
       field: TermsPaths<TSchema>;
-      missing?: number;
+      missing?: number | undefined;
     };
   };
 
@@ -827,8 +832,8 @@ export type ExtendedStatsAggregation<TSchema extends NestedIndexSchema | FlatInd
   MetricAggregation & {
     $extendedStats: {
       field: HistogramPaths<TSchema>;
-      sigma?: number;
-      missing?: number;
+      sigma?: number | undefined;
+      missing?: number | undefined;
     };
   };
 
@@ -836,9 +841,9 @@ export type PercentilesAggregation<TSchema extends NestedIndexSchema | FlatIndex
   MetricAggregation & {
     $percentiles: {
       field: HistogramPaths<TSchema>;
-      percents?: readonly number[];
-      keyed?: boolean;
-      missing?: number;
+      percents?: readonly number[] | undefined;
+      keyed?: boolean | undefined;
+      missing?: number | undefined;
     };
   };
 
@@ -846,7 +851,7 @@ export type CardinalityAggregation<TSchema extends NestedIndexSchema | FlatIndex
   MetricAggregation & {
     $cardinality: {
       field: TermsPaths<TSchema>;
-      missing?: string | number;
+      missing?: string | number | undefined;
     };
   };
 
@@ -855,9 +860,9 @@ export type FacetAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema
     $facet: {
       field: FacetPaths<TSchema>;
       path: string;
-      depth?: number;
-      size?: number;
-      minDocCount?: number;
+      depth?: number | undefined;
+      size?: number | undefined;
+      minDocCount?: number | undefined;
       order?: { count: "desc" | "asc" } | { path: "desc" | "asc" };
     };
   };
@@ -962,8 +967,10 @@ type TermsResult<
     keyAsString?: boolean | string;
   } & SubAggregations<TSchema, TAgg>)[];
   sumOtherDocCount: number;
-  docCountErrorUpperBound: number;
-};
+} & (TAgg extends { $terms: { order: unknown } }
+  ? // Missing when ordered by a sub-aggregation
+    { docCountErrorUpperBound?: number }
+  : { docCountErrorUpperBound: number });
 
 type RangeBucket = Bucket<string> & {
   from?: number;

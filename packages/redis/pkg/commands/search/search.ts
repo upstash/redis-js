@@ -2,6 +2,7 @@ import type {
   AggregateOptions,
   AggregateResult,
   CountRetriever,
+  FieldType,
   FlatIndexSchema,
   IndexDescription,
   Language,
@@ -117,17 +118,13 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
     const rawResult = await new ExecCommand<(string | number)[]>(
       command as [string, ...string[]]
     ).exec(this.client);
-    return deserializeAggregateResponse(rawResult, options.aggregations, this.numericFields());
+    return deserializeAggregateResponse(rawResult, options.aggregations, this.fieldTypes());
   }
 
-  /** Paths of the numeric fields, when the schema is known */
-  private numericFields(): Set<string> {
-    if (!this.schema) return new Set();
-    return new Set(
-      flattenSchema(this.schema)
-        .filter((field) => field.type === "U64" || field.type === "I64" || field.type === "F64")
-        .map((field) => field.path)
-    );
+  /** The field types by path, when the schema is known */
+  private fieldTypes(): Map<string, FieldType> | undefined {
+    if (!this.schema) return undefined;
+    return new Map(flattenSchema(this.schema).map((field) => [field.path, field.type]));
   }
 
   async count({

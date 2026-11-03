@@ -188,43 +188,55 @@ export function parseCountResponse(rawResponse: any): number {
 
 /**
  * @param aggregations The aggregations of the request
- * @param numericFields Paths of the U64, I64 and F64 fields of the index, when its schema is known
+ * @param fieldTypes The field types of the index by path, when its schema is known
  */
 export function deserializeAggregateResponse(
   rawResponse: any[],
   aggregations?: Record<string, any>,
-  numericFields?: ReadonlySet<string>
+  fieldTypes?: ReadonlyMap<string, FieldType>
 ): any {
   // Response is a flat key-value array: [key, val, key, val, ...]
   const result = parseAggregationArray(rawResponse);
-  if (aggregations) normalizeBuckets(result, aggregations, numericFields ?? new Set());
+  if (aggregations) normalizeBuckets(result, aggregations, fieldTypes, false);
   return result;
 }
 
-const NUMERIC_KEY_OPERATORS = new Set(["$histogram", "$dateHistogram"]);
+const NUMERIC_TYPES = new Set<FieldType>(["U64", "I64", "F64"]);
 
-function isNumericSource(
+/** Fixes the type of a bucket key, which arrives as text or as a number. */
+function normalizeKey(
+  key: unknown,
   operator: string | undefined,
   params: any,
-  numericFields: ReadonlySet<string>
-): boolean {
-  return (
-    operator !== undefined &&
-    (NUMERIC_KEY_OPERATORS.has(operator) ||
-      (operator === "$terms" && numericFields.has(params?.field)))
-  );
+  fieldTypes: ReadonlyMap<string, FieldType> | undefined,
+  nested: boolean
+): unknown {
+  if (operator === "$histogram" || operator === "$dateHistogram") {
+    return coerceNumericString(key);
+  }
+  if (operator !== "$terms") return key;
+  if (!fieldTypes) {
+    // Without a schema, keep the old behavior: nested keys that look like numbers become numbers
+    return nested ? coerceNumericString(key) : key;
+  }
+  const type = fieldTypes.get(params?.field);
+  if (type && NUMERIC_TYPES.has(type)) return coerceNumericString(key);
+  // KEYWORD values that look like JSON, such as "42", are parsed by automatic deserialization,
+  // which keeps a string unless it turns back into the same text
+  if (type === "KEYWORD" && typeof key !== "string") return JSON.stringify(key);
+  return key;
 }
 
 /**
  * Fixes buckets that only the request explains:
  * - The server sends empty `keyed: true` buckets as a list.
- * - Float keys arrive as strings. Keys are converted only when they are known to be numbers,
- *   so KEYWORD keys such as "007" stay as they are.
+ * - Float keys arrive as strings, and KEYWORD keys can look like numbers.
  */
 function normalizeBuckets(
   result: any,
   aggregations: Record<string, any>,
-  numericFields: ReadonlySet<string>
+  fieldTypes: ReadonlyMap<string, FieldType> | undefined,
+  nested: boolean
 ): void {
   for (const [name, aggregation] of Object.entries(aggregations)) {
     const value = result?.[name];
@@ -236,25 +248,27 @@ function normalizeBuckets(
     }
     for (const bucket of Object.values<any>(value.buckets)) {
       if (!bucket || typeof bucket !== "object") continue;
-      if (operator === "$composite" && bucket.key && typeof bucket.key === "object") {
-        for (const source of params?.sources ?? []) {
-          for (const [sourceName, sourceAggregation] of Object.entries<any>(source ?? {})) {
-            const sourceOperator = Object.keys(sourceAggregation ?? {})[0];
-            if (
-              isNumericSource(
+      if (operator === "$composite") {
+        if (bucket.key && typeof bucket.key === "object") {
+          for (const source of params?.sources ?? []) {
+            for (const [sourceName, sourceAggregation] of Object.entries<any>(source ?? {})) {
+              const sourceOperator = Object.keys(sourceAggregation ?? {})[0];
+              if (!sourceOperator || !(sourceName in bucket.key)) continue;
+              // `nested: false` keeps the composite keys as they are when the schema is unknown
+              bucket.key[sourceName] = normalizeKey(
+                bucket.key[sourceName],
                 sourceOperator,
-                sourceAggregation?.[sourceOperator ?? ""],
-                numericFields
-              )
-            ) {
-              bucket.key[sourceName] = coerceNumericString(bucket.key[sourceName]);
+                sourceAggregation[sourceOperator],
+                fieldTypes,
+                false
+              );
             }
           }
         }
-      } else if (isNumericSource(operator, params, numericFields)) {
-        bucket.key = coerceNumericString(bucket.key);
+      } else {
+        bucket.key = normalizeKey(bucket.key, operator, params, fieldTypes, nested);
       }
-      if (aggregation.$aggs) normalizeBuckets(bucket, aggregation.$aggs, numericFields);
+      if (aggregation.$aggs) normalizeBuckets(bucket, aggregation.$aggs, fieldTypes, true);
     }
   }
 }

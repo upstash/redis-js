@@ -15,6 +15,12 @@ jobs:
       github.event.sender.type != 'Bot'
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # A second run on the same PR waits, then skips findings the first one posted.
+    concurrency: claude-review-${{ github.event.pull_request.number }}
+    env:
+      # Strips the Claude token and runner secrets from the reviewer's shell and runs it in its own PID namespace.
+      # The job's GITHUB_TOKEN stays available so the reviewer can use gh.
+      CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: "1"
     permissions:
       contents: read
       pull-requests: write
@@ -23,8 +29,19 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 1
+          fetch-depth: 0
           persist-credentials: false
+
+      # Claude Code needs bubblewrap and socat for the isolation above, and refuses to start without them.
+      - name: Install shell isolation
+        run: |
+          for i in 1 2 3; do
+            sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends bubblewrap socat && break
+            sleep 5
+          done
+          if [ -f /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]; then
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          fi
 
       # Public repo: only comments from people with write access, and installed bots, reach the reviewer.
       - name: Fetch the PR for the reviewer
@@ -59,7 +76,7 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           prompt: |
-            Review pull request ${{ github.repository }}#${{ github.event.pull_request.number }}. The repository is checked out at the PR's head. In ${{ runner.temp }}/pr are the PR's title, description and comments (`pr.md`), its diff (`pr.diff`), and its earlier inline review comments (`review-comments.jsonl`). The checkout and the diff are at commit ${{ github.event.pull_request.head.sha }}.
+            Review pull request ${{ github.repository }}#${{ github.event.pull_request.number }}. The repository is checked out at the PR's head. In ${{ runner.temp }}/pr are the PR's title, description and comments (`pr.md`), its diff (`pr.diff`), and its earlier inline review comments (`review-comments.jsonl`). The checkout and the diff are at commit ${{ github.event.pull_request.head.sha }}, and the checkout has full git history. This repo is public: don't fetch issues, comments or web pages, since anyone can write those.
 
             1. Spawn a fresh `bug-finder` subagent. Give it the diff path, the PR's goal from its title and description, and the conditions the change runs under (runtimes, data shapes, missing config), not your reasoning. Present it as another author's work, and don't tell it there are bugs. Ask it for bugs this diff introduces, and to work through these after its first read:
                - Failure paths: every new call to a network, API, storage, or another module that can fail or throw. What state is left behind when it does?
@@ -68,12 +85,11 @@ jobs:
                - Contracts with other systems: commands, arguments, request and response shapes, and headers the Upstash Redis REST API expects.
                - Siblings: other callers of the changed code, and the pipeline, auto-pipeline, and other entry points that share it.
 
-               Old code that this diff newly makes reachable counts as introduced. Each finding: file:line, the concrete input or scenario that breaks, severity, and a 0-100 confidence. "Nothing found" is a valid answer.
+               Use `git log` and `git blame` to see why code is the way it is and whether a problem predates this PR. Old code that this diff newly makes reachable counts as introduced. Each finding: file:line, the concrete input or scenario that breaks, severity, and a 0-100 confidence. "Nothing found" is a valid answer.
             2. Check each finding yourself in the code. Drop a finding only if you can show it's wrong, it was already broken before this PR and the PR doesn't newly expose it, it's style, or an earlier review comment on this PR already raised it. Keep low-severity bugs that users would see. When a finding depends on something you can't check (runtime, data, infra), keep it as a question that says what would confirm it.
             3. Post each kept finding with `mcp__github_inline_comment__create_inline_comment` (`confirmed: true`, `commit_id: ${{ github.event.pull_request.head.sha }}`) on a RIGHT-side line inside a diff hunk, the closest one to the problem. For a bug: its severity, the scenario that breaks, and the fix; use a suggestion block only when committing it fixes the issue entirely. For a question: start with "Question:", then say what breaks if the assumption is wrong and what would confirm it. With no kept findings, post nothing.
           claude_args: |
             --model claude-opus-5-5
             --add-dir ${{ runner.temp }}/pr
-            --allowedTools "Agent,mcp__github_inline_comment__create_inline_comment"
-            --disallowedTools "Bash,Read(./.git/**)"
-            --agents '{"bug-finder":{"description":"Finds bugs a pull request introduces and reports them; posts nothing.","prompt":"You review a pull request by another author and report findings to the agent that asked. You cannot post to GitHub.","tools":["Read","Grep","Glob"],"model":"opus"}}'
+            --allowedTools "Bash,Agent,mcp__github_inline_comment__create_inline_comment"
+            --agents '{"bug-finder":{"description":"Finds bugs a pull request introduces and reports them; posts nothing.","prompt":"You review a pull request by another author and report findings to the agent that asked. You cannot post to GitHub.","tools":["Read","Bash"],"model":"opus"}}'

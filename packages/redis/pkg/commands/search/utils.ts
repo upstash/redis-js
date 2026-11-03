@@ -4,6 +4,7 @@ import type {
   FlatIndexSchema,
   IndexDescription,
   Language,
+  QueryOptions,
   QueryResult,
 } from "./types";
 import { FIELD_TYPES, type FieldType, type NestedIndexSchema } from "./types";
@@ -19,11 +20,6 @@ type FlattenedField = {
 
 function isFieldType(value: any): value is FieldType {
   return typeof value === "string" && (FIELD_TYPES as readonly string[]).includes(value);
-}
-
-// Numeric fields are always FAST, the same as `s.number()`, so they can be sorted and aggregated
-function isNumericType(type: string): boolean {
-  return type === "U64" || type === "I64" || type === "F64";
 }
 
 function isDetailedField(value: any): value is DetailedField {
@@ -48,13 +44,12 @@ export function flattenSchema(
       fields.push({
         path: pathString,
         type: value,
-        fast: isNumericType(value) ? true : undefined,
       });
     } else if (isDetailedField(value)) {
       fields.push({
         path: pathString,
         type: value.type as FieldType,
-        fast: isNumericType(value.type) ? true : "fast" in value ? value.fast : undefined,
+        fast: "fast" in value ? value.fast : undefined,
         noTokenize: "noTokenize" in value ? value.noTokenize : undefined,
         noStem: "noStem" in value ? value.noStem : undefined,
         from: "from" in value ? value.from : undefined,
@@ -70,7 +65,7 @@ export function flattenSchema(
 
 export function deserializeQueryResponse<
   TSchema extends NestedIndexSchema | FlatIndexSchema = any,
-  TOptions extends { select?: unknown } | undefined = any,
+  TOptions extends QueryOptions<TSchema> | undefined = any,
 >(rawResponse: unknown[]): QueryResult<TSchema, TOptions>[] {
   return rawResponse.map((itemRaw) => {
     const raw = itemRaw as [string, string, unknown[]?];
@@ -191,9 +186,32 @@ export function parseCountResponse(rawResponse: any): number {
   return typeof rawResponse === "number" ? rawResponse : Number.parseInt(rawResponse, 10);
 }
 
-export function deserializeAggregateResponse(rawResponse: any[]): any {
+export function deserializeAggregateResponse(
+  rawResponse: any[],
+  aggregations?: Record<string, any>
+): any {
   // Response is a flat key-value array: [key, val, key, val, ...]
-  return parseAggregationArray(rawResponse);
+  const result = parseAggregationArray(rawResponse);
+  if (aggregations) restoreEmptyKeyedBuckets(result, aggregations);
+  return result;
+}
+
+/** The server sends empty `keyed: true` buckets as a list, so turn them into an object. */
+function restoreEmptyKeyedBuckets(result: any, aggregations: Record<string, any>): void {
+  for (const [name, aggregation] of Object.entries(aggregations)) {
+    const value = result?.[name];
+    if (!value || !aggregation) continue;
+    const operator = Object.keys(aggregation).find((key) => key !== "$aggs");
+    const keyed = operator ? aggregation[operator]?.keyed === true : false;
+    if (keyed && Array.isArray(value.buckets) && value.buckets.length === 0) {
+      value.buckets = {};
+    }
+    if (aggregation.$aggs && value.buckets && typeof value.buckets === "object") {
+      for (const bucket of Object.values(value.buckets)) {
+        restoreEmptyKeyedBuckets(bucket, aggregation.$aggs);
+      }
+    }
+  }
 }
 
 function parseAggregationArray(arr: any[]): any {

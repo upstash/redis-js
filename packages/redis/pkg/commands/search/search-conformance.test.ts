@@ -5,7 +5,7 @@
  * - `valid` cases must succeed on the server and compile.
  * - `typeOnly` cases succeed on the server but do nothing useful, so the types reject them.
  * - `invalid` cases must fail on the server with the given message. A case marked
- *   `@ts-expect-error` must also be rejected by the types; `pnpm typecheck` fails
+ *   `@ts-expect-error` must also be rejected by the types; `pnpm test:types` fails
  *   when the types start accepting it. Cases without the directive are rules the
  *   types cannot express, such as an empty `$in` array or a malformed regex.
  */
@@ -14,7 +14,7 @@ import { newHttpClient, randomID } from "../../test-utils";
 import { DelCommand } from "../del";
 import { JsonSetCommand } from "../json_set";
 import { s } from "./schema-builder";
-import type { SearchIndex } from "./search";
+import type { InferFilterFromSchema, SearchIndex } from "./search";
 import { createIndex } from "./search";
 
 const client = newHttpClient();
@@ -244,12 +244,22 @@ const valid: Record<string, () => Promise<unknown>> = {
     expect(Array.isArray(result.c.buckets[0]?.p.buckets)).toBe(true);
   },
 
+  "agg empty keyed buckets": async () => {
+    const result = await index.aggregate({ filter: { name: "nothingmatches" }, aggregations: { h: { $histogram: { field: "price", interval: 100, keyed: true } }, c: { $terms: { field: "category" }, $aggs: { h: { $histogram: { field: "price", interval: 100, keyed: true } } } } } });
+    expect(result.h.buckets).toEqual({});
+    expect(result.c.buckets).toEqual([]);
+  },
+
   // filters stored in variables
   "filter variable as const": () => {
     const filter = { $rrf: { retrievers: [{ description: "noise" }, { $ann: { field: "description", query: "noise" } }], window: 10 } } as const;
     return index.query({ filter, limit: 5 });
   },
   "readonly $in": () => index.query({ filter: { category: { $in: ["audio", "travel"] as const } } }),
+  "filter typed with InferFilterFromSchema": () => {
+    const filter: InferFilterFromSchema<typeof schema> = { name: "headphones" };
+    return index.query({ filter, limit: 5 });
+  },
 };
 
 // prettier-ignore
@@ -391,7 +401,7 @@ const typeOnly: Record<string, () => Promise<unknown>> = {
   "$phrase on KEYWORD": () => index.query({ filter: { category: { $phrase: "audio" } } }),
   // @ts-expect-error documented as unsupported for KEYWORD
   "$regex on KEYWORD": () => index.query({ filter: { category: { $regex: "aud.*" } } }),
-  // @ts-expect-error the server ignores scoreFunc when orderBy is set
+  // @ts-expect-error the SDK drops scoreFunc when orderBy is set
   "orderBy + scoreFunc": () => index.query({ orderBy: { price: "ASC" }, scoreFunc: "price" }),
   // @ts-expect-error the field is never returned
   "select unknown field": () => index.query({ select: { nope: true } }),
@@ -399,6 +409,8 @@ const typeOnly: Record<string, () => Promise<unknown>> = {
   "$or next to a field": () => index.query({ filter: { $must: [{ category: "audio", $or: [{ name: "earplugs" }] }] } }),
   // @ts-expect-error next to $must, $or stops filtering
   "$or next to $must": () => index.query({ filter: { $must: { category: "audio" }, $or: [{ name: "earplugs" }] } }),
+  // @ts-expect-error a $boost object is a $must clause, so $or stops filtering
+  "$or next to a $boost object": () => index.query({ filter: { $boost: { query: { name: "headphones" }, value: 3 }, $or: [{ name: "earbuds" }] } }),
   // @ts-expect-error a preTag without a postTag is ignored
   "preTag without postTag": () => index.query({ filter: { name: "earbuds" }, highlight: { fields: ["name"], preTag: "<b>" } }),
 };

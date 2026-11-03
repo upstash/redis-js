@@ -18,10 +18,9 @@ describe("flattenSchema", () => {
 
       const result = flattenSchema(schema);
 
-      // Numeric fields are always FAST, the same as s.number()
       expect(result).toEqual([
         { path: "name", type: "TEXT" },
-        { path: "age", type: "U64", fast: true },
+        { path: "age", type: "U64" },
       ]);
     });
 

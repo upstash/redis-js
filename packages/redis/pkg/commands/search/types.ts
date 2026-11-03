@@ -219,6 +219,13 @@ export type QueryOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> =
             scoreFunc?: ScoreBy<ScorePaths<TSchema>>;
             highlight?: HighlightOption<TSchema>;
           }
+        // A filter typed as any query or retriever, such as `InferFilterFromSchema`
+        | {
+            filter?: QueryFilter<TSchema> | Retriever<TSchema>;
+            orderBy?: never;
+            scoreFunc?: never;
+            highlight?: never;
+          }
       );
 
 type CombineMode = "multiply" | "sum";
@@ -465,9 +472,11 @@ export type QueryFilter<TSchema extends NestedIndexSchema | FlatIndexSchema> =
               $or?: never;
             })
         // Next to a field, `$must` or `$and`, an `$or` only adds to the score and stops filtering
+        // and so does a `$boost` object, which is a `$must` clause
         | (NoFieldClauses<TSchema> &
-            SharedClauses<TSchema> & {
+            Omit<SharedClauses<TSchema>, "$boost"> & {
               $or: QueryGroup<TSchema>;
+              $boost?: number;
               $must?: never;
               $and?: never;
             });
@@ -774,7 +783,7 @@ export type CompositeAggregation<TSchema extends NestedIndexSchema | FlatIndexSc
       /** Buckets per page. Defaults to `10`. */
       size?: number;
       /** The `afterKey` of the previous page */
-      after?: Record<string, string>;
+      after?: Record<string, string> | undefined;
     };
   };
 
@@ -831,7 +840,7 @@ export type CountAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema
 export type ExtendedStatsAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
   MetricAggregation & {
     $extendedStats: {
-      field: MetricPaths<TSchema>;
+      field: HistogramPaths<TSchema>;
       sigma?: number;
       missing?: number;
     };
@@ -979,7 +988,7 @@ type CompositeResult<
   TNames extends string,
 > = {
   buckets: (Bucket<{ [K in TNames]: string | number | null }> & SubAggregations<TSchema, TAgg>)[];
-  /** Pass it as `after` to get the next page. Missing on the last page. */
+  /** Pass it as `after` to get the next page. Missing when the page is empty. */
   afterKey?: { [K in TNames]: string };
 };
 

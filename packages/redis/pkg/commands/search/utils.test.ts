@@ -556,7 +556,7 @@ describe("deserializeAggregateResponse", () => {
     expect(deserializeAggregateResponse(raw)).toEqual({
       c: {
         buckets: [
-          { key: { cat: "a", p: 19.99 }, docCount: 2 },
+          { key: { cat: "a", p: "19.99" }, docCount: 2 },
           { key: { cat: "b", p: 0 }, docCount: 1 },
         ],
         afterKey: { cat: "str:b", p: "f64:0" },
@@ -564,18 +564,49 @@ describe("deserializeAggregateResponse", () => {
     });
   });
 
-  test("turns float bucket keys into numbers, but not range labels", () => {
+  test("turns float keys into numbers only when they are known to be numbers", () => {
     const raw = [
-      "t",
+      "price",
       ["buckets", [["key", "19.99", "docCount", 1]]],
+      "code",
+      [
+        "buckets",
+        [["key", "007", "docCount", 1, "price", ["buckets", [["key", "1.5", "docCount", 1]]]]],
+      ],
+      "h",
+      ["buckets", [["key", "0.5", "docCount", "1"]]],
       "r",
-      ["buckets", [["key", "10", "docCount", 1, "from", 10]]],
+      ["buckets", [["key", "10", "docCount", 1, "from", "10.5"]]],
+      "c",
+      ["buckets", [["key", ["code", "007", "price", "1.5", "h", "0.5"], "docCount", 1]]],
     ];
+    const aggregations = {
+      price: { $terms: { field: "price" } },
+      code: { $terms: { field: "code" }, $aggs: { price: { $terms: { field: "price" } } } },
+      h: { $histogram: { field: "other", interval: 0.5 } },
+      r: { $range: { field: "price", ranges: [{ from: 10.5 }] } },
+      c: {
+        $composite: {
+          sources: [
+            { code: { $terms: { field: "code" } } },
+            { price: { $terms: { field: "price" } } },
+            { h: { $histogram: { field: "other", interval: 0.5 } } },
+          ],
+        },
+      },
+    };
 
-    expect(deserializeAggregateResponse(raw)).toEqual({
-      t: { buckets: [{ key: 19.99, docCount: 1 }] },
-      r: { buckets: [{ key: "10", docCount: 1, from: 10 }] },
+    expect(deserializeAggregateResponse(raw, aggregations, new Set(["price"]))).toEqual({
+      price: { buckets: [{ key: 19.99, docCount: 1 }] },
+      code: {
+        buckets: [{ key: "007", docCount: 1, price: { buckets: [{ key: 1.5, docCount: 1 }] } }],
+      },
+      h: { buckets: [{ key: 0.5, docCount: 1 }] },
+      r: { buckets: [{ key: "10", docCount: 1, from: 10.5 }] },
+      c: { buckets: [{ key: { code: "007", price: 1.5, h: 0.5 }, docCount: 1 }] },
     });
+    // Without a schema, $terms keys stay as they are
+    expect(deserializeAggregateResponse(raw, aggregations).price.buckets[0].key).toBe("19.99");
   });
 
   test("turns empty keyed buckets into an object", () => {

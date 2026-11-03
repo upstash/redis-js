@@ -66,7 +66,7 @@ const products = [
     featured: false,
     createdAt: "2024-03-01T00:00:00Z",
     updatedAt: "2024-03-02T00:00:00Z",
-    details: { brand: "acme", summary: "Sleep on a plane" },
+    details: { brand: "007", summary: "Sleep on a plane" },
   },
   {
     name: "Sport Earbuds",
@@ -102,6 +102,11 @@ afterAll(async () => {
   await new DelCommand(products.map((_, i) => `${prefix}${i}`) as [string, ...string[]]).exec(
     client
   );
+});
+
+const phrase = (value: string, options: { slop?: number; prefix?: boolean }) => ({
+  value,
+  ...options,
 });
 
 // prettier-ignore
@@ -271,6 +276,10 @@ const valid: Record<string, () => Promise<unknown>> = {
       });
     return search(undefined, "price", "<b>", "</b>");
   },
+  "forwarded field operators": () => {
+    const range: { $gte?: number; $lte?: number } = { $lte: 500 };
+    return index.query({ filter: { description: { $phrase: phrase("noise", { slop: 1 }) }, price: { $gt: 0, ...range } } });
+  },
   "keyed as a boolean variable": async () => {
     const keyed: boolean = Math.random() < 2;
     const result = await index.aggregate({ aggregations: { h: { $histogram: { field: "price", interval: 100, keyed } } } });
@@ -288,6 +297,11 @@ const valid: Record<string, () => Promise<unknown>> = {
       expect(typeof bucket.key).toBe("number");
     }
   },
+  "KEYWORD bucket keys keep leading zeros": async () => {
+    const result = await index.aggregate({ aggregations: { b: { $terms: { field: "details.brand" } }, c: { $composite: { sources: [{ b: { $terms: { field: "details.brand" } } }] } } } });
+    expect(result.b.buckets.map((bucket) => bucket.key)).toContain("007");
+    expect(result.c.buckets.map((bucket) => bucket.key.b)).toContain("007");
+  },
 };
 
 // prettier-ignore
@@ -303,10 +317,8 @@ const invalid: Record<string, [() => Promise<unknown>, string]> = {
   "string for number": [() => index.query({ filter: { price: "199" } }), "incompatible type"],
   // @ts-expect-error number for bool
   "number for bool": [() => index.query({ filter: { active: 1 } }), "incompatible type"],
-  // @ts-expect-error $phrase slop + prefix
   "$phrase slop + prefix": [() => index.query({ filter: { description: { $phrase: { value: "noise", slop: 1, prefix: true } } } }), "both slop and prefix"],
   "$fuzzy distance 3": [() => index.query({ filter: { name: { $fuzzy: { value: "x", distance: 3 } } } }), "must be 0, 1, or 2"],
-  // @ts-expect-error $gt + $gte
   "$gt + $gte": [() => index.query({ filter: { price: { $gt: 1, $gte: 2 } } }), "only one of $gt and $gte"],
   // @ts-expect-error field $boost alone
   "field $boost alone": [() => index.query({ filter: { name: { $boost: 2 } } }), "needs another key"],
@@ -413,7 +425,6 @@ const invalid: Record<string, [() => Promise<unknown>, string]> = {
   "agg $facet in $aggs": [() => index.aggregate({ aggregations: { c: { $terms: { field: "category" }, $aggs: { f: { $facet: { field: "tags", path: "/" } } } } } }), "as a sub-aggregation"],
   // @ts-expect-error $facet with sub-aggregations
   "agg $facet with $aggs": [() => index.aggregate({ aggregations: { f: { $facet: { field: "tags", path: "/" }, $aggs: terms } } }), "cannot have sub-aggregations"],
-  // @ts-expect-error $composite $dateHistogram with both intervals
   "agg $composite both intervals": [() => index.aggregate({ aggregations: { c: { $composite: { sources: [{ m: { $dateHistogram: { field: "createdAt", fixedInterval: "1d", calendarInterval: "month" } } }] } } } }), "one and only one"],
 };
 

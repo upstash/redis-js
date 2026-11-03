@@ -355,12 +355,17 @@ export type PublicQueryResult<
 type StringOperationMap<T extends string> = {
   $eq: T;
   $in: readonly T[];
-  // `distance` is 0, 1 or 2
-  $fuzzy: T | { value: T; distance?: number; transpositionCostOne?: boolean; prefix?: boolean };
-  $phrase:
+  $fuzzy:
     | T
-    | { value: T; slop?: number; prefix?: never }
-    | { value: T; prefix?: boolean; slop?: never };
+    | {
+        value: T;
+        /** 0, 1 or 2 */
+        distance?: number | undefined;
+        transpositionCostOne?: boolean | undefined;
+        prefix?: boolean | undefined;
+      };
+  // `slop` and `prefix` cannot be used together
+  $phrase: T | { value: T; slop?: number | undefined; prefix?: boolean | undefined };
   $regex: T;
   $smart: T;
 };
@@ -381,17 +386,16 @@ type EqualityOperationMap<T> = {
 
 /** At least one operator of `TMap`, the others optional, and an optional `$boost`. */
 type Operations<TMap> = {
-  [K in keyof TMap]: { [P in K]: TMap[P] } & { [P in Exclude<keyof TMap, K>]?: TMap[P] };
-}[keyof TMap] & { $boost?: number };
-
-/** A range has at most one lower bound and one upper bound. */
-type OneBoundPerSide = ({ $gt?: never } | { $gte?: never }) & ({ $lt?: never } | { $lte?: never });
+  [K in keyof TMap]: { [P in K]: TMap[P] } & {
+    [P in Exclude<keyof TMap, K>]?: TMap[P] | undefined;
+  };
+}[keyof TMap] & { $boost?: number | undefined };
 
 type StringOperations = Operations<StringOperationMap<string>>;
-type NumberOperations = Operations<RangeOperationMap<number>> & OneBoundPerSide;
+type NumberOperations = Operations<RangeOperationMap<number>>;
 type BooleanOperations = Operations<EqualityOperationMap<boolean>>;
-type DateOperations = Operations<RangeOperationMap<string | Date>> & OneBoundPerSide;
-type KeywordOperations = Operations<RangeOperationMap<string>> & OneBoundPerSide;
+type DateOperations = Operations<RangeOperationMap<string | Date>>;
+type KeywordOperations = Operations<RangeOperationMap<string>>;
 type FacetOperations = Operations<EqualityOperationMap<string>>;
 
 // Create a union type for all operations for a given field type
@@ -745,11 +749,12 @@ type CompositeSource<TSchema> =
   | { $terms: { field: TermsPaths<TSchema> } & CompositeSourceOptions }
   | { $histogram: { field: HistogramPaths<TSchema>; interval: number } & CompositeSourceOptions }
   | {
-      $dateHistogram: { field: DatePaths<TSchema> } & (
-        | { fixedInterval: string; calendarInterval?: never }
-        | { calendarInterval: "year" | "month" | "week"; fixedInterval?: never }
-      ) &
-        CompositeSourceOptions;
+      $dateHistogram: {
+        field: DatePaths<TSchema>;
+        // Set one of the two
+        fixedInterval?: string | undefined;
+        calendarInterval?: "year" | "month" | "week" | undefined;
+      } & CompositeSourceOptions;
     };
 
 /**

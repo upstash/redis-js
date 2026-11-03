@@ -21,6 +21,7 @@ import {
   deserializeAggregateResponse,
   deserializeDescribeResponse,
   deserializeQueryResponse,
+  flattenSchema,
   parseCountResponse,
 } from "./utils";
 
@@ -116,7 +117,17 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
     const rawResult = await new ExecCommand<(string | number)[]>(
       command as [string, ...string[]]
     ).exec(this.client);
-    return deserializeAggregateResponse(rawResult, options.aggregations);
+    return deserializeAggregateResponse(rawResult, options.aggregations, this.numericFields());
+  }
+
+  /** Paths of the numeric fields, when the schema is known */
+  private numericFields(): Set<string> {
+    if (!this.schema) return new Set();
+    return new Set(
+      flattenSchema(this.schema)
+        .filter((field) => field.type === "U64" || field.type === "I64" || field.type === "F64")
+        .map((field) => field.path)
+    );
   }
 
   async count({

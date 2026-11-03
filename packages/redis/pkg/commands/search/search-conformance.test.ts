@@ -74,7 +74,7 @@ const products = [
     description: "Sweat-proof wireless earbuds for running",
     category: "sports",
     tags: "/audio/earbuds",
-    price: 79,
+    price: 79.99,
     stock: 0,
     delta: 0,
     active: false,
@@ -258,7 +258,35 @@ const valid: Record<string, () => Promise<unknown>> = {
   "readonly $in": () => index.query({ filter: { category: { $in: ["audio", "travel"] as const } } }),
   "filter typed with InferFilterFromSchema": () => {
     const filter: InferFilterFromSchema<typeof schema> = { name: "headphones" };
-    return index.query({ filter, limit: 5 });
+    return index.query({ filter, limit: 5, orderBy: { price: "ASC" }, highlight: { fields: ["name"] } });
+  },
+  // wrappers that forward optional values
+  "forwarded optional options": () => {
+    const search = (sort?: "ASC" | "DESC", score?: "price", preTag?: string, postTag?: string, distance = 1) =>
+      index.query({
+        filter: { name: { $fuzzy: { value: "headphone", distance } } },
+        orderBy: sort ? { price: sort } : undefined,
+        scoreFunc: score,
+        highlight: { fields: ["name"], preTag, postTag },
+      });
+    return search(undefined, "price", "<b>", "</b>");
+  },
+  "keyed as a boolean variable": async () => {
+    const keyed: boolean = Math.random() < 2;
+    const result = await index.aggregate({ aggregations: { h: { $histogram: { field: "price", interval: 100, keyed } } } });
+    const buckets = Array.isArray(result.h.buckets) ? result.h.buckets : Object.values(result.h.buckets);
+    expect(buckets.length).toBeGreaterThan(0);
+  },
+  "$sum nullIfNoMatch": async () => {
+    const result = await index.aggregate({ filter: { name: "nothingmatches" }, aggregations: { s: { $sum: { field: "price", nullIfNoMatch: true } } } });
+    const value: number | null = result.s.value;
+    expect(value).toBeNull();
+  },
+  "float bucket keys are numbers": async () => {
+    const result = await index.aggregate({ aggregations: { c: { $terms: { field: "category" }, $aggs: { p: { $terms: { field: "price" } } } }, p: { $terms: { field: "price" } } } });
+    for (const bucket of [...result.p.buckets, ...result.c.buckets.flatMap((b) => b.p.buckets)]) {
+      expect(typeof bucket.key).toBe("number");
+    }
   },
 };
 
@@ -270,14 +298,13 @@ const invalid: Record<string, [() => Promise<unknown>, string]> = {
   // @ts-expect-error range on TEXT
   "range on TEXT": [() => index.query({ filter: { name: { $gt: "a" } } }), "Only KEYWORD"],
   // @ts-expect-error $phrase on number
-  "$phrase on number": [() => index.query({ filter: { price: { $phrase: "1" } } }), ""],
+  "$phrase on number": [() => index.query({ filter: { price: { $phrase: "1" } } }), "incompatible type"],
   // @ts-expect-error string for number
   "string for number": [() => index.query({ filter: { price: "199" } }), "incompatible type"],
   // @ts-expect-error number for bool
   "number for bool": [() => index.query({ filter: { active: 1 } }), "incompatible type"],
   // @ts-expect-error $phrase slop + prefix
   "$phrase slop + prefix": [() => index.query({ filter: { description: { $phrase: { value: "noise", slop: 1, prefix: true } } } }), "both slop and prefix"],
-  // @ts-expect-error $fuzzy distance 3
   "$fuzzy distance 3": [() => index.query({ filter: { name: { $fuzzy: { value: "x", distance: 3 } } } }), "must be 0, 1, or 2"],
   // @ts-expect-error $gt + $gte
   "$gt + $gte": [() => index.query({ filter: { price: { $gt: 1, $gte: 2 } } }), "only one of $gt and $gte"],
@@ -328,13 +355,9 @@ const invalid: Record<string, [() => Promise<unknown>, string]> = {
   "limit over window": [() => index.query({ filter: { $rrf: { retrievers: [{ name: "x" }, { name: "y" }], window: 1 } }, limit: 2 }), "must not exceed the $rrf window"],
 
   // retriever options
-  // @ts-expect-error orderBy with $ann
   "orderBy with $ann": [() => index.query({ filter: ann, orderBy: { price: "ASC" } }), "ORDERBY cannot be used with $ann"],
-  // @ts-expect-error orderBy with $rrf
   "orderBy with $rrf": [() => index.query({ filter: { $rrf: { retrievers: [{ name: "x" }, ann] } }, orderBy: { price: "ASC" } }), "ORDERBY cannot be used with $rrf"],
-  // @ts-expect-error highlight with $ann
   "highlight with $ann": [() => index.query({ filter: ann, highlight: { fields: ["description"] } }), "HIGHLIGHT cannot be used with $ann"],
-  // @ts-expect-error scoreFunc with $ann
   "scoreFunc with $ann": [() => index.query({ filter: ann, scoreFunc: "price" }), "SCOREFUNC cannot be used with $ann"],
   // @ts-expect-error count with $ann
   "count with $ann": [() => index.count({ filter: ann }), "cannot be used with SEARCH.COUNT"],
@@ -351,15 +374,15 @@ const invalid: Record<string, [() => Promise<unknown>, string]> = {
   // @ts-expect-error orderBy KEYWORD
   "orderBy KEYWORD": [() => index.query({ orderBy: { category: "ASC" } }), "for order by"],
   // @ts-expect-error orderBy non-fast date
-  "orderBy non-fast date": [() => index.query({ orderBy: { updatedAt: "ASC" } }), ""],
+  "orderBy non-fast date": [() => index.query({ orderBy: { updatedAt: "ASC" } }), "is not a fast field"],
   // @ts-expect-error orderBy two fields
-  "orderBy two fields": [() => index.query({ orderBy: { price: "ASC", stock: "DESC" } }), ""],
+  "orderBy two fields": [() => index.query({ orderBy: { price: "ASC", stock: "DESC" } }), "syntax error"],
   // @ts-expect-error scoreFunc TEXT
   "scoreFunc TEXT": [() => index.query({ filter: { name: "x" }, scoreFunc: "name" }), "not configured as fast field"],
   // @ts-expect-error scoreFunc fast date
   "scoreFunc date": [() => index.query({ filter: { name: "x" }, scoreFunc: "createdAt" }), "for score functions"],
   // @ts-expect-error highlight unknown field
-  "highlight unknown field": [() => index.query({ filter: { name: "x" }, highlight: { fields: ["nope"] } }), ""],
+  "highlight unknown field": [() => index.query({ filter: { name: "x" }, highlight: { fields: ["nope"] } }), "does not exist"],
 
   // aggregations
   // @ts-expect-error $avg on TEXT
@@ -367,17 +390,17 @@ const invalid: Record<string, [() => Promise<unknown>, string]> = {
   // @ts-expect-error $avg on KEYWORD
   "agg $avg on KEYWORD": [() => index.aggregate({ aggregations: { p: { $avg: { field: "category" } } } }), "cannot be used with field"],
   // @ts-expect-error $terms on TEXT
-  "agg $terms on TEXT": [() => index.aggregate({ aggregations: { p: { $terms: { field: "name" } } } }), ""],
+  "agg $terms on TEXT": [() => index.aggregate({ aggregations: { p: { $terms: { field: "name" } } } }), "to be FAST"],
   // @ts-expect-error $avg on non-fast bool
   "agg $avg on non-fast bool": [() => index.aggregate({ aggregations: { p: { $avg: { field: "featured" } } } }), "FAST"],
   // @ts-expect-error $histogram on KEYWORD
   "agg $histogram on KEYWORD": [() => index.aggregate({ aggregations: { p: { $histogram: { field: "category", interval: 1 } } } }), "cannot be used with field"],
   // @ts-expect-error $facet on KEYWORD
-  "agg $facet on KEYWORD": [() => index.aggregate({ aggregations: { p: { $facet: { field: "category", path: "/a" } } } }), ""],
+  "agg $facet on KEYWORD": [() => index.aggregate({ aggregations: { p: { $facet: { field: "category", path: "/a" } } } }), "Allowed types: FACET"],
   // @ts-expect-error metric with sub-aggregations
   "agg metric with $aggs": [() => index.aggregate({ aggregations: { p: { $avg: { field: "price" }, $aggs: terms } } }), "cannot have sub-aggregations"],
   // @ts-expect-error unknown field
-  "agg unknown field": [() => index.aggregate({ aggregations: { p: { $avg: { field: "nope" } } } }), ""],
+  "agg unknown field": [() => index.aggregate({ aggregations: { p: { $avg: { field: "nope" } } } }), "unknown field"],
   // @ts-expect-error $dateHistogram on number
   "agg $dateHistogram on number": [() => index.aggregate({ aggregations: { d: { $dateHistogram: { field: "price", fixedInterval: "1d" } } } }), "cannot be used with field"],
   // @ts-expect-error $range on KEYWORD
@@ -386,10 +409,12 @@ const invalid: Record<string, [() => Promise<unknown>, string]> = {
   "agg $percentiles on BOOL": [() => index.aggregate({ aggregations: { p: { $percentiles: { field: "active" } } } }), "cannot be used with field"],
   // @ts-expect-error $composite source on TEXT
   "agg $composite on TEXT": [() => index.aggregate({ aggregations: { c: { $composite: { sources: [{ n: { $terms: { field: "name" } } }] } } } }), "FAST"],
+  // @ts-expect-error $facet as a sub-aggregation
+  "agg $facet in $aggs": [() => index.aggregate({ aggregations: { c: { $terms: { field: "category" }, $aggs: { f: { $facet: { field: "tags", path: "/" } } } } } }), "as a sub-aggregation"],
   // @ts-expect-error $facet with sub-aggregations
   "agg $facet with $aggs": [() => index.aggregate({ aggregations: { f: { $facet: { field: "tags", path: "/" }, $aggs: terms } } }), "cannot have sub-aggregations"],
   // @ts-expect-error $composite $dateHistogram with both intervals
-  "agg $composite both intervals": [() => index.aggregate({ aggregations: { c: { $composite: { sources: [{ m: { $dateHistogram: { field: "createdAt", fixedInterval: "1d", calendarInterval: "month" } } }] } } } }), ""],
+  "agg $composite both intervals": [() => index.aggregate({ aggregations: { c: { $composite: { sources: [{ m: { $dateHistogram: { field: "createdAt", fixedInterval: "1d", calendarInterval: "month" } } }] } } } }), "one and only one"],
 };
 
 // Accepted by the server but rejected by the types, because the call cannot do what it says.
@@ -401,8 +426,6 @@ const typeOnly: Record<string, () => Promise<unknown>> = {
   "$phrase on KEYWORD": () => index.query({ filter: { category: { $phrase: "audio" } } }),
   // @ts-expect-error documented as unsupported for KEYWORD
   "$regex on KEYWORD": () => index.query({ filter: { category: { $regex: "aud.*" } } }),
-  // @ts-expect-error the SDK drops scoreFunc when orderBy is set
-  "orderBy + scoreFunc": () => index.query({ orderBy: { price: "ASC" }, scoreFunc: "price" }),
   // @ts-expect-error the field is never returned
   "select unknown field": () => index.query({ select: { nope: true } }),
   // @ts-expect-error next to a field, $or stops filtering
@@ -411,8 +434,6 @@ const typeOnly: Record<string, () => Promise<unknown>> = {
   "$or next to $must": () => index.query({ filter: { $must: { category: "audio" }, $or: [{ name: "earplugs" }] } }),
   // @ts-expect-error a $boost object is a $must clause, so $or stops filtering
   "$or next to a $boost object": () => index.query({ filter: { $boost: { query: { name: "headphones" }, value: 3 }, $or: [{ name: "earbuds" }] } }),
-  // @ts-expect-error a preTag without a postTag is ignored
-  "preTag without postTag": () => index.query({ filter: { name: "earbuds" }, highlight: { fields: ["name"], preTag: "<b>" } }),
 };
 
 describe("search conformance: valid", () => {

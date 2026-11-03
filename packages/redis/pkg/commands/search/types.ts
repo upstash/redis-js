@@ -200,33 +200,20 @@ export type QueryOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> =
         scoreFunc?: ScoreBy<string>;
       }
     : {
+        // Retrievers that do not support some options (`$ann` with `orderBy`, for example) are
+        // not rejected here: a filter typed as a union of them would then reject valid calls
+        filter?: QueryFilter<TSchema> | Retriever<TSchema> | undefined;
         /** Maximum number of results to return */
-        limit?: number;
+        limit?: number | undefined;
         /** Number of results to skip */
-        offset?: number;
-        select?: Partial<{ [K in SchemaPaths<TSchema>]: true }>;
-      } & (
-        | ({
-            filter?: QueryFilter<TSchema> | StandardRetriever<TSchema>;
-            highlight?: HighlightOption<TSchema>;
-          } & OrderOrScoreOption<TSchema>)
-        // ORDERBY, SCOREFUNC and HIGHLIGHT do not work with $ann at the root
-        | { filter: AnnRetriever<TSchema>; orderBy?: never; scoreFunc?: never; highlight?: never }
-        // ORDERBY does not work with $rrf
-        | {
-            filter: RrfRetriever<TSchema>;
-            orderBy?: never;
-            scoreFunc?: ScoreBy<ScorePaths<TSchema>>;
-            highlight?: HighlightOption<TSchema>;
-          }
-        // A filter typed as any query or retriever, such as `InferFilterFromSchema`
-        | {
-            filter?: QueryFilter<TSchema> | Retriever<TSchema>;
-            orderBy?: never;
-            scoreFunc?: never;
-            highlight?: never;
-          }
-      );
+        offset?: number | undefined;
+        select?: Partial<{ [K in SchemaPaths<TSchema>]: true }> | undefined;
+        highlight?: HighlightOption<TSchema> | undefined;
+        /** Sorts by one `FAST` field instead of the score. Not supported with `$ann` and `$rrf`. */
+        orderBy?: OrderByOption<TSchema> | undefined;
+        /** Ignored when `orderBy` is set. Not supported with `$ann`. */
+        scoreFunc?: ScoreBy<ScorePaths<TSchema>> | undefined;
+      };
 
 type CombineMode = "multiply" | "sum";
 type ScoreMode = "multiply" | "sum" | "replace";
@@ -273,22 +260,14 @@ type OrderByOption<TSchema> = {
   };
 }[OrderPaths<TSchema>];
 
-// `orderBy` replaces scoring, so a `scoreFunc` next to it would be ignored
-type OrderOrScoreOption<TSchema> =
-  | { orderBy?: OrderByOption<TSchema>; scoreFunc?: never }
-  | { scoreFunc?: ScoreBy<ScorePaths<TSchema>>; orderBy?: never };
-
 type HighlightOption<TSchema> = {
   /** TEXT, HYBRID and KEYWORD fields to highlight */
   fields: readonly PathsOfType<TSchema, "TEXT" | "HYBRID" | "KEYWORD">[];
-} & (
-  | {
-      /** Set both tags, or neither for the default `<em>` and `</em>` */
-      preTag: string;
-      postTag: string;
-    }
-  | { preTag?: never; postTag?: never }
-);
+  /** Defaults to `<em>` */
+  preTag?: string | undefined;
+  /** Defaults to `</em>` */
+  postTag?: string | undefined;
+};
 
 /**
  * Converts dot notation paths to nested object structure type
@@ -376,7 +355,8 @@ export type PublicQueryResult<
 type StringOperationMap<T extends string> = {
   $eq: T;
   $in: readonly T[];
-  $fuzzy: T | { value: T; distance?: 0 | 1 | 2; transpositionCostOne?: boolean; prefix?: boolean };
+  // `distance` is 0, 1 or 2
+  $fuzzy: T | { value: T; distance?: number; transpositionCostOne?: boolean; prefix?: boolean };
   $phrase:
     | T
     | { value: T; slop?: number; prefix?: never }
@@ -682,12 +662,13 @@ export type Aggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
 type TermsPaths<TSchema> = FastPaths<TSchema, "KEYWORD" | NumericType | "BOOL" | "DATE">;
 type HistogramPaths<TSchema> = FastPaths<TSchema, NumericType | "DATE">;
 type DatePaths<TSchema> = FastPaths<TSchema, "DATE">;
-type MetricPaths<TSchema> = FastPaths<TSchema, NumericType | "BOOL" | "DATE">;
+// Metrics read nothing from BOOL fields
+type MetricPaths<TSchema> = FastPaths<TSchema, NumericType | "DATE">;
 
-/** Bucket aggregations can have sub-aggregations. */
+/** Bucket aggregations can have sub-aggregations, except `$facet`. */
 type BucketAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
   $aggs?: {
-    [key: string]: Aggregation<TSchema>;
+    [key: string]: Exclude<Aggregation<TSchema>, FacetAggregation<TSchema>>;
   };
 };
 
@@ -904,21 +885,23 @@ type BuildAggregateResult<
             ? CompositeResult<TSchema, TAggs[K], CompositeSourceNames<TSources>>
             : TAggs[K] extends { $stats: unknown }
               ? StatsResult
-              : TAggs[K] extends
-                    | { $avg: unknown }
-                    | { $sum: unknown }
-                    | { $min: unknown }
-                    | { $max: unknown }
-                    | { $count: unknown }
-                    | { $cardinality: unknown }
-                ? MetricValueResult
-                : TAggs[K] extends { $extendedStats: unknown }
-                  ? ExtendedStatsResult
-                  : TAggs[K] extends { $percentiles: unknown }
-                    ? PercentilesResult<TAggs[K]>
-                    : TAggs[K] extends { $facet: unknown }
-                      ? FacetResult
-                      : never;
+              : TAggs[K] extends { $sum: { nullIfNoMatch: infer TNull } }
+                ? Flag<TNull, { value: number | null }, MetricValueResult>
+                : TAggs[K] extends
+                      | { $avg: unknown }
+                      | { $sum: unknown }
+                      | { $min: unknown }
+                      | { $max: unknown }
+                      | { $count: unknown }
+                      | { $cardinality: unknown }
+                  ? MetricValueResult
+                  : TAggs[K] extends { $extendedStats: unknown }
+                    ? ExtendedStatsResult
+                    : TAggs[K] extends { $percentiles: unknown }
+                      ? PercentilesResult<TAggs[K]>
+                      : TAggs[K] extends { $facet: unknown }
+                        ? FacetResult
+                        : never;
 };
 
 type Bucket<T> = {
@@ -937,14 +920,25 @@ type SubAggregations<TSchema extends NestedIndexSchema | FlatIndexSchema, TAgg> 
   : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     {};
 
+/** `TOn` when a boolean option is `true`, `TOff` when it is `false`, either when it is `boolean`. */
+type Flag<TValue, TOn, TOff> = [TValue] extends [true]
+  ? TOn
+  : [TValue] extends [false | undefined]
+    ? TOff
+    : TOn | TOff;
+
 /** `keyed: true` returns the buckets as an object keyed by the bucket key. */
 type BucketsResult<
   TSchema extends NestedIndexSchema | FlatIndexSchema,
   TAgg,
   TBucket,
   TParams,
-> = TParams extends { keyed: true }
-  ? { buckets: { [key: string]: TBucket & SubAggregations<TSchema, TAgg> } }
+> = TParams extends { keyed: infer TKeyed }
+  ? Flag<
+      TKeyed,
+      { buckets: { [key: string]: TBucket & SubAggregations<TSchema, TAgg> } },
+      { buckets: (TBucket & SubAggregations<TSchema, TAgg>)[] }
+    >
   : { buckets: (TBucket & SubAggregations<TSchema, TAgg>)[] };
 
 /** BOOL keys are `0` or `1`, and DATE keys are RFC 3339 strings. */
@@ -1033,13 +1027,14 @@ type ExtendedStatsResult = {
   };
 };
 
-type PercentilesResult<TAgg> = TAgg extends { $percentiles: { keyed: false } }
-  ? {
-      values: Array<{ key: number; value: number }>;
-    }
-  : {
-      values: { [key: string]: number };
-    };
+// Percentiles are keyed by default
+type PercentilesResult<TAgg> = TAgg extends { $percentiles: { keyed: infer TKeyed } }
+  ? Flag<
+      TKeyed,
+      { values: { [key: string]: number } },
+      { values: Array<{ key: number; value: number }> }
+    >
+  : { values: { [key: string]: number } };
 
 type FacetChildNode = {
   path: string;

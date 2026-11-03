@@ -298,28 +298,33 @@ function parseBucketsValue(arr: any[]): any {
 }
 
 function parseBucket(bucket: any[]): any {
+  // The key of a $range bucket is a label such as "10-*", even when it looks like a number
+  const isRange = bucket.includes("from") || bucket.includes("to");
   const bucketObj: any = {};
   for (let i = 0; i < bucket.length; i += 2) {
     const key = bucket[i];
     const value = bucket[i + 1];
     if (key === "key" && Array.isArray(value)) {
       // The key of a $composite bucket maps source names to values
-      bucketObj[key] = parsePairs(value);
+      bucketObj[key] = parsePairs(value, true);
     } else if (Array.isArray(value) && value.length > 0 && typeof value[0] === "string") {
       // A sub-aggregation
       bucketObj[key] = value[0] === "buckets" ? parseBucketsValue(value) : parseStatsValue(value);
-    } else {
+    } else if (key === "key" && isRange) {
       bucketObj[key] = value;
+    } else {
+      // Floats arrive as strings, such as a $terms key of an F64 field
+      bucketObj[key] = coerceNumericString(value);
     }
   }
   return bucketObj;
 }
 
-/** Turns `[name, value, name, value, ...]` into an object, keeping the values as they are. */
-function parsePairs(arr: any[]): any {
+/** Turns `[name, value, name, value, ...]` into an object. */
+function parsePairs(arr: any[], coerce = false): any {
   const result: any = {};
   for (let i = 0; i < arr.length; i += 2) {
-    result[arr[i]] = arr[i + 1];
+    result[arr[i]] = coerce ? coerceNumericString(arr[i + 1]) : arr[i + 1];
   }
   return result;
 }

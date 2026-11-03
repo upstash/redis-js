@@ -545,7 +545,7 @@ describe("deserializeAggregateResponse", () => {
       [
         "buckets",
         [
-          ["key", ["cat", "123", "p", 20], "docCount", 2],
+          ["key", ["cat", "a", "p", "19.99"], "docCount", 2],
           ["key", ["cat", "b", "p", 0], "docCount", 1],
         ],
         "afterKey",
@@ -556,11 +556,46 @@ describe("deserializeAggregateResponse", () => {
     expect(deserializeAggregateResponse(raw)).toEqual({
       c: {
         buckets: [
-          { key: { cat: "123", p: 20 }, docCount: 2 },
+          { key: { cat: "a", p: 19.99 }, docCount: 2 },
           { key: { cat: "b", p: 0 }, docCount: 1 },
         ],
         afterKey: { cat: "str:b", p: "f64:0" },
       },
+    });
+  });
+
+  test("turns float bucket keys into numbers, but not range labels", () => {
+    const raw = [
+      "t",
+      ["buckets", [["key", "19.99", "docCount", 1]]],
+      "r",
+      ["buckets", [["key", "10", "docCount", 1, "from", 10]]],
+    ];
+
+    expect(deserializeAggregateResponse(raw)).toEqual({
+      t: { buckets: [{ key: 19.99, docCount: 1 }] },
+      r: { buckets: [{ key: "10", docCount: 1, from: 10 }] },
+    });
+  });
+
+  test("turns empty keyed buckets into an object", () => {
+    const raw = [
+      "h",
+      ["buckets", []],
+      "c",
+      ["buckets", [["key", "a", "docCount", 1, "s", ["buckets", []]]]],
+    ];
+    const aggregations = {
+      h: { $histogram: { field: "price", interval: 10, keyed: true } },
+      c: {
+        $terms: { field: "cat" },
+        $aggs: { s: { $histogram: { field: "price", interval: 10, keyed: true } } },
+      },
+    };
+
+    expect(deserializeAggregateResponse(raw, aggregations)).toEqual({
+      h: { buckets: {} },
+      c: { buckets: [{ key: "a", docCount: 1, s: { buckets: {} } }] },
     });
   });
 

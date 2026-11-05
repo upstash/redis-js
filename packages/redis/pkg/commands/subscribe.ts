@@ -128,7 +128,9 @@ export class Subscriber<TMessage = any> extends EventTarget {
 
         try {
           const message =
-            this.opts?.automaticDeserialization === false ? messageStr : JSON.parse(messageStr);
+            this.opts?.automaticDeserialization === false
+              ? messageStr
+              : parseWithTryCatch(messageStr);
 
           this.dispatchToListeners("pmessage", { pattern, channel, message });
           this.dispatchToListeners(`pmessage:${pattern}`, { pattern, channel, message });

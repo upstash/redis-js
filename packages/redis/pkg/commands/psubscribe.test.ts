@@ -43,6 +43,30 @@ describe("Pattern Subscriber", () => {
     await subscriber.unsubscribe();
   }, 10_000);
 
+  test("receives plain string messages", async () => {
+    const pattern = "plain:*";
+    const receivedMessages: string[] = [];
+    const errors: Error[] = [];
+
+    const subscriber = redis.psubscribe<string>([pattern]);
+    subscriber.on("pmessage", ({ message }) => {
+      receivedMessages.push(message);
+    });
+    subscriber.on("error", (error) => {
+      errors.push(error);
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    await redis.publish("plain:1", "hello");
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    expect(errors).toEqual([]);
+    expect(receivedMessages).toEqual(["hello"]);
+
+    await subscriber.unsubscribe();
+  }, 10_000);
+
   test("handles pattern-specific messages with channel info", async () => {
     const pattern = "chat:*:messages";
     const messages: { pattern: string; channel: string; message: TestMessage }[] = [];

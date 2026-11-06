@@ -27,15 +27,15 @@ export class XClaimCommand extends Command<unknown[], unknown[]> {
     const ids = Array.isArray(id) ? [...id] : [id];
     const commands: unknown[] = [];
 
-    if (options?.idleMS) {
+    if (options?.idleMS !== undefined) {
       commands.push("IDLE", options.idleMS);
     }
 
-    if (options?.idleMS) {
+    if (options?.timeMS !== undefined) {
       commands.push("TIME", options.timeMS);
     }
 
-    if (options?.retryCount) {
+    if (options?.retryCount !== undefined) {
       commands.push("RETRYCOUNT", options.retryCount);
     }
 

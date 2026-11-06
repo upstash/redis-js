@@ -70,4 +70,39 @@ describe("XCLAIM", () => {
 
     expect(res).toEqual([streamId]);
   });
+
+  test("sends TIME with its value when only timeMS is set", () => {
+    const cmd = new XClaimCommand(["s", "g", "c", 0, "1-0", { timeMS: 1000 }]);
+    expect(cmd.command).toEqual(["XCLAIM", "s", "g", "c", 0, "1-0", "TIME", 1000]);
+  });
+
+  test("does not send TIME when only idleMS is set", () => {
+    const cmd = new XClaimCommand(["s", "g", "c", 0, "1-0", { idleMS: 500 }]);
+    expect(cmd.command).toEqual(["XCLAIM", "s", "g", "c", 0, "1-0", "IDLE", 500]);
+  });
+
+  test("keeps zero values for idleMS, timeMS and retryCount", () => {
+    const cmd = new XClaimCommand([
+      "s",
+      "g",
+      "c",
+      0,
+      "1-0",
+      { idleMS: 0, timeMS: 0, retryCount: 0 },
+    ]);
+    expect(cmd.command).toEqual([
+      "XCLAIM",
+      "s",
+      "g",
+      "c",
+      0,
+      "1-0",
+      "IDLE",
+      0,
+      "TIME",
+      0,
+      "RETRYCOUNT",
+      0,
+    ]);
+  });
 });

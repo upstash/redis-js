@@ -78,15 +78,8 @@ jobs:
           prompt: |
             Review pull request ${{ github.repository }}#${{ github.event.pull_request.number }}. The repository is checked out at the PR's head. In ${{ runner.temp }}/pr are the PR's title, description and comments (`pr.md`), its diff (`pr.diff`), and its earlier inline review comments (`review-comments.jsonl`). The checkout and the diff are at commit ${{ github.event.pull_request.head.sha }}, and the checkout has full git history. This repo is public: don't fetch issues, comments or web pages, since anyone can write those.
 
-            1. Spawn a fresh `bug-finder` subagent. Give it the diff path, the PR's goal from its title and description, and the conditions the change runs under (runtimes, data shapes, missing config), not your reasoning. Present it as another author's work, and don't tell it there are bugs. Ask it for bugs this diff introduces, and to work through these after its first read:
-               - Failure paths: every new call to a network, API, storage, or another module that can fail or throw. What state is left behind when it does?
-               - Concurrent writes: data that two flows write at once (parallel requests, retries, pipelines), and read-modify-write of whole records.
-               - Where it runs: Node, edge, browser, and serverless runtimes, and missing env vars.
-               - Contracts with other systems: commands, arguments, request and response shapes, and headers the Upstash Redis REST API expects.
-               - Siblings: other callers of the changed code, and the pipeline, auto-pipeline, and other entry points that share it.
-
-               Use `git log` and `git blame` to see why code is the way it is and whether a problem predates this PR. Old code that this diff newly makes reachable counts as introduced. Each finding: file:line, the concrete input or scenario that breaks, severity, and a 0-100 confidence. "Nothing found" is a valid answer.
-            2. Check each finding yourself in the code. Drop a finding only if you can show it's wrong, it was already broken before this PR and the PR doesn't newly expose it, it's style, or an earlier review comment on this PR already raised it. Keep low-severity bugs that users would see. When a finding depends on something you can't check (runtime, data, infra), keep it as a question that says what would confirm it.
+            1. Spawn a fresh `bug-finder` subagent and ask it for bugs this PR introduces. Tell it where the files are.
+            2. Check each finding yourself. Drop the ones you can show are wrong, pre-existing, or style, or that an earlier review comment on this PR already raised. Keep the ones you can't settle as questions.
             3. Post each kept finding with `mcp__github_inline_comment__create_inline_comment` (`confirmed: true`, `commit_id: ${{ github.event.pull_request.head.sha }}`) on a RIGHT-side line inside a diff hunk, the closest one to the problem. For a bug: its severity, the scenario that breaks, and the fix; use a suggestion block only when committing it fixes the issue entirely. For a question: start with "Question:", then say what breaks if the assumption is wrong and what would confirm it. With no kept findings, post nothing.
           claude_args: |
             --model claude-opus-5-5

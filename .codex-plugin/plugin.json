@@ -1,28 +1,35 @@
 {
   "name": "redis-js",
-  "description": "Upstash Redis agent skill",
+  "version": "0.1.1",
+  "description": "Teaches coding agents how to use the Upstash Redis TypeScript SDK for serverless Redis over HTTP.",
   "author": {
     "name": "Upstash",
-    "url": "https://github.com/upstash"
+    "url": "https://upstash.com"
   },
-  "homepage": "https://docs.upstash.com/redis",
+  "homepage": "https://upstash.com/redis",
   "repository": "https://github.com/upstash/redis-js",
   "license": "MIT",
-  "keywords": [
-    "upstash",
-    "redis",
-    "serverless",
-    "typescript"
-  ],
-  "skills": [
-    "./skills"
-  ],
+  "keywords": ["upstash", "redis", "serverless", "typescript", "caching", "search"],
+  "skills": ["./skills"],
   "interface": {
     "displayName": "Upstash Redis",
-    "shortDescription": "Upstash Redis agent skill",
-    "longDescription": "Agent skill for the Upstash Redis SDK, installed from the skill already in this repository.",
+    "shortDescription": "Use the Upstash Redis TypeScript SDK for serverless Redis",
+    "longDescription": "Upstash Redis is a serverless Redis database accessed over HTTP. This plugin teaches coding agents how to use the @upstash/redis TypeScript SDK — initialization, auto-serialization of JavaScript types, and the skill guides already in this repository.\n\nUse it when building caching, session storage, rate limiting, leaderboards, pipelines and transactions, Redis data structures, or full-text search with the Upstash Redis search extension. The skill points agents at practical patterns and common SDK pitfalls instead of guessing Redis APIs.\n\nThe skill text matches skills/SKILL.md and its topic guides under skills/.",
     "developerName": "Upstash",
     "category": "Developer Tools",
-    "websiteURL": "https://docs.upstash.com/redis"
+    "capabilities": [
+      "Serverless Redis SDK guidance",
+      "Caching and session patterns",
+      "Full-text search with Redis"
+    ],
+    "websiteURL": "https://upstash.com/redis",
+    "defaultPrompt": [
+      "Cache API responses with @upstash/redis and a short TTL",
+      "Add a sorted-set leaderboard using the Upstash Redis SDK",
+      "Query and filter documents with the Upstash Redis search extension"
+    ],
+    "brandColor": "#00E9A3",
+    "composerIcon": "./assets/logo.svg",
+    "logo": "./assets/logo.svg"
   }
 }

@@ -1,33 +1,36 @@
 {
   "name": "redis-js",
+  "description": "The Upstash Redis agent skill for Claude Code",
   "owner": {
-    "name": "Upstash"
+    "name": "Upstash",
+    "url": "https://upstash.com"
   },
-  "description": "Upstash Redis agent skill",
   "plugins": [
     {
       "name": "redis-js",
       "displayName": "Upstash Redis",
-      "description": "Upstash Redis agent skill for Claude Code",
       "source": "./",
       "strict": false,
+      "description": "Teaches coding agents how to use the Upstash Redis TypeScript SDK (@upstash/redis) for serverless Redis over HTTP — caching, sessions, rate limiting, leaderboards, data structures, pipelines, and full-text search.",
+      "version": "0.1.1",
       "author": {
         "name": "Upstash",
-        "url": "https://github.com/upstash"
+        "url": "https://upstash.com"
       },
-      "homepage": "https://docs.upstash.com/redis",
+      "homepage": "https://upstash.com/redis",
       "repository": "https://github.com/upstash/redis-js",
       "license": "MIT",
+      "category": "development",
       "keywords": [
         "upstash",
         "redis",
         "serverless",
-        "typescript"
+        "typescript",
+        "caching",
+        "search",
+        "coding-agents"
       ],
-      "category": "development",
-      "skills": [
-        "./skills"
-      ]
+      "skills": ["./skills"]
     }
   ]
 }

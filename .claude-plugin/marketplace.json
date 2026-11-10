@@ -9,7 +9,7 @@
       "name": "redis-js",
       "displayName": "Upstash Redis",
       "description": "Upstash Redis agent skill for Claude Code",
-      "source": "./skills",
+      "source": "./",
       "strict": false,
       "author": {
         "name": "Upstash",
@@ -26,7 +26,7 @@
       ],
       "category": "development",
       "skills": [
-        "./"
+        "./skills"
       ]
     }
   ]

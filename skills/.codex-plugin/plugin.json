@@ -1,0 +1,28 @@
+{
+  "name": "redis-js",
+  "description": "Upstash Redis agent skill",
+  "author": {
+    "name": "Upstash",
+    "url": "https://github.com/upstash"
+  },
+  "homepage": "https://docs.upstash.com/redis",
+  "repository": "https://github.com/upstash/redis-js",
+  "license": "MIT",
+  "keywords": [
+    "upstash",
+    "redis",
+    "serverless",
+    "typescript"
+  ],
+  "skills": [
+    "./"
+  ],
+  "interface": {
+    "displayName": "Upstash Redis",
+    "shortDescription": "Upstash Redis agent skill",
+    "longDescription": "Agent skill for the Upstash Redis SDK, installed from the skill already in this repository.",
+    "developerName": "Upstash",
+    "category": "Developer Tools",
+    "websiteURL": "https://docs.upstash.com/redis"
+  }
+}

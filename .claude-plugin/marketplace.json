@@ -1,0 +1,33 @@
+{
+  "name": "redis-js",
+  "owner": {
+    "name": "Upstash"
+  },
+  "description": "Upstash Redis agent skill",
+  "plugins": [
+    {
+      "name": "redis-js",
+      "displayName": "Upstash Redis",
+      "description": "Upstash Redis agent skill for Claude Code",
+      "source": "./skills",
+      "strict": false,
+      "author": {
+        "name": "Upstash",
+        "url": "https://github.com/upstash"
+      },
+      "homepage": "https://docs.upstash.com/redis",
+      "repository": "https://github.com/upstash/redis-js",
+      "license": "MIT",
+      "keywords": [
+        "upstash",
+        "redis",
+        "serverless",
+        "typescript"
+      ],
+      "category": "development",
+      "skills": [
+        "./"
+      ]
+    }
+  ]
+}

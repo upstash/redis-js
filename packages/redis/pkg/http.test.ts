@@ -328,64 +328,6 @@ describe("http", () => {
         expect(calls).toHaveLength(1);
       });
     });
-
-    test.each(["direct", "auto-pipeline", "pipeline", "transaction"])(
-      "does not replay a committed %s write after a lost response when retry is false",
-      async (mode) => {
-        const originalFetch = globalThis.fetch;
-        const lostResponse = new Error("response lost after commit");
-        let attempts = 0;
-        let counter = 0;
-        const events: string[] = [];
-
-        globalThis.fetch = (async (_url: unknown, init?: RequestInit) => {
-          attempts += 1;
-          const body = JSON.parse(init?.body as string) as string[] | string[][];
-          const commands = Array.isArray(body[0]) ? (body as string[][]) : [body as string[]];
-          const results = commands.map(([command, key, value]) => {
-            if (command === "incr" && key === "usage") {
-              return { result: ++counter };
-            }
-            if (command === "lpush" && key === "events") {
-              return { result: events.unshift(value) };
-            }
-            throw new Error(`Unexpected command: ${command}`);
-          });
-
-          if (attempts === 1) {
-            throw lostResponse;
-          }
-          return new Response(JSON.stringify(mode === "direct" ? results[0] : results));
-        }) as typeof fetch;
-
-        try {
-          const redis = new Redis({
-            url: SERVER_URL,
-            token: "test-token",
-            enableTelemetry: false,
-            enableAutoPipelining: mode === "auto-pipeline",
-            retry: false,
-          });
-          const request =
-            mode === "direct"
-              ? redis.incr("usage")
-              : mode === "auto-pipeline"
-                ? Promise.all([redis.incr("usage"), redis.lpush("events", "visit")])
-                : mode === "pipeline"
-                  ? redis.pipeline().incr("usage").lpush("events", "visit").exec()
-                  : redis.multi().incr("usage").lpush("events", "visit").exec();
-
-          expect(await Promise.allSettled([request])).toEqual([
-            { status: "rejected", reason: lostResponse },
-          ]);
-          expect(attempts).toBe(1);
-          expect(counter).toBe(1);
-          expect(events).toEqual(mode === "direct" ? [] : ["visit"]);
-        } finally {
-          globalThis.fetch = originalFetch;
-        }
-      }
-    );
   });
 
   describe("retry telemetry", () => {

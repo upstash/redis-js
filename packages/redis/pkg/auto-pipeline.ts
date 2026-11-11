@@ -232,9 +232,6 @@ class AutoPipelineExecutor {
     const activePipeline = isRead ? this.activeReadPipeline : this.activeWritePipeline;
     const pipeline = activePipeline ?? this.redis.pipeline();
 
-    // Build the command before reserving a result slot. A command that throws while it is
-    // being built (e.g. a value JSON.stringify cannot serialize) is never queued, so it must
-    // not take an index or activate a new pipeline, or every later result in it would shift.
     executeWithPipeline(pipeline);
 
     if (!activePipeline) {

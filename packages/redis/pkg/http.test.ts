@@ -297,6 +297,39 @@ describe("http", () => {
     });
   });
 
+  describe("retry configuration", () => {
+    test.each([false, { retries: 0 }])(
+      "does not retry a network failure with retry: %j",
+      async (retry) => {
+        await withMockFetch(1, async (calls) => {
+          const client = new HttpClient({
+            baseUrl: SERVER_URL,
+            headers: { authorization: "Bearer test-token" },
+            retry,
+          });
+
+          await expect(client.request({ body: ["get", "foo"] })).rejects.toThrow(
+            "simulated network error"
+          );
+          expect(calls).toHaveLength(1);
+        });
+      }
+    );
+
+    test("allows the initial request when retries are disabled", async () => {
+      await withMockFetch(0, async (calls) => {
+        const client = new HttpClient({
+          baseUrl: SERVER_URL,
+          headers: { authorization: "Bearer test-token" },
+          retry: false,
+        });
+
+        expect(await client.request({ body: ["get", "foo"] })).toEqual({ result: "OK" });
+        expect(calls).toHaveLength(1);
+      });
+    });
+  });
+
   describe("retry telemetry", () => {
     test("sends Upstash-Telemetry-Retry only on retried attempts", async () => {
       await withMockFetch(2, async (calls) => {

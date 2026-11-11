@@ -1,6 +1,6 @@
 {
   "name": "redis-js",
-  "description": "The Upstash Redis agent skill for Claude Code",
+  "description": "The Upstash Redis agent skill",
   "owner": {
     "name": "Upstash",
     "url": "https://upstash.com"

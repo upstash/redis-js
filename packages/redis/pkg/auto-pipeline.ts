@@ -232,6 +232,8 @@ class AutoPipelineExecutor {
     const activePipeline = isRead ? this.activeReadPipeline : this.activeWritePipeline;
     const pipeline = activePipeline ?? this.redis.pipeline();
 
+    executeWithPipeline(pipeline);
+
     if (!activePipeline) {
       if (isRead) {
         this.activeReadPipeline = pipeline;
@@ -243,7 +245,6 @@ class AutoPipelineExecutor {
     }
 
     const index = isRead ? this.readIndex++ : this.writeIndex++;
-    executeWithPipeline(pipeline);
 
     // If pipeline reached max size, close it so next command starts a new pipeline
     if (isRead && this.readIndex >= MAX_PIPELINE_SIZE) {

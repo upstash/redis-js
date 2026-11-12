@@ -43,3 +43,20 @@ test("properly return bigint precisely", async () => {
   const obj = { [field1]: value1, [field2]: value2, [field3]: value3 };
   expect(res).toEqual(obj);
 });
+
+test("returns fields with special names like any other field", async () => {
+  const key = newKey();
+  const fields = Object.fromEntries([
+    ["__proto__", { nested: true }],
+    ["name", "value"],
+  ]);
+  await new HSetCommand([key, fields]).exec(client);
+
+  const res = await new HGetAllCommand<Record<string, unknown>>([key]).exec(client);
+
+  expect(Object.keys(res!).sort()).toEqual(["__proto__", "name"]);
+  expect(Object.entries(res!).find(([field]) => field === "__proto__")?.[1]).toEqual({
+    nested: true,
+  });
+  expect(res!.nested).toBeUndefined();
+});

@@ -183,6 +183,51 @@ describe("deserializeQueryResponse", () => {
       ]);
     });
 
+    test("keeps field names which exist on every object as plain fields", () => {
+      const rawResponse = [
+        [
+          "doc:1",
+          "1.0",
+          [
+            ["__proto__.shared", "a"],
+            ["constructor.shared", "b"],
+            ["toString", "c"],
+          ],
+        ],
+      ];
+
+      const [{ data }] = deserializeQueryResponse(rawResponse) as { data: object }[];
+
+      expect(Object.keys(data).sort()).toEqual(["__proto__", "constructor", "toString"]);
+      expect(Object.fromEntries(Object.entries(data))).toEqual(
+        Object.fromEntries([
+          ["__proto__", { shared: "a" }],
+          ["constructor", { shared: "b" }],
+          ["toString", "c"],
+        ])
+      );
+      // other objects are not affected
+      expect(({} as Record<string, unknown>).shared).toBeUndefined();
+      expect((Object as unknown as Record<string, unknown>).shared).toBeUndefined();
+    });
+
+    test("uses the last value if a field is both a value and a parent", () => {
+      const rawResponse = [
+        [
+          "doc:1",
+          "1.0",
+          [
+            ["a", "value"],
+            ["a.b", "nested"],
+          ],
+        ],
+      ];
+
+      const result = deserializeQueryResponse(rawResponse);
+
+      expect(result).toEqual([{ key: "doc:1", score: 1, data: { a: { b: "nested" } } }]);
+    });
+
     test("handles empty fields array", () => {
       const rawResponse = [["doc:1", "1.0", []]];
 

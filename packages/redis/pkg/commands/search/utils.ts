@@ -8,6 +8,7 @@ import type {
   QueryResult,
 } from "./types";
 import { FIELD_TYPES, type FieldType, type NestedIndexSchema } from "./types";
+import { setOwnProperty } from "../../util";
 
 type FlattenedField = {
   path: string;
@@ -89,21 +90,22 @@ export function deserializeQueryResponse<
       const value = fieldRaw[1];
 
       const pathParts = key.split(".");
-      if (pathParts.length === 1) {
-        data[key] = value;
-      } else {
-        let currentObj = data;
-        for (let i = 0; i < pathParts.length - 1; i++) {
-          const pathPart = pathParts[i];
-          if (!(pathPart in currentObj)) {
-            currentObj[pathPart] = {};
-          }
+      let currentObj = data;
+      for (const pathPart of pathParts.slice(0, -1)) {
+        const existing = Object.prototype.hasOwnProperty.call(currentObj, pathPart)
+          ? currentObj[pathPart]
+          : undefined;
 
-          currentObj = currentObj[pathPart] as Record<string, unknown>;
+        if (typeof existing === "object" && existing !== null) {
+          currentObj = existing as Record<string, unknown>;
+        } else {
+          const nested: Record<string, unknown> = {};
+          setOwnProperty(currentObj, pathPart, nested);
+          currentObj = nested;
         }
-
-        currentObj[pathParts.at(-1)!] = value;
       }
+
+      setOwnProperty(currentObj, pathParts.at(-1)!, value);
     }
 
     // If $ key exists (full document), use its contents directly

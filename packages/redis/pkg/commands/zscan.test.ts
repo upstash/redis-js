@@ -34,6 +34,18 @@ describe("with match", () => {
   });
 });
 
+describe("with empty match", () => {
+  test("returns only the member that is an empty string", async () => {
+    const key = newKey();
+    await new ZAddCommand([key, { score: 1, member: "" }, { score: 2, member: "member" }]).exec(
+      client
+    );
+    const res = await new ZScanCommand([key, "0", { match: "" }]).exec(client);
+
+    expect(res[1]).toEqual(["", 1]);
+  });
+});
+
 describe("with count", () => {
   test("returns cursor and members", async () => {
     const key = newKey();

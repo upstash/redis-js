@@ -19,7 +19,7 @@ export class XAutoClaim extends Command<unknown[], unknown[]> {
   ) {
     const commands: unknown[] = [];
 
-    if (options?.count) {
+    if (typeof options?.count === "number") {
       commands.push("COUNT", options.count);
     }
 

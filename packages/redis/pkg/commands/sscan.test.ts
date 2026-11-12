@@ -34,6 +34,16 @@ describe("with match", () => {
   });
 });
 
+describe("with empty match", () => {
+  test("returns only the empty member", async () => {
+    const key = newKey();
+    await new SAddCommand([key, "", randomID()]).exec(client);
+    const res = await new SScanCommand([key, "0", { match: "" }]).exec(client);
+
+    expect(res[1]).toEqual([""]);
+  });
+});
+
 describe("with count", () => {
   test("returns cursor and members", async () => {
     const key = newKey();

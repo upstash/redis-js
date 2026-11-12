@@ -1,6 +1,7 @@
 import { keygen, newHttpClient, randomID } from "../test-utils";
 
 import { afterAll, describe, expect, test } from "bun:test";
+import { Pipeline } from "../pipeline";
 import { XAddCommand } from "./xadd";
 import { XLenCommand } from "./xlen";
 import { XTrimCommand } from "./xtrim";
@@ -61,5 +62,27 @@ describe("XLEN", () => {
       expect(len).toBeLessThanOrEqual(20);
     },
     { timeout: 20_000 }
+  );
+
+  test(
+    "should send LIMIT 0 and trim past the default limit",
+    async () => {
+      const key = newKey();
+      for (let batch = 0; batch < 3; batch++) {
+        const pipeline = new Pipeline({ client });
+        for (let i = 0; i < 4000; i++) {
+          pipeline.xadd(key, "*", { data: i });
+        }
+        await pipeline.exec();
+      }
+      // without LIMIT, an approximate trim evicts at most 10000 entries per call
+      const deleted = await new XTrimCommand([
+        key,
+        { strategy: "MAXLEN", threshold: 0, exactness: "~", limit: 0 },
+      ]).exec(client);
+      expect(deleted).toBe(12_000);
+      expect(await new XLenCommand([key]).exec(client)).toBe(0);
+    },
+    { timeout: 1000 * 60 }
   );
 });

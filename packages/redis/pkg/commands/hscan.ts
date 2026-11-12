@@ -16,7 +16,7 @@ export class HScanCommand extends Command<
     opts?: CommandOptions<[string, (string | number)[]], [string, (string | number)[]]>
   ) {
     const command: (number | string)[] = ["hscan", key, cursor];
-    if (cmdOpts?.match) {
+    if (typeof cmdOpts?.match === "string") {
       command.push("match", cmdOpts.match);
     }
     if (typeof cmdOpts?.count === "number") {

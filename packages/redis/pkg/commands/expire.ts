@@ -8,6 +8,6 @@ export class ExpireCommand extends Command<"0" | "1", 0 | 1> {
     cmd: [key: string, seconds: number, option?: ExpireOption],
     opts?: CommandOptions<"0" | "1", 0 | 1>
   ) {
-    super(["expire", ...cmd.filter(Boolean)], opts);
+    super(["expire", ...cmd.filter((arg) => arg !== undefined)], opts);
   }
 }

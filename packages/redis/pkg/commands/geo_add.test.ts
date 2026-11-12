@@ -55,6 +55,17 @@ describe("without options", () => {
     expect(res).toEqual(1);
   });
 
+  test("adds a member on the equator (latitude 0)", async () => {
+    const key = newKey();
+
+    const res = await new GeoAddCommand([
+      key,
+      { latitude: 0, longitude: 23.12, member: randomID() },
+      { latitude: 14.23, longitude: 23.12, member: randomID() },
+    ]).exec(client);
+    expect(res).toEqual(2);
+  });
+
   test("adds multiple members", async () => {
     const key = newKey();
 

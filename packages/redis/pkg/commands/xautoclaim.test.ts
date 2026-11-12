@@ -31,6 +31,25 @@ describe("XCLAIM", () => {
     expect(res).toBeInstanceOf(Array);
   });
 
+  test("should not claim anything when count is 0", async () => {
+    const streamKey = newKey();
+    const group = newKey();
+    const consumer1 = newKey();
+    const consumer2 = newKey();
+
+    await addNewItemToStream(streamKey, client);
+    await addNewItemToStream(streamKey, client);
+
+    await new XGroupCommand([streamKey, { type: "CREATE", group, id: "0" }]).exec(client);
+
+    await new XReadGroupCommand([group, consumer1, [streamKey], [">"], { count: 2 }]).exec(client);
+
+    const res = (await new XAutoClaim([streamKey, group, consumer2, 0, "0-0", { count: 0 }]).exec(
+      client
+    )) as unknown[][];
+    expect(res[1]).toEqual([]);
+  });
+
   test("should try to move ownership and fail due to too high idle time", async () => {
     const streamKey = newKey();
     const group = newKey();

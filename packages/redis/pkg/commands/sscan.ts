@@ -16,7 +16,7 @@ export class SScanCommand extends Command<
     cmdOpts?: CommandOptions<[string, (string | number)[]], [string, (string | number)[]]>
   ) {
     const command: (number | string)[] = ["sscan", key, cursor];
-    if (opts?.match) {
+    if (typeof opts?.match === "string") {
       command.push("match", opts.match);
     }
     if (typeof opts?.count === "number") {

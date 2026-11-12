@@ -31,6 +31,16 @@ describe("with match", () => {
   });
 });
 
+describe("with empty match", () => {
+  test("returns only the field with an empty name", async () => {
+    const key = newKey();
+    await new HSetCommand([key, { "": "empty", field: "value" }]).exec(client);
+    const res = await new HScanCommand([key, "0", { match: "" }]).exec(client);
+
+    expect(res[1]).toEqual(["", "empty"]);
+  });
+});
+
 describe("with count", () => {
   test("returns cursor and members", async () => {
     const key = newKey();

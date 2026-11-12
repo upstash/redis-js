@@ -41,7 +41,7 @@ export class GeoAddCommand<TMemberType = string> extends Command<number | null, 
       command.push("ch");
     }
 
-    if ("latitude" in arg1 && arg1.latitude) {
+    if ("latitude" in arg1) {
       command.push(arg1.longitude, arg1.latitude, arg1.member);
     }
 

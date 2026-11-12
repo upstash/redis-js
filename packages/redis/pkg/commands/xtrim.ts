@@ -20,6 +20,16 @@ export class XTrimCommand extends Command<number, number> {
   ) {
     const { limit, strategy, threshold, exactness = "~" } = options;
 
-    super(["XTRIM", key, strategy, exactness, threshold, ...(limit ? ["LIMIT", limit] : [])], opts);
+    super(
+      [
+        "XTRIM",
+        key,
+        strategy,
+        exactness,
+        threshold,
+        ...(limit === undefined ? [] : ["LIMIT", limit]),
+      ],
+      opts
+    );
   }
 }

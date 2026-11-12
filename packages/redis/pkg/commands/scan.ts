@@ -40,7 +40,7 @@ export class ScanCommand<TData = ScanResultStandard> extends Command<[string, st
     cmdOpts?: CommandOptions<[string, string[]], TData>
   ) {
     const command: (number | string)[] = ["scan", cursor];
-    if (opts?.match) {
+    if (typeof opts?.match === "string") {
       command.push("match", opts.match);
     }
     if (typeof opts?.count === "number") {

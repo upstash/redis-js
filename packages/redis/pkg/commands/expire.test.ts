@@ -21,6 +21,15 @@ test("expires a key correctly", async () => {
   expect(res2).toEqual(null);
 });
 
+test("deletes the key when seconds is 0", async () => {
+  const key = newKey();
+  await new SetCommand([key, randomID()]).exec(client);
+  const res = await new ExpireCommand([key, 0]).exec(client);
+  expect(res).toEqual(1);
+  const res2 = await new GetCommand([key]).exec(client);
+  expect(res2).toEqual(null);
+});
+
 describe("NX", () => {
   test("should set expiry only when the key has no expiry", async () => {
     const key = newKey();

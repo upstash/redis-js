@@ -25,8 +25,27 @@ describe("XLEN", () => {
         client
       );
       const len = await new XLenCommand([key]).exec(client);
-      expect(len).toBeGreaterThanOrEqual(29);
-      expect(len).toBeLessThanOrEqual(31);
+      // an approximate trim can leave up to 100 entries more than the threshold
+      expect(len).toBeGreaterThanOrEqual(30);
+      expect(len).toBeLessThanOrEqual(130);
+    },
+    { timeout: 1000 * 60 }
+  );
+
+  test(
+    "should trim stream to exactly 30 items",
+    async () => {
+      const key = newKey();
+      const promises = [];
+      for (let i = 1; i <= 1000; i++) {
+        promises.push(new XAddCommand([key, "*", { [randomID()]: randomID() }]).exec(client));
+      }
+      await Promise.all(promises);
+      await new XTrimCommand([key, { strategy: "MAXLEN", threshold: 30, exactness: "=" }]).exec(
+        client
+      );
+      const len = await new XLenCommand([key]).exec(client);
+      expect(len).toBe(30);
     },
     { timeout: 1000 * 60 }
   );

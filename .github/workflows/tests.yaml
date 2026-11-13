@@ -38,6 +38,9 @@ jobs:
       - name: Lint
         run: pnpm run ci:lint
 
+      - name: Check types
+        run: pnpm -r --if-present test:types
+
       - name: Build
         run: pnpm -r build
 

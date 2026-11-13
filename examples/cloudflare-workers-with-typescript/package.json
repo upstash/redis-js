@@ -2,7 +2,7 @@
   "name": "cloudflare-workers-with-typescript",
   "version": "0.0.0",
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20221111.1",
+    "@cloudflare/workers-types": "^5.20261106.1",
     "typescript": "^4.8.4",
     "wrangler": "^2.4.4"
   },

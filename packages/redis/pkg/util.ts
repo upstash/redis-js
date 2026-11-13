@@ -102,6 +102,13 @@ export function mergeHeaders(
 }
 
 /**
+ * Sets `key` on `obj` as an own property.
+ */
+export function setOwnProperty<T>(obj: Record<string, T>, key: string, value: T): void {
+  Object.defineProperty(obj, key, { value, enumerable: true, writable: true, configurable: true });
+}
+
+/**
  * Converts a kv-array `[k1, v1, k2, v2, ...]` into a Record of { k1: v1, k2: v2, ...}.
  */
 export function kvArrayToObject<T extends Record<string, unknown>>(v: unknown): T {

@@ -1,4 +1,4 @@
-import { parseJSON } from "../util";
+import { parseJSON, setOwnProperty } from "../util";
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
 
@@ -14,9 +14,9 @@ function deserialize<TData extends Record<string, unknown>>(result: string[]): T
       // handle unsafe integer
       const valueIsNumberAndNotSafeInteger =
         !Number.isNaN(Number(value)) && !Number.isSafeInteger(Number(value));
-      obj[key] = valueIsNumberAndNotSafeInteger ? value : parseJSON(value);
+      setOwnProperty(obj, key, valueIsNumberAndNotSafeInteger ? value : parseJSON(value));
     } catch {
-      obj[key] = value;
+      setOwnProperty(obj, key, value);
     }
   }
   return obj as TData;

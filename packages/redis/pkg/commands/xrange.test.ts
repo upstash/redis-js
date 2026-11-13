@@ -67,3 +67,19 @@ describe("many fields", () => {
     }
   });
 });
+
+describe("with special field names", () => {
+  test("returns them like any other field", async () => {
+    const key = newKey();
+    await new XAddCommand([key, "*", Object.fromEntries([["__proto__", { nested: true }]])]).exec(
+      client
+    );
+
+    const res = await new XRangeCommand([key, "-", "+"]).exec(client);
+    const entry = Object.values(res)[0];
+
+    expect(Object.keys(entry)).toEqual(["__proto__"]);
+    expect(Object.values(entry)).toEqual([{ nested: true }]);
+    expect(entry.nested).toBeUndefined();
+  });
+});

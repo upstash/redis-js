@@ -1,4 +1,5 @@
 import type { CommandOptions } from "./command";
+import { setOwnProperty } from "../util";
 import { Command } from "./command";
 
 export type ArInfoOptions = {
@@ -56,11 +57,11 @@ export function deserializeArInfoResponse(result: RawArInfo): ArInfoResult {
   for (const [field, value] of entries) {
     const name = toCamelCase(String(field));
     if (indexFields.has(name)) {
-      info[name] = String(value);
+      setOwnProperty(info, name, String(value));
       continue;
     }
     const numeric = typeof value === "number" ? value : Number(value);
-    info[name] = Number.isNaN(numeric) ? value : numeric;
+    setOwnProperty(info, name, Number.isNaN(numeric) ? value : numeric);
   }
   return info as ArInfoResult;
 }

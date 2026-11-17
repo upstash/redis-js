@@ -116,7 +116,7 @@ export function kvArrayToObject<T extends Record<string, unknown>>(v: unknown): 
   if (!Array.isArray(v)) return {} as T;
   const obj: T = {} as T;
   for (let i = 0; i < v.length; i += 2) {
-    if (typeof v[i] === "string") obj[v[i] as keyof T] = v[i + 1] as T[keyof T];
+    if (typeof v[i] === "string") setOwnProperty(obj as Record<string, unknown>, v[i], v[i + 1]);
   }
   return obj;
 }

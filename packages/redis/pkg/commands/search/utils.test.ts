@@ -4,6 +4,7 @@ import {
   deserializeQueryResponse,
   deserializeDescribeResponse,
   parseCountResponse,
+  deserializeAggregateResponse,
 } from "./utils";
 import { s } from "./schema-builder";
 
@@ -579,5 +580,41 @@ describe("parseCountResponse", () => {
     const result = parseCountResponse("0");
 
     expect(result).toBe(0);
+  });
+});
+
+describe("deserializeAggregateResponse", () => {
+  test("keeps aggregation names like __proto__ and constructor as regular entries", () => {
+    const res = deserializeAggregateResponse([
+      "__proto__",
+      ["avg", "2"],
+      "constructor",
+      ["buckets", [["key", "a", "docCount", 1, "__proto__", ["sum", "3"]]], "sumOtherDocCount", 0],
+      "total",
+      5,
+    ]);
+
+    expect(Object.keys(res)).toEqual(["__proto__", "constructor", "total"]);
+    expect(Object.values(res)[0]).toEqual({ avg: 2 });
+    expect(res.avg).toBeUndefined();
+    expect(Object.keys(res.constructor.buckets[0])).toEqual(["key", "docCount", "__proto__"]);
+    expect(res.constructor.sumOtherDocCount).toBe(0);
+    expect(({} as Record<string, unknown>).avg).toBeUndefined();
+  });
+});
+
+describe("deserializeDescribeResponse with special field names", () => {
+  test("keeps them in the schema", () => {
+    const res = deserializeDescribeResponse([
+      "name",
+      "idx",
+      "schema",
+      [
+        ["__proto__", "TEXT"],
+        ["title", "TEXT"],
+      ],
+    ]);
+
+    expect(Object.keys(res.schema)).toEqual(["__proto__", "title"]);
   });
 });

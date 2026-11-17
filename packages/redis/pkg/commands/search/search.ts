@@ -11,6 +11,7 @@ import type {
   RootQueryFilter,
 } from "./types";
 import type { Requester } from "../../http";
+import { setOwnProperty } from "../../util";
 import { ExecCommand } from "../exec";
 import {
   buildAggregateCommand,
@@ -195,7 +196,7 @@ export async function listAliases(client: Requester): Promise<Record<string, str
   for (const pair of rawResult) {
     if (Array.isArray(pair) && pair.length === 2) {
       const [alias, index] = pair;
-      aliases[alias] = index;
+      setOwnProperty(aliases, alias, index);
     }
   }
 

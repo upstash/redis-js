@@ -29,8 +29,8 @@ function deserialize<TData extends Record<string, Record<string, unknown>>>(
       const streamId = e[i] as string;
       const entries = e[i + 1];
 
-      if (!(streamId in obj)) {
-        obj[streamId] = {};
+      if (!Object.prototype.hasOwnProperty.call(obj, streamId)) {
+        setOwnProperty(obj, streamId, {});
       }
       for (let j = 0; j < entries.length; j += 2) {
         const field = (entries as string[])[j];

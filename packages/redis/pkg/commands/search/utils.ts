@@ -173,7 +173,7 @@ export function deserializeDescribeResponse<TSchema extends NestedIndexSchema | 
             }
           }
 
-          schema[fieldName] = fieldInfo;
+          setOwnProperty(schema, fieldName, fieldInfo);
         }
         description["schema"] = schema;
         break;
@@ -204,13 +204,17 @@ function parseAggregationArray(arr: any[]): any {
       // Check if it's a stats-like array or buckets array
       if (value.length > 0 && typeof value[0] === "string") {
         // Stats or buckets format
-        result[key] = value[0] === "buckets" ? parseBucketsValue(value) : parseStatsValue(value);
+        setOwnProperty(
+          result,
+          key,
+          value[0] === "buckets" ? parseBucketsValue(value) : parseStatsValue(value)
+        );
       } else {
         // Nested aggregation
-        result[key] = parseAggregationArray(value);
+        setOwnProperty(result, key, parseAggregationArray(value));
       }
     } else {
-      result[key] = value;
+      setOwnProperty(result, key, value);
     }
   }
 
@@ -233,18 +237,22 @@ function parseStatsValue(arr: any[]): any {
     if (Array.isArray(value) && value.length > 0) {
       // Check if it's a single array following key-value format
       if (typeof value[0] === "string") {
-        result[key] = parseStatsValue(value);
+        setOwnProperty(result, key, parseStatsValue(value));
       }
       // Check if it's an array of arrays (like percentiles unkeyed format)
       else if (Array.isArray(value[0]) && typeof value[0][0] === "string") {
-        result[key] = value.map((item: any[]) => parseStatsValue(item));
+        setOwnProperty(
+          result,
+          key,
+          value.map((item: any[]) => parseStatsValue(item))
+        );
       }
       // Otherwise keep as-is
       else {
-        result[key] = value;
+        setOwnProperty(result, key, value);
       }
     } else {
-      result[key] = coerceNumericString(value);
+      setOwnProperty(result, key, coerceNumericString(value));
     }
   }
   return result;
@@ -259,17 +267,20 @@ function parseBucketsValue(arr: any[]): any {
         for (let i = 0; i < bucket.length; i += 2) {
           const key = bucket[i];
           const value = bucket[i + 1];
-          bucketObj[key] =
+          setOwnProperty(
+            bucketObj,
+            key,
             Array.isArray(value) && value.length > 0 && typeof value[0] === "string"
               ? parseStatsValue(value)
-              : value;
+              : value
+          );
         }
         return bucketObj;
       }),
     };
     // Parse remaining key-value pairs (e.g. sumOtherDocCount, docCountErrorUpperBound)
     for (let i = 2; i < arr.length; i += 2) {
-      result[arr[i]] = arr[i + 1];
+      setOwnProperty(result, arr[i], arr[i + 1]);
     }
     return result;
   }

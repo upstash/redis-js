@@ -215,7 +215,9 @@ export class HttpClient implements Requester {
     }
 
     const requestHeaders = mergeHeaders(this.headers, req.headers ?? {});
-    const requestUrl = [this.baseUrl, ...(req.path ?? [])].join("/");
+    const requestUrl = [this.baseUrl, ...(req.path ?? []).map((s) => encodePathSegment(s))].join(
+      "/"
+    );
     const isEventStream = requestHeaders.Accept === "text/event-stream";
 
     const signal = req.signal ?? this.options.signal;
@@ -455,4 +457,19 @@ function merge(obj: Record<string, string>, key: string, value?: string): Record
     obj[key] = [obj[key], value].join(",");
   }
   return obj;
+}
+
+/**
+ * Encodes a value so that it stays a single segment of the request path.
+ *
+ * Path segments carry user provided values such as channel names. Without encoding, characters
+ * like `/`, `?` and `#` would change which endpoint the request is sent to. `.` and `..` can't be
+ * represented as a path segment at all since URL parsers resolve them (also in their
+ * percent-encoded forms), so they are rejected.
+ */
+function encodePathSegment(segment: string): string {
+  if (segment === "." || segment === "..") {
+    throw new UpstashError(`"${segment}" can not be used in the request path.`);
+  }
+  return encodeURIComponent(segment);
 }

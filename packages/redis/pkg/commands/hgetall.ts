@@ -13,7 +13,7 @@ function deserialize<TData extends Record<string, unknown>>(result: string[]): T
     try {
       // handle unsafe integer
       const valueIsNumberAndNotSafeInteger =
-        !Number.isNaN(Number(value)) && !Number.isSafeInteger(Number(value));
+        Number.isInteger(Number(value)) && !Number.isSafeInteger(Number(value));
       obj[key] = valueIsNumberAndNotSafeInteger ? value : parseJSON(value);
     } catch {
       obj[key] = value;

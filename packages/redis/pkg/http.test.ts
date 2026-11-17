@@ -467,7 +467,7 @@ const requestedUrl = async (path: string[]) => {
 };
 
 describe("request path", () => {
-  test("keeps plain segments as they are", async () => {
+  test("percent-encodes each segment", async () => {
     expect(await requestedUrl(["subscribe", "news", "user:1"])).toBe(
       "https://example.upstash.io/subscribe/news/user%3A1"
     );
@@ -488,6 +488,6 @@ describe("request path", () => {
   });
 
   test.each([".", ".."])("rejects %s as a segment", async (channel) => {
-    expect(requestedUrl(["subscribe", channel])).rejects.toThrow("request path");
+    await expect(requestedUrl(["subscribe", channel])).rejects.toThrow("request path");
   });
 });

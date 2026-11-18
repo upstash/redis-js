@@ -1,15 +1,15 @@
 {
   "name": "cloudflare-workers",
   "version": "1.0.0",
-  "description": "Example project using wrangler2",
+  "description": "Example project using wrangler",
   "author": "Andreas Thomas <dev@chronark.com>",
   "license": "MIT",
   "scripts": {
     "start": "wrangler dev",
-    "publish": "wrangler publish"
+    "deploy": "wrangler deploy"
   },
   "devDependencies": {
-    "wrangler": "^2.20.0"
+    "wrangler": "^4.0.0"
   },
   "dependencies": {
     "@upstash/redis": "latest"

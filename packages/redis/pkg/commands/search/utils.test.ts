@@ -257,6 +257,38 @@ describe("deserializeQueryResponse", () => {
       ]);
     });
 
+    test("keeps fields named $ or starting with $. as regular fields", () => {
+      const rawResponse = [
+        [
+          "doc:1",
+          "1",
+          [
+            ["role", "user"],
+            ["$.role", "admin"],
+          ],
+        ],
+        [
+          "doc:2",
+          "1",
+          [
+            ["role", "user"],
+            ["$", { role: "admin" }],
+          ],
+        ],
+        ["doc:3", "1", [["$", "admin"]]],
+        ["doc:4", "1", [["$.role", "admin"]]],
+      ];
+
+      const result = deserializeQueryResponse(rawResponse);
+
+      expect(result).toEqual([
+        { key: "doc:1", score: 1, data: { role: "user", $: { role: "admin" } } },
+        { key: "doc:2", score: 1, data: { role: "user", $: { role: "admin" } } },
+        { key: "doc:3", score: 1, data: { $: "admin" } },
+        { key: "doc:4", score: 1, data: { $: { role: "admin" } } },
+      ]);
+    });
+
     test("handles full document key by unwrapping it", () => {
       const rawResponse = [
         [

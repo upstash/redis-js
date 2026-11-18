@@ -64,6 +64,10 @@ export function flattenSchema(
   return fields;
 }
 
+function isDocument(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 export function deserializeQueryResponse<
   TSchema extends NestedIndexSchema | FlatIndexSchema = any,
   TOptions extends QueryOptions<TSchema> | undefined = any,
@@ -82,10 +86,18 @@ export function deserializeQueryResponse<
       return { key, score, data: {} } as QueryResult<TSchema, TOptions>;
     }
 
-    // Merge all field objects into a single object
-    let data: Record<string, unknown> = {};
+    const fields = rawFields as [string, unknown][];
 
-    for (const fieldRaw of rawFields as [string, unknown][]) {
+    // The whole document of a string or JSON key arrives as a single "$" field.
+    // A field which is only named "$", or starts with "$.", is a regular field.
+    if (fields.length === 1 && fields[0][0] === "$" && isDocument(fields[0][1])) {
+      return { key, score, data: fields[0][1] } as QueryResult<TSchema, TOptions>;
+    }
+
+    // Merge all field objects into a single object
+    const data: Record<string, unknown> = {};
+
+    for (const fieldRaw of fields) {
       const key = fieldRaw[0];
       const value = fieldRaw[1];
 
@@ -106,11 +118,6 @@ export function deserializeQueryResponse<
       }
 
       setOwnProperty(currentObj, pathParts.at(-1)!, value);
-    }
-
-    // If $ key exists (full document), use its contents directly
-    if ("$" in data) {
-      data = data["$"] as Record<string, unknown>;
     }
 
     return { key, score, data } as QueryResult<TSchema, TOptions>;

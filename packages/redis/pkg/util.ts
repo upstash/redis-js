@@ -103,9 +103,21 @@ export function mergeHeaders(
 
 /**
  * Sets `key` on `obj` as an own property.
+ *
+ * `__proto__` is the only name a plain assignment doesn't store as an own
+ * property, so only that one takes the slower `defineProperty` path.
  */
 export function setOwnProperty<T>(obj: Record<string, T>, key: string, value: T): void {
-  Object.defineProperty(obj, key, { value, enumerable: true, writable: true, configurable: true });
+  if (key === "__proto__") {
+    Object.defineProperty(obj, key, {
+      value,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    });
+  } else {
+    obj[key] = value;
+  }
 }
 
 /**

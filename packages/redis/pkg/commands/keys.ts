@@ -7,6 +7,10 @@ import { Command } from "./command";
  */
 export class KeysCommand extends Command<string[], string[]> {
   constructor(cmd: [pattern: string], opts?: CommandOptions<string[], string[]>) {
-    super(["keys", ...cmd], opts);
+    super(["keys", ...cmd], {
+      // Key names are not JSON values. Return them as Redis gives them.
+      deserialize: (result) => result,
+      ...opts,
+    });
   }
 }

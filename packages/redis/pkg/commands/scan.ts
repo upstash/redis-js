@@ -1,4 +1,4 @@
-import { deserializeScanResponse, deserializeScanWithTypesResponse } from "../util";
+import { deserializeScanWithTypesResponse } from "../util";
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
 
@@ -55,8 +55,11 @@ export class ScanCommand<TData = ScanResultStandard> extends Command<[string, st
     }
 
     super(command, {
+      // Key names are not JSON values. Return them as Redis gives them.
       // @ts-expect-error ignore types here
-      deserialize: opts?.withType ? deserializeScanWithTypesResponse : deserializeScanResponse,
+      deserialize: opts?.withType
+        ? deserializeScanWithTypesResponse
+        : (result: [string, string[]]) => result,
       ...cmdOpts,
     });
   }

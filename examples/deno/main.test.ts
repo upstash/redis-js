@@ -13,12 +13,16 @@ test(
     console.log({ deploymentURL });
 
     // The first requests after a deploy can be slow, so retry a few times.
-    let res: Response | undefined;
+    let status: number | undefined;
+    let body = "";
     for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
+      status = undefined;
       try {
-        res = await fetch(deploymentURL, { signal: AbortSignal.timeout(10_000) });
-        if (res.status === 200) break;
-        console.log({ attempt, status: res.status });
+        const res = await fetch(deploymentURL, { signal: AbortSignal.timeout(10_000) });
+        status = res.status;
+        body = await res.text();
+        console.log({ attempt, status, body });
+        if (status === 200) break;
       } catch (error) {
         console.log({ attempt, error: String(error) });
       }
@@ -27,9 +31,7 @@ test(
       }
     }
 
-    expect(res?.status).toBe(200);
-    const body = await res!.text();
-    console.log({ body });
+    expect(status).toBe(200);
     const json = JSON.parse(body) as { counter: number };
     expect(typeof json.counter).toBe("number");
   },

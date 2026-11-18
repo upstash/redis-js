@@ -14,8 +14,15 @@ redis.use(async (req, next) => {
     data: req,
   });
 
-  const res = await Sentry.startSpan({ op: "redis.upstash", name: "upstash redis request" }, () =>
-    next(req)
+  const res = await Sentry.startSpan(
+    {
+      op: "redis.upstash",
+      name: "upstash redis request",
+      // Only record the request inside an existing trace, like a child span.
+      onlyIfParent: true,
+      attributes: { "db.system": "redis", "db.statement": JSON.stringify(req.body) },
+    },
+    () => next(req)
   );
   console.log("res", JSON.stringify(res, null, 2));
   return res;

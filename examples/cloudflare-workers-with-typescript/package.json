@@ -2,14 +2,14 @@
   "name": "cloudflare-workers-with-typescript",
   "version": "0.0.0",
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20221111.1",
-    "typescript": "^5.6.3",
-    "wrangler": "^3.87.0"
+    "@cloudflare/workers-types": "^5.20261118.1",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.164.0"
   },
   "private": true,
   "scripts": {
     "start": "wrangler dev",
-    "publish": "wrangler publish"
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
     "@upstash/redis": "latest"

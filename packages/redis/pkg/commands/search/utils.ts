@@ -186,12 +186,18 @@ export function parseCountResponse(rawResponse: any): number {
   return typeof rawResponse === "number" ? rawResponse : Number.parseInt(rawResponse, 10);
 }
 
-export function deserializeAggregateResponse(rawResponse: any[]): any {
+/**
+ * @param aggregations The aggregations of the request, which tell which buckets are keyed
+ */
+export function deserializeAggregateResponse(
+  rawResponse: any[],
+  aggregations?: Record<string, any>
+): any {
   // Response is a flat key-value array: [key, val, key, val, ...]
-  return parseAggregationArray(rawResponse);
+  return parseAggregationArray(rawResponse, aggregations);
 }
 
-function parseAggregationArray(arr: any[]): any {
+function parseAggregationArray(arr: any[], aggregations?: Record<string, any>): any {
   const result: any = {};
 
   for (let i = 0; i < arr.length; i += 2) {
@@ -202,7 +208,10 @@ function parseAggregationArray(arr: any[]): any {
       // Check if it's a stats-like array or buckets array
       if (value.length > 0 && typeof value[0] === "string") {
         // Stats or buckets format
-        result[key] = value[0] === "buckets" ? parseBucketsValue(value) : parseStatsValue(value);
+        result[key] =
+          value[0] === "buckets"
+            ? parseBucketsValue(value, aggregations?.[key], false)
+            : parseStatsValue(value);
       } else {
         // Nested aggregation
         result[key] = parseAggregationArray(value);
@@ -248,28 +257,72 @@ function parseStatsValue(arr: any[]): any {
   return result;
 }
 
-function parseBucketsValue(arr: any[]): any {
+/** `keyed: true` from the request, or from the response shape when the request is unknown */
+function isKeyed(aggregation: any, rawBuckets: any[]): boolean {
+  if (aggregation && typeof aggregation === "object") {
+    const operator = Object.keys(aggregation).find((key) => key !== "$aggs");
+    return operator !== undefined && aggregation[operator]?.keyed === true;
+  }
+  return rawBuckets.length > 0 && !Array.isArray(rawBuckets[0]);
+}
+
+/**
+ * Values of nested buckets that look like numbers become numbers, and values of top-level
+ * buckets stay as they are, except for `$composite` keys.
+ */
+function parseBucketsValue(arr: any[], aggregation: any, nested: boolean): any {
   // Format: ["buckets", [bucket1_array, bucket2_array, ...], extraKey, extraVal, ...]
+  // With `keyed: true`: ["buckets", [key1, bucket1_array, key2, bucket2_array, ...], ...]
   if (arr[0] === "buckets" && Array.isArray(arr[1])) {
-    const result: any = {
-      buckets: arr[1].map((bucket: any[]) => {
-        const bucketObj: any = {};
-        for (let i = 0; i < bucket.length; i += 2) {
-          const key = bucket[i];
-          const value = bucket[i + 1];
-          bucketObj[key] =
-            Array.isArray(value) && value.length > 0 && typeof value[0] === "string"
-              ? parseStatsValue(value)
-              : value;
-        }
-        return bucketObj;
-      }),
-    };
-    // Parse remaining key-value pairs (e.g. sumOtherDocCount, docCountErrorUpperBound)
+    const rawBuckets: any[] = arr[1];
+    let buckets: any;
+    if (isKeyed(aggregation, rawBuckets)) {
+      buckets = {};
+      for (let i = 0; i < rawBuckets.length; i += 2) {
+        buckets[rawBuckets[i]] = parseBucket(rawBuckets[i + 1], aggregation, nested);
+      }
+    } else {
+      buckets = rawBuckets.map((bucket: any[]) => parseBucket(bucket, aggregation, nested));
+    }
+    const result: any = { buckets };
+    // Parse remaining key-value pairs (e.g. sumOtherDocCount, docCountErrorUpperBound, afterKey)
     for (let i = 2; i < arr.length; i += 2) {
-      result[arr[i]] = arr[i + 1];
+      const value = arr[i + 1];
+      // `afterKey` of $composite is a list of source names and cursor values
+      if (arr[i] === "afterKey" && Array.isArray(value)) result[arr[i]] = parsePairs(value, false);
+      else result[arr[i]] = nested ? coerceNumericString(value) : value;
     }
     return result;
   }
   return arr;
+}
+
+function parseBucket(bucket: any[], aggregation: any, nested: boolean): any {
+  const bucketObj: any = {};
+  for (let i = 0; i < bucket.length; i += 2) {
+    const key = bucket[i];
+    const value = bucket[i + 1];
+    if (key === "key" && Array.isArray(value) && (!aggregation || "$composite" in aggregation)) {
+      // The key of a $composite bucket maps source names to values
+      bucketObj[key] = parsePairs(value, true);
+    } else if (Array.isArray(value) && value.length > 0 && typeof value[0] === "string") {
+      // A sub-aggregation
+      bucketObj[key] =
+        value[0] === "buckets"
+          ? parseBucketsValue(value, aggregation?.$aggs?.[key], true)
+          : parseStatsValue(value);
+    } else {
+      bucketObj[key] = nested ? coerceNumericString(value) : value;
+    }
+  }
+  return bucketObj;
+}
+
+/** Turns `[name, value, name, value, ...]` into an object. */
+function parsePairs(arr: any[], coerce: boolean): any {
+  const result: any = {};
+  for (let i = 0; i < arr.length; i += 2) {
+    result[arr[i]] = coerce ? coerceNumericString(arr[i + 1]) : arr[i + 1];
+  }
+  return result;
 }

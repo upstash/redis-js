@@ -199,7 +199,7 @@ describe("query - flat schema", () => {
     const index = initIndex(client, { name: "idx", schema: flatSchema });
 
     const results = await index.query({
-      orderBy: { title: "ASC" },
+      orderBy: { price: "ASC" },
     });
 
     expect(results).toHaveLength(2);
@@ -550,7 +550,7 @@ describe("aggregate - with schema", () => {
     const result = await index.aggregate({
       aggregations: {
         titleAgg: {
-          $terms: { field: "title" },
+          $terms: { field: "tag" },
         },
       },
     });
@@ -591,7 +591,7 @@ describe("aggregate - with schema", () => {
       filter: { active: { $eq: true } },
       aggregations: {
         titleAgg: {
-          $terms: { field: "title" },
+          $terms: { field: "tag" },
         },
       },
     });
@@ -783,7 +783,7 @@ describe("type safety - compile-time checks", () => {
     const index = initIndex(client, { name: "idx", schema: flatSchema });
 
     // Valid
-    index.query({ orderBy: { title: "ASC" } });
+    index.query({ orderBy: { price: "ASC" } });
 
     // @ts-expect-error - 'nonExistent' not in schema
     index.query({ orderBy: { nonExistent: "ASC" } });
@@ -805,7 +805,7 @@ describe("type safety - compile-time checks", () => {
     const index = initIndex(client, { name: "idx", schema: flatSchema });
 
     // Valid
-    index.aggregate({ aggregations: { a: { $terms: { field: "title" } } } });
+    index.aggregate({ aggregations: { a: { $terms: { field: "tag" } } } });
 
     // @ts-expect-error - 'nonExistent' not in schema
     index.aggregate({ aggregations: { a: { $terms: { field: "nonExistent" } } } });

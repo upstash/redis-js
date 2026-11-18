@@ -116,7 +116,7 @@ export class SearchIndex<TSchema extends NestedIndexSchema | FlatIndexSchema> {
     const rawResult = await new ExecCommand<(string | number)[]>(
       command as [string, ...string[]]
     ).exec(this.client);
-    return deserializeAggregateResponse(rawResult);
+    return deserializeAggregateResponse(rawResult, options.aggregations);
   }
 
   async count({

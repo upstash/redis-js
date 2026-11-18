@@ -123,6 +123,33 @@ type GetFieldValueType<TSchema, Path extends string> =
       : never
     : never;
 
+/** Paths of fields whose type is one of `TTypes`. */
+export type PathsOfType<TSchema, TTypes extends FieldType> = {
+  [P in SchemaPaths<TSchema>]: ExtractFieldType<GetFieldAtPath<TSchema, P>> extends TTypes
+    ? P
+    : never;
+}[SchemaPaths<TSchema>];
+
+/**
+ * Paths of fields of `TTypes` that sort, score and aggregate. These need to be `FAST`. KEYWORD
+ * fields always are, and BOOL and DATE fields are when declared with `.fast()`. Numeric fields
+ * are accepted as they are: `s.number()` creates them `FAST`, and a plain `"F64"` may belong to
+ * an index created elsewhere with `FAST`.
+ */
+type FastPaths<TSchema, TTypes extends FieldType> = {
+  [P in SchemaPaths<TSchema>]: GetFieldAtPath<TSchema, P> extends infer TField
+    ? ExtractFieldType<TField> extends TTypes
+      ? ExtractFieldType<TField> extends NumericType | "KEYWORD"
+        ? P
+        : TField extends { fast: true }
+          ? P
+          : never
+      : never
+    : never;
+}[SchemaPaths<TSchema>];
+
+type NumericType = "U64" | "I64" | "F64";
+
 // Helper type to check if a field has a 'from' property
 type HasFrom<T> = T extends { from: string } ? true : false;
 
@@ -136,10 +163,13 @@ type InferSchemaDataField<T> = T extends FieldType
       ? InferSchemaData<T>
       : unknown;
 
+// Also true for `FlatIndexSchema` and other schemas without known field names
 type IsDefaultSchema<T> = [T] extends [NestedIndexSchema | FlatIndexSchema]
   ? [NestedIndexSchema | FlatIndexSchema] extends [T]
     ? true
-    : false
+    : string extends keyof T
+      ? true
+      : false
   : false;
 
 type AsAnyIfUnknown<T> = unknown extends T ? any : T;
@@ -162,31 +192,35 @@ export type InferSchemaData<TSchema> =
 export type QueryOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> =
   IsDefaultSchema<TSchema> extends true
     ? {
-        filter?: Record<string, any>;
-        limit?: number;
-        offset?: number;
-        select?: Record<string, true>;
-        highlight?: {
-          fields: string[];
-          preTag?: string;
-          postTag?: string;
-        };
-        orderBy?: Record<string, "ASC" | "DESC">;
-        scoreFunc?: ScoreBy<string>;
+        filter?: Record<string, any> | undefined;
+        limit?: number | undefined;
+        offset?: number | undefined;
+        select?: Record<string, true> | undefined;
+        highlight?:
+          | {
+              fields: readonly string[];
+              preTag?: string | undefined;
+              postTag?: string | undefined;
+            }
+          | undefined;
+        orderBy?: Record<string, "ASC" | "DESC"> | undefined;
+        scoreFunc?: ScoreBy<string> | undefined;
       }
     : {
-        filter?: RootQueryFilter<TSchema> | Retriever<TSchema>;
+        // Retrievers that do not support some options (`$ann` with `orderBy`, for example) are
+        // not rejected here: a filter typed as a union of them would then reject valid calls
+        filter?: QueryFilter<TSchema> | Retriever<TSchema> | undefined;
         /** Maximum number of results to return */
-        limit?: number;
+        limit?: number | undefined;
         /** Number of results to skip */
-        offset?: number;
-        select?: Partial<{ [K in SchemaPaths<TSchema>]: true }>; // {}
-        highlight?: {
-          fields: SchemaPaths<TSchema>[];
-          preTag?: string;
-          postTag?: string;
-        };
-      } & QueryOrderOption<TSchema>;
+        offset?: number | undefined;
+        select?: Partial<{ [K in SchemaPaths<TSchema>]: true }> | undefined;
+        highlight?: HighlightOption<TSchema> | undefined;
+        /** Sorts by one `FAST` field instead of the score. Not supported with `$ann` and `$rrf`. */
+        orderBy?: OrderByOption<TSchema> | undefined;
+        /** Ignored when `orderBy` is set. Not supported with `$ann`. */
+        scoreFunc?: ScoreBy<ScorePaths<TSchema>> | undefined;
+      };
 
 type CombineMode = "multiply" | "sum";
 type ScoreMode = "multiply" | "sum" | "replace";
@@ -205,30 +239,42 @@ type ScoreModifier =
 export type ScoreBy<TSchemaPaths extends string> =
   | ScoreByField<false, TSchemaPaths>
   | {
-      fields: ScoreByField<true, TSchemaPaths>[];
-      combineMode?: CombineMode;
-      scoreMode?: ScoreMode;
+      fields: readonly ScoreByField<true, TSchemaPaths>[];
+      combineMode?: CombineMode | undefined;
+      scoreMode?: ScoreMode | undefined;
     };
 
 type ScoreByField<TMultiple extends boolean, TSchemaPaths extends string> =
   | {
       field: TSchemaPaths;
-      modifier?: ScoreModifier;
-      factor?: number;
-      missing?: number;
-      scoreMode?: TMultiple extends true ? never : ScoreMode;
+      modifier?: ScoreModifier | undefined;
+      factor?: number | undefined;
+      missing?: number | undefined;
+      scoreMode?: TMultiple extends true ? never : ScoreMode | undefined;
     }
   | TSchemaPaths;
 
-type QueryOrderOption<TSchema extends NestedIndexSchema | FlatIndexSchema> =
-  | {
-      orderBy?: {
-        [K in SchemaPaths<TSchema>]: { [P in K]: "ASC" | "DESC" };
-      }[SchemaPaths<TSchema>];
-    }
-  | {
-      scoreFunc?: ScoreBy<SchemaPaths<TSchema>>;
-    };
+/** Fields that results can be sorted by: `FAST` numeric, BOOL and DATE fields. */
+type OrderPaths<TSchema> = FastPaths<TSchema, NumericType | "BOOL" | "DATE">;
+
+/** Fields that score functions can read: `FAST` numeric fields. */
+type ScorePaths<TSchema> = FastPaths<TSchema, NumericType>;
+
+/** Sorts by one field. */
+type OrderByOption<TSchema> = {
+  [P in OrderPaths<TSchema>]: { [K in P]: "ASC" | "DESC" } & {
+    [K in Exclude<OrderPaths<TSchema>, P>]?: never;
+  };
+}[OrderPaths<TSchema>];
+
+type HighlightOption<TSchema> = {
+  /** TEXT, HYBRID and KEYWORD fields to highlight */
+  fields: readonly PathsOfType<TSchema, "TEXT" | "HYBRID" | "KEYWORD">[];
+  /** Defaults to `<em>` */
+  preTag?: string | undefined;
+  /** Defaults to `</em>` */
+  postTag?: string | undefined;
+};
 
 /**
  * Converts dot notation paths to nested object structure type
@@ -283,7 +329,7 @@ type UnionToIntersection<U> = (U extends unknown ? (k: U) => void : never) exten
 
 export type QueryResult<
   TSchema extends NestedIndexSchema | FlatIndexSchema,
-  TOptions extends QueryOptions<TSchema> | undefined = undefined,
+  TOptions extends { select?: unknown } | undefined = undefined,
 > = TOptions extends { select: infer TFields }
   ? // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     {} extends TFields
@@ -312,98 +358,57 @@ export type PublicQueryResult<
 >;
 
 // Query Filter Types
-// These are the operations that can be used for each field type
+// The operators of each field type. A field takes one or more of them in one object.
 type StringOperationMap<T extends string> = {
   $eq: T;
-  $in: T[];
-  $fuzzy: T | { value: T; distance?: number; transpositionCostOne?: boolean; prefix?: boolean };
-  $phrase:
+  $in: readonly T[];
+  $fuzzy:
     | T
-    | { value: T }
-    | { value: T; slop: number; prefix?: never }
-    | { value: T; prefix: boolean; slop?: never };
+    | {
+        value: T;
+        /** 0, 1 or 2 */
+        distance?: number | undefined;
+        transpositionCostOne?: boolean | undefined;
+        prefix?: boolean | undefined;
+      };
+  // `slop` and `prefix` cannot be used together
+  $phrase: T | { value: T; slop?: number | undefined; prefix?: boolean | undefined };
   $regex: T;
   $smart: T;
 };
 
-type NumberOperationMap<T extends number> = {
+type RangeOperationMap<T> = {
   $eq: T;
-  $in: T[];
+  $in: readonly T[];
   $gt: T;
   $gte: T;
   $lt: T;
   $lte: T;
 };
 
-type KeywordOperationMap<T extends string> = {
+type EqualityOperationMap<T> = {
   $eq: T;
-  $in: T[];
-  $gt: T;
-  $gte: T;
-  $lt: T;
-  $lte: T;
+  $in: readonly T[];
 };
 
-type BooleanOperationMap<T extends boolean> = {
-  $eq: T;
-  $in: T[];
-};
-
-type DateOperationMap<T extends string | Date> = {
-  $eq: T;
-  $in: T[];
-  $gt: T;
-  $gte: T;
-  $lte: T;
-  $lt: T;
-};
-
-type FacetOperationMap<T extends string> = {
-  $eq: T;
-  $in: T[];
-};
-
-// Create union types for each field type
-type StringOperations = {
-  [K in keyof StringOperationMap<string>]: { [P in K]: StringOperationMap<string>[K] } & {
-    $boost?: number;
+/** At least one operator of `TMap`, the others optional, and an optional `$boost`. */
+type Operations<TMap> = {
+  [K in keyof TMap]: { [P in K]: TMap[P] } & {
+    [P in Exclude<keyof TMap, K>]?: TMap[P] | undefined;
   };
-}[keyof StringOperationMap<string>];
+}[keyof TMap] & { $boost?: number | undefined };
 
-type NumberOperations = {
-  [K in keyof NumberOperationMap<number>]: { [P in K]: NumberOperationMap<number>[K] } & {
-    $boost?: number;
-  };
-}[keyof NumberOperationMap<number>];
-
-type BooleanOperations = {
-  [K in keyof BooleanOperationMap<boolean>]: { [P in K]: BooleanOperationMap<boolean>[K] } & {
-    $boost?: number;
-  };
-}[keyof BooleanOperationMap<boolean>];
-
-type DateOperations = {
-  [K in keyof DateOperationMap<string | Date>]: { [P in K]: DateOperationMap<string | Date>[K] } & {
-    $boost?: number;
-  };
-}[keyof DateOperationMap<string | Date>];
-
-type KeywordOperations = {
-  [K in keyof KeywordOperationMap<string>]: { [P in K]: KeywordOperationMap<string>[K] } & {
-    $boost?: number;
-  };
-}[keyof KeywordOperationMap<string>];
-
-type FacetOperations = {
-  [K in keyof FacetOperationMap<string>]: { [P in K]: FacetOperationMap<string>[K] } & {
-    $boost?: number;
-  };
-}[keyof FacetOperationMap<string>];
+type StringOperations = Operations<StringOperationMap<string>>;
+type NumberOperations = Operations<RangeOperationMap<number>>;
+type BooleanOperations = Operations<EqualityOperationMap<boolean>>;
+type DateOperations = Operations<RangeOperationMap<string | Date>>;
+type KeywordOperations = Operations<RangeOperationMap<string>>;
+type FacetOperations = Operations<EqualityOperationMap<string>>;
 
 // Create a union type for all operations for a given field type
 type OperationsForFieldType<T extends FieldType> = T extends "TEXT" | "HYBRID"
   ? StringOperations
-  : T extends "U64" | "I64" | "F64"
+  : T extends NumericType
     ? NumberOperations
     : T extends "BOOL"
       ? BooleanOperations
@@ -415,7 +420,6 @@ type OperationsForFieldType<T extends FieldType> = T extends "TEXT" | "HYBRID"
             ? FacetOperations
             : never;
 
-// Create a union type for all operations for a given path
 type PathOperations<TSchema, TPath extends string> =
   GetFieldAtPath<TSchema, TPath> extends infer Field
     ? Field extends FieldType | DetailedField
@@ -424,209 +428,116 @@ type PathOperations<TSchema, TPath extends string> =
     : never;
 
 // Create a type for a query leaf (only field paths, no boolean operators)
-type QueryLeaf<TSchema> = {
-  // allowed schema paths
-  [K in SchemaPaths<TSchema>]?: PathOperations<TSchema, K>;
-} & {
-  $and?: never;
-  $or?: never;
-  $must?: never;
-  $should?: never;
-  $mustNot?: never;
-  $boost?: number;
+type FieldClauses<TSchema> = {
+  [P in SchemaPaths<TSchema>]?: PathOperations<TSchema, P> | undefined;
 };
 
-type BoolBase<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
-  [P in SchemaPaths<TSchema>]?: PathOperations<TSchema, P>;
+type NoFieldClauses<TSchema> = {
+  [P in SchemaPaths<TSchema>]?: never;
 };
 
-// $and: all conditions must match
-type AndNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $and: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-  $boost?: number;
-  $or?: never;
-  $must?: never;
-  $should?: never;
-  $mustNot?: never;
+/** One query, or several. `$must` and `$and` need all of them to match, `$should` and `$or` one. */
+type QueryGroup<TSchema extends NestedIndexSchema | FlatIndexSchema> =
+  | QueryFilter<TSchema>
+  | readonly QueryFilter<TSchema>[];
+
+type SharedClauses<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
+  $should?: QueryGroup<TSchema> | undefined;
+  $mustNot?: QueryGroup<TSchema> | undefined;
+  /** A number scales the score of this query. `{ query, value }` scales the score of one sub-query. */
+  $boost?: number | { query: QueryFilter<TSchema>; value: number } | undefined;
+  // Retrievers are valid only at the root of a query and inside `$rrf`
+  $ann?: never;
+  $standard?: never;
+  $rrf?: never;
 };
 
-// $or: at least one condition must match
-type OrNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $or: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-  $boost?: number;
-  $and?: never;
-  $must?: never;
-  $should?: never;
-  $mustNot?: never;
-};
-
-// $must only
-type MustNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $must: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-  $boost?: number;
-  $and?: never;
-  $or?: never;
-  $should?: never;
-  $mustNot?: never;
-};
-
-// $should only
-type ShouldNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $should: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-  $boost?: number;
-  $and?: never;
-  $or?: never;
-  $must?: never;
-  $mustNot?: never;
-};
-
-// $must + $should combined
-type MustShouldNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $must: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-  $should: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-  $and?: never;
-  $or?: never;
-};
-
-// $mustNot only
-type NotNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $mustNot: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-  $boost?: number;
-  $and?: never;
-  $or?: never;
-  $must?: never;
-  $should?: never;
-};
-
-type AndNotNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $and: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-  $mustNot: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-  $boost?: number;
-  $or?: never;
-  $must?: never;
-  $should?: never;
-};
-
-type OrNotNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $or: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-  $mustNot: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-  $boost?: number;
-  $and?: never;
-  $must?: never;
-  $should?: never;
-};
-
-// $should + $mustNot combined
-type ShouldNotNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $should: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-  $mustNot: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-  $boost?: number;
-  $and?: never;
-  $or?: never;
-  $must?: never;
-};
-
-type MustNotNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $must: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-  $mustNot: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-  $boost?: number;
-  $and?: never;
-  $or?: never;
-  $should?: never;
-};
-
-// Full boolean node: $must + $should + $mustNot
-type BoolNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = BoolBase<TSchema> & {
-  $must: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-  $should: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-  $mustNot: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-  $boost?: number;
-  $and?: never;
-  $or?: never;
-};
-
-// Create a type for a query filter
-// Short-circuit to Record<string, any> when schema is the default (any) to avoid
-// excessively deep type instantiation from the recursive filter union types.
 export type QueryFilter<TSchema extends NestedIndexSchema | FlatIndexSchema> =
   IsDefaultSchema<TSchema> extends true
     ? Record<string, any>
     :
-        | QueryLeaf<TSchema>
-        | AndNode<TSchema>
-        | OrNode<TSchema>
-        | MustNode<TSchema>
-        | ShouldNode<TSchema>
-        | MustShouldNode<TSchema>
-        | NotNode<TSchema>
-        | AndNotNode<TSchema>
-        | OrNotNode<TSchema>
-        | ShouldNotNode<TSchema>
-        | MustNotNode<TSchema>
-        | BoolNode<TSchema>;
+        | (FieldClauses<TSchema> &
+            SharedClauses<TSchema> & {
+              $must?: QueryGroup<TSchema> | undefined;
+              $and?: QueryGroup<TSchema> | undefined;
+              $or?: never;
+            })
+        // Next to a field, `$must` or `$and`, an `$or` only adds to the score and stops filtering
+        // and so does a `$boost` object, which is a `$must` clause
+        | (NoFieldClauses<TSchema> &
+            Omit<SharedClauses<TSchema>, "$boost"> & {
+              $or: QueryGroup<TSchema>;
+              $boost?: number | undefined;
+              $must?: never;
+              $and?: never;
+            });
 
-// Create a type for root-level queries (restricts $or from mixing with fields)
 export type RootQueryFilter<TSchema extends NestedIndexSchema | FlatIndexSchema> =
-  IsDefaultSchema<TSchema> extends true
-    ? Record<string, any>
-    :
-        | QueryLeaf<TSchema>
-        | AndNode<TSchema>
-        | RootOrNode<TSchema>
-        | MustNode<TSchema>
-        | ShouldNode<TSchema>
-        | MustShouldNode<TSchema>
-        | AndNotNode<TSchema>
-        | ShouldNotNode<TSchema>
-        | BoolNode<TSchema>;
-
-// Restricted version of OrNode that doesn't allow field operations at root level
-type RootOrNode<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
-  [P in SchemaPaths<TSchema>]?: never; // No field operations at root level with $or
-} & {
-  $or: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-  $boost?: number;
-  $and?: never;
-  $must?: never;
-  $should?: never;
-  $mustNot?: QueryFilter<TSchema> | QueryFilter<TSchema>[];
-};
+  QueryFilter<TSchema>;
 
 // Retrievers
 // @see https://upstash.com/docs/redis/search/retrievers/overview
+
+/** A retriever must be the only key of its object. */
+type RetrieverAlone<TSchema, TKey extends string> =
+  IsDefaultSchema<TSchema> extends true
+    ? // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+      {}
+    : NoFieldClauses<TSchema> & {
+        [K in
+          | "$must"
+          | "$should"
+          | "$mustNot"
+          | "$and"
+          | "$or"
+          | "$boost"
+          | "$ann"
+          | "$standard"
+          | "$rrf" as K extends TKey ? never : K]?: never;
+      };
+
+/** `weight` is valid only for a retriever inside `$rrf`. */
+type RetrieverWeight<TInRrf extends boolean> = TInRrf extends true
+  ? {
+      /** Scales how much the retriever adds to the `$rrf` score. Defaults to `1`. */
+      weight?: number | undefined;
+    }
+  : { weight?: never };
 
 /**
  * Runs a semantic search on a HYBRID field.
  *
  * @see https://upstash.com/docs/redis/search/retrievers/ann
  */
-export type AnnRetriever<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
+export type AnnRetriever<
+  TSchema extends NestedIndexSchema | FlatIndexSchema,
+  TInRrf extends boolean = false,
+> = {
   $ann: {
     /** The HYBRID field to search */
-    field: IsDefaultSchema<TSchema> extends true ? string : HybridPaths<TSchema>;
+    field: IsDefaultSchema<TSchema> extends true ? string : PathsOfType<TSchema, "HYBRID">;
     /** The text to search for. Cannot be empty. */
     query: string;
     /** Accuracy and speed trade-off. Defaults to `balanced`. */
-    profile?: "fast" | "balanced" | "precise";
+    profile?: "fast" | "balanced" | "precise" | undefined;
     /** Only documents that match this query are returned */
-    filter?: RootQueryFilter<TSchema>;
-    /** Scales how much the results add to the `$rrf` score. Valid only inside `$rrf`. */
-    weight?: number;
-  };
-};
+    filter?: QueryFilter<TSchema> | undefined;
+  } & RetrieverWeight<TInRrf>;
+} & RetrieverAlone<TSchema, "$ann">;
 
 /**
  * Runs one query. Use it inside `$rrf` to set the weight of a query.
  *
  * @see https://upstash.com/docs/redis/search/retrievers/standard
  */
-export type StandardRetriever<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
+export type StandardRetriever<
+  TSchema extends NestedIndexSchema | FlatIndexSchema,
+  TInRrf extends boolean = false,
+> = {
   $standard: {
-    query: RootQueryFilter<TSchema>;
-    /** Scales how much the query adds to the `$rrf` score. Valid only inside `$rrf`. */
-    weight?: number;
-  };
-};
+    query: QueryFilter<TSchema>;
+  } & RetrieverWeight<TInRrf>;
+} & RetrieverAlone<TSchema, "$standard">;
 
 /**
  * Merges the results of 2 to 10 retrievers with Reciprocal Rank Fusion.
@@ -639,17 +550,17 @@ export type RrfRetriever<
 > = {
   $rrf: {
     /** 2 to 10 retrievers to merge */
-    retrievers: (
-      | RootQueryFilter<TSchema>
-      | StandardRetriever<TSchema>
-      | (TAllowAnn extends true ? AnnRetriever<TSchema> : never)
+    retrievers: readonly (
+      | QueryFilter<TSchema>
+      | StandardRetriever<TSchema, true>
+      | (TAllowAnn extends true ? AnnRetriever<TSchema, true> : never)
     )[];
     /** Higher values give lower-ranked results more influence. Defaults to `60`. */
-    rankConstant?: number;
+    rankConstant?: number | undefined;
     /** The number of results each retriever contributes. Defaults to `LIMIT`. */
-    window?: number;
+    window?: number | undefined;
   };
-};
+} & RetrieverAlone<TSchema, "$rrf">;
 
 export type Retriever<TSchema extends NestedIndexSchema | FlatIndexSchema> =
   | AnnRetriever<TSchema>
@@ -663,20 +574,8 @@ export type CountRetriever<TSchema extends NestedIndexSchema | FlatIndexSchema> 
   | StandardRetriever<TSchema>
   | RrfRetriever<TSchema, false>;
 
-// Helper type to extract only HYBRID field paths from schema
-export type HybridPaths<T, Prefix extends string = ""> = {
-  [K in keyof T]: K extends string
-    ? T[K] extends "HYBRID" | { type: "HYBRID" }
-      ? Prefix extends ""
-        ? K
-        : `${Prefix}${K}`
-      : T[K] extends FieldType | DetailedField
-        ? never
-        : T[K] extends object
-          ? HybridPaths<T[K], `${Prefix}${K}.`>
-          : never
-    : never;
-}[keyof T];
+/** Paths of HYBRID fields */
+export type HybridPaths<TSchema> = PathsOfType<TSchema, "HYBRID">;
 
 export type DescribeFieldInfo = {
   type: FieldType;
@@ -738,13 +637,13 @@ export type FacetPaths<T, Prefix extends string = ""> = {
 export type AggregateOptions<TSchema extends NestedIndexSchema | FlatIndexSchema> =
   IsDefaultSchema<TSchema> extends true
     ? {
-        filter?: Record<string, any>;
+        filter?: Record<string, any> | undefined;
         aggregations: {
           [key: string]: Record<string, any>;
         };
       }
     : {
-        filter?: RootQueryFilter<TSchema> | CountRetriever<TSchema>;
+        filter?: QueryFilter<TSchema> | CountRetriever<TSchema> | undefined;
         aggregations: {
           [key: string]: Aggregation<TSchema>;
         };
@@ -757,6 +656,8 @@ export type Aggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
         | TermsAggregation<TSchema>
         | RangeAggregation<TSchema>
         | HistogramAggregation<TSchema>
+        | DateHistogramAggregation<TSchema>
+        | CompositeAggregation<TSchema>
         | StatsAggregation<TSchema>
         | AvgAggregation<TSchema>
         | SumAggregation<TSchema>
@@ -768,124 +669,215 @@ export type Aggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
         | CardinalityAggregation<TSchema>
         | FacetAggregation<TSchema>;
 
-type BaseAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
-  $aggs?: {
-    [key: string]: Aggregation<TSchema>;
-  };
+// Fields each aggregation accepts. KEYWORD fields are always FAST; other types need `.fast()`.
+type TermsPaths<TSchema> = FastPaths<TSchema, "KEYWORD" | NumericType | "BOOL" | "DATE">;
+type HistogramPaths<TSchema> = FastPaths<TSchema, NumericType | "DATE">;
+type DatePaths<TSchema> = FastPaths<TSchema, "DATE">;
+// Metrics read nothing from BOOL fields
+type MetricPaths<TSchema> = FastPaths<TSchema, NumericType | "DATE">;
+
+/** Bucket aggregations can have sub-aggregations, except `$facet`. */
+type BucketAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> = {
+  $aggs?:
+    | {
+        [key: string]: Exclude<Aggregation<TSchema>, FacetAggregation<TSchema>>;
+      }
+    | undefined;
 };
 
+/** Metric aggregations cannot have sub-aggregations. */
+type MetricAggregation = { $aggs?: never };
+
+type Bounds = { min: number; max: number };
+
 export type TermsAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
-  BaseAggregation<TSchema> & {
+  BucketAggregation<TSchema> & {
     $terms: {
-      field: SchemaPaths<TSchema>;
-      size?: number;
+      field: TermsPaths<TSchema>;
+      size?: number | undefined;
+      segmentSize?: number | undefined;
+      showTermDocCountError?: boolean | undefined;
+      minDocCount?: number | undefined;
+      /** `{ count: "desc" }`, `{ key: "asc" }`, or `{ <sub-aggregation name>: "desc" }` */
+      order?: Record<string, "asc" | "desc"> | undefined;
+      /** Bucket key used when the field is missing */
+      missing?: string | number | undefined;
+      /** A regex, or a list of values */
+      include?: string | readonly string[] | undefined;
+      /** A regex, or a list of values */
+      exclude?: string | readonly string[] | undefined;
     };
   };
 
 export type RangeAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
-  BaseAggregation<TSchema> & {
+  BucketAggregation<TSchema> & {
     $range: {
-      field: SchemaPaths<TSchema>;
-      ranges: { from?: number; to?: number }[];
+      field: HistogramPaths<TSchema>;
+      ranges: readonly {
+        key?: string | undefined;
+        from?: number | undefined;
+        to?: number | undefined;
+      }[];
+      keyed?: boolean | undefined;
     };
   };
 
 export type HistogramAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
-  BaseAggregation<TSchema> & {
+  BucketAggregation<TSchema> & {
     $histogram: {
-      field: SchemaPaths<TSchema>;
+      field: HistogramPaths<TSchema>;
       interval: number;
+      offset?: number | undefined;
+      minDocCount?: number | undefined;
+      hardBounds?: Bounds | undefined;
+      extendedBounds?: Bounds | undefined;
+      keyed?: boolean | undefined;
+    };
+  };
+
+/**
+ * @see https://upstash.com/docs/redis/search/aggregation-operators/bucket-aggregations/date-histogram
+ */
+export type DateHistogramAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
+  BucketAggregation<TSchema> & {
+    $dateHistogram: {
+      field: DatePaths<TSchema>;
+      /** Such as `"1m"`, `"1h"` or `"1d"` */
+      fixedInterval: string;
+      offset?: string | undefined;
+      minDocCount?: number | undefined;
+      hardBounds?: Bounds | undefined;
+      extendedBounds?: Bounds | undefined;
+      keyed?: boolean | undefined;
+    };
+  };
+
+type CompositeSourceOptions = {
+  order?: "asc" | "desc" | undefined;
+  missingBucket?: boolean | undefined;
+  missingOrder?: "default" | "first" | "last" | undefined;
+};
+
+type CompositeSource<TSchema> =
+  | { $terms: { field: TermsPaths<TSchema> } & CompositeSourceOptions }
+  | { $histogram: { field: HistogramPaths<TSchema>; interval: number } & CompositeSourceOptions }
+  | {
+      $dateHistogram: {
+        field: DatePaths<TSchema>;
+        // Set one of the two
+        fixedInterval?: string | undefined;
+        calendarInterval?: "year" | "month" | "week" | undefined;
+      } & CompositeSourceOptions;
+    };
+
+/**
+ * @see https://upstash.com/docs/redis/search/aggregation-operators/bucket-aggregations/composite
+ */
+export type CompositeAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
+  BucketAggregation<TSchema> & {
+    $composite: {
+      /** Each entry names one source, such as `{ category: { $terms: { field: "category" } } }` */
+      // `undefined` lets TypeScript infer arrays of differently named sources
+      sources: readonly { [name: string]: CompositeSource<TSchema> | undefined }[];
+      /** Buckets per page. Defaults to `10`. */
+      size?: number | undefined;
+      /** The `afterKey` of the previous page */
+      after?: Record<string, string> | undefined;
     };
   };
 
 export type StatsAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
-  BaseAggregation<TSchema> & {
+  MetricAggregation & {
     $stats: {
-      field: SchemaPaths<TSchema>;
-      missing?: number;
+      field: MetricPaths<TSchema>;
+      missing?: number | undefined;
     };
   };
 
 export type AvgAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
-  BaseAggregation<TSchema> & {
+  MetricAggregation & {
     $avg: {
-      field: SchemaPaths<TSchema>;
-      missing?: number;
+      field: MetricPaths<TSchema>;
+      missing?: number | undefined;
     };
   };
 
 export type SumAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
-  BaseAggregation<TSchema> & {
+  MetricAggregation & {
     $sum: {
-      field: SchemaPaths<TSchema>;
-      missing?: number;
+      field: MetricPaths<TSchema>;
+      missing?: number | undefined;
+      /** Return `null` instead of `0` when no values are collected */
+      nullIfNoMatch?: boolean | undefined;
     };
   };
 
 export type MinAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
-  BaseAggregation<TSchema> & {
+  MetricAggregation & {
     $min: {
-      field: SchemaPaths<TSchema>;
-      missing?: number;
+      field: MetricPaths<TSchema>;
+      missing?: number | undefined;
     };
   };
 
 export type MaxAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
-  BaseAggregation<TSchema> & {
+  MetricAggregation & {
     $max: {
-      field: SchemaPaths<TSchema>;
-      missing?: number;
+      field: MetricPaths<TSchema>;
+      missing?: number | undefined;
     };
   };
 
 export type CountAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
-  BaseAggregation<TSchema> & {
+  MetricAggregation & {
     $count: {
-      field: SchemaPaths<TSchema>;
+      field: TermsPaths<TSchema>;
+      missing?: number | undefined;
     };
   };
 
 export type ExtendedStatsAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
-  BaseAggregation<TSchema> & {
+  MetricAggregation & {
     $extendedStats: {
-      field: SchemaPaths<TSchema>;
-      sigma?: number;
-      missing?: number;
+      field: HistogramPaths<TSchema>;
+      sigma?: number | undefined;
+      missing?: number | undefined;
     };
   };
 
 export type PercentilesAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
-  BaseAggregation<TSchema> & {
+  MetricAggregation & {
     $percentiles: {
-      field: SchemaPaths<TSchema>;
-      percents?: number[];
-      keyed?: boolean;
-      missing?: number;
+      field: HistogramPaths<TSchema>;
+      percents?: readonly number[] | undefined;
+      keyed?: boolean | undefined;
+      missing?: number | undefined;
     };
   };
 
 export type CardinalityAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
-  BaseAggregation<TSchema> & {
+  MetricAggregation & {
     $cardinality: {
-      field: SchemaPaths<TSchema>;
+      field: TermsPaths<TSchema>;
+      missing?: string | number | undefined;
     };
   };
 
 export type FacetAggregation<TSchema extends NestedIndexSchema | FlatIndexSchema> =
-  BaseAggregation<TSchema> & {
+  MetricAggregation & {
     $facet: {
       field: FacetPaths<TSchema>;
       path: string;
-      depth?: number;
-      size?: number;
-      minDocCount?: number;
-      order?: { count: "desc" | "asc" };
+      depth?: number | undefined;
+      size?: number | undefined;
+      minDocCount?: number | undefined;
+      order?: { count: "desc" | "asc" } | { path: "desc" | "asc" } | undefined;
     };
   };
 
 export type AggregateResult<
   TSchema extends NestedIndexSchema | FlatIndexSchema,
-  TOpts extends AggregateOptions<TSchema>,
+  TOpts extends { aggregations: unknown },
 > =
   IsDefaultSchema<TSchema> extends true
     ? Record<string, any>
@@ -898,79 +890,129 @@ type BuildAggregateResult<
   TSchema extends NestedIndexSchema | FlatIndexSchema,
   TAggs extends { [key: string]: Aggregation<TSchema> },
 > = {
-  [K in keyof TAggs]: TAggs[K] extends TermsAggregation<TSchema>
-    ? TermsResult<TSchema, TAggs[K]>
-    : TAggs[K] extends RangeAggregation<TSchema>
-      ? RangeResult<TSchema, TAggs[K]>
-      : TAggs[K] extends HistogramAggregation<TSchema>
-        ? HistogramResult<TSchema, TAggs[K]>
-        : TAggs[K] extends StatsAggregation<TSchema>
-          ? StatsResult
-          : TAggs[K] extends AvgAggregation<TSchema>
-            ? MetricValueResult
-            : TAggs[K] extends SumAggregation<TSchema>
-              ? MetricValueResult
-              : TAggs[K] extends MinAggregation<TSchema>
-                ? MetricValueResult
-                : TAggs[K] extends MaxAggregation<TSchema>
+  // Dispatch on the operator key, which survives TypeScript's normalization of array literals
+  [K in keyof TAggs]: TAggs[K] extends { $terms: { field: infer TField } }
+    ? TermsResult<TSchema, TAggs[K], TField & string>
+    : TAggs[K] extends { $range: infer TParams }
+      ? BucketsResult<TSchema, TAggs[K], RangeBucket, TParams>
+      : TAggs[K] extends { $histogram: infer TParams }
+        ? BucketsResult<TSchema, TAggs[K], HistogramBucket, TParams>
+        : TAggs[K] extends { $dateHistogram: infer TParams }
+          ? BucketsResult<TSchema, TAggs[K], DateHistogramBucket, TParams>
+          : TAggs[K] extends { $composite: { sources: infer TSources } }
+            ? CompositeResult<TSchema, TAggs[K], CompositeSourceNames<TSources>>
+            : TAggs[K] extends { $stats: unknown }
+              ? StatsResult
+              : TAggs[K] extends { $sum: { nullIfNoMatch: infer TNull } }
+                ? Flag<TNull, { value: number | null }, MetricValueResult>
+                : TAggs[K] extends
+                      | { $avg: unknown }
+                      | { $sum: unknown }
+                      | { $min: unknown }
+                      | { $max: unknown }
+                      | { $count: unknown }
+                      | { $cardinality: unknown }
                   ? MetricValueResult
-                  : TAggs[K] extends CountAggregation<TSchema>
-                    ? MetricValueResult
-                    : TAggs[K] extends CardinalityAggregation<TSchema>
-                      ? MetricValueResult
-                      : TAggs[K] extends ExtendedStatsAggregation<TSchema>
-                        ? ExtendedStatsResult<TAggs[K]>
-                        : TAggs[K] extends PercentilesAggregation<TSchema>
-                          ? PercentilesResult<TAggs[K]>
-                          : TAggs[K] extends FacetAggregation<TSchema>
-                            ? FacetResult
-                            : never;
+                  : TAggs[K] extends { $extendedStats: unknown }
+                    ? ExtendedStatsResult
+                    : TAggs[K] extends { $percentiles: unknown }
+                      ? PercentilesResult<TAggs[K]>
+                      : TAggs[K] extends { $facet: unknown }
+                        ? FacetResult
+                        : never;
 };
 
 type Bucket<T> = {
   key: T;
   docCount: number;
-  from?: number;
-  to?: number;
 };
+
+/** The results of sub-aggregations, merged into each bucket. */
+type SubAggregations<TSchema extends NestedIndexSchema | FlatIndexSchema, TAgg> = TAgg extends {
+  $aggs: infer TSub;
+}
+  ? TSub extends { [key: string]: Aggregation<TSchema> }
+    ? BuildAggregateResult<TSchema, TSub>
+    : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+      {}
+  : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    {};
+
+/** `TOn` when a boolean option is `true`, `TOff` when it is `false`, either when it is `boolean`. */
+type Flag<TValue, TOn, TOff> = [TValue] extends [true]
+  ? TOn
+  : [TValue] extends [false | undefined]
+    ? TOff
+    : TOn | TOff;
+
+/** `keyed: true` returns the buckets as an object keyed by the bucket key. */
+type BucketsResult<
+  TSchema extends NestedIndexSchema | FlatIndexSchema,
+  TAgg,
+  TBucket,
+  TParams,
+> = TParams extends { keyed: infer TKeyed }
+  ? Flag<
+      TKeyed,
+      { buckets: { [key: string]: TBucket & SubAggregations<TSchema, TAgg> } },
+      { buckets: (TBucket & SubAggregations<TSchema, TAgg>)[] }
+    >
+  : { buckets: (TBucket & SubAggregations<TSchema, TAgg>)[] };
+
+/** BOOL keys are `0` or `1`, and DATE keys are RFC 3339 strings. */
+type TermsKey<TSchema, TField extends string> =
+  ExtractFieldType<GetFieldAtPath<TSchema, TField>> extends "BOOL"
+    ? number
+    : GetFieldValueType<TSchema, TField>;
 
 type TermsResult<
   TSchema extends NestedIndexSchema | FlatIndexSchema,
-  TAgg extends TermsAggregation<TSchema>,
-> = TAgg["$aggs"] extends { [key: string]: Aggregation<TSchema> }
-  ? {
-      buckets: (Bucket<GetFieldValueType<TSchema, TAgg["$terms"]["field"]>> &
-        BuildAggregateResult<TSchema, TAgg["$aggs"]>)[];
-      sumOtherDocCount: number;
-      docCountErrorUpperBound: number;
-    }
-  : {
-      buckets: Bucket<GetFieldValueType<TSchema, TAgg["$terms"]["field"]>>[];
-      sumOtherDocCount: number;
-      docCountErrorUpperBound: number;
-    };
+  TAgg,
+  TField extends string,
+> = {
+  buckets: (Bucket<TermsKey<TSchema, TField>> & {
+    /** The value of a BOOL key */
+    keyAsString?: boolean | string;
+  } & SubAggregations<TSchema, TAgg>)[];
+  sumOtherDocCount: number;
+} & (TAgg extends { $terms: { order: infer TOrder } }
+  ? // Missing when ordered by a sub-aggregation
+    Exclude<keyof TOrder, "count" | "key"> extends never
+    ? { docCountErrorUpperBound: number }
+    : { docCountErrorUpperBound?: number }
+  : { docCountErrorUpperBound: number });
 
-type RangeResult<
-  TSchema extends NestedIndexSchema | FlatIndexSchema,
-  TAgg extends RangeAggregation<TSchema>,
-> = TAgg["$aggs"] extends { [key: string]: Aggregation<TSchema> }
-  ? {
-      buckets: (Bucket<string> & BuildAggregateResult<TSchema, TAgg["$aggs"]>)[];
-    }
-  : {
-      buckets: Bucket<string>[];
-    };
+type RangeBucket = Bucket<string> & {
+  from?: number;
+  to?: number;
+  fromAsString?: string;
+  toAsString?: string;
+};
 
-type HistogramResult<
+type HistogramBucket = Bucket<number> & {
+  /** Set for DATE fields */
+  keyAsString?: string;
+};
+
+type DateHistogramBucket = Bucket<number> & {
+  keyAsString: string;
+};
+
+type CompositeResult<
   TSchema extends NestedIndexSchema | FlatIndexSchema,
-  TAgg extends HistogramAggregation<TSchema>,
-> = TAgg["$aggs"] extends { [key: string]: Aggregation<TSchema> }
-  ? {
-      buckets: (Bucket<number> & BuildAggregateResult<TSchema, TAgg["$aggs"]>)[];
-    }
-  : {
-      buckets: Bucket<number>[];
-    };
+  TAgg,
+  TNames extends string,
+> = {
+  buckets: (Bucket<{ [K in TNames]: string | number | null }> & SubAggregations<TSchema, TAgg>)[];
+  /** Pass it as `after` to get the next page. Missing when the page is empty. */
+  afterKey?: { [K in TNames]: string };
+};
+
+type CompositeSourceNames<TSources> = TSources extends readonly (infer TSource)[]
+  ? TSource extends unknown
+    ? keyof TSource & string
+    : never
+  : never;
 
 type MetricValueResult = {
   value: number;
@@ -984,7 +1026,7 @@ type StatsResult = {
   avg: number;
 };
 
-type ExtendedStatsResult<_TAgg> = {
+type ExtendedStatsResult = {
   count: number;
   min: number;
   max: number;
@@ -1007,13 +1049,15 @@ type ExtendedStatsResult<_TAgg> = {
   };
 };
 
-type PercentilesResult<TAgg> = TAgg extends { $percentiles: { keyed: false } }
-  ? {
-      values: Array<{ key: number; value: number }>;
-    }
-  : {
-      values: { [key: string]: number };
-    };
+// Percentiles are keyed by default
+// Percentiles are keyed unless `keyed` is `false`
+type PercentilesResult<TAgg> = TAgg extends { $percentiles: { keyed: infer TKeyed } }
+  ? Flag<
+      [TKeyed] extends [undefined] ? true : TKeyed,
+      { values: { [key: string]: number } },
+      { values: Array<{ key: number; value: number }> }
+    >
+  : { values: { [key: string]: number } };
 
 type FacetChildNode = {
   path: string;

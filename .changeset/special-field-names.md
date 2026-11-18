@@ -7,3 +7,5 @@ Fix fields with names like `constructor` missing from hash, stream and search re
 A field named `__proto__` is now returned as a regular field of the result. If you copy a result into another object, use object spread (`{ ...result }`). `Object.assign` and hand-written deep merges treat a field with that name specially.
 
 In search results, a field named `$`, or starting with `$.`, is returned as a regular field.
+
+In search results, a field with a dot in its name, like `role.x`, is returned under that name if `role` is a field too. It no longer replaces `role`.

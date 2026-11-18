@@ -64,6 +64,15 @@ export function flattenSchema(
   return fields;
 }
 
+function hasFieldAbove(pathParts: string[], names: Set<string>): boolean {
+  for (let length = 1; length < pathParts.length; length++) {
+    if (names.has(pathParts.slice(0, length).join("."))) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function isDocument(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -96,12 +105,22 @@ export function deserializeQueryResponse<
 
     // Merge all field objects into a single object
     const data: Record<string, unknown> = {};
+    const names = new Set(fields.map((field) => field[0]));
 
     for (const fieldRaw of fields) {
       const key = fieldRaw[0];
       const value = fieldRaw[1];
 
       const pathParts = key.split(".");
+
+      // A name like "a.b" is the path to a nested field, unless "a" is a
+      // field of its own. Then it is kept as it is, so that it can't replace
+      // "a" or change what is inside it.
+      if (hasFieldAbove(pathParts, names)) {
+        setOwnProperty(data, key, value);
+        continue;
+      }
+
       let currentObj = data;
       for (const pathPart of pathParts.slice(0, -1)) {
         const existing = Object.prototype.hasOwnProperty.call(currentObj, pathPart)

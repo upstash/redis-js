@@ -212,21 +212,31 @@ describe("deserializeQueryResponse", () => {
       expect((Object as unknown as Record<string, unknown>).shared).toBeUndefined();
     });
 
-    test("uses the last value if a field is both a value and a parent", () => {
-      const rawResponse = [
-        [
-          "doc:1",
-          "1.0",
-          [
-            ["a", "value"],
-            ["a.b", "nested"],
-          ],
-        ],
+    test("keeps a dotted name as it is if its parent is a field too", () => {
+      const fields = [
+        ["role", "user"],
+        ["role.x", "1"],
+        ["profile", { admin: false }],
+        ["profile.admin", true],
+        ["content.title", "Hello"],
+        ["content.body", "World"],
+        ["a.b", "value"],
+        ["a.b.c", "nested"],
       ];
+      const expected = {
+        role: "user",
+        "role.x": "1",
+        profile: { admin: false },
+        "profile.admin": true,
+        content: { title: "Hello", body: "World" },
+        a: { b: "value" },
+        "a.b.c": "nested",
+      };
 
-      const result = deserializeQueryResponse(rawResponse);
-
-      expect(result).toEqual([{ key: "doc:1", score: 1, data: { a: { b: "nested" } } }]);
+      for (const ordered of [fields, [...fields].reverse()]) {
+        const result = deserializeQueryResponse([["doc:1", "1.0", ordered]]);
+        expect(result).toEqual([{ key: "doc:1", score: 1, data: expected }]);
+      }
     });
 
     test("handles empty fields array", () => {

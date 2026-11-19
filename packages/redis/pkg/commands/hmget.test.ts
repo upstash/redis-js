@@ -42,3 +42,14 @@ test("gets an object", async () => {
   const res = await cmd.exec(client);
   expect(res).toEqual({ [field]: value });
 });
+
+test("returns fields with special names like any other field", async () => {
+  const key = newKey();
+  await new HSetCommand([key, Object.fromEntries([["__proto__", { nested: true }]])]).exec(client);
+
+  const res = await new HMGetCommand<Record<string, unknown>>([key, "__proto__"]).exec(client);
+
+  expect(Object.keys(res!)).toEqual(["__proto__"]);
+  expect(Object.values(res!)).toEqual([{ nested: true }]);
+  expect(res!.nested).toBeUndefined();
+});

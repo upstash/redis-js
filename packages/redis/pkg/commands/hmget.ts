@@ -1,4 +1,4 @@
-import { parseResponse } from "../util";
+import { parseResponse, setOwnProperty } from "../util";
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
 
@@ -13,7 +13,7 @@ export function deserialize<TData extends Record<string, unknown>>(
   for (const [i, field] of fields.entries()) {
     const value = result[i];
     // null stays null. parseResponse keeps integers that JSON.parse would round.
-    obj[field] = value === null ? null : parseResponse(value);
+    setOwnProperty(obj, field, value === null ? null : parseResponse(value));
   }
   return obj as TData;
 }

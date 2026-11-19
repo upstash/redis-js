@@ -1,4 +1,4 @@
-import { parseJSON } from "../util";
+import { parseJSON, setOwnProperty } from "../util";
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
 
@@ -29,17 +29,17 @@ function deserialize<TData extends Record<string, Record<string, unknown>>>(
       const streamId = e[i] as string;
       const entries = e[i + 1];
 
-      if (!(streamId in obj)) {
-        obj[streamId] = {};
+      if (!Object.prototype.hasOwnProperty.call(obj, streamId)) {
+        setOwnProperty(obj, streamId, {});
       }
       for (let j = 0; j < entries.length; j += 2) {
         const field = (entries as string[])[j];
         const value = (entries as string[])[j + 1];
 
         try {
-          obj[streamId][field] = parseJSON(value);
+          setOwnProperty(obj[streamId], field, parseJSON(value));
         } catch {
-          obj[streamId][field] = value;
+          setOwnProperty(obj[streamId], field, value);
         }
       }
     }

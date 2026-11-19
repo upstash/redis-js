@@ -444,3 +444,50 @@ describe("static abort signal", () => {
     expect(await abortedClient({ a: 1 }).get("foo")).toEqual({ a: 1 });
   });
 });
+
+const requestedUrl = async (path: string[]) => {
+  const originalFetch = globalThis.fetch;
+  let url: string | undefined;
+  globalThis.fetch = (async (input: unknown) => {
+    // resolve the URL the same way fetch does
+    url = new URL(String(input)).href;
+    return new Response(JSON.stringify({ result: "OK" }), { status: 200 });
+  }) as typeof fetch;
+  try {
+    const client = new HttpClient({
+      baseUrl: "https://example.upstash.io",
+      headers: { authorization: "Bearer token" },
+      retry: false,
+    });
+    await client.request({ path, body: [] });
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+  return url;
+};
+
+describe("request path", () => {
+  test("percent-encodes each segment", async () => {
+    expect(await requestedUrl(["subscribe", "news", "user:1"])).toBe(
+      "https://example.upstash.io/subscribe/news/user%3A1"
+    );
+  });
+
+  test.each([
+    ["../flushall", "..%2Fflushall"],
+    ["a/../../del/k", "a%2F..%2F..%2Fdel%2Fk"],
+    ["%2e%2e/del/k", "%252e%252e%2Fdel%2Fk"],
+    [String.raw`..\del\k`, "..%5Cdel%5Ck"],
+    ["a?b=c", "a%3Fb%3Dc"],
+    ["a#b", "a%23b"],
+    ["a b", "a%20b"],
+  ])("keeps %s inside its segment", async (channel, encoded) => {
+    expect(await requestedUrl(["subscribe", channel])).toBe(
+      `https://example.upstash.io/subscribe/${encoded}`
+    );
+  });
+
+  test.each([".", ".."])("rejects %s as a segment", async (channel) => {
+    await expect(requestedUrl(["subscribe", channel])).rejects.toThrow("request path");
+  });
+});

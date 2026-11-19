@@ -7,23 +7,23 @@ const redis = Redis.fromEnv();
 redis.use(async (req, next) => {
   console.log("req", JSON.stringify(req, null, 2));
 
-  const scope = Sentry.getCurrentHub().getScope();
-  const parentSpan = scope?.getSpan();
-
-  const span = parentSpan?.startChild({
-    op: "redis.upstash",
-    data: req,
-  });
-
-  scope?.addBreadcrumb({
+  Sentry.addBreadcrumb({
     type: "query",
     category: "upstash.started",
     level: "info",
     data: req,
   });
 
-  const res = await next(req);
-  span?.finish();
+  const res = await Sentry.startSpan(
+    {
+      op: "redis.upstash",
+      name: "upstash redis request",
+      // Only record the request inside an existing trace, like a child span.
+      onlyIfParent: true,
+      attributes: { "db.system": "redis", "db.statement": JSON.stringify(req.body) },
+    },
+    () => next(req)
+  );
   console.log("res", JSON.stringify(res, null, 2));
   return res;
 });

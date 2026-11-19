@@ -57,3 +57,18 @@ describe("when hash does not exist", () => {
     expect(res).toEqual(null);
   });
 });
+
+describe("with special field names", () => {
+  test("returns them like any other field", async () => {
+    const key = newKey();
+    await new HSetCommand([key, Object.fromEntries([["__proto__", { nested: true }]])]).exec(
+      client
+    );
+
+    const res = await new HRandFieldCommand<Record<string, unknown>>([key, 1, true]).exec(client);
+
+    expect(Object.keys(res)).toEqual(["__proto__"]);
+    expect(Object.values(res)).toEqual([{ nested: true }]);
+    expect(res.nested).toBeUndefined();
+  });
+});

@@ -70,7 +70,6 @@ jobs:
         run: pnpm --filter "${{ steps.parse.outputs.package }}" publish --tag canary --no-git-checks --access public
         env:
           NPM_CONFIG_PROVENANCE: "true"
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish (canary, from dist)
         if: ${{ inputs.prerelease && steps.parse.outputs.publish_dir != steps.parse.outputs.pkg_dir }}
@@ -80,14 +79,12 @@ jobs:
           npm publish --provenance --access public --tag=canary
         env:
           NPM_CONFIG_PROVENANCE: "true"
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish (stable)
         if: ${{ !inputs.prerelease && steps.parse.outputs.publish_dir == steps.parse.outputs.pkg_dir }}
         run: pnpm --filter "${{ steps.parse.outputs.package }}" publish --no-git-checks --access public
         env:
           NPM_CONFIG_PROVENANCE: "true"
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish (stable, from dist)
         if: ${{ !inputs.prerelease && steps.parse.outputs.publish_dir != steps.parse.outputs.pkg_dir }}
@@ -97,4 +94,3 @@ jobs:
           npm publish --provenance --access public
         env:
           NPM_CONFIG_PROVENANCE: "true"
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

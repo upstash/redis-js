@@ -4,6 +4,7 @@ import {
   deserializeQueryResponse,
   deserializeDescribeResponse,
   parseCountResponse,
+  deserializeAggregateResponse,
 } from "./utils";
 import { s } from "./schema-builder";
 
@@ -183,6 +184,61 @@ describe("deserializeQueryResponse", () => {
       ]);
     });
 
+    test("keeps field names which exist on every object as plain fields", () => {
+      const rawResponse = [
+        [
+          "doc:1",
+          "1.0",
+          [
+            ["__proto__.shared", "a"],
+            ["constructor.shared", "b"],
+            ["toString", "c"],
+          ],
+        ],
+      ];
+
+      const [{ data }] = deserializeQueryResponse(rawResponse) as { data: object }[];
+
+      expect(Object.keys(data).sort()).toEqual(["__proto__", "constructor", "toString"]);
+      expect(Object.fromEntries(Object.entries(data))).toEqual(
+        Object.fromEntries([
+          ["__proto__", { shared: "a" }],
+          ["constructor", { shared: "b" }],
+          ["toString", "c"],
+        ])
+      );
+      // other objects are not affected
+      expect(({} as Record<string, unknown>).shared).toBeUndefined();
+      expect((Object as unknown as Record<string, unknown>).shared).toBeUndefined();
+    });
+
+    test("keeps a dotted name as it is if its parent is a field too", () => {
+      const fields = [
+        ["role", "user"],
+        ["role.x", "1"],
+        ["profile", { admin: false }],
+        ["profile.admin", true],
+        ["content.title", "Hello"],
+        ["content.body", "World"],
+        ["a.b", "value"],
+        ["a.b.c", "nested"],
+      ];
+      const expected = {
+        role: "user",
+        "role.x": "1",
+        profile: { admin: false },
+        "profile.admin": true,
+        content: { title: "Hello", body: "World" },
+        a: { b: "value" },
+        "a.b.c": "nested",
+      };
+
+      for (const ordered of [fields, [...fields].reverse()]) {
+        const result = deserializeQueryResponse([["doc:1", "1.0", ordered]]);
+        expect(result).toEqual([{ key: "doc:1", score: 1, data: expected }]);
+      }
+    });
+
     test("handles empty fields array", () => {
       const rawResponse = [["doc:1", "1.0", []]];
 
@@ -208,6 +264,38 @@ describe("deserializeQueryResponse", () => {
           score: 1,
           data: {},
         },
+      ]);
+    });
+
+    test("keeps fields named $ or starting with $. as regular fields", () => {
+      const rawResponse = [
+        [
+          "doc:1",
+          "1",
+          [
+            ["role", "user"],
+            ["$.role", "admin"],
+          ],
+        ],
+        [
+          "doc:2",
+          "1",
+          [
+            ["role", "user"],
+            ["$", { role: "admin" }],
+          ],
+        ],
+        ["doc:3", "1", [["$", "admin"]]],
+        ["doc:4", "1", [["$.role", "admin"]]],
+      ];
+
+      const result = deserializeQueryResponse(rawResponse);
+
+      expect(result).toEqual([
+        { key: "doc:1", score: 1, data: { role: "user", $: { role: "admin" } } },
+        { key: "doc:2", score: 1, data: { role: "user", $: { role: "admin" } } },
+        { key: "doc:3", score: 1, data: { $: "admin" } },
+        { key: "doc:4", score: 1, data: { $: { role: "admin" } } },
       ]);
     });
 
@@ -534,5 +622,41 @@ describe("parseCountResponse", () => {
     const result = parseCountResponse("0");
 
     expect(result).toBe(0);
+  });
+});
+
+describe("deserializeAggregateResponse", () => {
+  test("keeps aggregation names like __proto__ and constructor as regular entries", () => {
+    const res = deserializeAggregateResponse([
+      "__proto__",
+      ["avg", "2"],
+      "constructor",
+      ["buckets", [["key", "a", "docCount", 1, "__proto__", ["sum", "3"]]], "sumOtherDocCount", 0],
+      "total",
+      5,
+    ]);
+
+    expect(Object.keys(res)).toEqual(["__proto__", "constructor", "total"]);
+    expect(Object.values(res)[0]).toEqual({ avg: 2 });
+    expect(res.avg).toBeUndefined();
+    expect(Object.keys(res.constructor.buckets[0])).toEqual(["key", "docCount", "__proto__"]);
+    expect(res.constructor.sumOtherDocCount).toBe(0);
+    expect(({} as Record<string, unknown>).avg).toBeUndefined();
+  });
+});
+
+describe("deserializeDescribeResponse with special field names", () => {
+  test("keeps them in the schema", () => {
+    const res = deserializeDescribeResponse([
+      "name",
+      "idx",
+      "schema",
+      [
+        ["__proto__", "TEXT"],
+        ["title", "TEXT"],
+      ],
+    ]);
+
+    expect(Object.keys(res.schema)).toEqual(["__proto__", "title"]);
   });
 });

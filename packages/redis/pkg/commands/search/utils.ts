@@ -8,6 +8,7 @@ import type {
   QueryResult,
 } from "./types";
 import { FIELD_TYPES, type FieldType, type NestedIndexSchema } from "./types";
+import { setOwnProperty } from "../../util";
 
 type FlattenedField = {
   path: string;
@@ -63,6 +64,19 @@ export function flattenSchema(
   return fields;
 }
 
+function hasFieldAbove(pathParts: string[], names: Set<string>): boolean {
+  for (let length = 1; length < pathParts.length; length++) {
+    if (names.has(pathParts.slice(0, length).join("."))) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isDocument(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 export function deserializeQueryResponse<
   TSchema extends NestedIndexSchema | FlatIndexSchema = any,
   TOptions extends QueryOptions<TSchema> | undefined = any,
@@ -81,34 +95,48 @@ export function deserializeQueryResponse<
       return { key, score, data: {} } as QueryResult<TSchema, TOptions>;
     }
 
-    // Merge all field objects into a single object
-    let data: Record<string, unknown> = {};
+    const fields = rawFields as [string, unknown][];
 
-    for (const fieldRaw of rawFields as [string, unknown][]) {
+    // The whole document of a string or JSON key arrives as a single "$" field.
+    // A field which is only named "$", or starts with "$.", is a regular field.
+    if (fields.length === 1 && fields[0][0] === "$" && isDocument(fields[0][1])) {
+      return { key, score, data: fields[0][1] } as QueryResult<TSchema, TOptions>;
+    }
+
+    // Merge all field objects into a single object
+    const data: Record<string, unknown> = {};
+    const names = new Set(fields.map((field) => field[0]));
+
+    for (const fieldRaw of fields) {
       const key = fieldRaw[0];
       const value = fieldRaw[1];
 
       const pathParts = key.split(".");
-      if (pathParts.length === 1) {
-        data[key] = value;
-      } else {
-        let currentObj = data;
-        for (let i = 0; i < pathParts.length - 1; i++) {
-          const pathPart = pathParts[i];
-          if (!(pathPart in currentObj)) {
-            currentObj[pathPart] = {};
-          }
 
-          currentObj = currentObj[pathPart] as Record<string, unknown>;
-        }
-
-        currentObj[pathParts.at(-1)!] = value;
+      // A name like "a.b" is the path to a nested field, unless "a" is a
+      // field of its own. Then it is kept as it is, so that it can't replace
+      // "a" or change what is inside it.
+      if (hasFieldAbove(pathParts, names)) {
+        setOwnProperty(data, key, value);
+        continue;
       }
-    }
 
-    // If $ key exists (full document), use its contents directly
-    if ("$" in data) {
-      data = data["$"] as Record<string, unknown>;
+      let currentObj = data;
+      for (const pathPart of pathParts.slice(0, -1)) {
+        const existing = Object.prototype.hasOwnProperty.call(currentObj, pathPart)
+          ? currentObj[pathPart]
+          : undefined;
+
+        if (typeof existing === "object" && existing !== null) {
+          currentObj = existing as Record<string, unknown>;
+        } else {
+          const nested: Record<string, unknown> = {};
+          setOwnProperty(currentObj, pathPart, nested);
+          currentObj = nested;
+        }
+      }
+
+      setOwnProperty(currentObj, pathParts.at(-1)!, value);
     }
 
     return { key, score, data } as QueryResult<TSchema, TOptions>;
@@ -171,7 +199,7 @@ export function deserializeDescribeResponse<TSchema extends NestedIndexSchema | 
             }
           }
 
-          schema[fieldName] = fieldInfo;
+          setOwnProperty(schema, fieldName, fieldInfo);
         }
         description["schema"] = schema;
         break;
@@ -202,13 +230,17 @@ function parseAggregationArray(arr: any[]): any {
       // Check if it's a stats-like array or buckets array
       if (value.length > 0 && typeof value[0] === "string") {
         // Stats or buckets format
-        result[key] = value[0] === "buckets" ? parseBucketsValue(value) : parseStatsValue(value);
+        setOwnProperty(
+          result,
+          key,
+          value[0] === "buckets" ? parseBucketsValue(value) : parseStatsValue(value)
+        );
       } else {
         // Nested aggregation
-        result[key] = parseAggregationArray(value);
+        setOwnProperty(result, key, parseAggregationArray(value));
       }
     } else {
-      result[key] = value;
+      setOwnProperty(result, key, value);
     }
   }
 
@@ -231,18 +263,22 @@ function parseStatsValue(arr: any[]): any {
     if (Array.isArray(value) && value.length > 0) {
       // Check if it's a single array following key-value format
       if (typeof value[0] === "string") {
-        result[key] = parseStatsValue(value);
+        setOwnProperty(result, key, parseStatsValue(value));
       }
       // Check if it's an array of arrays (like percentiles unkeyed format)
       else if (Array.isArray(value[0]) && typeof value[0][0] === "string") {
-        result[key] = value.map((item: any[]) => parseStatsValue(item));
+        setOwnProperty(
+          result,
+          key,
+          value.map((item: any[]) => parseStatsValue(item))
+        );
       }
       // Otherwise keep as-is
       else {
-        result[key] = value;
+        setOwnProperty(result, key, value);
       }
     } else {
-      result[key] = coerceNumericString(value);
+      setOwnProperty(result, key, coerceNumericString(value));
     }
   }
   return result;
@@ -257,17 +293,20 @@ function parseBucketsValue(arr: any[]): any {
         for (let i = 0; i < bucket.length; i += 2) {
           const key = bucket[i];
           const value = bucket[i + 1];
-          bucketObj[key] =
+          setOwnProperty(
+            bucketObj,
+            key,
             Array.isArray(value) && value.length > 0 && typeof value[0] === "string"
               ? parseStatsValue(value)
-              : value;
+              : value
+          );
         }
         return bucketObj;
       }),
     };
     // Parse remaining key-value pairs (e.g. sumOtherDocCount, docCountErrorUpperBound)
     for (let i = 2; i < arr.length; i += 2) {
-      result[arr[i]] = arr[i + 1];
+      setOwnProperty(result, arr[i], arr[i + 1]);
     }
     return result;
   }

@@ -102,6 +102,25 @@ export function mergeHeaders(
 }
 
 /**
+ * Sets `key` on `obj` as an own property.
+ *
+ * `__proto__` is the only name a plain assignment doesn't store as an own
+ * property, so only that one takes the slower `defineProperty` path.
+ */
+export function setOwnProperty<T>(obj: Record<string, T>, key: string, value: T): void {
+  if (key === "__proto__") {
+    Object.defineProperty(obj, key, {
+      value,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    });
+  } else {
+    obj[key] = value;
+  }
+}
+
+/**
  * Converts a kv-array `[k1, v1, k2, v2, ...]` into a Record of { k1: v1, k2: v2, ...}.
  */
 export function kvArrayToObject<T extends Record<string, unknown>>(v: unknown): T {
@@ -109,7 +128,7 @@ export function kvArrayToObject<T extends Record<string, unknown>>(v: unknown): 
   if (!Array.isArray(v)) return {} as T;
   const obj: T = {} as T;
   for (let i = 0; i < v.length; i += 2) {
-    if (typeof v[i] === "string") obj[v[i] as keyof T] = v[i + 1] as T[keyof T];
+    if (typeof v[i] === "string") setOwnProperty(obj as Record<string, unknown>, v[i], v[i + 1]);
   }
   return obj;
 }

@@ -56,7 +56,7 @@ export class Redis extends core.Redis {
   constructor(config: RedisConfigCloudflare, env?: Env) {
     if (!config.url) {
       console.warn(
-        `[Upstash Redis] The 'url' property is missing or undefined in your Redis config. To create a database instantly (no signup needed), run: curl -X POST https://upstash.com/start-redis`
+        `[Upstash Redis] The 'url' property is missing or undefined in your Redis config.`
       );
     } else if (config.url.startsWith(" ") || config.url.endsWith(" ") || /\r|\n/.test(config.url)) {
       console.warn(
@@ -66,7 +66,7 @@ export class Redis extends core.Redis {
 
     if (!config.token) {
       console.warn(
-        `[Upstash Redis] The 'token' property is missing or undefined in your Redis config. To create a database instantly (no signup needed), run: curl -X POST https://upstash.com/start-redis`
+        `[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`
       );
     } else if (
       config.token.startsWith(" ") ||
@@ -151,7 +151,7 @@ export class Redis extends core.Redis {
       const names = missing.map((name) => `\`${name}\``).join(" and ");
       const commands = missing.map((name) => `\`wrangler secret put ${name}\``).join(" and ");
       console.warn(
-        `[Upstash Redis] Unable to find environment variable${plural ? "s" : ""}: ${names}. Please add ${plural ? "them" : "it"} via ${commands} and provide ${plural ? "them as arguments" : "it as an argument"} to the \`Redis.fromEnv\` function. To create a database instantly (no signup needed), run: curl -X POST https://upstash.com/start-redis`
+        `[Upstash Redis] Unable to find environment variable${plural ? "s" : ""}: ${names}. Please add ${plural ? "them" : "it"} via ${commands} and provide ${plural ? "them as arguments" : "it as an argument"} to the \`Redis.fromEnv\` function.`
       );
     }
     return new Redis({ ...opts, url, token }, env);

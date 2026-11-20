@@ -1,5 +1,23 @@
 # @upstash/redis
 
+## 1.41.1
+
+### Patch Changes
+
+- d36776b: Fix auto-pipelining returning another command's result (or throwing `TypeError: ... commandResult.error`) after a command threw while it was being built, for example a value with a BigInt that JSON.stringify cannot serialize, or an unbalanced `xread`. The failed command no longer reserves a result slot in the pipeline.
+- d1ba5fd: Support special characters such as `/`, `?` and `#` in channel names passed to subscribe and psubscribe
+- 97890ab: Fix commands dropping valid zero or empty arguments: `expire` with 0 seconds, `geoadd` with a latitude of 0, `xtrim` with `limit: 0`, `xautoclaim` with `count: 0`, and `scan`, `hscan`, `sscan` and `zscan` with an empty `match`
+- 97890ab: Fix XCLAIM building TIME from idleMS and dropping zero-valued idleMS, timeMS and retryCount
+- 2437a6b: Honor `retry: false` by sending only the initial HTTP request. Previously, a network failure could replay a command or pipeline once even when retries were disabled.
+- e87f4f7: Remove the `https://upstash.com/start-redis` tip from the warnings shown when the Redis url or token is missing.
+- eaf7774: Fix fields with names like `constructor` missing from hash, stream and search results
+
+  A field named `__proto__` is now returned as a regular field of the result. If you copy a result into another object, use object spread (`{ ...result }`). `Object.assign` and hand-written deep merges treat a field with that name specially.
+
+  In search results, a field named `$`, or starting with `$.`, is returned as a regular field.
+
+  In search results, a field with a dot in its name, like `role.x`, is returned under that name if `role` is a field too. It no longer replaces `role`.
+
 ## 1.41.0
 
 ### Minor Changes

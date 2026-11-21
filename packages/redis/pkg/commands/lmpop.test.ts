@@ -83,4 +83,14 @@ describe("LMPOP", () => {
 
     expect(result1).toEqual([key, [lpushElement2]]);
   });
+
+  test("should send COUNT when count is 0", () => {
+    const cmd = new LmPopCommand([1, ["k"], "LEFT", 0]);
+    expect(cmd.command).toEqual(["LMPOP", 1, "k", "LEFT", "COUNT", 0]);
+  });
+
+  test("should not send COUNT when count is omitted", () => {
+    const cmd = new LmPopCommand([1, ["k"], "LEFT"]);
+    expect(cmd.command).toEqual(["LMPOP", 1, "k", "LEFT"]);
+  });
 });

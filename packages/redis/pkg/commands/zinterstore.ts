@@ -42,7 +42,7 @@ export class ZInterStoreCommand extends Command<number, number> {
       } else if ("weight" in opts && typeof opts.weight === "number") {
         command.push("weights", opts.weight);
       }
-      if ("aggregate" in opts) {
+      if (opts.aggregate !== undefined) {
         command.push("aggregate", opts.aggregate);
       }
     }

@@ -47,7 +47,10 @@ Create a Redis database using the [Upstash Console](https://console.upstash.com)
 ```shell
 UPSTASH_REDIS_REST_URL=<YOUR_URL>
 UPSTASH_REDIS_REST_TOKEN=<YOUR_TOKEN>
+CACHE_ADMIN_TOKEN=<A_LONG_RANDOM_STRING>
 ```
+
+`CACHE_ADMIN_TOKEN` protects the route that deletes cache entries.
 
 This example uses the REST API over HTTP. Upstash Redis also accepts regular Redis clients over TCP with a
 `rediss://` URL, which unstorage's `redis` driver can use instead.
@@ -91,7 +94,8 @@ Invalidate it through the first instance, then ask the second one again. It reco
 process ID shows up in `computedBy`:
 
 ```shell
-curl -X DELETE http://localhost:3000/api/products/42
+curl -X DELETE http://localhost:3000/api/products/42 \
+  -H "Authorization: Bearer $CACHE_ADMIN_TOKEN"
 # {"invalidated":"42"}
 
 curl http://localhost:3001/api/products/42

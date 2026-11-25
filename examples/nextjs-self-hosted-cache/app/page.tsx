@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { connection } from "next/server";
-import { cacheLife, cacheTag, updateTag } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 
 async function getPosts() {
   "use cache: remote";
@@ -24,12 +24,6 @@ async function Posts() {
   );
 }
 
-async function refresh() {
-  "use server";
-  // Expires the "posts" entries on every instance
-  updateTag("posts");
-}
-
 export default function Page() {
   return (
     <main>
@@ -37,9 +31,6 @@ export default function Page() {
       <Suspense fallback={<p>Loading...</p>}>
         <Posts />
       </Suspense>
-      <form action={refresh}>
-        <button type="submit">Revalidate &quot;posts&quot;</button>
-      </form>
     </main>
   );
 }

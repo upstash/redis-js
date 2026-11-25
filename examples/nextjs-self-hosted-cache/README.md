@@ -15,9 +15,10 @@ of them.
 - [`app/page.tsx`](./app/page.tsx) caches a slow function with
   `"use cache: remote"`, `cacheTag("posts")` and `cacheLife` (30 seconds). It
   shows the `pid` of the instance that computed the value and of the one that
-  served the page. Its button runs a Server Action that calls `updateTag("posts")`.
+  served the page.
 - [`app/api/revalidate/route.ts`](./app/api/revalidate/route.ts) calls
-  `revalidateTag("posts", { expire: 0 })`.
+  `revalidateTag("posts", { expire: 0 })`. It only accepts requests that send
+  `CACHE_ADMIN_TOKEN` as a bearer token.
 - `output: "standalone"` produces a self-contained server in `.next/standalone`,
   the usual way to ship Next.js in a container.
 
@@ -39,6 +40,7 @@ cp .env.example .env
 ```shell .env
 UPSTASH_REDIS_REST_URL=<YOUR_URL>
 UPSTASH_REDIS_REST_TOKEN=<YOUR_TOKEN>
+CACHE_ADMIN_TOKEN=<A_LONG_RANDOM_STRING>
 ```
 
 Install and build:
@@ -82,13 +84,11 @@ show() { curl -s "localhost:$1" | grep -o '{&quot;generatedAt[^<]*' | sed 's/&qu
    the first instance then shares it:
 
    ```shell
-   curl -X POST localhost:3000/api/revalidate
+   curl -X POST localhost:3000/api/revalidate \
+     -H "Authorization: Bearer $CACHE_ADMIN_TOKEN"
    show 3001
    show 3000
    ```
-
-   The **Revalidate "posts"** button on http://localhost:3000 does the same with
-   `updateTag()`.
 
 3. **Expiry.** Wait 30 seconds and reload either port. The entry has expired in
    Redis, so the page takes two seconds again and shows a new `generatedAt`.

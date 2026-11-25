@@ -5,6 +5,8 @@ export default defineCachedEventHandler(
   },
   {
     name: "stats",
+    // One key for everyone: the response doesn't depend on the query string
+    getKey: () => "all",
     maxAge: 30,
     swr: true,
   }

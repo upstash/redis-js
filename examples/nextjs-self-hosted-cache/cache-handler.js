@@ -6,6 +6,8 @@ const TAGS_KEY = "next:tags";
 // Tag invalidation times in ms, synced from Redis once per request by refreshTags().
 // Fields are "stale:<tag>" and "expired:<tag>".
 let tagTimes = {};
+// True when the last refreshTags() could not reach Redis
+let tagsUnavailable = false;
 // Sets still running in this process, so a get() for the same key waits for them.
 const pendingSets = new Map();
 
@@ -20,6 +22,7 @@ const isStale = (entry) =>
 
 module.exports = {
   async get(cacheKey) {
+    if (tagsUnavailable) return undefined;
     await pendingSets.get(cacheKey);
     try {
       const entry = await redis.get(`next:cache:${cacheKey}`);
@@ -66,10 +69,20 @@ module.exports = {
   },
 
   async refreshTags() {
-    tagTimes = (await redis.hgetall(TAGS_KEY)) ?? {};
+    try {
+      tagTimes = (await redis.hgetall(TAGS_KEY)) ?? {};
+      tagsUnavailable = false;
+    } catch (error) {
+      // Without fresh tag times we can't tell if an entry was invalidated,
+      // so skip the remote cache for this request instead of failing it
+      console.error("cache refreshTags failed", error);
+      tagsUnavailable = true;
+    }
   },
 
   async getExpiration(tags) {
+    // Unknown tag state: report the entries as expired so Next.js recomputes
+    if (tagsUnavailable) return Infinity;
     return Math.max(0, ...tags.map((tag) => tagTimes[`expired:${tag}`] ?? 0));
   },
 

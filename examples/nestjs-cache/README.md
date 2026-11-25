@@ -55,7 +55,10 @@ cp .env.example .env
 
 ```shell
 REDIS_URL=rediss://default:<password>@<endpoint>:6379
+ADMIN_TOKEN=<A_LONG_RANDOM_STRING>
 ```
+
+`ADMIN_TOKEN` stands in for real auth on the `PATCH` route.
 
 ## Build and run
 
@@ -112,6 +115,7 @@ curl localhost:3001/products   # new loadedAt values
 
 ```shell
 curl -X PATCH localhost:3000/products/42 \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"price":99}'
 

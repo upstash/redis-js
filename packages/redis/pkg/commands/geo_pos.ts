@@ -9,10 +9,13 @@ type Coordinates = {
 /**
  * @see https://redis.io/commands/geopos
  */
-export class GeoPosCommand<TMember = string> extends Command<(string | null)[][], Coordinates[]> {
+export class GeoPosCommand<TMember = string> extends Command<
+  (string | null)[][],
+  (Coordinates | null)[]
+> {
   constructor(
     cmd: [string, ...(TMember[] | TMember[])],
-    opts?: CommandOptions<(string | null)[][], Coordinates[]>
+    opts?: CommandOptions<(string | null)[][], (Coordinates | null)[]>
   ) {
     const [key] = cmd;
     // Check if the second argument is an array of strings (members).
@@ -27,13 +30,11 @@ export class GeoPosCommand<TMember = string> extends Command<(string | null)[][]
   }
 }
 
-function transform(result: (string | null)[][]): Coordinates[] {
-  const final: Coordinates[] = [];
-  for (const pos of result) {
+function transform(result: (string | null)[][]): (Coordinates | null)[] {
+  return result.map((pos) => {
     if (!pos?.[0] || !pos?.[1]) {
-      continue;
+      return null;
     }
-    final.push({ lng: Number.parseFloat(pos[0]), lat: Number.parseFloat(pos[1]) });
-  }
-  return final;
+    return { lng: Number.parseFloat(pos[0]), lat: Number.parseFloat(pos[1]) };
+  });
 }

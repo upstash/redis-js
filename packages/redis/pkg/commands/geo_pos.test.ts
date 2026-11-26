@@ -6,7 +6,7 @@ import { GeoPosCommand } from "./geo_pos";
 const client = newHttpClient();
 
 describe("GEOPOS tests", () => {
-  test("should swallow non-existing member and return only the valid ones", async () => {
+  test("keeps null for a missing member so indexes match the member list", async () => {
     const key = "Sicily";
     const members = ["Palermo", "Catania", "Marsala"];
     await new GeoAddCommand([
@@ -16,7 +16,29 @@ describe("GEOPOS tests", () => {
       { longitude: 12.4372, latitude: 37.7981, member: members[2] },
     ]).exec(client);
     const response = await new GeoPosCommand([key, [...members, "FooBar"]]).exec(client);
+    expect(response.length).toEqual(4);
+    expect(response[3]).toBeNull();
+    expect(response.slice(0, 3).every(Boolean)).toEqual(true);
+  });
+
+  test("preserves a null in the middle of the member list", async () => {
+    const key = "Sicily-middle";
+    await new GeoAddCommand([
+      key,
+      { longitude: 13.361_389, latitude: 38.115_556, member: "Palermo" },
+      { longitude: 15.087_269, latitude: 37.502_669, member: "Catania" },
+    ]).exec(client);
+    const response = await new GeoPosCommand([key, "Palermo", "Nowhere", "Catania"]).exec(client);
     expect(response.length).toEqual(3);
+    expect(response[0]).toEqual({
+      lng: expect.any(Number),
+      lat: expect.any(Number),
+    });
+    expect(response[1]).toBeNull();
+    expect(response[2]).toEqual({
+      lng: expect.any(Number),
+      lat: expect.any(Number),
+    });
   });
 
   test("should return three valid positions", async () => {
@@ -34,7 +56,7 @@ describe("GEOPOS tests", () => {
     expect(response.every(Boolean)).toEqual(true);
   });
 
-  test("should return empty array due to null value FooBar", async () => {
+  test("should return a single null for a missing member", async () => {
     const key = "Sicily";
     const members = ["Palermo"];
     await new GeoAddCommand([
@@ -42,7 +64,7 @@ describe("GEOPOS tests", () => {
       { longitude: 13.361_389, latitude: 38.115_556, member: members[0] },
     ]).exec(client);
     const response = await new GeoPosCommand([key, "FooBar"]).exec(client);
-    expect(response).toEqual([]);
+    expect(response).toEqual([null]);
   });
 
   test("should work with object members", async () => {
@@ -55,6 +77,7 @@ describe("GEOPOS tests", () => {
       { longitude: 12.4372, latitude: 37.7981, member: members[2] },
     ]).exec(client);
     const response = await new GeoPosCommand([key, [...members, "FooBar"]]).exec(client);
-    expect(response.length).toEqual(3);
+    expect(response.length).toEqual(4);
+    expect(response[3]).toBeNull();
   });
 });

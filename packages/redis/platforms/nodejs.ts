@@ -1,6 +1,6 @@
 // deno-lint-ignore-file
 
-import type { HttpClientConfig, Requester, RequesterConfig } from "../pkg/http";
+import type { HttpClientConfig, Requester, RequesterConfig, TokenProvider } from "../pkg/http";
 import { HttpClient } from "../pkg/http";
 
 import * as core from "../pkg/redis";
@@ -25,9 +25,10 @@ export type RedisConfigNodejs = {
    */
   url: string | undefined;
   /**
-   * UPSTASH_REDIS_REST_TOKEN
+   * UPSTASH_REDIS_REST_TOKEN, or a function returning a short-lived token. The function is
+   * called before every HTTP request, so it should cache the token itself.
    */
-  token: string | undefined;
+  token: string | TokenProvider | undefined;
 
   /**
    * An agent allows you to reuse connections to reduce latency for multiple sequential requests.
@@ -119,14 +120,14 @@ export class Redis extends core.Redis {
       );
     }
 
-    if (!configOrRequester.token) {
+    const token = configOrRequester.token;
+    if (!token) {
       console.warn(
         `[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`
       );
     } else if (
-      configOrRequester.token.startsWith(" ") ||
-      configOrRequester.token.endsWith(" ") ||
-      /\r|\n/.test(configOrRequester.token)
+      typeof token === "string" &&
+      (token.startsWith(" ") || token.endsWith(" ") || /\r|\n/.test(token))
     ) {
       console.warn(
         "[Upstash Redis] The redis token contains whitespace or newline, which can cause errors!"
@@ -136,7 +137,8 @@ export class Redis extends core.Redis {
     const client = new HttpClient({
       baseUrl: configOrRequester.url!,
       retry: configOrRequester.retry,
-      headers: { authorization: `Bearer ${configOrRequester.token}` },
+      headers: typeof token === "function" ? undefined : { authorization: `Bearer ${token}` },
+      getToken: typeof token === "function" ? token : undefined,
 
       agent: configOrRequester.agent,
       responseEncoding: configOrRequester.responseEncoding,

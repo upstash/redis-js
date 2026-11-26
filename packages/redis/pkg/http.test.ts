@@ -1,8 +1,8 @@
-import { describe, test, expect } from "bun:test";
+import { describe, test, expect, mock, spyOn } from "bun:test";
 import { Redis } from "../platforms/nodejs";
 import { serve } from "bun";
-import { UpstashJSONParseError } from "./error";
-import { HttpClient } from "./http";
+import { UpstashError, UpstashJSONParseError } from "./error";
+import { HttpClient, type TokenProvider } from "./http";
 
 const MOCK_SERVER_PORT = 8080;
 const SERVER_URL = `http://localhost:${MOCK_SERVER_PORT}`;
@@ -489,5 +489,207 @@ describe("request path", () => {
 
   test.each([".", ".."])("rejects %s as a segment", async (channel) => {
     await expect(requestedUrl(["subscribe", channel])).rejects.toThrow("request path");
+  });
+});
+
+type RecordedCall = { path: string; authorization?: string };
+
+const withRecordingFetch = async (
+  run: (calls: RecordedCall[]) => Promise<void>,
+  { failures = 0 } = {}
+) => {
+  const calls: RecordedCall[] = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (async (url: unknown, init?: RequestInit) => {
+    const headers = init?.headers as Record<string, string>;
+    calls.push({ path: new URL(String(url)).pathname, authorization: headers.authorization });
+    if (calls.length <= failures) {
+      throw new Error("simulated network error");
+    }
+    if (headers.Accept === "text/event-stream") {
+      return new Response(new ReadableStream({ start: (controller) => controller.close() }), {
+        status: 200,
+        headers: { "content-type": "text/event-stream" },
+      });
+    }
+    const commands = JSON.parse(String(init?.body)) as unknown[];
+    const isBatch = /^\/(pipeline|multi-exec)$/.test(new URL(String(url)).pathname);
+    return new Response(
+      JSON.stringify(isBatch ? commands.map(() => ({ result: "OK" })) : { result: "OK" }),
+      { status: 200 }
+    );
+  }) as typeof fetch;
+  try {
+    await run(calls);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+};
+
+const countingToken = () => {
+  let count = 0;
+  return mock(() => `token-${++count}`);
+};
+
+describe("token function", () => {
+  test("is called for every request with a sync function", async () => {
+    await withRecordingFetch(async (calls) => {
+      const token = countingToken();
+      const redis = new Redis({ url: SERVER_URL, token, enableAutoPipelining: false });
+
+      await redis.set("foo", "bar");
+      await redis.get("foo");
+
+      expect(token).toHaveBeenCalledTimes(2);
+      expect(calls.map((c) => c.authorization)).toEqual(["Bearer token-1", "Bearer token-2"]);
+    });
+  });
+
+  test("is awaited when async", async () => {
+    await withRecordingFetch(async (calls) => {
+      const redis = new Redis({
+        url: SERVER_URL,
+        token: async () => {
+          await new Promise((r) => setTimeout(r, 5));
+          return "async-token";
+        },
+        enableAutoPipelining: false,
+      });
+
+      expect(await redis.get("foo")).toBe("OK");
+      expect(calls.map((c) => c.authorization)).toEqual(["Bearer async-token"]);
+    });
+  });
+
+  test("reaches pipeline, multi-exec and auto-pipeline requests", async () => {
+    await withRecordingFetch(async (calls) => {
+      const redis = new Redis({ url: SERVER_URL, token: countingToken() });
+
+      await redis.pipeline().set("a", 1).get("a").exec();
+      await redis.multi().set("a", 1).get("a").exec();
+      await Promise.all([redis.get("a"), redis.get("b")]);
+
+      expect(calls).toEqual([
+        { path: "/pipeline", authorization: "Bearer token-1" },
+        { path: "/multi-exec", authorization: "Bearer token-2" },
+        { path: "/pipeline", authorization: "Bearer token-3" },
+      ]);
+    });
+  });
+
+  test("reaches subscribe requests", async () => {
+    await withRecordingFetch(async (calls) => {
+      const redis = new Redis({
+        url: SERVER_URL,
+        token: () => "subscribe-token",
+        enableAutoPipelining: false,
+      });
+
+      const subscriber = redis.subscribe("channel");
+      await new Promise((r) => setTimeout(r, 10));
+      await subscriber.unsubscribe();
+
+      expect(calls).toEqual([
+        { path: "/subscribe/channel", authorization: "Bearer subscribe-token" },
+      ]);
+    });
+  });
+
+  test("is called again for every retry attempt", async () => {
+    await withRecordingFetch(
+      async (calls) => {
+        const redis = new Redis({
+          url: SERVER_URL,
+          token: countingToken(),
+          enableAutoPipelining: false,
+          retry: { retries: 2, backoff: () => 0 },
+        });
+
+        expect(await redis.get("foo")).toBe("OK");
+        expect(calls.map((c) => c.authorization)).toEqual(["Bearer token-1", "Bearer token-2"]);
+      },
+      { failures: 1 }
+    );
+  });
+
+  const failingTokens: [string, TokenProvider][] = [
+    [
+      "throws",
+      () => {
+        throw new Error("boom");
+      },
+    ],
+    [
+      "rejects",
+      async () => {
+        throw new Error("boom");
+      },
+    ],
+  ];
+
+  test.each(failingTokens)("surfaces an error and is not retried when it %s", async (_, impl) => {
+    await withRecordingFetch(async (calls) => {
+      const token = mock(impl);
+      const redis = new Redis({
+        url: SERVER_URL,
+        token,
+        enableAutoPipelining: false,
+        retry: { retries: 5, backoff: () => 0 },
+      });
+
+      const error = await redis.get("foo").catch((error_: unknown) => error_);
+
+      expect(error).toBeInstanceOf(UpstashError);
+      expect((error as Error).message).toBe("Failed to get a token from the token function: boom");
+      expect((error as Error).cause).toBeInstanceOf(Error);
+      expect(token).toHaveBeenCalledTimes(1);
+      expect(calls).toHaveLength(0);
+    });
+  });
+
+  test("rejects an empty token without sending the request", async () => {
+    await withRecordingFetch(async (calls) => {
+      const redis = new Redis({ url: SERVER_URL, token: () => "", enableAutoPipelining: false });
+
+      await expect(redis.get("foo")).rejects.toThrow(
+        "The token function must return a non-empty string, got an empty string."
+      );
+      expect(calls).toHaveLength(0);
+    });
+  });
+
+  test("does not log missing token warnings", async () => {
+    const warn = spyOn(console, "warn");
+    try {
+      await withRecordingFetch(async () => {
+        const redis = new Redis({
+          url: SERVER_URL,
+          token: () => "token",
+          enableAutoPipelining: false,
+        });
+        await redis.get("foo");
+      });
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  test("leaves string tokens as a static header", async () => {
+    await withRecordingFetch(async (calls) => {
+      const redis = new Redis({
+        url: SERVER_URL,
+        token: "static-token",
+        enableAutoPipelining: false,
+      });
+
+      await redis.get("foo");
+      await redis.pipeline().get("foo").exec();
+
+      expect(calls.map((c) => c.authorization)).toEqual([
+        "Bearer static-token",
+        "Bearer static-token",
+      ]);
+    });
   });
 });

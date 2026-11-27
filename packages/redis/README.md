@@ -86,6 +86,32 @@ data  = await redis.spop('animals', 1)
 console.log(data)
 ```
 
+## Short-lived tokens
+
+`token` also accepts a function that returns a token or a promise of one. The
+client calls it before every request, so a long-lived client never sends an
+expired token. The function should cache the token itself.
+
+For example, with Vercel Marketplace resource tokens from
+`@vercel/integrations`, which caches the token and refreshes it before it
+expires:
+
+```ts
+import { Redis } from "@upstash/redis";
+import { getIntegrationToken } from "@vercel/integrations";
+
+const redis = new Redis({
+  url: process.env.KV_REST_API_URL,
+  token: () => getIntegrationToken("store_…"),
+});
+
+// read-only access
+const readonlyRedis = new Redis({
+  url: process.env.KV_REST_API_URL,
+  token: () => getIntegrationToken("store_…", { role: "readonly" }),
+});
+```
+
 ## Troubleshooting
 
 We have a

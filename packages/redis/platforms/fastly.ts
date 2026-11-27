@@ -1,4 +1,4 @@
-import type { RequesterConfig } from "../pkg/http";
+import type { RequesterConfig, TokenProvider } from "../pkg/http";
 
 import { HttpClient } from "../pkg/http";
 import * as core from "../pkg/redis";
@@ -17,9 +17,10 @@ export type RedisConfigFastly = {
    */
   url: string | undefined;
   /**
-   * UPSTASH_REDIS_REST_TOKEN
+   * UPSTASH_REDIS_REST_TOKEN, or a function returning a short-lived token. The function is
+   * called before every HTTP request, so it should cache the token itself.
    */
-  token: string | undefined;
+  token: string | TokenProvider | undefined;
   /**
    * A Request can be forwarded to any backend defined on your service. Backends
    * can be created via the Fastly CLI, API, or web interface, and are
@@ -62,14 +63,14 @@ export class Redis extends core.Redis {
       );
     }
 
-    if (!config.token) {
+    const token = config.token;
+    if (!token) {
       console.warn(
         `[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`
       );
     } else if (
-      config.token.startsWith(" ") ||
-      config.token.endsWith(" ") ||
-      /\r|\n/.test(config.token)
+      typeof token === "string" &&
+      (token.startsWith(" ") || token.endsWith(" ") || /\r|\n/.test(token))
     ) {
       console.warn(
         "[Upstash Redis] The redis token contains whitespace or newline, which can cause errors!"
@@ -79,7 +80,8 @@ export class Redis extends core.Redis {
     const client = new HttpClient({
       baseUrl: config.url!,
       retry: config.retry,
-      headers: { authorization: `Bearer ${config.token}` },
+      headers: typeof token === "function" ? undefined : { authorization: `Bearer ${token}` },
+      getToken: typeof token === "function" ? token : undefined,
       options: { backend: config.backend },
       responseEncoding: config.responseEncoding,
       keepAlive: config.keepAlive,

@@ -1,4 +1,4 @@
-import type { HttpClientConfig, RequesterConfig } from "../pkg/http";
+import type { HttpClientConfig, RequesterConfig, TokenProvider } from "../pkg/http";
 import { HttpClient } from "../pkg/http";
 import * as core from "../pkg/redis";
 import { VERSION } from "../version";
@@ -20,9 +20,10 @@ export type RedisConfigCloudflare = {
    */
   url: string | undefined;
   /**
-   * UPSTASH_REDIS_REST_TOKEN
+   * UPSTASH_REDIS_REST_TOKEN, or a function returning a short-lived token. The function is
+   * called before every HTTP request, so it should cache the token itself.
    */
-  token: string | undefined;
+  token: string | TokenProvider | undefined;
   /**
    * The signal will allow aborting requests on the fly.
    * For more check: https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
@@ -64,14 +65,14 @@ export class Redis extends core.Redis {
       );
     }
 
-    if (!config.token) {
+    const token = config.token;
+    if (!token) {
       console.warn(
         `[Upstash Redis] The 'token' property is missing or undefined in your Redis config.`
       );
     } else if (
-      config.token.startsWith(" ") ||
-      config.token.endsWith(" ") ||
-      /\r|\n/.test(config.token!)
+      typeof token === "string" &&
+      (token.startsWith(" ") || token.endsWith(" ") || /\r|\n/.test(token))
     ) {
       console.warn(
         "[Upstash Redis] The redis token contains whitespace or newline, which can cause errors!"
@@ -81,7 +82,8 @@ export class Redis extends core.Redis {
     const client = new HttpClient({
       retry: config.retry,
       baseUrl: config.url!,
-      headers: { authorization: `Bearer ${config.token}` },
+      headers: typeof token === "function" ? undefined : { authorization: `Bearer ${token}` },
+      getToken: typeof token === "function" ? token : undefined,
       responseEncoding: config.responseEncoding,
       signal: config.signal,
       keepAlive: config.keepAlive,

@@ -84,6 +84,8 @@ export type Options = {
   backend?: string;
 };
 
+export type TokenProvider = () => string | Promise<string>;
+
 export type RequesterConfig = {
   /**
    * Configure the retry behaviour in case of network errors
@@ -110,6 +112,8 @@ export type RequesterConfig = {
 
 export type HttpClientConfig = {
   headers?: Record<string, string>;
+  // Sent as `Authorization: Bearer <token>` on every attempt, overriding `headers.authorization`.
+  getToken?: TokenProvider;
   baseUrl: string;
   options?: Options;
   retry?: RetryConfig;
@@ -138,6 +142,7 @@ export class HttpClient implements Requester {
   public readYourWrites: boolean;
   public upstashSyncToken = "";
   private hasCredentials: boolean;
+  private readonly getToken?: TokenProvider;
 
   public readonly retry: {
     attempts: number;
@@ -178,7 +183,10 @@ export class HttpClient implements Requester {
       ...config.headers,
     };
 
-    this.hasCredentials = Boolean(this.baseUrl && this.headers.authorization.split(" ")[1]);
+    this.getToken = config.getToken;
+    this.hasCredentials = Boolean(
+      this.baseUrl && (this.getToken || this.headers.authorization?.split(" ")[1])
+    );
 
     if (this.options.responseEncoding === "base64") {
       this.headers["Upstash-Encoding"] = "base64";
@@ -251,6 +259,10 @@ export class HttpClient implements Requester {
       if (i > 0 && requestHeaders["Upstash-Telemetry-Sdk"]) {
         // Mark retried attempts with the retry count so the server can track how often clients retry.
         requestHeaders["Upstash-Telemetry-Retry"] = String(i);
+      }
+      // Outside the try below so a failing token function isn't retried as a network error.
+      if (this.getToken) {
+        requestHeaders.authorization = `Bearer ${await resolveToken(this.getToken)}`;
       }
       try {
         res = await fetch(requestUrl, requestOptions);
@@ -375,6 +387,23 @@ export class HttpClient implements Requester {
 
     return body as UpstashResponse<TResult>;
   }
+}
+
+async function resolveToken(getToken: TokenProvider): Promise<string> {
+  let token: unknown;
+  try {
+    token = await getToken();
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    throw new UpstashError(`Failed to get a token from the token function: ${reason}`, {
+      cause: error,
+    });
+  }
+  if (typeof token !== "string" || token === "") {
+    const got = token === "" ? "an empty string" : typeof token;
+    throw new UpstashError(`The token function must return a non-empty string, got ${got}.`);
+  }
+  return token;
 }
 
 function base64decode(b64: string): string {

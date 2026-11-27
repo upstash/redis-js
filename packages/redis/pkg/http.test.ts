@@ -556,7 +556,7 @@ describe("token function", () => {
         enableAutoPipelining: false,
       });
 
-      expect(await redis.get("foo")).toBe("OK");
+      expect(await redis.get<string>("foo")).toBe("OK");
       expect(calls.map((c) => c.authorization)).toEqual(["Bearer async-token"]);
     });
   });
@@ -605,7 +605,7 @@ describe("token function", () => {
           retry: { retries: 2, backoff: () => 0 },
         });
 
-        expect(await redis.get("foo")).toBe("OK");
+        expect(await redis.get<string>("foo")).toBe("OK");
         expect(calls.map((c) => c.authorization)).toEqual(["Bearer token-1", "Bearer token-2"]);
       },
       { failures: 1 }

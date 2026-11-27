@@ -97,19 +97,19 @@ For example, with Vercel Marketplace resource tokens from
 expires:
 
 ```ts
-import { Redis } from "@upstash/redis"
-import { getIntegrationToken } from "@vercel/integrations"
+import { Redis } from "@upstash/redis";
+import { getIntegrationToken } from "@vercel/integrations";
 
 const redis = new Redis({
   url: process.env.KV_REST_API_URL,
   token: () => getIntegrationToken("store_…"),
-})
+});
 
 // read-only access
 const readonlyRedis = new Redis({
   url: process.env.KV_REST_API_URL,
   token: () => getIntegrationToken("store_…", { role: "readonly" }),
-})
+});
 ```
 
 ## Troubleshooting

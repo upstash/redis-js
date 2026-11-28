@@ -25,4 +25,13 @@ describe("a", () => {
 
     expect(res).toEqual(7.5);
   });
+
+  test("returns decimal and exponent-form results as numbers", async () => {
+    const key = newKey();
+    const field = randomID();
+    expect(await new HIncrByFloatCommand([key, field, 0.1]).exec(client)).toBe(0.1);
+
+    await new HSetCommand([key, { [field]: 1e20 }]).exec(client);
+    expect(await new HIncrByFloatCommand([key, field, 1]).exec(client)).toBe(1e20);
+  });
 });

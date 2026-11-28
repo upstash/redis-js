@@ -10,6 +10,6 @@ export class HIncrByFloatCommand extends Command<number, number> {
     cmd: [key: string, field: string, increment: number],
     opts?: CommandOptions<number, number>
   ) {
-    super(["hincrbyfloat", ...cmd], opts);
+    super(["hincrbyfloat", ...cmd], { deserialize: Number, ...opts });
   }
 }

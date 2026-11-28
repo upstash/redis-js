@@ -56,14 +56,14 @@ const bottom2 = await redis.zrange("leaderboard", 0, 1);
 
 // Get range with scores
 const bottom2WithScores = await redis.zrange("leaderboard", 0, 1, { withScores: true });
-// [{ member: "player3", score: 200 }, { member: "player2", score: 250 }]
+// ["player3", 200, "player2", 250]
 
 // Get range in descending order (highest scores first)
 const top2 = await redis.zrange("leaderboard", 0, 1, { rev: true });
 // ["player1", "player2"]
 
 const top2WithScores = await redis.zrange("leaderboard", 0, 1, { withScores: true, rev: true });
-// [{ member: "player1", score: 300 }, { member: "player2", score: 250 }]
+// ["player1", 300, "player2", 250]
 
 // Get all members
 const all = await redis.zrange("leaderboard", 0, -1);

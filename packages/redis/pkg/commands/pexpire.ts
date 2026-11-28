@@ -11,6 +11,6 @@ export class PExpireCommand extends Command<"0" | "1", 0 | 1> {
     cmd: [key: string, milliseconds: number, option?: ExpireOption],
     opts?: CommandOptions<"0" | "1", 0 | 1>
   ) {
-    super(["pexpire", ...cmd], opts);
+    super(["pexpire", ...cmd.filter((arg) => arg !== undefined)], opts);
   }
 }

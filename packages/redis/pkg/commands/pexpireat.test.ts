@@ -42,3 +42,11 @@ test("doesn't set the expiration if the second pexpire command timestamp is smal
   const res2 = await new PExpireAtCommand([key, expireAtMillisecond - 1000, "GT"]).exec(client);
   expect(res2).toEqual(0);
 });
+
+test("omits an undefined option", () => {
+  expect(new PExpireAtCommand(["key", 1000, undefined]).command).toStrictEqual([
+    "pexpireat",
+    "key",
+    1000,
+  ]);
+});

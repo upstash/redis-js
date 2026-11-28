@@ -16,6 +16,6 @@ export class RPopCommand<TData extends unknown | unknown[] = string> extends Com
     cmd: [key: string, count?: number],
     opts?: CommandOptions<unknown | null, TData | null>
   ) {
-    super(["rpop", ...cmd], opts);
+    super(["rpop", ...cmd.filter((arg) => arg !== undefined)], opts);
   }
 }

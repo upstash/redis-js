@@ -38,3 +38,11 @@ describe("with count", () => {
     expect(res).toEqual([value1, value2]);
   });
 });
+
+test("omits an undefined count", () => {
+  expect(new RPopCommand(["key", undefined]).command).toStrictEqual(["rpop", "key"]);
+});
+
+test("keeps a count of 0", () => {
+  expect(new RPopCommand(["key", 0]).command).toStrictEqual(["rpop", "key", 0]);
+});

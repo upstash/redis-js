@@ -90,3 +90,11 @@ test("key does not exist", async () => {
   const res = await new PExpireCommand([key, 1000]).exec(client);
   expect(res).toEqual(0);
 });
+
+test("omits an undefined option", () => {
+  expect(new PExpireCommand(["key", 1000, undefined]).command).toStrictEqual([
+    "pexpire",
+    "key",
+    1000,
+  ]);
+});

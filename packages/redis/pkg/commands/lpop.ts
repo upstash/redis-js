@@ -13,6 +13,6 @@ export class LPopCommand<TData = string> extends Command<unknown | null, TData |
     cmd: [key: string, count?: number],
     opts?: CommandOptions<unknown | null, TData | null>
   ) {
-    super(["lpop", ...cmd], opts);
+    super(["lpop", ...cmd.filter((arg) => arg !== undefined)], opts);
   }
 }

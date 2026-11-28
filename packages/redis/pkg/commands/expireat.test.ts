@@ -53,3 +53,11 @@ test("with XX option", async () => {
   const res3 = await new ExpireAtCommand([key, currentTime + 20, "XX"]).exec(client);
   expect(res3).toEqual(1);
 });
+
+test("omits an undefined option", () => {
+  expect(new ExpireAtCommand(["key", 1000, undefined]).command).toStrictEqual([
+    "expireat",
+    "key",
+    1000,
+  ]);
+});

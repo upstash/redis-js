@@ -11,6 +11,6 @@ export class ExpireAtCommand extends Command<"0" | "1", 0 | 1> {
     cmd: [key: string, unix: number, option?: ExpireOption],
     opts?: CommandOptions<"0" | "1", 0 | 1>
   ) {
-    super(["expireat", ...cmd], opts);
+    super(["expireat", ...cmd.filter((arg) => arg !== undefined)], opts);
   }
 }

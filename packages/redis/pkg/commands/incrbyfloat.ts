@@ -7,6 +7,6 @@ import { Command } from "./command";
  */
 export class IncrByFloatCommand extends Command<number, number> {
   constructor(cmd: [key: string, value: number], opts?: CommandOptions<number, number>) {
-    super(["incrbyfloat", ...cmd], opts);
+    super(["incrbyfloat", ...cmd], { deserialize: Number, ...opts });
   }
 }

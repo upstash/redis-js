@@ -1,3 +1,4 @@
+import { deserializeWithScores } from "../util";
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
 /**
@@ -13,6 +14,6 @@ export class ZPopMinCommand<TData> extends Command<string[], TData[]> {
     if (typeof count === "number") {
       command.push(count);
     }
-    super(command, opts);
+    super(command, { deserialize: (result) => deserializeWithScores(result) as TData[], ...opts });
   }
 }

@@ -1,3 +1,4 @@
+import { deserializeScore } from "../util";
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
 /**
@@ -9,6 +10,6 @@ export class ZIncrByCommand<TData> extends Command<number, number> {
     cmd: [key: string, increment: number, member: TData],
     opts?: CommandOptions<number, number>
   ) {
-    super(["zincrby", ...cmd], opts);
+    super(["zincrby", ...cmd], { deserialize: deserializeScore, ...opts });
   }
 }

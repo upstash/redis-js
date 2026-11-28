@@ -1,3 +1,4 @@
+import { deserializeScore } from "../util";
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
 
@@ -49,6 +50,14 @@ export class ZAddCommand<TData = string> extends Command<number | null, number |
 
     command.push(...arg2.flatMap(({ score, member }) => [score, member]));
 
-    super(command, opts);
+    super(
+      command,
+      "incr" in arg1 && arg1.incr
+        ? {
+            deserialize: (result) => (result === null ? null : deserializeScore(result)),
+            ...opts,
+          }
+        : opts
+    );
   }
 }

@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { ZAddCommand } from "./zadd";
 import { ZIncrByCommand } from "./zincrby";
 import { ZMScoreCommand } from "./zmscore";
 import { ZPopMaxCommand } from "./zpopmax";
@@ -95,5 +96,23 @@ describe("ZINCRBY deserialization", () => {
     const command = new ZIncrByCommand(["key", 1, "member"]);
     expect(command.deserialize("1e+20" as unknown as number)).toBe(1e20);
     expect(command.deserialize("inf" as unknown as number)).toBe(Number.POSITIVE_INFINITY);
+  });
+});
+
+describe("ZADD deserialization", () => {
+  test("parses the score returned with incr", () => {
+    const command = new ZAddCommand(["key", { incr: true }, { score: 0.1, member: "m" }]);
+    expect(command.deserialize("0.20000000000000001" as unknown as number)).toBe(0.2);
+    expect(command.deserialize("inf" as unknown as number)).toBe(Number.POSITIVE_INFINITY);
+  });
+
+  test("keeps null when incr is aborted by nx", () => {
+    const command = new ZAddCommand(["key", { incr: true, nx: true }, { score: 1, member: "m" }]);
+    expect(command.deserialize(null)).toBeNull();
+  });
+
+  test("leaves the added count unchanged without incr", () => {
+    const command = new ZAddCommand(["key", { score: 1, member: "m" }]);
+    expect(command.deserialize(1)).toBe(1);
   });
 });

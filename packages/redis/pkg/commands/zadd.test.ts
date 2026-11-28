@@ -179,6 +179,14 @@ describe("incr", () => {
     expect(typeof res).toBe("number");
     expect(res).toEqual(score + 1);
   });
+
+  test("returns a decimal score as a number", async () => {
+    const key = newKey();
+    const member = randomID();
+    await new ZAddCommand([key, { score: 0.1, member }]).exec(client);
+    const res = await new ZAddCommand([key, { incr: true }, { score: 0.1, member }]).exec(client);
+    expect(res).toBe(0.2);
+  });
 });
 
 describe("LT and GT", () => {

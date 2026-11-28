@@ -59,6 +59,27 @@ export function deserializeScanResponse<TResult>(result: [string, ...any]): TRes
   return [result[0], ...parseResponse<any[]>(result.slice(1))] as TResult;
 }
 
+/**
+ * Deserializes a sorted set score. Scores can come back with 17 significant digits
+ * (e.g. "0.10000000000000001"), in exponent form (e.g. "1e+20") or as "inf" / "-inf",
+ * which the default deserializer leaves as strings.
+ */
+export function deserializeScore(score: string | number): number {
+  if (score === "inf") return Number.POSITIVE_INFINITY;
+  if (score === "-inf") return Number.NEGATIVE_INFINITY;
+  return Number(score);
+}
+
+/**
+ * Deserializes a reply that alternates members and scores (WITHSCORES).
+ * Members go through the default deserializer, scores through `deserializeScore`.
+ */
+export function deserializeWithScores(result: unknown[]): unknown[] {
+  return result.map((value, index) =>
+    index % 2 === 0 ? parseResponse(value) : deserializeScore(value as string)
+  );
+}
+
 export function deserializeScanWithTypesResponse(result: [string, string[]]): ScanResultWithType {
   const [cursor, keys] = result;
 

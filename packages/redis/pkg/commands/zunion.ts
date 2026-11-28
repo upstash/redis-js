@@ -1,3 +1,4 @@
+import { deserializeWithScores } from "../util";
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
 
@@ -49,6 +50,11 @@ export class ZUnionCommand<TData extends unknown[]> extends Command<string[], TD
         command.push("withscores");
       }
     }
-    super(command, cmdOpts);
+    super(
+      command,
+      opts?.withScores
+        ? { deserialize: (result) => deserializeWithScores(result) as TData, ...cmdOpts }
+        : cmdOpts
+    );
   }
 }

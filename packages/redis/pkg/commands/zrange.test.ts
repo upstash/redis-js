@@ -49,6 +49,16 @@ describe("withscores", () => {
     expect(res[0]).toEqual(member2);
     expect(res[1]).toEqual(score2);
   });
+
+  test("returns decimal and exponent-form scores as numbers", async () => {
+    const key = newKey();
+    await new ZAddCommand([key, { score: 0.1, member: "a" }, { score: 1e20, member: "b" }]).exec(
+      client
+    );
+
+    const res = await new ZRangeCommand([key, 0, -1, { withScores: true }]).exec(client);
+    expect(res).toEqual(["a", 0.1, "b", 1e20]);
+  });
 });
 
 describe("byscore", () => {

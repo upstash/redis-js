@@ -1,4 +1,4 @@
-import { deserializeScanResponse } from "../util";
+import { deserializeWithScores } from "../util";
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
 import type { ScanCommandOptions } from "./scan";
@@ -24,7 +24,10 @@ export class ZScanCommand extends Command<
     }
 
     super(command, {
-      deserialize: deserializeScanResponse,
+      deserialize: ([cursor, items]) => [
+        cursor,
+        deserializeWithScores(items) as (string | number)[],
+      ],
       ...cmdOpts,
     });
   }

@@ -1,3 +1,4 @@
+import { deserializeScore } from "../util";
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
 
@@ -11,6 +12,12 @@ export class ZMScoreCommand<TData> extends Command<string[] | null, number[] | n
     opts?: CommandOptions<string[] | null, number[] | null>
   ) {
     const [key, members] = cmd;
-    super(["zmscore", key, ...members], opts);
+    super(["zmscore", key, ...members], {
+      deserialize: (result) =>
+        result === null
+          ? null
+          : (result.map((score) => (score === null ? null : deserializeScore(score))) as number[]),
+      ...opts,
+    });
   }
 }

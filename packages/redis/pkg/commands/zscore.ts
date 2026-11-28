@@ -1,3 +1,4 @@
+import { deserializeScore } from "../util";
 import type { CommandOptions } from "./command";
 import { Command } from "./command";
 
@@ -10,6 +11,9 @@ export class ZScoreCommand<TData> extends Command<string | null, number | null> 
     cmd: [key: string, member: TData],
     opts?: CommandOptions<string | null, number | null>
   ) {
-    super(["zscore", ...cmd], opts);
+    super(["zscore", ...cmd], {
+      deserialize: (result) => (result === null ? null : deserializeScore(result)),
+      ...opts,
+    });
   }
 }

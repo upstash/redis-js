@@ -17,3 +17,12 @@ test("increments and existing value", async () => {
 
   expect(res).toEqual(3);
 });
+
+test("returns a decimal result as a number", async () => {
+  const key = newKey();
+  const member = randomID();
+  await new ZAddCommand([key, { score: 0.1, member }]).exec(client);
+  const res = await new ZIncrByCommand([key, 0.1, member]).exec(client);
+
+  expect(res).toBe(0.2);
+});

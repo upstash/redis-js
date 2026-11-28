@@ -16,3 +16,12 @@ test("returns the score", async () => {
   const res = await new ZScoreCommand([key, member]).exec(client);
   expect(res).toEqual(score);
 });
+
+test("returns decimal and exponent-form scores as numbers", async () => {
+  const key = newKey();
+  await new ZAddCommand([key, { score: 0.1, member: "a" }, { score: 1e20, member: "b" }]).exec(
+    client
+  );
+  expect(await new ZScoreCommand([key, "a"]).exec(client)).toBe(0.1);
+  expect(await new ZScoreCommand([key, "b"]).exec(client)).toBe(1e20);
+});

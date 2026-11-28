@@ -33,7 +33,7 @@ await redis.zincrby("leaderboard:global", 100, "player:123"); // +100 points
 
 // Get top 10 (highest scores first)
 const top10 = await redis.zrange("leaderboard:global", 0, 9, { rev: true, withScores: true });
-// Returns: [{ member: "player:456", score: 2300 }, { member: "player:789", score: 1800 }, ...]
+// Returns: ["player:456", 2300, "player:789", 1800, ...]
 
 // Get player's rank (0-based, lowest score = rank 0)
 const rank = await redis.zrevrank("leaderboard:global", "player:123");
@@ -93,7 +93,8 @@ const [usTop, euTop] = await Promise.all([
 ]);
 
 // Score range query (players with score 1000-2000)
-const midRange = await redis.zrangebyscore("leaderboard:global", 1000, 2000, {
+const midRange = await redis.zrange("leaderboard:global", 1000, 2000, {
+  byScore: true,
   withScores: true,
 });
 

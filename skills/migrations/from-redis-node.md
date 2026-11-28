@@ -124,7 +124,7 @@ await redis.zadd("leaderboard", { score: 100, member: "player:1" });
 
 // ZRANGE with scores
 const results = await redis.zrange("leaderboard", 0, 9, { withScores: true });
-// Returns: [{ member: "player:1", score: 100 }, ...]
+// Returns: ["player:1", 100, ...]
 ```
 
 ### Hash Operations
